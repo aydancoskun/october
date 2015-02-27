@@ -1,0 +1,3 @@
+[submodule "DbConnector"]
+	path = themes/oktick/assets/Gumby
+	url = https://github.com/GumbyFramework/Gumby.git
