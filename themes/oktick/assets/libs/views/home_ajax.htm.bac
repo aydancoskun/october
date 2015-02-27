@@ -1,0 +1,116 @@
+<taconite>
+
+	<eval>
+   	$("#autocomplete-ajax").css({"background": "url(/img/searchoff.gif) no-repeat right center"});
+	 	$( "#autocomplete-ajax" ).val("{{ @str_search_field }}");
+		$( "#str_page_type" ).html("{{ @str_page_type }}");
+		$( "#searchvalue" ).html("{{ @searchvalue }}");
+		$( "#str_status_msg_default" ).html("{{ @str_status_msg_default }}");
+		$( "#str_status_msg" ).html("{{ @str_status_msg }}");
+		position_str_status_msg();
+		autocomplete_extra_param_update();
+	</eval> 
+
+	<check if="{{ @str_message == false }}">
+		<false>
+			<replace select="#str_message"> 
+				<div class="row" id="str_message">{{ @str_message }}</div>
+			</replace>
+		</false>
+		<true>
+			<replace select="#str_message"> 
+				<div class="row" id="str_message" style="display:none;"></div>
+			</replace>
+		</true>				
+	</check>
+
+	<check if="{{ @str_suppliers OR @str_prime_definition OR @str_prime_examples OR @str_related_items OR @str_linked_items OR @str_collective_items }}">
+		<true><show select="#tabbed_prime_content" /></true>
+		<false><hide select="#tabbed_prime_content" /></false>
+	</check>
+
+	<check if="{{ @str_suppliers }}">
+		<true>
+			<show select="#str_suppliers_tab" />
+			<replaceContent select="#str_suppliers">
+				<p>{{ @str_suppliers }}</p>
+			</replaceContent>
+		</true>
+		<false>
+			<hide select="#str_suppliers_tab" />
+			<replaceContent select="#str_suppliers"></replaceContent>		
+		</false>		
+	</check>
+
+	<check if="{{ @str_prime_definition }}">
+		<true>
+			<eval>$( "#str_prime_definition_tab" ).show();</eval>
+			<replaceContent select="#str_prime_definition">
+				<p><strong>Definition: </strong>{{ @str_prime_definition }}</p><p><strong>Example Usage: </strong>{{ @str_prime_examples }}</p>
+			</replaceContent>
+		</true>
+		<false>
+			<hide select="#str_prime_definition_tab" />
+			<replaceContent select="#str_prime_definition"></replaceContent>		
+		</false>		
+	</check>
+
+	<check if="{{ @str_related_items }}">
+		<true>
+			<eval>$( "#str_related_items_tab" ).show();</eval>
+			<replaceContent select="#str_related_items">
+				<p>{{ @str_related_items }}</p>
+			</replaceContent>
+		</true>
+		<false>
+			<hide select="#str_related_items_tab" />
+			<replaceContent select="#str_related_items"></replaceContent>		
+		</false>		
+	</check>
+
+	<check if="{{ @str_linked_items }}">
+		<true>
+			<eval>$( "#str_linked_items_tab" ).show();</eval>
+			<replaceContent select="#str_linked_items">
+				<p>{{ @str_linked_items }}</p>
+			</replaceContent>
+		</true>
+		<false>
+			<hide select="#str_linked_items_tab" />
+			<replaceContent select="#str_linked_items"></replaceContent>		
+		</false>		
+	</check>
+
+	<check if="{{ @str_collective_items }}">
+		<true>
+			<eval>$( "#str_collective_items_tab" ).show();</eval>
+			<replaceContent select="#str_collective_items">
+				<p>{{ @str_collective_items }}</p>
+			</replaceContent>
+		</true>
+		<false>
+			<hide select="#str_collective_items_tab" />
+			<replaceContent select="#str_collective_items"></replaceContent>		
+		</false>		
+	</check>
+
+	<check if="{{ @str_nicknames }}">
+		<true>
+			<eval>$( "#str_nicknames_tab" ).show();</eval>
+			<replaceContent select="#str_nicknames">
+				<p>{{ @str_nicknames }}</p>
+			</replaceContent>
+		</true>
+		<false>
+			<hide select="#str_nicknames_tab" />
+			<replaceContent select="#str_nicknames"></replaceContent>		
+		</false>		
+	</check>
+
+	<eval>
+		convert_links_to_ajax();
+	</eval>
+
+</taconite>
+	
+

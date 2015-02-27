@@ -1,0 +1,39 @@
+[viewBag]
+==
+<div class="row">
+	<div class="centered twelve columns text-center" alt="">
+		<div class="defer-image image-ratio-logo image-fill"  style="height: 64px; max-height:64px; width:240px; max-width:240px; display: inline-block;background-color:#fcfcfc" >
+			<div data-src="{{ 'assets/img/OKTick_Logo_suncloud_half.png'|theme }}" data-alt=""></div>
+		</div>
+		<!--img src="{{ 'assets/img/oktick-logo.png'|theme }}" width="160" height="40" alt=""/-->
+	</div>
+</div>
+<div class="row">
+	<div class="centered twelve columns text-center" alt="">
+        {% partial 'logo-writing' %}
+	</div>
+    <div class="centered two columns text-center" alt="" 
+    style="
+    position: relative;
+    bottom: 5px;
+    height:1px;
+/*  
+    provide a fallback
+    background-image: url(images/radial_bg.png);
+*/
+/*
+    background: -webkit-gradient(radial, center center, 0, center center, 460, from(yellow), to(red));
+    Safari 4-5, Chrome 1-9 */
+    background-image: -webkit-gradient(radial, center center, 0, center center, 460, from(yellow), to(red));
+
+  /* Safari 5.1+, Chrome 10+ */
+    background-image: -webkit-radial-gradient(45px 45px 45deg, circle farthest-corner, yellow 0%, orange 100%, red 95%);
+    
+  /* Firefox 3.6+ */ 
+    background-image: -moz-radial-gradient(45px 45px 45deg, circle farthest-corner, yellow 0%, orange 100%, red 95%);
+    
+  /* IE 10 */ 
+    background-image: -ms-radial-gradient(45px 45px 45deg, circle farthest-corner, yellow 0%, orange 100%, red 95%);
+    "></div>
+    <div class="centered two columns text-center" alt="" ><h6 style="position: relative;bottom: 5px;font-size:0.9rem;font-weight:400;">SIMPLICITY ITSELF</h6></div>
+</div>

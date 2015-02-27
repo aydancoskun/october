@@ -1,0 +1,36 @@
+[staticMenu oktickMenu]
+code = "oktick-menu"
+
+[staticPage]
+==
+<?php
+function onStart(){
+    $debug = strtolower(Input::get("debug"));
+    //if (Input::get("debug")===NULL) \Debugbar::disable();
+    //elseif($debug=="yes" OR $debug=="y" OR $debug=="true" OR $debug=="1" OR $debug=="" ) \Debugbar::enable();
+    //else \Debugbar::disable();
+    $this['nbsp'] = " ";
+}
+?>
+==
+{% partial "header"  cssfile="oktick-static.css" %}
+<body style="background-color:#fcfcfc !important;" class="default">
+<div class="row" id="body-container" >
+{% partial 'menu-top' items=oktickMenu.menuItems %}
+{% partial 'back-to-search-button' visibility='' %}
+{% partial 'logo' %}
+<div class="row" >{{nbsp|raw}}</div>
+<div class="row">
+    <div class="centered eleven columns text-left">
+        <h4 id = "page_title">{{this.page.title}}</h4>
+    </div>
+</div>
+<div class="row" >{{nbsp|raw}}</div>
+<div class="row">
+	<div class="centered eleven columns text-left">
+        {% component 'staticPage' %}
+	</div>
+</div>
+<div class="row" >{{nbsp|raw}}</div>
+{% partial 'copyright' %}
+{% partial 'footer' %}

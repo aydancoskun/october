@@ -1,0 +1,31 @@
+body {
+	background-image: url(images/homepage_bg.png);
+}
+
+.public-homepage {
+
+	width: 600px;
+	margin: 1in auto;
+	border: 1px solid #ccc;
+	border-radius: 30px;
+	padding: 30px;
+	background-color: #eaeaea;
+	
+}
+
+.public-homepage h1, .public-homepage h2 {
+	border: none;
+}
+
+.public-login {
+	text-align: center;
+}
+
+.public-login a {
+	text-decoration: none;
+	border: 1px solid #ccc;
+	background-color: #999;
+	border-radius: 5px;
+	color: white !important;
+	padding: 5px;
+}

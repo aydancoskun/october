@@ -1,0 +1,20 @@
+[viewBag]
+==
+<div class="row">{{nbsp|raw}}<div>
+<div class="row">{{nbsp|raw}}</div>
+<div class="row">
+    <div class="centered eight columns text-center" id="outer_common">
+        <div id="str_status_msg" style="display:none; text-align:left; font-weight: 600; color: #3085d6"></div>
+        <div id="str_status_msg_right" style="display:none; text-align:right;"></div>
+        <form id="okticksearch" action="/api/submit/" method="GET">
+            <ul>
+                <li class="prepend append field">
+                    <!--div class="medium primary btn" ><a href="#" onclick="search_reset();return false;">  Clear  </a></div-->
+                    <!--input class="wide text input" type="text" name="q" id="autocomplete-ajax" placeholder="" value="{% if search and search != 404 %}{{ search }}{% endif %}" /-->
+                    <input class="wide text input" type="text" name="q" id="autocomplete-ajax" placeholder="" value="" />
+                    <div class="medium primary btn" ><a href="#" onclick="searchSubmit();return false;">Go</a></div>
+                </li>
+            </ul>
+        </form>
+    </div>
+</div>

@@ -1,0 +1,15 @@
+{
+    "name": "UptimeRobotMonitor",
+    "description": "Plugin for displaying UptimeRobot data in Piwik",
+    "version": "0.2",
+    "keywords": ["monitor", "system", "uptimerobot", "api"],
+    "homepage": "https://github.com/job963/UptimeRobot-Monitor",
+    "license": "GPL-3.0+",
+    "authors": [
+        {
+            "name": "Joachim Barthel",
+            "email": "jobarthel@gmail.com",
+            "homepage": "https://github.com/job963"
+        }
+    ]
+}

@@ -1,0 +1,15 @@
+{
+    "UptimeRobotMonitor": {
+        "PluginDescription": "UptimeRobot Monitor: Plugin zur Anzeige von UptimeRobot Daten.",
+	"UptimeRobotMonitor": "UptimeRobot Monitor",
+	"widgetLiveLogList": "UptimeRobot - Neueste Ereignisse",
+        "Event": "Ereignis",
+        "DateTime": "Datum/Uhrzeit",
+        "Duration": "Zeitdauer",
+	"widgetTimeBar": "UptimeRobot - Zeitleiste",
+        "SettingsDescription": "Einstellungen für das Plugin UptimeRobot Monitor",
+        "ApiKeyLabel": "Monitor API Keys",
+        "ApiKeyDescription": "Liste der API Keys für einzelnen Monitore\n(je ein Monitor pro Zeile eintragen)"
+    }
+}
+

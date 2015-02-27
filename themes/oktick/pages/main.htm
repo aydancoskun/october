@@ -1,0 +1,510 @@
+title = "main"
+url = "/:url_query"
+layout = "default"
+hidden = "0"
+meta_title = "OKTicK Search"
+==
+<?php
+// for debugging
+// Add the following entry into the return array for getFunctions()
+/*
+new Twig_SimpleFunction('dump', ['\Barryvdh\Debugbar\Facade', 'info'], ['is_safe' => ['html']]),
+*/
+// in modules/cms/twig/Extension.php
+// redo after update
+function onStart(){
+    define ("ESIGN", "#!");
+    $url_query = $this->param('url_query');
+    $test_url_query = "bramley apples";
+    $test_url_query = "#!bramley apples";
+    $test_url_query = "pum";
+    $test_url_query = "#!Pumps (Equipment)";
+    $test_url_query = "Pumps (Equipment)";
+    $test_url_query = "#!bramley apples"; // IS_BP && WAS CLICKED
+    $test_url_query = false;
+    if($test_url_query){
+        define("TEST",true);
+        DB::enableQueryLog();
+        $url_query = $test_url_query;
+	    echo "Test results for '".$url_query."' (RAW)<br>";
+    }
+    if(!defined("TEST") ) define("TEST",false);
+
+    // takes the last url segment only
+    $url_query = trim(substr(trim($url_query,"/"), strpos($url_query, "/")),"/");
+    if ( substr( $url_query , 0,2) == ESIGN ){
+        define ("WAS_CLICKED", true);
+        $url_query = substr($url_query , 2);
+    } else {
+        define ("WAS_CLICKED", false);
+    }
+    $url_query = $this->strip_incorrect_chars($this->oktick_clean_url($url_query));
+    if ( substr( $url_query , -1 ) == " " ) define ("HAS_TRAILING_SPACE", true);
+    else define ("HAS_TRAILING_SPACE", false);
+    define ("HAS_PLUS", substr_count($url_query,"+"));
+    $url_query = str_replace("+"," ",$url_query);
+    $url_query = trim($url_query);
+    while(strpos($url_query,"  ")) $url_query = str_replace("  "," ",$url_query);
+    define ("HAS_SPACE", substr_count($url_query," "));
+    DEFINE("URL_QUERY",$url_query);
+    if(TEST){
+	    echo "Test results for '".URL_QUERY."'<br>";
+	    echo "HAS_TRAILING_SPACE='".HAS_TRAILING_SPACE."'<br>";
+	    echo "HAS_SPACE='".HAS_SPACE."'<br>";
+	    echo "WAS_CLICKED='".WAS_CLICKED."'<br>";
+    }
+    if($url_query) {
+        if( $this->is_ajax_request()){
+            $this->suggest();
+            exit;
+        } else {
+            $this->submit();
+            return;
+        }
+    }
+}
+
+function suggest(){
+    if(TEST) echo __FUNCTION__."() called<br>";
+    //$url_query = URL_QUERY;
+    $WHERE                 = " WHERE no_products_found > 0 AND ";
+    $algo                  = false;
+    $SQL_PRIME_LIMIT       = ""; // 7
+    $SQL_BP_LIMIT          = ""; // 7
+    $full_prime            = "";
+    $prime                 = "";
+    $debracketed_prime     = "";
+    $multi_prime           = "";
+    $rest_prime            = "";
+    $singular_prime        = "";
+    $min_query_letters     = 2;
+    $num_results           = 0;
+    $esign_R               = "";
+    $esign_L               = "";
+    $e_bp                  = "";
+    $e_prime               = "";
+
+    define("LIMIT", "");
+    define("ENTER_KEYWORD_ONLY","Enter Keyword only");
+    define("SELECT_ITEM","Please select...");
+    define("SELECT_ITEM_OR_SEARCH","Click 'Go' or select further...");
+    define("SELECT_ITEM_OR_TYPE_ON","Please select or type on...");
+    define("SELECT_ITEM_OR_SPACE","Please select or type space to expand...");
+    define("SELECT_ITEM_OR_PLUS","Select or '+'");
+    define("SEARCHING","Searching...");
+    define("CLICK_SEARCH","Click 'Go' for suppliers");
+    define("FINDING_SUPPLIERS",'Finding suppliers...');
+    define("INPUT_NOT_RECOGNISED",'Not found, try Keyword only');//, Sorry, input not recognized on system. Spelling or other name?');
+    define("STR_STATUS_MSG_DEFAULT",'');//, Sorry, input not recognized on system. Spelling or other name?');
+    define("FUNCTION_MISSING","Method does not exist");
+    define("NO_RESULTS","No results for any Method we tried");
+    define("QUERY_TOO_SHORT","Query has not reached minimum length");
+    $this->get_IS_PRIME_IS_BP_status();
+    $test=true;
+    if( ! IS_PRIME && ! IS_BP && ! WAS_CLICKED && ! HAS_SPACE && ! HAS_TRAILING_SPACE ){
+        if (is_numeric(URL_QUERY)) $this->show_result(array(),STR_STATUS_MSG_DEFAULT.'1.1');
+        $this['dbresult'] = $this->fromPrimesTable();
+        if(count($this['dbresult'])) $this->show_result($this['dbresult'],SELECT_ITEM_OR_TYPE_ON.'1.2');
+        $this['dbresult'] = $this->singleFromBpsTable();
+        if(count($this['dbresult'])) $this->show_result($this['dbresult'],SELECT_ITEM_OR_TYPE_ON.'1.3');
+        $this->show_result($this['dbresult'],INPUT_NOT_RECOGNISED.'1.4');
+        exit;
+    }
+    if( ! IS_PRIME && ! IS_BP && ! WAS_CLICKED && ! HAS_SPACE && HAS_TRAILING_SPACE){
+        if (is_numeric(URL_QUERY)) $this->show_result(array(),STR_STATUS_MSG_DEFAULT.$test);
+        $this['dbresult'] = $this->singleFromBpsTable();if($test) $test = "2.1";
+        if(count($this['dbresult'])) $this->show_result($this['dbresult'],SELECT_ITEM_OR_TYPE_ON.$test);
+        if($test) $test = "2.2";
+        $this->show_result($this['dbresult'],INPUT_NOT_RECOGNISED."2.2");
+        exit;
+	}
+    if( IS_PRIME && HAS_TRAILING_SPACE){
+        $this['dbresult'] = $this->primeFromBpsTable();
+        if(count($this['dbresult'])) $this->show_result($this['dbresult'],SELECT_ITEM_OR_TYPE_ON."3.1");
+//        $this['dbresult'] = $this->singleFromBpsTable();
+        $this['dbresult'] = $this->singleFromBpsTableMerged();
+        if(count($this['dbresult'])) $this->show_result($this['dbresult'],SELECT_ITEM."3.2");
+        $this->show_result($this['dbresult'],INPUT_NOT_RECOGNISED."3.3");
+        exit;
+	}
+	if ( IS_PRIME && ! HAS_TRAILING_SPACE ) {
+        $this['dbresult'] = $this->allFromBpsTableWithPrime();
+        if(count($this['dbresult'])) $this->show_result($this['dbresult'],SELECT_ITEM_OR_SPACE."4.1");
+        $this->show_result($this['dbresult'],INPUT_NOT_RECOGNISED."4.2");
+        exit;
+    }
+    if ( IS_BP ) {
+        $this['dbresult'] = $this->preciseBpMatch();
+        if(count($this['dbresult'])) $this->show_result($this['dbresult'],SELECT_ITEM_OR_SEARCH."5.1");
+        else $this->show_result($this['dbresult'],CLICK_SEARCH."5.2");
+        exit;
+    }
+    if( ! IS_PRIME && ! IS_BP && ! WAS_CLICKED && HAS_SPACE && !HAS_TRAILING_SPACE){
+        $this['dbresult'] = $this->singleFromBpsTable();
+        if(count($this['dbresult'])) $this->show_result($this['dbresult'],SELECT_ITEM."6.1");
+        
+
+        //$this['dbresult'] = $this->preciseBpMatch();
+        //if(count($this['dbresult'])) $this->show_result($this['dbresult'],SELECT_ITEM."6.2");
+
+        $this['dbresult'] = $this->backToThePrimeNoSpace();
+        if(count($this['dbresult'])) $this->show_result($this['dbresult'],SELECT_ITEM_OR_TYPE_ON."6.3");
+        else $this->show_result($this['dbresult'],INPUT_NOT_RECOGNISED."6.4");
+        exit;
+    }
+    if( ! IS_PRIME && ! IS_BP && ! WAS_CLICKED && HAS_SPACE && HAS_TRAILING_SPACE){
+        $this['dbresult'] = $this->singleFromBpsTable();
+        if(count($this['dbresult'])) $this->show_result($this['dbresult'],SELECT_ITEM."7.1");
+        
+
+        //$this['dbresult'] = $this->preciseBpMatch();
+        //if(count($this['dbresult'])) $this->show_result($this['dbresult'],SELECT_ITEM."7.2");
+
+        $this['dbresult'] = $this->backToThePrime();
+        if(count($this['dbresult'])) $this->show_result($this['dbresult'],SELECT_ITEM_OR_TYPE_ON."7.3");
+        else $this->show_result($this['dbresult'],INPUT_NOT_RECOGNISED."7.4");
+        exit;
+    }
+    if(TEST) echo "In ".__FUNCTION__."() line ".__LINE__."<br>";
+    $this->show_result(array(),INPUT_NOT_RECOGNISED."8.1");
+    exit;
+}
+
+function fromPrimesTable(){
+    if(HAS_TRAILING_SPACE) $space=" ";
+    else $space="";
+    $algo="from_primes_table";
+    return DB::select(
+        "SELECT prime as result FROM operations.primes ".
+        "WHERE no_products_found > 0 AND ".
+        "prime LIKE ? ".
+        "ORDER BY prime ".LIMIT,
+        array(URL_QUERY.$space.'%')
+    );
+}
+
+function fromBpsTable($url_query=false){
+    if(!$url_query) $url_query = URL_QUERY;
+    $bp_words=explode(" ",$$url_query);
+    $where_bp_like_string="";
+    $where_bp_like_items=array($bp_words[0]."%");
+    $counter=0;
+    foreach($bp_words as $bp_word){
+        $where_bp_like_string.="bp like ? OR ";
+        if($counter++ > 0) $where_bp_like_items[]="$bp_word%";
+    }
+    if($where_bp_like_string) $where_bp_like_string = substr($where_bp_like_string,0,-4);
+
+    if(TEST) echo "In ".__FUNCTION__."() line ".__LINE__."<br>";
+    $algo="from_bp_table";
+    return DB::select(
+        "SELECT bp AS result FROM operations.bps WHERE ".
+//        "prime = '".PRIME."' AND ".
+        "no_products_found > 0 AND ".
+        "bp_is_a_prime='No' AND ".
+        "($where_bp_like_string) order by bp ".LIMIT,
+        $where_bp_like_items
+    );
+}
+
+function complexBpsTable($url_query=false){
+    if(!$url_query) $url_query = URL_QUERY;
+    $bp_words=explode(" ",$$url_query);
+    $last_word = array_pop($bp_words);
+    $where_bp_like_string="";
+    $where_bp_like_items=array();
+    foreach($bp_words as $bp_word){
+        $where_bp_like_string.="bp like ? AND ";
+        $where_bp_like_items[]="$bp_word%";
+    }
+    if($where_bp_like_string) $where_bp_like_string = substr($where_bp_like_string,0,-5);
+
+    if(TEST) echo "In ".__FUNCTION__."() line ".__LINE__."<br>";
+    $algo="from_bp_table";
+    return DB::select(
+        "SELECT bp AS result FROM operations.bps WHERE ".
+//        "prime = '".PRIME."' AND ".
+        "no_products_found > 0 AND ".
+        "bp_is_a_prime='No' AND ".
+        "($where_bp_like_string) ".
+        "order by bp ".LIMIT,
+        $where_bp_like_items
+    );
+}
+
+function backToThePrime(){
+    $url_words=explode(" ",URL_QUERY);
+    $where_prime_like_string="";
+    $where_prime_like_items=array();
+    foreach($url_words as $possible_prime){
+        $where_prime_like_string.="prime like ? OR ";
+        $where_prime_like_items[]="$possible_prime%";
+    }
+    if($where_prime_like_string) $where_prime_like_string = substr($where_prime_like_string,0,-4);
+    return DB::select(
+        "SELECT prime AS result FROM operations.primes ".
+        "WHERE ".
+        "no_products_found > 0 AND ".
+        "($where_prime_like_string) ".
+        "ORDER BY prime ".LIMIT,
+        $where_prime_like_items
+    );
+}
+
+function backToThePrimeNoSpace(){
+    $url_words=explode(" ",URL_QUERY);
+    $where_prime_like_string="";
+    $where_prime_like_items=array();
+    foreach($url_words as $possible_prime){
+        $where_prime_like_string.="prime like ? OR ";
+        $where_prime_like_items[]="$possible_prime%";
+    }
+    if($where_prime_like_string) $where_prime_like_string = substr($where_prime_like_string,0,-4);
+    return DB::select(
+        "SELECT prime AS result FROM operations.primes ".
+        "WHERE ".
+        "no_products_found > 0 AND ".
+        "($where_prime_like_string) ".
+        "ORDER BY prime ".LIMIT,
+        $where_prime_like_items
+    );
+}
+
+function preciseBpMatch(){
+    $bp_words=explode(" ",URL_QUERY);
+    $where_bp_like_string="";
+    $where_bp_like_items=array(URL_QUERY);
+    foreach($bp_words as $bp_word){
+        $where_bp_like_string.="bp like ? AND ";
+        $where_bp_like_items[]="%$bp_word%";
+    }
+    if($where_bp_like_string) $where_bp_like_string = substr($where_bp_like_string,0,-5);
+    return DB::select(
+        "SELECT bp AS result FROM operations.bps ".
+        "WHERE prime = '".PRIME."' AND ".
+        "no_products_found > 0 AND ".
+        "bp_is_a_prime='No' AND ".
+        "bp <> ? AND ".
+        "$where_bp_like_string ".
+        "ORDER BY bp ".LIMIT,
+        $where_bp_like_items
+    );
+}
+
+function primeFromBpsTable(){
+    if(HAS_TRAILING_SPACE) $space=" ";
+    else $space="";
+    return DB::select(
+        "SELECT bp AS result FROM operations.bps WHERE ".
+        "no_products_found > 0 AND ".
+        "prime = ? AND ".
+        "bp_is_a_prime='No' AND ".
+        "bp LIKE ? order by bp ".LIMIT,
+        array(URL_QUERY,URL_QUERY.$space."%")
+    );
+}
+
+function allFromBpsTableWithPrime(){
+    if(HAS_TRAILING_SPACE) $space=" ";
+    else $space="";
+    return DB::select(
+        "SELECT bp AS result FROM operations.bps WHERE ".
+        "no_products_found > 0 AND ".
+        "prime = ? AND ".
+        "number_words <= ".(HAS_SPACE+2)." AND ".
+        "bp_is_a_prime='No' ".
+        "order by bp ".LIMIT,
+        array( URL_QUERY)
+    );//.$space."%" ));
+}
+
+function singleFromBpsTable($url_query=false){
+    if(!$url_query) $url_query = URL_QUERY;
+    if(HAS_TRAILING_SPACE) $space=" ";
+    else $space="";
+    return DB::select(
+        "SELECT bp AS result FROM operations.bps WHERE ".
+        "no_products_found > 0 AND ".
+        "bp_is_a_prime='No' AND ".
+        "bp LIKE ? order by bp ".LIMIT,
+        array($url_query.$space."%")
+    );
+}
+
+function singleFromBpsTableMerged($url_query=false){
+    if(!$url_query) $url_query = URL_QUERY;
+    if(HAS_TRAILING_SPACE) $space=" ";
+    else $space="";
+    return DB::select(
+        "(".
+        "SELECT bp AS result FROM operations.bps WHERE ".
+        "no_products_found > 0 AND ".
+        "bp_is_a_prime='No' AND ".
+        "bp LIKE ? order by bp ".
+        ") UNION (".
+        "SELECT bp AS result FROM operations.bps WHERE ".
+        "no_products_found > 0 AND ".
+        "prime = ? AND ".
+//        "number_words <= ".(HAS_SPACE+2)." AND ".
+        "bp_is_a_prime='No' ".
+        "order by bp )",
+        array($url_query.$space."%", $url_query)
+    );
+}
+
+function submit(){
+        DB::enableQueryLog();
+
+    $this['companies'] =
+        DB::select("(SELECT ".
+        "companies.company_name as name ,".
+        "bp_suppliers.company_website_url as url, ".
+        "companies.vendor_data ".
+        "FROM operations.companies ".
+        "INNER JOIN operations.bp_suppliers ON bp_suppliers.company_uid=companies.uid ".
+        "WHERE ".
+        "bp_suppliers.bp= ? AND ".
+        "companies.company_website_url <> '' AND ".
+        "companies.banned <> 1 ".
+        "GROUP BY name ".
+        ")ORDER BY ".
+        "credit DESC, ".
+        "vendor_data_edited, ".
+        "companies.company_country DESC, ".
+        "company_name_calculated, ".
+        "RAND() ".
+        "LIMIT 25", array(URL_QUERY));
+/*
+        DB::table('operations.companies')
+        ->join('operations.bp_suppliers', 'bp_suppliers.company_uid', '=', 'companies.uid')
+        ->select(
+        'companies.company_name as name',
+        'bp_suppliers.company_website_url as url',
+        'companies.vendor_data'
+        )
+        ->where('bp_suppliers.bp',"=",URL_QUERY)
+        ->where('companies.company_website_url','<>','')
+        ->where('companies.banned','<>','1')
+        ->groupby('name')
+        ->orderBy('companies.company_country','DESC')
+        ->orderBy('company_name_calculated','ASC')
+//        ->orderByRaw('RAND()')
+//            ->orderBy('credit','DESC')
+//            ->orderBy('vendor_data_edited', 'DESC')
+//            ->orderBy('vendor_data', 'DESC')
+        ->orderByRaw('RAND()') // TODO find a better algorithm
+//            ->orderBy('company_name','ASC')
+        ->take(25)
+        ->get();
+*/        
+//    \Debugbar::debug("companies = ".print_r($this["companies"],true));
+    //$this->dump_sql();
+    if(empty($this['companies'])) return false;
+    $this['companies_count'] = count($this['companies']);
+	$this['search'] = $this->debracket(URL_QUERY);
+//    \Debugbar::debug("search = ".$this["search"]);
+    return;
+}
+
+function get_IS_PRIME_IS_BP_status(){
+    $this['dbresult'] =
+        DB::table('operations.primes')
+        ->select('prime')
+        ->where('no_products_found','>','0')
+        ->where('prime',"=",URL_QUERY)
+        ->take(1)
+        ->get();
+    if( ! empty($this['dbresult'])){
+        define("IS_PRIME",true);
+    } else {
+        $this['dbresult'] =
+            DB::table('operations.bps')
+            ->select('prime')
+            ->where('no_products_found','>','0')
+            ->where('bp',"=",URL_QUERY)
+            ->where('bp_is_a_prime',"=",'No')
+            ->take(1)
+            ->get();
+        if( ! empty($this['dbresult'])) {
+            define("IS_BP",true);
+            define("PRIME",$this['dbresult'][0]->prime);
+        }
+//        $this->dump_sql();
+    }
+    if(! defined("IS_PRIME")) define("IS_PRIME",false);
+    if(! defined("IS_BP")) define("IS_BP",false);
+    if(! defined("PRIME")) define("PRIME",false);
+    if(TEST){
+	    echo "IS_PRIME='".IS_PRIME."'<br>";
+	    echo "IS_BP='".IS_BP."'<br>";
+    }
+}
+
+function is_ajax_request(){
+    if(! empty($_SERVER['HTTP_X_REQUESTED_WITH']) && strtolower($_SERVER['HTTP_X_REQUESTED_WITH']) == 'xmlhttprequest') return true;
+    else return false;
+}
+
+function strip_incorrect_chars($str_to_strip){
+    $str_to_strip = str_replace("-", " ", $str_to_strip);
+    $str_to_strip = str_replace("?", " ", $str_to_strip);
+    $str_to_strip = str_replace("!", " ", $str_to_strip);
+    $str_to_strip = str_replace(";", " ", $str_to_strip);
+    $str_to_strip = str_replace(",", " ", $str_to_strip);
+    $str_to_strip = str_replace(".", " ", $str_to_strip);
+    $str_to_strip = str_replace("&", " ", $str_to_strip);
+    $str_to_strip = str_replace(":", " ", $str_to_strip);
+    $str_to_strip = str_replace("™", "",  $str_to_strip);// TRADEMARK
+    $str_to_strip = str_replace("℠", "",  $str_to_strip);// SERVICEMARK
+    $str_to_strip = str_replace("®", "",  $str_to_strip);// REGISTERED TRADEMARK
+    $str_to_strip = str_replace("©", "",  $str_to_strip);// COPYRIGHT
+    return $str_to_strip;
+}
+
+function oktick_clean_url($url_query){
+    $url_query = rawurldecode($url_query);
+    $url_query = str_replace("%", "", $url_query);
+    $url_query = str_replace("-", " ", $url_query);
+    $url_query = ltrim($url_query);
+    // remove all double spaces
+    while (strpos($url_query, "  ")) $url_query = str_replace("  ", " ", $url_query);
+    return $url_query;
+}
+//function get_onclick_functions($hrefurl){
+//    $onlick  = 'history.pushState({},"","' . $hrefurl . '");';
+//    $onlick .= '$.get("' . $hrefurl . '");';
+//    $onlick .= "return false;";
+//    return "";
+//    return $onlick;
+//}
+function debracket($str,$l="(",$r=")"){
+    if( strpos($str,$l) !== false AND strpos($str,$r) !== false AND strpos($str,$l) < strpos($str,$r) ) {
+        $str = preg_replace("|".$l."[^".$r."]+".$r."|","",$str);
+//        $str = preg_replace("|\([^)]+\)|","",$str);
+    }
+    return trim($str);
+}
+
+function dump_sql(){
+    $queries = DB::getQueryLog();
+    $last_query = end($queries);
+    var_dump($last_query);
+    //return "query='".$last_query['query']."' (time='".$last_query['time']."')<br>";
+}
+
+function show_result($suggestions, $onSearchComplete=" "){
+//    $suggestions[] = "<messages><![CDATA[$messages]]></messages>";
+    //$result = chunk_split($result, 5, ' ');
+    //$result = rawurlencode(utf8_encode($result));
+//    $suggestions=array(1,2,3);
+    header("Content-type: application/json"); //makes sure entities are not interpreted
+    $return = '{"suggestions": [ ';
+    foreach($suggestions as $item) {
+        $return .='"'.$item->result.'",';
+    }
+    $return .='"'.rawurlencode(utf8_encode(str_replace(" ","%20",$onSearchComplete))).'"]}';
+	echo $return;
+	exit;
+}
+?>
+==

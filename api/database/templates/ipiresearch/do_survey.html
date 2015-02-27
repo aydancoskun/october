@@ -1,0 +1,15 @@
+<div id="survey-wrapper">
+	{if $instructions}
+		<div id="websurvey-instructions">
+			{$instructions}
+		</div>
+	{/if}
+	<div style="display:none" id="websurvey" survey-id="{$survey_id|escape}" survey-response-id="{$survey_response_id|escape}">
+	{$survey_template}
+	</div>
+	{if $thankyou}
+		<div id="websurvey-thankyou">
+			{$thankyou}
+		</div>
+	{/if}
+</div>

@@ -1,0 +1,63 @@
+name: 'OKTick menu'
+items:
+    -
+        title: News
+        nesting: '0'
+        type: static-page
+        url: ''
+        code: ''
+        reference: news
+        cmsPage: ''
+        replace: '0'
+    -
+        title: 'To Search'
+        nesting: '0'
+        type: static-page
+        url: ''
+        code: ''
+        reference: brief
+        cmsPage: ''
+        replace: '0'
+    -
+        title: 'Search Tips'
+        nesting: '0'
+        type: static-page
+        url: ''
+        code: ''
+        reference: tips
+        cmsPage: ''
+        replace: '0'
+    -
+        title: 'Why Register?'
+        nesting: '0'
+        type: static-page
+        url: ''
+        code: ''
+        reference: why
+        cmsPage: ''
+        replace: '0'
+    -
+        title: Suppliers
+        nesting: '0'
+        type: static-page
+        code: ''
+        reference: suppliers
+        replace: '0'
+    -
+        title: Register
+        nesting: '0'
+        type: static-page
+        url: ''
+        code: ''
+        reference: register
+        cmsPage: ''
+        replace: '0'
+    -
+        title: Login
+        nesting: '0'
+        type: static-page
+        url: ''
+        code: ''
+        reference: login
+        cmsPage: ''
+        replace: '0'

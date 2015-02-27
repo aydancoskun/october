@@ -1,0 +1,8 @@
+{use_macro file="Dataface_Main_Template.html"}
+	{fill_slot name="html_title"}{$survey_name|escape}{/fill_slot}
+	{fill_slot name="html_body"}
+		{$survey_content}
+		{block name="after_global_footer"}
+	
+	{/fill_slot}
+{/use_macro}

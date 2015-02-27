@@ -1,0 +1,143 @@
+/*
+We highly recommend you use SASS and write your custom styles in sass/_custom.scss.
+However, this file is available if you prefer
+*/
+.navbar {
+    heigth: 40px;
+}
+.btn,.drawer {
+    margin-bottom: 10px;
+}
+.drawer {
+    text-align: center;
+}
+h1.lead {
+    border-bottom: 1px dotted #ccc;
+    margin-bottom: 30px;
+}
+h4.lead {
+    margin-bottom: 10px;
+}
+.body {
+	background-color: #fcfcfc !important;
+}
+/*
+a:link.supplier-list {
+    color: #999;
+    text-decoration: none;
+}
+a:visited.supplier-list {
+    color: #999;
+    text-decoration: none;
+}
+a:hover.supplier-list {
+    color: #999;
+    text-decoration: none;
+}
+a:active.supplier-list {
+    color: #999;
+    text-decoration: none;
+}
+*/
+.tab-content {  -moz-border-bottom-colors: none;
+                -moz-border-left-colors: none;
+                -moz-border-right-colors: none;
+                -moz-border-top-colors: none;
+                border-color: #e5e5e5;
+                border-image: none;
+                border-radius: 0 0 4px 4px;
+                border-style: solid;
+                border-width: 0 1px 1px 1px;
+            }
+#container1 {  -moz-border-bottom-colors: none;
+                -moz-border-left-colors: none;
+                -moz-border-right-colors: none;
+                -moz-border-top-colors: none;
+                border-color: #e5e5e5;
+                border-image: none;
+                border-radius: 0 0 4px 4px;
+                border-style: solid;
+                border-width: 0 1px 1px 1px;
+                padding-left: 0;
+                padding-right: 0;
+            }
+.tab-nav > li > a {
+    color: #3085d6;
+}
+a:link.supplier-list {
+    text-decoration: none;
+}
+a:visited.supplier-list {
+    text-decoration: none;
+}
+a:hover.supplier-list {
+    text-decoration: none;
+}
+a:active.supplier-list {
+    text-decoration: none;
+}
+.autocomplete-suggestions {
+    border: 1px solid #999;
+    background: #FFF;
+    cursor: default;
+    overflow: auto;
+    -webkit-box-shadow: 1px 4px 3px rgba(50, 50, 50, 0.64);
+    -moz-box-shadow: 1px 4px 3px rgba(50, 50, 50, 0.64);
+    box-shadow: 1px 4px 3px rgba(50, 50, 50, 0.64);
+}
+.autocomplete-suggestion {
+    padding: 2px 5px;
+    white-space: nowrap;
+    overflow: hidden;
+}
+.autocomplete-selected {
+    background: #F0F0F0;
+}
+.autocomplete-suggestions strong {
+    font-weight: normal; color: #3399FF;
+}
+#autocomplete-ajax {
+    background: url('../img/searchoff.gif') no-repeat right center;
+}
+#str_status_msg {
+    color: #3399FF;
+    font-size: 1rem;
+}
+#str_status_msg_right {
+    color: #D04526;
+    font-size: 1rem;
+}
+#outer_common {
+    position: relative;
+}
+/*
+.navbar {
+    background-color: #ebf1f7;
+}
+*/
+.navbar {
+    background-color: #f2f2f2;
+}
+.gumby-no-touch .navbar ul li:hover > a, .gumby-touch .navbar ul li.active > a {
+    background: #e5e5e5;
+}
+/*
+.gumby-touch .navbar ul li.active > a{
+    background: #d9e5f0;
+}
+*/
+.resultbtn {
+    background-color: #f2f2f2;
+}
+
+.navbar ul li > a {
+    color: #555555;
+    text-shadow: none;
+    font-size: 1rem;
+}
+
+.logohtml {
+    font-size: 3rem;
+    font-weight: 400;
+    font-family: Arial, 'Helvetica Neue', Helvetica, sans-serif;
+}

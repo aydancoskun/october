@@ -1,0 +1,20 @@
+[Attached_Basic_Products]
+__sql__ = "SELECT * FROM b WHERE b.prime ='$prime'"
+section:visible = 0 ;; This removes the inner section
+ 
+[Attached_Nicknames]
+__sql__ = "SELECT * FROM p INNER JOIN pn ON p.prime = pn.nickname WHERE pn.prime = '$prime'"
+section:visible = 0 ;; This removes the inner section
+
+[Attached_Related_Items]
+__sql__ = "SELECT * FROM p INNER JOIN pr ON p.prime = pr.related_item WHERE pr.prime = '$prime'"
+section:visible = 0 ;; This removes the inner section
+
+[Attached_Linked_Items]
+__sql__ = "SELECT * FROM p INNER JOIN pl ON p.prime = pl.linked WHERE pl.prime = '$prime'"
+section:visible = 0 ;; This removes the inner section
+
+[Attaced_Collectives]
+__sql__ = "SELECT * FROM p INNER JOIN pc ON p.prime = pc.collective WHERE pc.prime = '$prime'"
+section:visible = 0 ;; This removes the inner section
+

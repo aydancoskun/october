@@ -1,0 +1,113 @@
+<h1 style="margin:1px;">true Google Search</h1>
+<h3 style="margin:1px;">Results Parser v1.3.1</h3>
+<img src="search-scraper.jpg" width="251" height="201" alt="Google Search Results parser" align="right"/>
+<h2>Minimum Server Requirements</h2>
+<ul>
+<li>PHP 4 or higher</li>
+<li>CURL extension</li>
+<li>fsockopen() enabled (Not critical for functioning, but helpful for checking proxies)</li>
+</ul>
+<h2>Description</h2>
+<ul>
+  <li>    This script returns google search results as they would actually show up when the search is executed manually in a browser.</li>
+  <li>    The returned results include title, url and description as shown in the search results. </li>
+  <li>    This script can return upto 1000 results, which happens to be the maximum that google provides for a keyword.  It also supports search results from a local google site<br />
+  (for eg. google.co.uk, google.co.in, etc.)</li>
+  <li>    For production site usage, it supports proxy to prevent server's IP address from getting blocked by google<br />
+(which happens only if queries are too frequent and/or in high volume. This block is temporary in most cases) </li>
+<li>Option to cache search results to local files, without a database or cron jobs.</li>
+  <li>Returns the number of results available with google, the number of results it could scrape/parse<br />
+    and the results in a neat array with url, title and description.
+  </li>
+  <li>Also informs if the IP address has been blocked/banned by google due to excessive querying.</li>
+</ul>
+<h2>Applications</h2>
+<ul>
+  <li>Search Engine Ranking Position Checker</li>
+  <li> Backlinks counter</li>
+  <li>Keyword research</li>
+  <li> Website competition analysis</li>
+  <li> Indexed pages counter</li>
+  <li> Related links fetcher</li>
+  <li> Automated content generation</li>
+  <li>Your own search engine</li>
+  <li> Automated, scheduled ranking checks</li>
+</ul>
+<h1>USAGE</h1>
+<p>There is only one function,<br />
+$r = <strong>trueGS</strong>(<strong>$q</strong>=&quot;search query&quot;, $<strong>num_requested</strong>=10, $<strong>local</strong>=&quot;com&quot;, $<strong>start</strong>=0, $<strong>proxy</strong>=&quot;&quot;, $<strong>cache_dir</strong>=&quot;cache&quot;, $<strong>cache_time</strong>=600, $<strong>strip_tags</strong>=true);</p>
+<p>Where,
+</p><table border="1px"><tr><td>
+<strong>$q</strong></td><td>is the search term</td></tr><tr><td>
+<strong>$num_requested</strong></td><td>Number of results to scrape. Note that it may not be followed strictly be google if it is not a multiple of 10.<br />Was earlier <strong>$npages</strong>. So if you had this value 3 earlier, change it to 30.</td></tr><td>
+  <strong>$start</strong></td><td> is also the number of results (earlier the page number) (indicates the result number from where to start. Note that it may not be followed strictly be google if it is not a multiple of 10)</td></tr><td>
+  <strong>$cache_dir</strong></td><td> is the path to the directory where you want to store cache. Make sure it is writable and use absolute path for portability</td></tr><td>
+  <strong>$cache_time</strong></td><td> is the timeout for cache, measured in seconds.</td></tr><td>
+  <strong>$strip_tags</strong></td><td>if set to true, removes all HTML tags from result title and description. (Note that in any case, you may want to decode htmlentities)</td></tr><td>
+<strong>$local</strong></td><td>is the TLD of the google local version you want to use (for eg, 'com','co.in', etc)</td></tr><tr><td>
+<strong>$proxy</strong></td><td>is the proxy to use in 'xxx.yyy.zzz.aaa:port' form</td></tr></table>
+<p></p>
+The results are returned by this function in the following format:
+<pre class='xdebug-var-dump' dir='ltr'>
+<b>array</b> <i>(size=8)</i>
+  'error' <font color='#888a85'>=&gt;</font> <small>boolean</small> <font color='#75507b'>false</font>
+  'size' <font color='#888a85'>=&gt;</font> <small>float</small> <font color='#f57900'>106732</font>
+  'cache_file' <font color='#888a85'>=&gt;</font> <small>string</small> <font color='#cc0000'>'d:\websites\svn\trueGoogleSearch\trunk\examples/cache/ee60ce7c6cd41969b12a49b307a6089c.html'</font> <i>(length=91)</i>
+  'available' <font color='#888a85'>=&gt;</font> <small>int</small> <font color='#4e9a06'>74100000</font>
+  'scraped' <font color='#888a85'>=&gt;</font> <small>int</small> <font color='#4e9a06'>20</font>
+  'alternate' <font color='#888a85'>=&gt;</font> <small>boolean</small> <font color='#75507b'>false</font>
+  'results' <font color='#888a85'>=&gt;</font> 
+    <b>array</b> <i>(size=20)</i>
+      0 <font color='#888a85'>=&gt;</font> 
+        <b>array</b> <i>(size=5)</i>
+          'serp' <font color='#888a85'>=&gt;</font> <small>int</small> <font color='#4e9a06'>1</font>
+          'page' <font color='#888a85'>=&gt;</font> <small>float</small> <font color='#f57900'>1</font>
+          'url' <font color='#888a85'>=&gt;</font> <small>string</small> <font color='#cc0000'>'http://www.charlottedillon.com/QuerySamples.html'</font> <i>(length=48)</i>
+          'title' <font color='#888a85'>=&gt;</font> <small>string</small> <font color='#cc0000'>'Query Samples'</font> <i>(length=13)</i>
+          'desc' <font color='#888a85'>=&gt;</font> <small>string</small> <font color='#cc0000'>'Near the bottom of each query you&amp;#39;ll find a link to the author&amp;#39;s website and a link to buy the book the query is for. I hope these samples take some of the fear and ...'</font> <i>(length=176)</i>
+      1 <font color='#888a85'>=&gt;</font> 
+        <b>array</b> <i>(size=5)</i>
+          'serp' <font color='#888a85'>=&gt;</font> <small>int</small> <font color='#4e9a06'>2</font>
+          'page' <font color='#888a85'>=&gt;</font> <small>float</small> <font color='#f57900'>1</font>
+          'url' <font color='#888a85'>=&gt;</font> <small>string</small> <font color='#cc0000'>'http://www.charlottedillon.com/query.html'</font> <i>(length=41)</i>
+          'title' <font color='#888a85'>=&gt;</font> <small>string</small> <font color='#cc0000'>'Sample Query Letter'</font> <i>(length=19)</i>
+          'desc' <font color='#888a85'>=&gt;</font> <small>string</small> <font color='#cc0000'>'Learn how to write a query letter for  your fiction novel, and read a sample.'</font> <i>(length=77)</i>
+      2 <font color='#888a85'>=&gt;</font> 
+        <b>array</b> <i>(size=5)</i>
+          'serp' <font color='#888a85'>=&gt;</font> <small>int</small> <font color='#4e9a06'>3</font>
+          'page' <font color='#888a85'>=&gt;</font> <small>float</small> <font color='#f57900'>1</font>
+          'url' <font color='#888a85'>=&gt;</font> <small>string</small> <font color='#cc0000'>'http://pred-ed.com/pubquery.htm'</font> <i>(length=31)</i>
+          'title' <font color='#888a85'>=&gt;</font> <small>string</small> <font color='#cc0000'>'P&amp;amp;E: Sample Query'</font> <i>(length=21)</i>
+          'desc' <font color='#888a85'>=&gt;</font> <small>string</small> <font color='#cc0000'>'The title I used in the sample query is made up, though I&amp;#39;m sure that some author somewhere has probably used it. It was simply an appropriate sounding title for ...'</font> <i>(length=169)</i>
+      ...
+  'search_url' <font color='#888a85'>=&gt;</font> <small>string</small> <font color='#cc0000'>'http://www.google.com/search?hl=en&amp;q=sample+query&amp;start='</font> <i>(length=56)</i></pre>
+  <br />
+<table border="1px">
+<tr><td>
+$r[<strong>'search_url'</strong>] </td><td>A string with the url of the google's url where the search results appear (first page)
+</td></tr><tr><td>$r[<strong>'error'</strong>] </td><td>Boolean false if everything went right. Otherwise, it holds the error message.
+</td></tr><tr><td>$r[<strong>'size'</strong>] </td><td>Nnumber of bytes downloaded using CURL. (does not count size of cached results, if used)
+</td></tr><tr><td>$r[<strong>'available'</strong>] </td>
+<td>The number of results available with google
+</td></tr><tr><td>$r[<strong>'scraped'</strong>] </td>
+<td>The number of results scraped/parsed from google.
+</td></tr><tr><td>$r[<strong>'results'</strong>] </td>
+<td>An array of array( <strong>'serp'</strong>=&gt;(int), <strong>'url'</strong>=&gt;'String', <strong>'title'</strong>=&gt;'String', <strong>'desc</strong>'=&gt;'String')
+<ul>
+	<li><strong>serp</strong> indicates the position of the result in google search.</li>
+	<li><strong>page</strong> indicates the page number on which this result appears.</li>
+	<li><strong>url</strong> stores the url of the result</li>
+	<li><strong>title</strong> stores the title of the result as in google search</li>
+	<li><strong>desc</strong> stores the short description message shown in google search</li>
+</ul></td></tr><tr><td>$r[<strong>'cache_file'</strong>] </td>
+  <td>Path to the last cache file, if used.</td></tr><tr><td>$r[<strong>'alternate'</strong>] </td><td>boolean values, indicating whether the results are shown for the requested query, or google changed the query itself.<br />
+  Note that 'available' will be equal to 0 for alternate results, and a maximum of 10 alternate results can be scraped in this case.</td><td></td></tr>
+
+</table>
+<p>
+</p><h1>Example</h1>
+ To send this data to MySQL, simple use something like this:  <br />
+<pre>$results=trueGS(&quot;my search term&quot;,20);
+foreach($results['results'] as $result){
+   mysqli_query(&quot;INSERT INTO your_table (serp, url) VALUES  ('$result[serp]','$result[url]')&quot;); //add to MySQL  
+}</pre>

@@ -1,0 +1,22 @@
+{use_macro file="Dataface_Main_Template.html"}
+	{fill_slot name="html_title"}Welcome to {$settings->title|escape}{/fill_slot}
+	{fill_slot name="html_body"}
+	
+		<div class="public-homepage">
+			{if $settings->public_homepage_content}
+				{$settings->public_homepage_content}
+			{else}
+				<h1>Welcome to {$settings->title|escape}</h1>
+				
+				<p>This application allows you to build web-based surveys.</p>
+			{/if}
+			
+			<div class="public-login">
+				<p><a href="{$ENV.DATAFACE_SITE_HREF}?-action=login">Log In Now</a></p>
+			</div>
+		</div>
+		
+		{block name="after_global_footer"}
+	{/fill_slot}
+
+{/use_macro}
