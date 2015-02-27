@@ -1,4 +1,6 @@
 #!/bin/bash
 message="$(date)"
-git add --all && git commit -am "$message" && git push;
+git add --all
+git commit -a -m "$message"
+git push;
 
