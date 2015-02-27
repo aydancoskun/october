@@ -1,3 +1,6 @@
 [submodule "DbConnector"]
 	path = themes/oktick/assets/Gumby
 	url = https://github.com/GumbyFramework/Gumby.git
+[submodule "DbConnector"]
+        path = web-hooks
+        url = https://github.com/magenx/gitlab-webhook-php.git
