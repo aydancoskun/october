@@ -1,6 +1,5 @@
 title = "main"
 url = "/:url_query"
-layout = "default"
 hidden = "0"
 meta_title = "OKTicK Search"
 ==
@@ -508,3 +507,13 @@ function show_result($suggestions, $onSearchComplete=" "){
 }
 ?>
 ==
+{% partial "header" cssfile="oktick-search.css" %}
+<body style="background-color:#fcfcfc !important;" class="default">
+<div class="row" id="body-container" >
+{% partial 'menu-top' items=oktickMenu.menuItems %}
+{% partial 'back-to-search-button' visibility='visibility: hidden;' %}
+{% partial 'logo' %}
+{% partial 'search-box' %}
+{% partial 'results' %}
+{% partial 'copyright' %}
+{% partial 'footer' %}

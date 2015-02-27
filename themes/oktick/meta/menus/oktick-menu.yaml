@@ -40,24 +40,18 @@ items:
         title: Suppliers
         nesting: '0'
         type: static-page
+        url: ''
         code: ''
         reference: suppliers
+        cmsPage: ''
         replace: '0'
     -
         title: Register
-        nesting: '0'
-        type: static-page
-        url: ''
+        type: cms-page
         code: ''
         reference: register
-        cmsPage: ''
-        replace: '0'
     -
         title: Login
-        nesting: '0'
-        type: static-page
-        url: ''
+        type: cms-page
         code: ''
         reference: login
-        cmsPage: ''
-        replace: '0'

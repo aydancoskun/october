@@ -1,0 +1,33 @@
+title = "Login"
+url = "/_login"
+hidden = "0"
+
+[staticMenu oktickMenu]
+code = "oktick-menu"
+
+[account]
+paramCode = "code"
+
+[staticPage]
+==
+{% partial "header"  cssfile="oktick-static.css" %}
+<body style="background-color:#fcfcfc !important;" class="default">
+<div class="row" id="body-container" >
+{% partial 'menu-top' items=oktickMenu.menuItems %}
+{% partial 'back-to-search-button' visibility='' %}
+{% partial 'logo' %}
+<div class="row" >{{nbsp|raw}}</div>
+<div class="row">
+    <div class="centered eleven columns text-left">
+        <h4 id = "page_title">{{this.page.title}}</h4>
+    </div>
+</div>
+<div class="row" >{{nbsp|raw}}</div>
+<div class="row">
+	<div class="centered eleven columns text-left">
+		{% component 'account::signin' %}
+	</div>
+</div>
+<div class="row" >{{nbsp|raw}}</div>
+{% partial 'copyright' %}
+{% partial 'footer' %}

@@ -1,0 +1,17 @@
+<form data-request="onSignin">
+	<fieldset>
+    	<legend>Enter your credentials:</legend>
+		<ul>
+        	<li class="field">
+		    	<!--label for="userSigninLogin">{{ loginAttributeLabel }}</label-->
+            	<input class="text input" name="login" type="text" class="form-control" id="userSigninLogin" placeholder="Enter your {{ loginAttributeLabel|lower }}">
+            </li>
+            <li class="field">
+            	<input class="password input" name="name" type="password" class="form-control" id="userSigninPassword" placeholder="Enter your password">
+            </li>
+		</ul>
+		<div class="medium primary btn">
+			<button type="submit" class="btn-default">Sign in</button>
+		</div>
+	</fieldset>
+</form>
