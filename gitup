@@ -1,6 +1,10 @@
 #!/bin/bash
 message="$(date)"
+echo 'git add --all'
 git add --all
+echo 'git commit -a -m "$message"'
 git commit -a -m "$message"
-git push;
-
+echo 'git push'
+git push
+echo 'git status'
+git status
