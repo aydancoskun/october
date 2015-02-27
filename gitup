@@ -1,4 +1,4 @@
 #!/bin/bash
-message="gitup commit message $(date)"
-git add -A && git commit -m "$message" && git push;
+message="$(date)"
+git add --all && git commit -am "$message" && git push;
 
