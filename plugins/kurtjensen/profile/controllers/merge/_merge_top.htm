@@ -1,0 +1,18 @@
+<style>
+.merge {width:180px; margin:2px;}
+</style>
+<form method="POST" data-request="onGetSourceUser" >
+    <label for="uid">Select User to Merge From :</label>
+    <?= Form::select('uid', $this->getUserOptions()); ?>
+    
+    <button
+    type="submit"
+    data-load-indicator="Loading Source Data..."
+    class="btn btn-primary">Load Source User</button>
+    
+</form>
+<div id="mergeContainer">
+   
+</div>
+<hr />
+

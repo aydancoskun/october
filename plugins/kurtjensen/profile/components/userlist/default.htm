@@ -1,0 +1,48 @@
+{% if __SELF__.UserSelected %}
+    {% partial __SELF__ ~ "::memberview" %}
+{% else %}
+{% set curgr = '' %}
+<style>
+small{ font-size: 0.6em;
+    color: #FF2A00;
+}
+
+.nametag { margin:5px;}
+.center { text-align: center;}
+.right { text-align: right;}
+.left { text-align: left;}
+.sq200 {width:200px; height:200px;}
+</style>
+<div class="content center">
+  <a id="top" />
+  Sort: <a href="?sort=default">Last Name</a> | 
+  <a href="?sort=given">First Name</a> | 
+  <a href="?sort=group">Group</a>
+    <div id="MemberShow" class="left"></div>
+    <div>
+{% for person in people  %}
+        {% if sort == 'group' %}
+          {% if curgr != person.primary_usergroup %}
+            {% set curgr = person.primary_usergroup %}
+            <h2>{{ userGroups[person.primary_usergroup] }}</h2>
+          {% endif %}
+        {% endif %}
+        <a
+          title="Show"
+          data-request="onUserDisplay"
+          data-request-data="id: {{ person.id }}"
+          data-request-success="$('html, body').animate({ scrollTop: 0 });"
+          data-request-update="'UserList::memberview': '#MemberShow'" 
+          class="btn btn-default nametag">
+        {% if sort == 'given' %}
+            {{ person.name }} {{ person.surname }}
+        {% else %}
+            {{ person.surname }}, {{ person.name }} 
+        {% endif %}
+            <small>{{ userGroups[person.primary_usergroup] }}</small>
+       </a>
+{% endfor %}
+    </div>
+</div>
+{% endif %}
+{{ hint }}

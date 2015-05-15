@@ -1,0 +1,41 @@
+description = "results-section"
+
+[viewBag]
+==
+<div class="row">
+<div class="col-xs-1  col-md-1 col-lg-2"></div>
+<div class="col-xs-10 col-md-10 col-lg-8">
+
+{%if search %}
+    {% if companies %}
+        <table class="table table-striped table-bordered">
+            <!--thead style='background-color:#f2f2f2; color:#3085d6'-->
+            <thead>
+                <tr>
+                    <th style='font-weight: 600; color:#337AB7;background-color:#F2F2F2'><span class="glyphicon glyphicon-shopping-cart" aria-hidden="true"></span>{{"&nbsp"|raw}}Suppliers of {{ search }}:</th>
+                </tr>
+            </thead>
+            <tbody id="str_suppliers">
+                {% for company in companies %}
+<!--{{ company.vendor_data|length > 50 ? company.vendor_data|slice(0, 50) ~ '...' : company.vendor_data }}-->
+                    <tr>
+                        <td>
+                            <div class="dot-dot-dot">
+                                <a style='color:#D04526;font-size:15px;' href='{{ company.url }}' target='_blank'><strong>
+                                    {{ company.name }}</strong>
+                                </a>
+                                <span style='color:#D04526;font-size:15px;'>
+                                {{ company.vendor_data }}</span>
+                            </div>
+                        </td>
+                    </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    {% else %}
+        <p>Sorry, no results found. Please try your search again.</p>
+    {% endif %}
+{% endif %}
+</div>
+<div class="col-xs-1 col-md-1 col-lg-2"></div>
+</row>

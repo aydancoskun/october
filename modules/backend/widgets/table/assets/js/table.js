@@ -353,9 +353,9 @@
 
                 dataContainer.setAttribute('type', 'hidden')
                 dataContainer.setAttribute('data-container', 'data-container')
-                dataContainer.value = records[i][columnName] !== undefined ?
-                    records[i][columnName] :
-                    ""
+                dataContainer.value = records[i][columnName] !== undefined
+                    ? records[i][columnName]
+                    : ""
 
                 cellContentContainer.setAttribute('class', 'content-container')
 
@@ -391,9 +391,10 @@
 
     Table.prototype.fetchRecords = function(onSuccess) {
         this.dataSource.getRecords(
-            this.navigation.getPageFirstRowOffset(), 
+            this.navigation.getPageFirstRowOffset(),
             this.options.recordsPerPage,
-            onSuccess)
+            onSuccess
+        )
     }
 
     Table.prototype.updateScrollbar = function() {
@@ -860,7 +861,7 @@
     }
 
     Table.prototype.getEventTarget = function(ev, tag) {
-        // TODO: refactor to a core library
+        // TODO: use the foundation library
 
         var target = ev.target ? ev.target : ev.srcElement
 
@@ -882,7 +883,7 @@
     }
 
     Table.prototype.stopEvent = function(ev) {
-        // TODO: refactor to a core library
+        // TODO: use the foundation library
 
         if (ev.stopPropagation)
             ev.stopPropagation()
@@ -896,7 +897,7 @@
     }
 
     Table.prototype.elementHasClass = function(el, className) {
-        // TODO: refactor to a core library
+        // TODO: use the foundation library
 
         if (el.classList)
             return el.classList.contains(className);
@@ -905,7 +906,7 @@
     }
 
     Table.prototype.elementAddClass = function(el, className) {
-        // TODO: refactor to a core library
+        // TODO: use the foundation library
 
         if (this.elementHasClass(el, className))
             return
@@ -917,7 +918,7 @@
     }
 
     Table.prototype.elementRemoveClass = function(el, className) {
-        // TODO: refactor to a core library
+        // TODO: use the foundation library
 
         if (el.classList)
             el.classList.remove(className);

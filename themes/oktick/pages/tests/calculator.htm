@@ -1,0 +1,27 @@
+title = "Calculator"
+url = "/calculator"
+layout = "blank"
+hidden = "0"
+==
+<?php
+use Tiipiik\SmsSender\Classes\Sender;
+
+function onTest()
+{
+    $value1 = post('value1');
+    $value2 = post('value2');
+    $this['result'] = $value1 + $value2;
+}
+function onInit(){
+    asdfads::asdfads();
+    //Sender::sendMessage('447795227777', 'sms test message');
+//    Sender::sendMessage('41792711210', 'calculator message');
+}
+?>
+==
+<form data-request="onTest" data-request-update="calcresult: '#result'">
+    <input type="text" name="value1"/>
+    <input type="text" name="value2"/>
+    <input type="submit" value="Calculate">
+</form>
+<div id="result"></div>

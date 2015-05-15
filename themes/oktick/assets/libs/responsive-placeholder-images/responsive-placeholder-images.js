@@ -2,7 +2,8 @@
 
     // Only load images if the browser 'cuts the mustard' <http://responsivenews.co.uk/post/18948466399/cutting-the-mustard/>
     if ( ! document.addEventListener || ! document.querySelector) {
-        return alert("This page is \"cutting the mustard\" and your browser didn't make it.");
+        return false;
+        //alert("This page is \"cutting the mustard\" and your browser didn't make it.");
     }
 
     var deferImage = function(element) {
@@ -19,6 +20,7 @@
 
         for (i = 0, len = placehold.attributes.length; i < len; i++) {
             attr = placehold.attributes[i];
+
 
 //            console.log(attr.name);
 

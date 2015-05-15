@@ -1,0 +1,9 @@
+<!-- START profile_toolbar -->
+<?php
+    $isCreate = $this->formGetContext() == 'create';
+    $pageUrl = isset($pageUrl) ? $pageUrl : null;
+?>
+<div class="form-buttons loading-indicator-container">
+<h2>Profile for <?= $this->vars['username'] ?></h2>
+</div>
+<!-- END profile_toolbar -->

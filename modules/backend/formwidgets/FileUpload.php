@@ -4,11 +4,12 @@ use Str;
 use Input;
 use Validator;
 use System\Models\File;
-use SystemException;
+use ApplicationException;
 use Backend\Classes\FormField;
 use Backend\Classes\FormWidgetBase;
 use ValidationException;
 use Exception;
+use Lang;
 
 /**
  * File upload field
@@ -24,48 +25,59 @@ use Exception;
  */
 class FileUpload extends FormWidgetBase
 {
-    /**
-     * {@inheritDoc}
-     */
-    public $defaultAlias = 'fileupload';
+    //
+    // Configurable properties
+    //
 
     /**
      * @var int Preview image width
      */
-    public $imageWidth;
+    public $imageWidth = 100;
 
     /**
      * @var int Preview image height
      */
-    public $imageHeight;
+    public $imageHeight = 100;
 
     /**
      * @var string Text to display when no file is associated
      */
-    public $previewNoFilesMessage;
+    public $previewNoFilesMessage = 'backend::lang.form.preview_no_files_message';
 
     /**
      * @var mixed Collection of acceptable file types.
      */
-    public $acceptedFileTypes = false;
+    public $fileTypes = false;
+
+    /**
+     * @var array Options used for generating thumbnails.
+     */
+    public $thumbOptions = [
+        'mode'      => 'crop',
+        'extension' => 'auto'
+    ];
+
+    //
+    // Object properties
+    //
+
+    /**
+     * {@inheritDoc}
+     */
+    protected $defaultAlias = 'fileupload';
 
     /**
      * {@inheritDoc}
      */
     public function init()
     {
-        $this->imageHeight = $this->getConfig('imageHeight', 100);
-        $this->imageWidth = $this->getConfig('imageWidth', 100);
-        $this->acceptedFileTypes = $this->getConfig('fileTypes');
-        $this->previewNoFilesMessage = $this->getConfig(
+        $this->fillFromConfig([
+            'imageWidth',
+            'imageHeight',
             'previewNoFilesMessage',
-            'backend::lang.form.preview_no_files_message'
-        );
-
-        $this->thumbOptions = [
-            'mode' => 'crop',
-            'extension' => 'auto'
-        ];
+            'fileTypes',
+            'thumbOptions'
+        ]);
 
         $this->checkUploadPostback();
     }
@@ -82,7 +94,7 @@ class FileUpload extends FormWidgetBase
     /**
      * Prepares the view data
      */
-    public function prepareVars()
+    protected function prepareVars()
     {
         $this->vars['fileList'] = $this->getFileList();
         $this->vars['singleFile'] = array_get($this->vars['fileList'], 0, null);
@@ -95,14 +107,19 @@ class FileUpload extends FormWidgetBase
 
     protected function getFileList()
     {
-        $list = $this->getRelationObject()->withDeferred($this->sessionKey)->orderBy('sort_order')->get();
+        $list = $this
+            ->getRelationObject()
+            ->withDeferred($this->sessionKey)
+            ->orderBy('sort_order')
+            ->get()
+        ;
 
         /*
-         * Set the thumb for each file
+         * Decorate each file with thumb and custom download path
          */
-        foreach ($list as $file) {
-            $file->thumb = $file->getThumb($this->imageWidth, $this->imageHeight, $this->thumbOptions);
-        }
+        $list->each(function($file){
+            $this->decorateFileAttributes($file);
+        });
 
         return $list;
     }
@@ -133,7 +150,7 @@ class FileUpload extends FormWidgetBase
      */
     public function getAcceptedFileTypes($includeDot = false)
     {
-        $types = $this->acceptedFileTypes;
+        $types = $this->fileTypes;
         if ($types === false && starts_with($this->getDisplayMode(), 'image')) {
             $types = 'jpg,jpeg,bmp,png,gif,svg';
         }
@@ -171,6 +188,14 @@ class FileUpload extends FormWidgetBase
     protected function getRelationObject()
     {
         list($model, $attribute) = $this->resolveModelAttribute($this->valueFrom);
+
+        if (!$model->hasRelation($attribute)) {
+            throw new ApplicationException(Lang::get('backend::lang.model.missing_relation', [
+                'class' => get_class($model),
+                'relation' => $attribute
+            ]));
+        }
+
         return $model->{$attribute}();
     }
 
@@ -219,7 +244,7 @@ class FileUpload extends FormWidgetBase
             return $this->makePartial('config_form');
         }
 
-        throw new SystemException('Unable to find file, it may no longer exist');
+        throw new ApplicationException('Unable to find file, it may no longer exist');
     }
 
     /**
@@ -237,7 +262,7 @@ class FileUpload extends FormWidgetBase
                 return ['item' => $file->toArray()];
             }
 
-            throw new SystemException('Unable to find file, it may no longer exist');
+            throw new ApplicationException('Unable to find file, it may no longer exist');
         }
         catch (Exception $ex) {
             return json_encode(['error' => $ex->getMessage()]);
@@ -272,6 +297,10 @@ class FileUpload extends FormWidgetBase
         }
 
         try {
+            if (!Input::hasFile('file_data')) {
+                throw new ApplicationException('File missing from request');
+            }
+
             $uploadedFile = Input::file('file_data');
 
             $validationRules = ['max:'.File::getMaxFilesize()];
@@ -289,7 +318,7 @@ class FileUpload extends FormWidgetBase
             }
 
             if (!$uploadedFile->isValid()) {
-                throw new SystemException('File is not valid');
+                throw new ApplicationException('File is not valid');
             }
 
             $fileRelation = $this->getRelationObject();
@@ -301,8 +330,7 @@ class FileUpload extends FormWidgetBase
 
             $fileRelation->add($file, $this->sessionKey);
 
-            $file->thumb = $file->getThumb($this->imageWidth, $this->imageHeight, $this->thumbOptions);
-            $result = $file;
+            $result = $this->decorateFileAttributes($file);
 
         }
         catch (Exception $ex) {
@@ -311,5 +339,21 @@ class FileUpload extends FormWidgetBase
 
         header('Content-Type: application/json');
         die($result);
+    }
+
+    /**
+     * Adds the bespoke thumb and path property used by this widget.
+     * @return System\Models\File
+     */
+    protected function decorateFileAttributes($file)
+    {
+        $file->thumb = $file->getThumb($this->imageWidth, $this->imageHeight, $this->thumbOptions);
+
+        // Internal download link
+        if (!$file->isImage() || !$file->isPublic()) {
+            $file->pathOverride = \Backend\Controllers\Files::getDownloadUrl($file);
+        }
+
+        return $file;
     }
 }

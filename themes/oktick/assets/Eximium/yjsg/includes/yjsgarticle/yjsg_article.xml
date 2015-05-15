@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="utf-8"?>
+<form>
+	<fields name="attribs" addfieldpath="/plugins/system/yjsg/includes/yjsgarticle/elements">
+		<fieldset name="YJSG_ARTICLE" label="YJSG_ARTICLE_OPTIONS" yjsgextra="yjsgarticle">
+			<field name="yjsg_module_positons" type="list" default="0" label="YJSG_MODULE_POSITIONS" description="YJSG_MODULE_POSITIONS_DESC">
+				<option value="0">JNO</option>
+				<option value="1">JYES</option>
+			</field>
+		</fieldset>
+	</fields>
+</form>

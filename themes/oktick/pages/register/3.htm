@@ -1,0 +1,101 @@
+title = "3"
+url = "/register/3/:activationcode?"
+layout = "blank"
+hidden = "0"
+
+[account]
+paramCode = "activationcode"
+==
+<?php
+// if (gethostbyname("leancode.duckdns.org") == $_SERVER['REMOTE_ADDR']) define('DEBUG', true);
+function onInit(){
+    Config::set('app.debug', true);
+}
+function onStart() {
+    if( $user = $this->account->user() ) {
+//        Flash::success(Lang::get('rainlab.user::lang.account.success_activation'));
+        $this['email'] = $user->attributes['email'];
+        $this['user_id'] = $user->attributes['id'];
+        $calc = substr($this['email'],strpos($this['email'],"@")+1);
+        $url = $user->attributes['company'];
+        $url = $this->getUrl($url);
+        if (!$url) {
+            // we can't get a 200 on the url they supplied
+            return redirect('register/nowebsite');
+        }
+        $user->attributes['company']=$url;
+        $calculated = substr($this['email'],strpos($this['email'],"@")+1);
+        if($url==substr($calculated,-(strlen($url)))) {
+            $role = "Domain Authenticated Subscriber";
+        } else {
+            $role = "Unauthenticated Subscriber";
+        }
+        $role_id = DB::table('shahiemseymor_roles')->where('name', $role)->pluck('id');
+        DB::table('shahiemseymor_assigned_roles')->where('user_id', $user->attributes['id'])->update(array('role_id' => $role_id));
+        $user->save();
+        Flash::success('You successfully validated your account!');
+    } else {
+        return redirect('register/1/');
+    }
+}
+function myCurl($url){
+    $ch = curl_init();
+    curl_setopt($ch, CURLOPT_URL,$url);
+    curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
+    $html = curl_exec($ch);
+    $status_code = curl_getinfo($ch,CURLINFO_HTTP_CODE);
+    if($status_code==302 or $status_code==301 or $status_code==200 ){
+        $retval = curl_getinfo($ch, CURLINFO_EFFECTIVE_URL);
+        curl_close($ch);
+        return $retval;
+    }
+    return false;
+}
+function stripUrl($url){
+    $url = trim($url);
+    $url = str_replace("http://www.","",$url);
+    $url = str_replace("https://www.","",$url);
+    $url = str_replace("http://","",$url);
+    $url = str_replace("https://","",$url);
+    return $url;
+}
+function getUrl($url){
+    $url = $this->stripUrl($url);
+    
+    $realurl =   $this->myCurl('http://www.'.$url);
+    if($realurl) return $this->stripUrl($realurl);
+    
+    $realurl =   $this->myCurl('http://'.$url);
+    if($realurl) return $this->stripUrl($realurl);
+    
+    $realurl =   $this->myCurl('https://www.'.$url);
+    if($realurl) return $this->stripUrl($realurl);
+    
+    $realurl =   $this->myCurl('https://'.$url);
+    if($realurl) return $this->stripUrl($realurl);
+    return false;
+}
+?>
+==
+<h2 class="text-center">Company Details<br><small>So we can put your best cheek forward.</small></h2>
+<br>
+<div class="row">
+    <div class="col-xs-1 col-md-3"></div>
+    <div class="col-xs-10 col-md-6">
+        <p>In order to present your company correctly to searchers, the folloing info is required. It can be edited later on if need be.</p>
+        <br>
+        <form method="post" action="/register/4/">
+            <div class="form-group input-group-lg">
+                <label for="company">Company name<br><small>(This is how your company name will appear)</small></label>
+                <input name="company" type="txt" class="form-control" id="company" value="{{ company }}" placeholder="Enter your company name">
+            </div>
+            <div class="form-group input-group-lg">
+                <label for="business-description">Business Description<br><small>(This is what searchers will see when they find you)</small></label>
+                <textarea class="form-control" rows="2" id="business-description" placeholder="Short description of company 128 letters or less"></textarea>
+            </div>
+
+            <button type="submit" class="btn btn-primary btn-lg center-block">Link!</button>
+        </form>
+    </div>
+    <div class="col-xs-1 col-md-3"></div>
+</div>

@@ -1,0 +1,134 @@
+<div class="form-group  text-field span-right">
+    
+    <h3>Source Actions</h3>
+    <form method="POST" 
+            data-request="onDeleteSource"
+            data-request-confirm="Are you sure you want to delete 
+            <?= $userFrom['name'].' '.$userFrom['surname'].'&lt;'.$userFrom['email'].'&gt;' ?> 
+            from the system?">
+        <button
+            type="submit"
+            data-hotkey="ctrl+g, cmd+g"
+            data-load-indicator="Deleting Source User..."
+            class="btn btn-primary danger merge">Delete Source User... <i style="font-size:1.5em;" class="icon-trash-o"></i></button>
+        <input type="hidden" value="<?= $userFrom['id'] ?>" name="sourceId" />
+        <input type="hidden" value="<?= $userFrom['email'] ?>" name="sourceOldEmail" />
+    </form>
+
+    <form method="POST" data-request="onChangeSourceEmail">
+        <button
+            type="submit"
+            data-hotkey="ctrl+g, cmd+g"
+            data-load-indicator="Changing Source Email..."
+            class="btn btn-primary merge">Chan<u>g</u>e Source Email</button>
+        <input type="hidden" value="<?= $userFrom->id ?>" name="sourceId" />
+        <input type="hidden" value="<?= $userFrom->email ?>" name="sourceOldEmail" />
+        <input type="text" value="<?= $userFrom->email ?>" name="sourceEmail" />
+    </form>
+
+</div>
+
+
+
+
+
+<div class="form-group  text-field span-left" style="border-right: 1px solid #000000;">
+    <h3>Target Actions</h3>
+    
+    
+    
+    
+    <div class="col-xs-6">
+        <form method="POST" 
+            data-request="onTransferPassword"
+                data-request-confirm="Are you sure you want to copy password from 
+                <?= $userFrom['name'].' '.$userFrom['surname'].'&lt;'.$userFrom['email'].'&gt;' ?> 
+                to the selected target user?">
+            <button
+                type="submit"
+                data-hotkey="ctrl+g, cmd+g"
+                data-load-indicator="Transfering Password..."
+                class="btn btn-primary merge">Transfer Password Now...</button>
+                ( Saves on confirmation )
+            <input type="hidden" value="<?= $userFrom->id ?>" name="sourceId" />
+        </form>
+        
+        
+        <button
+            onClick="$('#Form-field-User-name').val('<?= $userFrom->name ?>'); $('#nameInd').show();"
+            data-hotkey="ctrl+n, cmd+n"
+            class="btn btn-primary merge">
+            Merge <u>N</u>ame <i class="icon-arrow-down"></i>
+        </button> 
+        <?= $userFrom->name ?>  &nbsp;<i id="nameInd" class="icon-check-circle-o" style="display: none"></i>
+
+
+    <br />
+        <button
+            onClick="$('#Form-field-User-surname').val('<?= $userFrom->surname ?>'); $('#surnameInd').show();"
+            data-hotkey="ctrl+m, cmd+m"
+            class="btn btn-primary merge">
+            Merge Surna<u>m</u>e <i class="icon-arrow-down"></i>
+        </button> 
+        <?= $userFrom->surname ?> &nbsp;<i id="surnameInd" class="icon-check-circle-o" style="display: none"></i>
+
+    <br />
+        <div class="bg-warning" role="alert">
+            <i class="icon-info-circle icon info"><strong></i>  Notice - </strong> Database will only allow unique email addresses for users.<br />
+            You must delete source user or change source user email before saving merged email to selected / target user.
+        </div>
+        <button
+            onClick="$('#Form-field-User-email').val('<?= $userFrom->email ?>'); $('#emailInd').show();"
+            data-hotkey="ctrl+e, cmd+e"
+            class="btn btn-primary merge">
+            Merge <u>E</u>mail <i class="icon-arrow-down"></i>
+        </button>
+        <?= $userFrom->email ?> &nbsp;<i id="emailInd" class="icon-check-circle-o" style="display: none"></i>
+    </div>
+    
+    
+    
+    
+    <div class="col-xs-6">
+        <button
+            onClick="$('#Form-field-User-phone').val('<?= $userFrom->phone ?>'); $('#phoneInd').show();"
+            class="btn btn-primary merge">
+            Merge Phone <i class="icon-arrow-down"></i>
+        </button> 
+        <?= $userFrom->phone ?>  &nbsp;<i id="phoneInd" class="icon-check-circle-o" style="display: none"></i>
+
+
+    <br />
+        <button
+            onClick="$('#Form-field-User-company').val('<?= $userFrom->company ?>'); $('#companyInd').show();"
+            class="btn btn-primary merge">
+            Merge Company <i class="icon-arrow-down"></i>
+        </button> 
+        <?= $userFrom->company ?> &nbsp;<i id="companyInd" class="icon-check-circle-o" style="display: none"></i>
+
+    <br />
+        <button
+            onClick="$('#Form-field-User-street_addr').val('<?= $userFrom->street_addr ?>'); $('#street_addrInd').show();"
+            class="btn btn-primary merge">
+            Merge Address <i class="icon-arrow-down"></i>
+        </button>
+        <?= $userFrom->street_addr ?> &nbsp;<i id="street_addrInd" class="icon-check-circle-o" style="display: none"></i>
+
+    <br />
+        <button
+            onClick="$('#Form-field-User-city').val('<?= $userFrom->city ?>'); $('#cityInd').show();"
+            class="btn btn-primary merge">
+            Merge City<i class="icon-arrow-down"></i>
+        </button>
+        <?= $userFrom->city ?> &nbsp;<i id="cityInd" class="icon-check-circle-o" style="display: none"></i>
+
+    <br />
+        <button
+            onClick="$('#Form-field-User-zip').val('<?= $userFrom->zip ?>'); $('#zipInd').show();"
+            class="btn btn-primary merge">
+            Merge Zip Code <i class="icon-arrow-down"></i>
+        </button>
+        <?= $userFrom->zip ?> &nbsp;<i id="zipInd" class="icon-check-circle-o" style="display: none"></i>
+    </div>
+</div>
+

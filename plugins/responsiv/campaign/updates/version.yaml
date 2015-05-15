@@ -1,0 +1,13 @@
+1.0.1: First version of Campaign
+1.0.2:
+    - Set up database tables
+    - create_lists_table.php
+    - create_messages_table.php
+    - create_message_statuses_table.php
+    - create_subscribers_table.php
+1.0.3:
+    - Seed all database tables
+    - seed_tables.php
+1.0.4: Implement the verification process for new subscribers.
+1.0.5: Minor fix for latest build.
+1.0.6: Fixes bug preventing a list from being deleted.

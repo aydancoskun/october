@@ -1,0 +1,112 @@
+<?php Block::put('breadcrumb') ?>
+    <ul>
+        <li><a href="<?= Backend::url('responsiv/campaign/messages') ?>">Campaigns</a></li>
+        <li><?= e($this->pageTitle) ?></li>
+    </ul>
+<?php Block::endPut() ?>
+
+<?php if (!$this->fatalError): ?>
+
+    <?php
+        $isLaunched = $formModel->status && $formModel->status != 'draft';
+        $isSent = $formModel->status && $formModel->status == 'sent';
+    ?>
+
+    <div class="scoreboard">
+        <div data-control="toolbar">
+
+            <?php if ($isLaunched): ?>
+                <div class="scoreboard-item control-chart" data-control="chart-pie">
+                    <ul>
+                        <?php if (!$isSent): ?>
+                            <li data-color="#e5a91a">Queued <span><?= $formModel->count_subscriber - $formModel->count_sent ?></span></li>
+                        <?php endif ?>
+                        <li data-color="#cccccc">Sent <span><?= $formModel->count_sent ?></span></li>
+                        <li data-color="#95b753">Opened <span><?= $formModel->count_read ?></span></li>
+                        <?php if ($isSent): ?>
+                            <li data-color="#ff0000">Unsubscribed <span><?= $formModel->count_stop ?></span></li>
+                        <?php endif ?>
+                    </ul>
+                </div>
+            <?php endif ?>
+
+            <div class="scoreboard-item title-value">
+                <h4>Campaign</h4>
+                <p><?= $formModel->iterative_name ?></p>
+                <p class="description">Template: <?= $formModel->getPageName() ?></p>
+            </div>
+
+            <?php if ($formModel->status): ?>
+                <div class="scoreboard-item title-value">
+                    <h4>Status</h4>
+                    <p><?= $formModel->status->name ?></p>
+                    <?php if ($formModel->status == 'draft'): ?>
+                        <p class="description">Still making changes...</p>
+                    <?php elseif ($formModel->status == 'pending'): ?>
+                        <p class="description">Awaiting launch...</p>
+                    <?php elseif ($formModel->status == 'active'): ?>
+                        <p class="description">In progress...</p>
+                    <?php elseif ($formModel->status == 'cancelled'): ?>
+                        <p class="description">Campaign cancelled</p>
+                    <?php else: ?>
+                        <p class="description">Campaign complete!</p>
+                    <?php endif ?>
+                </div>
+            <?php endif ?>
+
+        </div>
+    </div>
+
+    <div class="form-buttons">
+        <div class="loading-indicator-container">
+            <?= $this->makePartial('preview_toolbar', [
+                'isLaunched' => $isLaunched,
+                'isSent' => $isSent
+            ]) ?>
+        </div>
+    </div>
+
+    <div class="control-tabs content-tabs tabs-offset" data-control="tab">
+        <ul class="nav nav-tabs">
+            <?php if ($isLaunched): ?>
+                <li class="active"><a href="#messageDetails">Details</a></li>
+                <li><a href="#messageSubscribers">Subscribers</a></li>
+                <li><a href="#messageTemplate">Preview</a></li>
+            <?php else: ?>
+                <li class="active"><a href="#messageTemplate">Preview</a></li>
+            <?php endif ?>
+        </ul>
+        <div class="tab-content">
+            <?php if ($isLaunched): ?>
+                <div class="tab-pane active">
+                    <div class="padded-container">
+                        <?= $this->formRenderPreview() ?>
+                    </div>
+                </div>
+                <div class="tab-pane">
+                    <div class="relation-flush">
+                        <?= $this->relationRender('subscribers') ?>
+                    </div>
+                </div>
+                <div class="tab-pane">
+                    <div class="padded-container">
+                        <?= $this->makePartial('message_iframe') ?>
+                    </div>
+                </div>
+            <?php else: ?>
+                <div class="tab-pane active">
+                    <div class="padded-container">
+                        <?= $this->makeHintPartial(null, 'hint_subject', ['model' => $formModel]) ?>
+                    </div>
+                    <?= $this->makePartial('message_iframe') ?>
+                </div>
+            <?php endif ?>
+        </div>
+    </div>
+
+<?php else: ?>
+
+    <p class="flash-message static error"><?= e($this->fatalError) ?></p>
+    <p><a href="<?= Backend::url('responsiv/campaign/messages') ?>" class="btn btn-default">Return to messages list</a></p>
+
+<?php endif ?>

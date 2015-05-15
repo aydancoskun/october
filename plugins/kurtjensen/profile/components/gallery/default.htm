@@ -1,0 +1,42 @@
+{% set avatars = __SELF__.avatars %}
+{% set curgr = '' %}
+<div class="content center">
+    <div>
+  Sort: <a href="?sort=last">Last Name</a> | 
+  <a href="?sort=given">First Name</a> | 
+  <a href="?sort=group">Group</a>
+  </div>
+  <div>
+{% for person in people  %}
+{% if attribute(avatars, person.id) is defined %}
+        {% if sort == 'group' %}
+          {% if curgr != person.primary_usergroup %}
+            {% set curgr = person.primary_usergroup %}
+            <hr  style="float:none; clear:both;" />
+            <h2 style="float:none; clear:both;">{{ userGroups[person.primary_usergroup] }}</h2>
+            <hr  style="float:none; clear:both;" />
+          {% endif %}
+        {% endif %}
+    <div class="thumbnail">
+      <figure>
+        <a href="{{ attribute(avatars, person.id).t600 }}" target="ProfPic">
+                <img src="{{ attribute(avatars, person.id).t200 }}" alt="{{ attribute(avatars, person.id).filename }}" />
+        </a>
+        <figcaption>
+          {% if sort == 'given' %}
+              {{ person.name }} {{ person.surname }}
+          {% else %}
+              {{ person.surname }}, {{ person.name }} 
+          {% endif %}
+              - {{ userGroups[person.primary_usergroup] }}
+        </figcaption>
+      </figure>
+    </div>
+{% endif %}
+{% endfor %}
+  </div>
+</div>
+{% if people %}
+    {% partial __SELF__ ~ "::pagination" %}
+{% endif %}
+

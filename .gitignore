@@ -1,8 +1,13 @@
 /bootstrap/compiled.php
 /vendor
+/storage
+/api/database/templates_c
+api/database/templates_c
+/api/piwik/tmp/sessions
 composer.lock
 composer.phar
 .DS_Store
+.htpasswd
 php_errors.log
 nginx-error.log
 nginx-access.log

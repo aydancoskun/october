@@ -1,0 +1,96 @@
+
+
+fields:
+
+    subject:
+        label: Mail subject
+        disabled: true
+
+    #
+    # Recipient Details
+    #
+
+    recipients_section:
+        label: Target Audience
+        type: section
+
+    subscriber_lists:
+        label: Subscriber Lists
+        type: relation
+        emptyOption: There are no lists to choose from.
+
+    groups:
+        label: Recipient Groups
+        type: checkboxlist
+        placeholder: There are no groups to choose from.
+
+    #
+    # Launch Details
+    #
+
+    launch_section:
+        label: Launch Details
+        type: section
+
+    is_delayed:
+        label: Delayed launch
+        type: checkbox
+
+    launch_at:
+        label: Launch date
+        type: datepicker
+        mode: datetime
+        cssClass: field-indent
+        trigger:
+            action: show
+            field: is_delayed
+            condition: checked
+
+    is_staggered:
+        label: Staggered launch
+        type: checkbox
+
+    stagger_time:
+        label: Campaign length
+        cssClass: field-indent
+        span: left
+        type: dropdown
+        options:
+            24: One day
+            48: Two days
+            72: One week
+        trigger:
+            action: show
+            field: is_staggered
+            condition: checked
+
+    is_repeating:
+        label: Repeating campaign
+        type: checkbox
+
+    repeat_frequency:
+        label: Repeat frequency
+        cssClass: field-indent
+        span: left
+        type: dropdown
+        options:
+            daily: Daily
+            weekly: Weekly
+            monthly: Monthly
+            yearly: Yearly
+        trigger:
+            action: show
+            field: is_repeating
+            condition: checked
+
+    #
+    # Included Attachements
+    #
+
+    # attachments_section:
+    #     label: Attachments
+    #     type: section
+
+    # attachments:
+    #     type: fileupload
+    #     mode: file

@@ -1,0 +1,192 @@
+tabs:
+  fields:
+    per_label_1:
+        label: Personal Field 1 Label
+        type: text
+        span: left
+        default: Place of Birth
+        tab : Personal
+    per_typ_1:
+        label: Show As
+        type: dropdown
+        options:
+            text: Short Text
+            textarea: Text Area
+        span: right
+        default: text
+        tab : Personal
+    per_desc_1:
+        label: Description
+        type: text
+        span: left
+        default: The town you were born in.
+        comment: Edit custom settings for Personal Text Field ONE above.
+        tab : Personal
+        
+        
+    per_label_2:
+        label: Personal Field 2 Label
+        type: text
+        span: left
+        default: Favorite Activity
+        tab : Personal
+    per_typ_2:
+        label: Show As
+        type: dropdown
+        options:
+            text: Short Text
+            textarea: Text Area
+        span: right
+        default: text
+        tab : Personal
+    per_desc_2:
+        label: Description
+        type: text
+        span: left
+        default: The thing you like to do most.
+        comment: Edit custom settings for Personal Text Field TWO above.
+        tab : Personal
+        
+        
+    per_label_3:
+        label: Personal Field 3 Label
+        type: text
+        span: left
+        default: About Me
+        tab : Personal
+    per_typ_3:
+        label: Show As
+        type: dropdown
+        options:
+            text: Short Text
+            textarea: Text Area
+        span: right
+        default: textarea
+        tab : Personal
+    per_desc_3:
+        label: Description
+        type: text
+        span: left
+        default: All about you.
+        comment: Edit custom settings for Personal Text Field THREE above.
+        tab : Personal
+        
+        
+    per_label_4:
+        label: Personal Field 4 Label
+        type: text
+        span: left
+        default: Hobbies
+        tab : Personal
+    per_typ_4:
+        label: Show As
+        type: dropdown
+        options:
+            text: Short Text
+            textarea: Text Area
+        span: right
+        default: textarea
+        tab : Personal
+    per_desc_4:
+        label: Description
+        type: text
+        span: left
+        default: How you invest in your free time.
+        comment: Edit custom settings for Personal Text Field FOUR above.
+        tab : Personal
+        
+        
+    pro_label_1:
+        label: Professional Field 1 Label
+        type: text
+        span: left
+        default: Position
+        tab : Professional
+    pro_typ_1:
+        label: Show As
+        type: dropdown
+        options:
+            text: Short Text
+            textarea: Text Area
+        span: right
+        default: text
+        tab : Professional
+    pro_desc_1:
+        label: Description
+        type: text
+        span: left
+        default: Your current job title.
+        comment: Edit custom settings for Personal Text Field ONE above.
+        tab : Professional
+        
+        
+    pro_label_2:
+        label: Professional Field 2 Label
+        type: text
+        span: left
+        default: Assignment
+        tab : Professional
+    pro_typ_2:
+        label: Show As
+        type: dropdown
+        options:
+            text: Short Text
+            textarea: Text Area
+        span: right
+        default: text
+        tab : Professional
+    pro_desc_2:
+        label: Description
+        type: text
+        span: left
+        default: Where are you working now.
+        comment: Edit custom settings for Professional Text Field TWO above.
+        tab : Professional
+        
+        
+    pro_label_3:
+        label: Professional Field 3 Label
+        type: text
+        span: left
+        default: Accomplishments
+        tab : Professional
+    pro_typ_3:
+        label: Show As
+        type: dropdown
+        options:
+            text: Short Text
+            textarea: Text Area
+        span: right
+        default: textarea
+        tab : Professional
+    pro_desc_3:
+        label: Description
+        type: text
+        span: left
+        default: The positive things you have done so far.
+        comment: Edit custom settings for Professional Text Field THREE above.
+        tab : Professional
+        
+        
+    pro_label_4:
+        label: Professional Field 4 Label
+        type: text
+        span: left
+        default: Future Goals
+        tab : Professional
+    pro_typ_4:
+        label: Show As
+        type: dropdown
+        options:
+            text: Short Text
+            textarea: Text Area
+        span: right
+        default: textarea
+        tab : Professional
+    pro_desc_4:
+        label: Description
+        type: text
+        span: left
+        default: The things you want to accomplish in the next year or more.
+        comment: Edit custom settings for Professional Text Field FOUR above.
+        tab : Professional

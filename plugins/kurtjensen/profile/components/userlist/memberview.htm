@@ -1,0 +1,102 @@
+<div style="border-radius: 5px;
+width:100%;
+overflow: hidden;
+margin-top: 20px;
+margin-bottom: 20px;
+float:left;
+border: #4D4D4D 2px solid;
+padding: 5px;"
+class="row">
+    <div class="col-sm-4">
+        <h3>{{ person.name }}</h3>
+        <table>
+        <!--    <tr>
+                <td class="kurtjensen-profile-label">DBID : </td><td class="kurtjensen-profile-data"> {{ user.id }}</td>
+            </tr> -->
+            <tr>
+                <td class="kurtjensen-profile-label">Login : </td><td class="kurtjensen-profile-data bot-bord"> {{ person.login }}</td>
+            </tr>
+            <tr>
+                <td class="kurtjensen-profile-label">Company : </td><td class="kurtjensen-profile-data bot-bord"> {{ person.company }}</td>
+            </tr>
+            <tr>
+                <td class="kurtjensen-profile-label">Address : </td>
+                <td class="kurtjensen-profile-data bot-bord"> 
+                    {{ person.street_addr }}<br />
+                    {{ person.city }}, {{ person.state.name }} {{ person.zip }}
+{% if (person.city) and (person.state.name) and (person.zip) %}
+                    <a target="map" 
+                       style="font-size: small;" 
+                       href="http://maps.google.com/maps?f=q&amp;source=s_q&amp;hl=en&amp;q={{ person.street_addr }},+{{ person.city }},+{{ person.state.name }}+{{ person.zip }}&amp;z=16">
+                       <i class="icon-map-marker icon-2x"></i>
+                    </a>
+{% endif %}
+                </td>
+            </tr>
+            <tr>
+                <td class="kurtjensen-profile-label">Email : </td><td class="kurtjensen-profile-data bot-bord"> <a href="mailto:{{ person.name }}<{{ person.email }}>">{{ person.email }}</a></td>
+            </tr>
+            <tr>
+                <td> </td><td class="profile-meta"> Updated : {{ person.updated_at }}</td>
+            </tr>
+{% if person.cellphones %}            
+            
+            <tr>
+                <td class="kurtjensen-profile-label">Phones : </td><td>&nbsp;</td>
+            
+                
+{% for cphone in person.cellphones  %}
+            <tr>
+                <td class="kurtjensen-profile-label">{{ cphone.label }}</td>
+                <td class="kurtjensen-profile-data">{{ cphone.phone }}<span class="icon-2x">
+                        <a href="tel:{{ cphone.phone }}"><i class="icon-phone "></i></a>{% if cphone.provider.name %}  
+                        <a href="sms:{{ cphone.phone }}"><i class="icon-comment"></i></a>  
+                        <a href="mailto:{{ cphone.address }}"><i class="icon-envelope"></i></a></span>  
+                        <sub></sub>{% endif %}
+                </td>
+            </tr>
+            <tr>
+                <td> </td><td class="profile-meta"> Updated : {{ cphone.updated_at }} provider:{{ cphone.provider.name }}</td>
+            </tr>
+{% endfor %}        
+                </td>
+            </tr>
+{% endif %}
+        </table>        
+    </div>
+    <div class="col-sm-5">
+        
+        
+        
+        <table>            
+        {% for name, prop in epsettings %}    
+            <tr>
+                <td class="kurtjensen-profile-label">{{ prop.label }} : </td><td class="kurtjensen-profile-data bot-bord"> {{ prop.value }}</td>
+            </tr>
+        {% endfor %}
+        </table>
+        
+    </div>
+    <div class="col-sm-3">
+        <div  class="right">
+{% if person.avatar %}
+            <a href="{{ person.avatar.getThumb(600,600) }}" target="ProfPic">
+                <img class="sq200" src="{{ avatarThumb }}" alt="{{ person.avatar.filename }}" />
+            </a>
+{% else %}
+            <img class="sq200" src="{{ avatarThumb }}" alt="{{ person.avatar.filename }}" />
+{% endif %}
+        </div>
+        {% if person.profdate %}
+        <strong>Dates</strong>
+        <ul>
+        {% for date in person.profdate  %}
+            <li>
+                {{ date.label }} <strong>{{ date.day }}</strong> <br/> 
+                <sub>{{ date.note }}</sub>
+            </li>
+        {% endfor %}
+        </ul>
+        {% endif %}
+    </div>
+</div>

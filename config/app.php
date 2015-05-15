@@ -1,4 +1,5 @@
 <?php
+//if (gethostbyname("leancode.duckdns.org") == $_SERVER['REMOTE_ADDR']) $tmp=true;else $tmp=false;
 
 return array(
 
@@ -16,7 +17,7 @@ return array(
     |
     */
 
-    'debug' => true,
+    'debug' => (gethostbyname("leancode.duckdns.org") == (isset($_SERVER['REMOTE_ADDR']) ? $_SERVER['REMOTE_ADDR'] : false) ? true : false),
 
     /*
     |--------------------------------------------------------------------------
@@ -29,7 +30,7 @@ return array(
     |
     */
 
-    'url' => 'http://oktick.com',
+    'url' => 'http://www.oktick.com',
 
     /*
     |--------------------------------------------------------------------------

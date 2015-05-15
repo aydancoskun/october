@@ -1,0 +1,6 @@
+{
+    "require": {
+        "endroid/qrcode": "1.4.*",
+        "sonata-project/google-authenticator": "1.0.*"
+    }
+}

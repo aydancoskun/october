@@ -3,13 +3,13 @@
 use Cache;
 use Config;
 use Validator;
-use Cms\Classes\CodeBase;
 use SystemException;
-use Cms\Classes\FileHelper;
 use ValidationException;
 use Cms\Classes\ViewBag;
-use Cms\Twig\Extension as CmsTwigExtension;
+use Cms\Classes\CodeBase;
+use Cms\Classes\FileHelper;
 use Cms\Twig\Loader as TwigLoader;
+use Cms\Twig\Extension as CmsTwigExtension;
 use System\Twig\Extension as SystemTwigExtension;
 use Twig_Environment;
 
@@ -165,9 +165,6 @@ class CmsCompoundObject extends CmsObject
 
             $settingParts = explode(' ', $setting);
             $settingName = $settingParts[0];
-            // if (!$manager->hasComponent($settingName)) {
-            //     continue;
-            // }
 
             $components[$setting] = $value;
             unset($this->settings[$setting]);
@@ -299,20 +296,31 @@ class CmsCompoundObject extends CmsObject
      */
     public function hasComponent($componentName)
     {
+        $componentManager = ComponentManager::instance();
+        $componentName = $componentManager->resolve($componentName);
+
         foreach ($this->settings['components'] as $sectionName => $values) {
+
+            $result = $sectionName;
+
             if ($sectionName == $componentName) {
-                return $componentName;
+                return $result;
             }
 
             $parts = explode(' ', $sectionName);
+            if (count($parts) > 1) {
+                $sectionName = trim($parts[0]);
 
-            if (count($parts) < 2) {
-                continue;
+                if ($sectionName == $componentName) {
+                    return $result;
+                }
             }
 
-            if (trim($parts[0]) == $componentName) {
-                return $sectionName;
+            $sectionName = $componentManager->resolve($sectionName);
+            if ($sectionName == $componentName) {
+                return $result;
             }
+
         }
 
         return false;
@@ -354,13 +362,13 @@ class CmsCompoundObject extends CmsObject
             $objectComponentMap[$objectCode] = [];
         }
         else {
-            foreach ($this->settings['components'] as $componentName => $componentSettings) {
-                $nameParts = explode(' ', $componentName);
+            foreach ($this->settings['components'] as $name => $settings) {
+                $nameParts = explode(' ', $name);
                 if (count($nameParts > 1)) {
-                    $componentName = trim($nameParts[0]);
+                    $name = trim($nameParts[0]);
                 }
 
-                $component = $this->getComponent($componentName);
+                $component = $this->getComponent($name);
                 if (!$component) {
                     continue;
                 }
@@ -371,7 +379,7 @@ class CmsCompoundObject extends CmsObject
                     $componentProperties[$propertyName] = $component->property($propertyName);
                 }
 
-                $objectComponentMap[$objectCode][$componentName] = $componentProperties;
+                $objectComponentMap[$objectCode][$name] = $componentProperties;
             }
         }
 
@@ -433,8 +441,9 @@ class CmsCompoundObject extends CmsObject
     protected function fillViewBagArray()
     {
         $viewBag = $this->getViewBag();
-        foreach ($viewBag->getProperties() as $name=>$value)
+        foreach ($viewBag->getProperties() as $name => $value) {
             $this->viewBag[$name] = $value;
+        }
     }
 
     /**

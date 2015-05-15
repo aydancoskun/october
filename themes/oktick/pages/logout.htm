@@ -1,0 +1,17 @@
+title = "Logout"
+url = "/logout"
+layout = "main"
+hidden = "0"
+
+[account]
+redirect = "account/overview"
+paramCode = "code"
+==
+<?php
+function onInit(){
+    Auth::logout();
+    Flash::warning("You are now logged out");
+}
+?>
+==
+{% partial "acc-login" %}

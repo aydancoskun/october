@@ -1,0 +1,243 @@
+title = "Submit"
+url = "/submit/:url_query/:from?0"
+hidden = "0"
+==
+<?php
+// for debugging
+// Add the following entry into the return array for getFunctions()
+/*
+new Twig_SimpleFunction('dump', ['\Barryvdh\Debugbar\Facade', 'info'], ['is_safe' => ['html']]),
+*/
+// in modules/cms/twig/Extension.php
+// redo after update
+function onInit()
+{
+//    $this['activeMenuItem'] = 'blog';
+}
+
+function onStart(){
+    define ("ESIGN", "#!");
+    $url_query      = $this->param('url_query');
+    $from           = $this->param('from');
+    if( ! is_numeric($from) ) $from = 0;
+    define('FROM',$from);
+    $test_url_query = "bramley apples";
+    $test_url_query = "#!bramley apples";
+    $test_url_query = "pum";
+    $test_url_query = "#!Pumps (Equipment)";
+    $test_url_query = "Pumps (Equipment)";
+    $test_url_query = "#!bramley apples"; // IS_BP && WAS CLICKED
+    $test_url_query = false;
+    //define("TEST",true);
+    if($test_url_query){
+        DB::enableQueryLog();
+        $url_query = $test_url_query;
+        echo "Test results for '".$url_query."' (RAW)<br>";
+    }
+    if(!defined("TEST") ) define("TEST",false);
+
+    // takes the last url segment only
+    $url_query = trim(substr(trim($url_query,"/"), strpos($url_query, "/")),"/");
+    if ( substr( $url_query , 0,2) == ESIGN ){
+        define ("WAS_CLICKED", true);
+        $url_query = substr($url_query , 2);
+    } else {
+        define ("WAS_CLICKED", false);
+    }
+    $url_query = $this->strip_incorrect_chars($this->oktick_clean_url($url_query));
+    if ( substr( $url_query , -1 ) == " " ) define ("HAS_TRAILING_SPACE", true);
+    else define ("HAS_TRAILING_SPACE", false);
+    define ("HAS_PLUS", substr_count($url_query,"+"));
+    $url_query = str_replace("+"," ",$url_query);
+    $url_query = trim($url_query);
+    while(strpos($url_query,"  ")) $url_query = str_replace("  "," ",$url_query);
+    define ("HAS_SPACE", substr_count($this->debracket($url_query)," "));
+    DEFINE("URL_QUERY",$url_query);
+    if(TEST){
+        echo "Test results for '".URL_QUERY."'<br>";
+        echo "HAS_TRAILING_SPACE='".HAS_TRAILING_SPACE."'<br>";
+        echo "HAS_SPACE='".HAS_SPACE."'<br>";
+        echo "WAS_CLICKED='".WAS_CLICKED."'<br>";
+    }
+    if($url_query) {
+        if( $this->is_ajax_request()){
+            $this->submit();
+//            $this->suggest();
+            return;
+        } else {
+            $this->submit();
+            return;
+        }
+    }
+}
+
+function submit(){
+    //DB::enableQueryLog();
+
+    $this['companies'] =
+        DB::select("( SELECT ".
+        "companies.company_name as name ,".
+        "bp_suppliers.company_website_url as url, ".
+        "companies.vendor_data ".
+        "FROM operations.companies ".
+        "INNER JOIN operations.bp_suppliers ON bp_suppliers.company_uid=companies.uid ".
+        "WHERE ".
+        "bp_suppliers.bp= ? AND ".
+        "companies.company_website_url <> '' AND ".
+        "companies.banned <> 1 ".
+        "GROUP BY name ".
+        ") ORDER BY ".
+        "credit DESC, ".
+        "vendor_data_edited, ".
+        "companies.company_country DESC, ".
+        "company_name_calculated, ".
+        "RAND() ".
+        "LIMIT ".FROM.", 25", array(URL_QUERY));
+
+    if(empty($this['companies'])) return false;
+    $this['companies_count'] = count($this['companies']);
+    $this['search'] = $this->debracket(URL_QUERY);
+//    \Debugbar::debug("search = ".$this["search"]);
+    return;
+}
+
+function get_IS_PRIME_IS_BP_status(){
+    $this['dbresult'] =
+        DB::table('operations.primes')
+        ->select('prime')
+        ->where('no_products_found','>','0')
+        ->where('prime',"=",URL_QUERY)
+        ->take(1)
+        ->get();
+    if( ! empty($this['dbresult'])){
+        define("IS_PRIME",true);
+    } else {
+        $this['dbresult'] =
+            DB::table('operations.bps')
+            ->select('prime')
+            ->where('no_products_found','>','0')
+            ->where('bp',"=",URL_QUERY)
+            ->where('bp_is_a_prime',"=",'No')
+            ->take(1)
+            ->get();
+        if( ! empty($this['dbresult'])) {
+            define("IS_BP",true);
+            define("PRIME",$this['dbresult'][0]->prime);
+        }
+//        $this->dump_sql();
+    }
+    if(! defined("IS_PRIME")) define("IS_PRIME",false);
+    if(! defined("IS_BP")) define("IS_BP",false);
+    if(! defined("PRIME")) define("PRIME",false);
+    if(TEST){
+        echo "IS_PRIME='".IS_PRIME."'<br>";
+        echo "IS_BP='".IS_BP."'<br>";
+    }
+}
+
+function is_ajax_request(){
+    if(! empty($_SERVER['HTTP_X_REQUESTED_WITH']) && strtolower($_SERVER['HTTP_X_REQUESTED_WITH']) == 'xmlhttprequest') return true;
+    else return false;
+}
+
+function strip_incorrect_chars($str_to_strip){
+    $str_to_strip = str_replace("-", " ", $str_to_strip);
+    $str_to_strip = str_replace("?", " ", $str_to_strip);
+    $str_to_strip = str_replace("!", " ", $str_to_strip);
+    $str_to_strip = str_replace(";", " ", $str_to_strip);
+    $str_to_strip = str_replace(",", " ", $str_to_strip);
+    $str_to_strip = str_replace(".", " ", $str_to_strip);
+    $str_to_strip = str_replace("&", " ", $str_to_strip);
+    $str_to_strip = str_replace(":", " ", $str_to_strip);
+    $str_to_strip = str_replace("™", "",  $str_to_strip);// TRADEMARK
+    $str_to_strip = str_replace("℠", "",  $str_to_strip);// SERVICEMARK
+    $str_to_strip = str_replace("®", "",  $str_to_strip);// REGISTERED TRADEMARK
+    $str_to_strip = str_replace("©", "",  $str_to_strip);// COPYRIGHT
+    return $str_to_strip;
+}
+
+function oktick_clean_url($url_query){
+    $url_query = rawurldecode($url_query);
+    $url_query = str_replace("%", "", $url_query);
+    $url_query = str_replace("-", " ", $url_query);
+    $url_query = ltrim($url_query);
+    // remove all double spaces
+    while (strpos($url_query, "  ")) $url_query = str_replace("  ", " ", $url_query);
+    return $url_query;
+}
+//function get_onclick_functions($hrefurl){
+//    $onlick  = 'history.pushState({},"","' . $hrefurl . '");';
+//    $onlick .= '$.get("' . $hrefurl . '");';
+//    $onlick .= "return false;";
+//    return "";
+//    return $onlick;
+//}
+function debracket($str,$l="(",$r=")"){
+    if( strpos($str,$l) !== false AND strpos($str,$r) !== false AND strpos($str,$l) < strpos($str,$r) ) {
+        $str = preg_replace("|".$l."[^".$r."]+".$r."|","",$str);
+//        $str = preg_replace("|\([^)]+\)|","",$str);
+    }
+    return trim($str);
+}
+
+function dump_sql(){
+    $queries = DB::getQueryLog();
+    $last_query = end($queries);
+    var_dump($last_query);
+    //return "query='".$last_query['query']."' (time='".$last_query['time']."')<br>";
+}
+
+function show_result($suggestions, $onSearchComplete=" ", $debug=""){
+      if(TEST) $onSearchComplete .= $debug;
+//    $suggestions[] = "<messages><![CDATA[$messages]]></messages>";
+    //$result = chunk_split($result, 5, ' ');
+    //$result = rawurlencode(utf8_encode($result));
+//    $suggestions=array(1,2,3);
+    header("Content-type: application/json"); //makes sure entities are not interpreted
+    $return = '{"suggestions": [ ';
+    foreach($suggestions as $item) {
+        $tmp = str_replace('"','\"',$item->result);
+        $return .='"'.$tmp.'",';
+    }
+    $return .='"'.rawurlencode(utf8_encode(str_replace(" ","%20",$onSearchComplete))).'"]}';
+    echo $return;
+    exit;
+}
+?>
+==
+<div class="row">
+<div class="col-xs-1  col-md-1 col-lg-2"></div>
+<div class="col-xs-10 col-md-10 col-lg-8">
+
+{%if search %}
+    {% if companies %}
+        <table class="table table-striped table-bordered">
+            <!--thead style='background-color:#f2f2f2; color:#3085d6'-->
+            <thead>
+                <tr>
+                    <th style='font-weight: 600; color:#337AB7;background-color:#F2F2F2'><span class="glyphicon glyphicon-shopping-cart" aria-hidden="true"></span>{{"&nbsp"|raw}}Suppliers of {{ search }}:</th>
+                </tr>
+            </thead>
+            <tbody id="str_suppliers">
+                {% for company in companies %}
+                    <tr>
+                        <td>
+                            <div class="dotdotdot">
+                                <a style='color:#D04526;font-size:15px;' href='{{ company.url }}' target='_blank'>
+                                    <strong>{% if company.name starts with 'www' %}{{ company.name|replace({ "www":"www."}) }}{% else %}{{ company.name }}{% endif %}</strong>
+                                </a>
+                                <span style='color:#D04526;font-size:15px;'>
+                                {{ company.vendor_data }}</span>
+                            </div>
+                        </td>
+                    </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    {% else %}
+        <p>Sorry, no results found. Please try your search again.</p>
+    {% endif %}
+{% endif %}
+</div>
+<div class="col-xs-1 col-md-1 col-lg-2"></div>
+</row>

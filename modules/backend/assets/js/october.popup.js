@@ -10,6 +10,7 @@
  * - data-handler="widget:pluginName" - October ajax request name
  * - data-keyboard="false" - Allow popup to be closed with the keyboard
  * - data-request-data="file_id: 1" - October ajax request data
+ * - data-size="large" - Popup size, available sizes: giant, huge, large, small, tiny
  *
  * JavaScript API:
  * $('a#someLink').popup({ ajax: 'popup-content.htm' })
@@ -48,11 +49,13 @@
          * Hook in to BS Modal events
          */
         this.$modal.on('hide.bs.modal', function(){
+            self.triggerEvent('hide.oc.popup')
             self.isOpen = false
             self.setBackdrop(false)
         })
 
         this.$modal.on('hidden.bs.modal', function(){
+            self.triggerEvent('hidden.oc.popup')
             self.$container.remove()
             self.$el.data('oc.popup', null)
         })
@@ -80,7 +83,9 @@
         keyboard: true,
         extraData: {},
         content: null,
-        size: null
+        size: null,
+        adaptiveHeight: false,
+        zIndex: null
     }
 
     Popup.prototype.init = function(){
@@ -168,6 +173,12 @@
         if (this.options.size)
             modalDialog.addClass('size-' + this.options.size)
 
+        if (this.options.adaptiveHeight)
+            modalDialog.addClass('adaptive-height')
+
+        if (this.options.zIndex !== null)
+            modal.css('z-index', this.options.zIndex + 20)
+
         return modal.append(modalDialog.append(modalContent))
     }
 
@@ -186,7 +197,11 @@
     Popup.prototype.setBackdrop = function(val) {
         if (val && !this.$backdrop) {
             this.$backdrop = $('<div class="popup-backdrop fade" />')
-                .appendTo(document.body)
+
+            if (this.options.zIndex !== null)
+                this.$backdrop.css('z-index', this.options.zIndex)
+
+            this.$backdrop.appendTo(document.body)
 
             this.$backdrop.addClass('in')
             this.$backdrop.append($('<div class="modal-content popup-loading-indicator" />'))
@@ -295,6 +310,10 @@
     }
 
     $.fn.popup.Constructor = Popup
+
+    $.popup = function (option) {
+        return $('<a />').popup(option)
+    }
 
     // POPUP NO CONFLICT
     // =================

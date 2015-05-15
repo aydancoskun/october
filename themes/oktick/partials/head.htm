@@ -1,0 +1,83 @@
+description = "new head"
+
+[viewBag]
+==
+<!DOCTYPE html>
+<html lang="en" itemscope itemtype="http://schema.org/ProductSearch">
+<head>
+<meta charset="utf-8">
+<meta http-equiv="X-UA-Compatible" content="IE=edge">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<!-- The above 3 meta tags *must* come first in the head; any other head content must come *after* these tags -->
+<base href="/" />
+<title> {% if search %}Suppliers of {{ search }}{% else %}OKTick Suppliers Search{% endif %} </title>
+<meta name="description" content="OKTick Suppliers Search - {% if search %}{{ search|capitalize }} suppliers.{% else %}Simplicity Itself{% endif %}" />
+<meta name="keywords" content="{% if search %}{{ search|capitalize }}, {% endif %}Suppliers Search, Products Search, Services Search" />
+<meta name="msapplication-TileColor" content="#da532c">
+<meta name="msapplication-TileImage" content="/mstile-144x144.png">
+<meta name="theme-color" content="#ffffff">
+<!-- Facebook Metadata /-->
+<meta property="fb:page_id" content="" />
+<meta property="og:image" content="" />
+<meta property="og:description" content="OKTick Suppliers Search - {% if search %}{{ search|capitalize }} suppliers.{% else %}Simplicity Itself{% endif %}"/>
+<meta property="og:title" content="{% if search %}Suppliers of {{ search }}{% else %}OKTick Suppliers Search{% endif %}"/>
+<!-- Google+ Metadata /-->
+<meta itemprop="name" content="{% if search %}Suppliers of {{ search }}{% else %}OKTick Suppliers Search{% endif %}">
+<meta itemprop="description" content="OKTick Suppliers Search - {% if search %}{{ search|capitalize }} suppliers.{% else %}Simplicity Itself{% endif %}">
+<meta itemprop="image" content="">
+
+<meta name="author" content="humans.txt">
+<link rel="apple-touch-icon" sizes="57x57" href="/apple-touch-icon-57x57.png">
+<link rel="apple-touch-icon" sizes="60x60" href="/apple-touch-icon-60x60.png">
+<link rel="apple-touch-icon" sizes="72x72" href="/apple-touch-icon-72x72.png">
+<link rel="apple-touch-icon" sizes="76x76" href="/apple-touch-icon-76x76.png">
+<link rel="apple-touch-icon" sizes="114x114" href="/apple-touch-icon-114x114.png">
+<link rel="apple-touch-icon" sizes="120x120" href="/apple-touch-icon-120x120.png">
+<link rel="apple-touch-icon" sizes="144x144" href="/apple-touch-icon-144x144.png">
+<link rel="apple-touch-icon" sizes="152x152" href="/apple-touch-icon-152x152.png">
+<link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon-180x180.png">
+<link rel="icon" type="image/png" href="/favicon-32x32.png" sizes="32x32">
+<link rel="icon" type="image/png" href="/android-chrome-192x192.png" sizes="192x192">
+<link rel="icon" type="image/png" href="/favicon-96x96.png" sizes="96x96">
+<link rel="icon" type="image/png" href="/favicon-16x16.png" sizes="16x16">
+<link rel="manifest" href="/manifest.json">
+<!-- Bootstrap core CSS -->
+<link href="//maxcdn.bootstrapcdn.com/bootstrap/3.3.4/css/bootstrap.min.css" rel="stylesheet">
+<script>
+    function cssLoaded(href) {
+        var cssFound = false;
+        for (var i = 0; i < document.styleSheets.length; i++) {
+            var sheet = document.styleSheets[i];
+            if (
+            sheet['href'] == "http://maxcdn.bootstrapcdn.com/bootstrap/3.3.4/css/bootstrap.min.css" ||
+            sheet['href'] == "https://maxcdn.bootstrapcdn.com/bootstrap/3.3.4/css/bootstrap.min.css") {
+                cssFound = true;
+            }
+        };
+        return cssFound;
+    }
+    if (!cssLoaded('bootstrap.min.css')) {
+        local_bootstrap = new CustomEvent('link');
+        local_bootstrap.setAttribute("rel", "stylesheet");
+        local_bootstrap.setAttribute("href", "/themes/oktick/assets/bs3/css/bootstrap.min.css");
+        document.getElementsByTagName("head")[0].appendChild(local_bootstrap);
+    }
+</script>
+<!-- Custom styles for this template -->
+<link rel="stylesheet" href="//fonts.googleapis.com/css?family=Open+Sans:400,300,600,700">
+
+<!--link rel="stylesheet" href="/themes/oktick/assets/flexbox.git/jquery.flexbox.css" /-->
+<link rel="stylesheet" href="/themes/oktick/assets/css/responsive-placeholder-images-custom.css" />
+<link rel="stylesheet" href="/modules/system/assets/css/framework.extras.css">
+<link rel="stylesheet" href="/themes/oktick/assets/css/{{cssfile}}">
+<link rel="stylesheet" href="/modules/backend/formwidgets/richeditor/assets/vendor/redactor/redactor.css">
+<link rel="stylesheet" href="/plugins/rainlab/editable/assets/css/editable.css" />
+<noscript>
+<!--link rel="stylesheet" href="/themes/oktick/assets/css/oktick-noscript.css"-->
+</noscript>
+<!--[if lt IE 9]>
+<script src="https://oss.maxcdn.com/html5shiv/3.7.2/html5shiv.min.js"></script>
+<script src="https://oss.maxcdn.com/respond/1.4.2/respond.min.js"></script>
+<![endif]-->
+</head>
+<body id="body">

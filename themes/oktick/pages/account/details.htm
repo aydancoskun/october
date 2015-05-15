@@ -1,0 +1,145 @@
+title = "Details"
+url = "/account/details"
+layout = "account"
+hidden = "0"
+
+[account]
+paramCode = "code"
+
+[session]
+security = "user"
+redirect = "login"
+==
+<?php
+function onInit() {
+    \Debugbar::info("Details page onInit()");
+}
+function onStart() {
+    \Debugbar::info("Details page onStart()");
+}
+function onDelete() {
+    \Debugbar::info("Details page onDelete()");
+    $data = Input::all();
+    $rules = ['email' => 'required|email'];
+    $msgs = ['required' => 'Please fill in your email','email' => 'Please enter a valid email address'];
+    $v = Validator::make($data, $rules, $msgs);
+
+if ($v->fails())
+{
+    $this['result'] = $v->messages()->first();
+}else{
+    Mail::queue('email.newsletter', $data, function($message)
+    {
+        $message->from(post('email'));
+
+        $message->to('simon@skwebproject.com')->subject('New newsletter registration');
+
+    });
+
+    $this['result'] = 'Success!';
+}
+}
+
+function onUpdate() {
+    \Debugbar::info("Details page onUpdate()");
+}
+?>
+==
+<h2 class="text-center">My Account</h2>
+<div class="row">
+<div class="col-xs-1 col-md-2"></div>
+<div class="col-xs-10 col-md-8">
+    <form id="update_account_form" data-request="onUpdate">
+        <h3>About you</h3>
+        <div class="form-group form-inline row">
+            <div class="col-lg-6">
+                <label for="name" >First name</label>
+                <div class="input-group-lg">
+                    <input type="text" class="form-control wide" id="name" placeholder="First name" value="{{name}}">
+                </div>
+            </div>
+            <div class="col-lg-6">
+                <label for="surname">Last name</label>
+                <div class="input-group-lg">
+                    <input type="text" class="form-control" id="surname" placeholder="Last name" value="{{surname}}">
+                </div>
+            </div>
+        </div>
+        <div class="form-group input-group-lg">
+            <label for="business-email" >Current email address you use at work</label>
+            <input type="text" class="form-control" id="business-email" placeholder="you@emailaddress.com" value="{{email}}">
+        </div>
+        <div class="form-group input-group-lg has-feedback">
+            <label for="current-password" >Password</label>
+            <span class="glyphicon glyphicon-ok form-control-feedback" aria-hidden="true"></span>
+            <input type="password" class="form-control" id="current-password" placeholder="">
+        </div>
+        <div class="form-group input-group-lg">
+            <label for="new-password-1" >Choose a new password<br><small>Only fill this if you intent to change your password.</small></label>
+            <input type="password" class="form-control" id="new-password-1" placeholder="">
+        </div>
+        <div class="form-group input-group-lg">
+            <label for="new-password-2" >Verify the new password</label>
+            <input type="password" class="form-control" id="new-password-2" placeholder="">
+        </div>
+        <div class="text-right">
+            <button type="submit" class="btn btn-primary btn-lg">Submit</button>
+        </div>
+        <div class="form-group has-success has-feedback">
+            <label class="control-label" for="inputSuccess2">Input with success</label>
+            <input type="text" class="form-control" id="inputSuccess2" aria-describedby="inputSuccess2Status">
+            <span class="glyphicon glyphicon-ok form-control-feedback" aria-hidden="true"></span>
+            <span id="inputSuccess2Status" class="sr-only">(success)</span>
+        </div>
+    </form>
+    <br>
+    <br>
+    <br>
+    <br>
+    <form id="delete_account_form" data-request="onDelete">
+        <div class="form-group input-group-lg">
+            <table class="table">
+                <tr class="danger" style="border:none;">
+                    <th class="danger text-center">
+                        DANGER ZONE!
+                    </th>
+                </tr>
+                <tr class="danger">
+                    <td class="danger text-center" style="border:none;">
+                        This section is allows you to delete your account and any data related to it!
+                    </td>
+                </tr>
+                <tr class="danger">
+                    <td class="danger text-center" style="border:none;">
+                        To delete your account enter your password below and click "Delete Account".
+                    </td>
+                </tr>
+                <tr><td style="border:none;"><p></p></td></tr>
+                <tr>
+                    <td style="border:none;">
+                        <label for="business-password" >Password<br><small>You must enter your password to confirm account deletion</small></label>
+                        <input type="password" class="form-control" id="business-password" placeholder="">
+                    </td>
+                </tr>
+                <tr>
+                    <td class="text-center" style="border:none;">
+                        <button type="submit" class="btn btn-danger btn-lg">Delete Account</button>
+                    </td>
+                </tr>
+            </table>
+        </div>
+    </form>
+</div>
+
+<div class="col-xs-1 col-md-2"></div>
+</div>
+<!-- page specific javascript goes here-->
+<script>
+function pageInit(){
+//    document.write('<script src="/app/ot/assets/jquery.show-password/bootstrap-show-password.min.js"><\/script>');
+};
+//$('#delete_account_form').request('onDelete', {
+//    confirm: 'Are you sure?',
+//    redirect: '/dashboard'
+//});
+</script>

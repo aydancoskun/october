@@ -4,3 +4,6 @@
 [submodule "DbConnector"]
         path = web-hooks
         url = https://github.com/magenx/gitlab-webhook-php.git
+[jQuery-readmore]
+	path = themes/oktick/assets/libs/jQuery-readmore
+	utl = 

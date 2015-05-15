@@ -1,0 +1,99 @@
+description = "nav-top"
+
+[viewBag]
+
+
+[session]
+security = "all"
+==
+<?php
+function onStart(){
+    if ( Request::segment(1) == "logout"){
+        $this['logout'] = true;
+    } else {
+        $this['logout'] = false;
+    }
+}
+?>
+==
+<nav class="navbar navbar-default navbar-fixed-top">
+    <div class="container">
+        <div class="navbar-header">
+            <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#navbar" aria-expanded="false" aria-controls="navbar">
+                <span class="sr-only">Toggle navigation</span>
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+            </button>
+        </div>
+        <div id="navbar" class="navbar-collapse collapse">
+            <ul class="nav navbar-nav">
+                <li class="active"><a href="/">
+                    <span   class="glyphicon glyphicon-home" 
+                            aria-hidden="true"
+                            data-toggle="tooltip" 
+                            data-trigger="hover" 
+                            data-placement="bottom" 
+                            title="OKTicK Search"
+                            data-content="Back to OKTicK Search">
+                    </span>
+                </a></li>
+                <li class="{% if this.page.id == "pages-news" %}active{% endif %}"><a href="/news">News</a></li>
+                <li class="{% if this.page.id == "pages-search-tips" %}active{% endif %}"><a href="/search-tips">Search Tips</a></li>
+                <li class="{% if this.page.id == "pages-why-register" %}active{% endif %}"><a href="/why-register">Why Register?</a></li>
+                <li class="{% if this.page.id == "pages-faq" %}active{% endif %}"><a href="/faq">FAQ</a></li>
+            </ul>
+            <ul class="nav navbar-nav navbar-right">
+            {% if user and not logout %}
+                <li class="{% if this.page.id == "account-help" %}active{% endif %}">
+                    <a href="/account/help">
+                        <span   class="glyphicon glyphicon-question-sign" 
+                                aria-hidden="true"
+                                data-toggle="tooltip" 
+                                data-trigger="hover" 
+                                data-placement="bottom" 
+                                title="Help"
+                                data-content="Help">
+                        </span>
+                    </a>
+                </li>
+                <li class="{% if this.page.id == "account" %}active{% endif %}">
+                    <a href="/account">
+                        <span   class="glyphicon glyphicon-th" 
+                                aria-hidden="true"
+                                data-toggle="tooltip" 
+                                data-trigger="hover" 
+                                data-placement="bottom" 
+                                title="Dashboard"
+                                data-content="Dashboard">
+                        </span>
+                    </a>
+                </li>
+                <li class="{% if this.page.id == "logout" %}active{% endif %}">
+                    <a href="/logout">
+                        <span   class="glyphicon glyphicon-off" 
+                                aria-hidden="true"
+                                data-toggle="tooltip" 
+                                data-trigger="hover" 
+                                data-placement="bottom" 
+                                title="Logout {{user.email}}"
+                                data-content="Click here to Logout">
+                        </span>
+                    </a>
+                </li>
+            {% else %}
+                <li class="{% if this.page.id == "register-1" %}active{% endif %}">
+                    <a href="/register/1/">
+                        <!--span class="glyphicon glyphicon-cog" aria-hidden="true"></span-->&nbsp;Register
+                    </a>
+                </li>
+                <li class="{% if this.page.id == "login" %}active{% endif %}">
+                    <a href="/login" style="text-decoration:none;">
+                        <span class="glyphicon glyphicon-user" aria-hidden="true"></span>&nbsp;Login
+                    </a>
+                </li>
+            {% endif %}
+            </ul>
+        </div>
+    </div>
+</nav>

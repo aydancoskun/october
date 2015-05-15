@@ -1,0 +1,13 @@
+<div  class="text-right">
+    <button
+        claas="btn btn-default"
+        title="Edit"
+        data-request-data="user_id: {{ user.id }}"
+        data-request="onProfileForm" 
+        data-request-update="'ExtendedInfo::extendedupdate': '#extended-info'">
+           Edit <i class="icon-pencil btn-icon danger"></i>
+    </button>
+</div>
+<div id="extended-info">
+{% partial __SELF__~'::extended-info' %}
+</div>

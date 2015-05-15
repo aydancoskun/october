@@ -1,0 +1,7 @@
+<table>
+{% for name, prop in epsettings %}    
+    <tr>
+        <td class="kurtjensen-profile-label">{{ prop.label }}: </td><td class="kurtjensen-profile-data"> {{ prop.value }}</td>
+    </tr>
+{% endfor %}
+</table>

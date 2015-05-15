@@ -21,7 +21,7 @@ return [
         ]
     ],
     'partial' => [
-        'not_found' => "The partial ':name' is not found."
+        'not_found_name' => "The partial ':name' is not found."
     ],
     'account' => [
         'sign_out' => 'Sign out',
@@ -256,7 +256,7 @@ return [
     ],
     'mysettings' => [
         'menu_label' => 'My Settings',
-        'menu_description' => 'Settings relate to your administration account'
+        'menu_description' => 'Settings related to your administration account'
     ],
     'myaccount' => [
         'menu_label' => 'My account',
@@ -299,6 +299,6 @@ return [
         'email' => 'Email'
     ],
     'filter' => [
-      'all' => 'all'
-    ]
+        'all' => 'all',
+    ],
 ];

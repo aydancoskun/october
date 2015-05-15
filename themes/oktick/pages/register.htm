@@ -1,33 +1,79 @@
 title = "Register"
-url = "/_register"
+url = "/register/:activationcode?"
+layout = "main"
 hidden = "0"
 
-[staticMenu oktickMenu]
-code = "oktick-menu"
-
 [account]
-paramCode = "code"
-
-[staticMenu]
+redirect = "register"
+paramCode = "activationcode"
 ==
-{% partial "header"  cssfile="oktick-login.css" %}
-<body style="background-color:#fcfcfc !important;" class="default">
-<div class="row" id="body-container" >
-{% partial 'menu-top' items=oktickMenu.menuItems %}
-{% partial 'back-to-search-button' visibility='' %}
-{% partial 'logo' %}
-<div class="row" >{{nbsp|raw}}</div>
-<div class="row">
-    <div class="centered eleven columns text-left">
-        <h4 id = "page_title">{{this.page.title}}</h4>
+<?php
+function onStart()
+{
+    $this['code']=Request::segment(2);
+}
+?>
+==
+{% if not user %}
+    <h2 class="text-center">Registration<br><small>To start just fill out the form below.</small></h2>
+    <br>
+    <div class="row">
+        <div class="col-xs-1 col-md-4"></div>
+        <div class="col-xs-10 col-md-4">
+            <form data-request="onRegister">
+
+                <div class="form-group input-group-lg">
+                    <label for="registerName">Full Name</label>
+                    <input name="name" type="text" class="form-control" id="registerName" placeholder="Enter your full name">
+                </div>
+
+                <div class="form-group input-group-lg">
+                    <label for="registerEmail">Email</label>
+                    <input name="email" type="email" class="form-control" id="registerEmail" placeholder="Enter your email">
+                </div>
+
+                <div class="form-group input-group-lg">
+                    <label for="registerPassword">Password</label>
+                    <input name="password" type="password" class="form-control" id="registerPassword" placeholder="Choose a password">
+                </div>
+
+                <button type="submit" class="btn btn-primary btn-lg">Register</button>
+
+            </form>
+        </div>
+        <div class="col-xs-1 col-md-4"></div>
     </div>
-</div>
-<div class="row" >{{nbsp|raw}}</div>
-<div class="row">
-	<div class="centered eleven columns text-left">
-		{% component 'account::register' %}
-	</div>
-</div>
-<div class="row" >{{nbsp|raw}}</div>
-{% partial 'copyright' %}
-{% partial 'footer' %}
+{% elseif not user.is_activated %}
+    <h2 class="text-center">Account Activation<br><small>Please confirm your email!</small></h2>
+    <br>
+    <div class="row">
+        <div class="col-xs-1 col-md-4"></div>
+        <div class="col-xs-10 col-md-4">
+            <p>We have send you an email with a link to confirm. Please the link to continue. If you have not received the mail in the next few minutes, then check your spam folder to make sure the mail did not land there.</p>
+            <br>
+            <p>We have send you an email with a link to confirm. Please the link to continue. If you have not received the mail in the next few minutes, then check your spam folder to make sure the mail did not land there.</p>
+            <br>
+        </div>
+        <div class="col-xs-1 col-md-4"></div>
+    </div>
+{% elseif user.is_activated %}
+    <h2 class="text-center">Account Activation<br><small>Email account confirmed!</small></h2>
+    <br>
+    <div class="row">
+        <div class="col-xs-1 col-md-4"></div>
+        <div class="col-xs-10 col-md-4">
+            <p>The next step is to link you to the company you are representing.</p>
+            <br>
+            <form data-request="onClaim">
+                <div class="input-group">
+                    <label class="sr-only" for="registerCompany">Company website address</label>
+                    <input class="form-control" name="name" type="text" id="registerCompany" placeholder="Enter your company website address">
+                    <span class="input-group-btn">
+                        <button id="go-button" class="btn btn-primary btn" type="submit">Link</button>
+                    </span>
+                </div>
+            </form>
+        </div>
+        <div class="col-xs-1 col-md-4"></div>
+    </div>
+{% endif %}

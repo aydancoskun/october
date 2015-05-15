@@ -1,0 +1,5 @@
+1.0.0:
+    - First version of GeoLocale Switcher
+1.1.0:
+    - Refactor to Keios and upgrade for OctoberCMS RC
+    - keios_migrate.php

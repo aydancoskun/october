@@ -1,0 +1,123 @@
+<?php namespace Responsiv\Campaign;
+
+use Event;
+use Backend;
+use System\Classes\PluginBase;
+use Responsiv\Campaign\Classes\CampaignManager;
+
+/**
+ * Campaign Plugin Information File
+ */
+class Plugin extends PluginBase
+{
+
+    /**
+     * Returns information about this plugin.
+     *
+     * @return array
+     */
+    public function pluginDetails()
+    {
+        return [
+            'name'        => 'Campaign Manager',
+            'description' => 'Send messages to subscription lists',
+            'author'      => 'Responsiv',
+            'icon'        => 'icon-envelope-square'
+        ];
+    }
+
+    public function register()
+    {
+        $this->registerConsoleCommand('campaign.run', 'Responsiv\Campaign\Console\CampaignRun');
+    }
+
+    public function registerComponents()
+    {
+        return [
+            'Responsiv\Campaign\Components\Template' => 'campaignTemplate',
+            'Responsiv\Campaign\Components\Signup'   => 'campaignSignup',
+        ];
+    }
+
+    public function registerNavigation()
+    {
+        return [
+            'campaign' => [
+                'label'       => 'Mailing List',
+                'url'         => Backend::url('responsiv/campaign/messages'),
+                'icon'        => 'icon-envelope',
+                'permissions' => ['campaign.*'],
+                'order'       => 500,
+
+                'sideMenu' => [
+                    'messages' => [
+                        'label'       => 'Campaigns',
+                        'icon'        => 'icon-newspaper-o',
+                        'url'         => Backend::url('responsiv/campaign/messages'),
+                        'permissions' => ['campaign.access_campaigns'],
+                    ],
+                    'lists' => [
+                        'label'       => 'Lists',
+                        'icon'        => 'icon-list',
+                        'url'         => Backend::url('responsiv/campaign/lists'),
+                        'permissions' => ['campaign.access_subscribers'],
+                    ],
+                    'subscribers' => [
+                        'label'       => 'Subscribers',
+                        'icon'        => 'icon-user-plus',
+                        'url'         => Backend::url('responsiv/campaign/subscribers'),
+                        'permissions' => ['campaign.access_subscribers'],
+                    ],
+                ]
+
+            ]
+        ];
+    }
+
+    public function registerMailTemplates()
+    {
+        return [
+            'responsiv.campaign::mail.confirm_subscriber' => 'Confirmation email sent to a new subscriber when joining a mailing list.',
+        ];
+    }
+
+    public function registerSchedule($schedule)
+    {
+        // Perform a task every hour
+        $schedule->call(function(){
+            CampaignManager::instance()->process();
+        })->hourly();
+    }
+
+    public function boot()
+    {
+        if (class_exists('RainLab\User\Plugin')) {
+            $this->reverseExtendRainLabUser();
+        }
+    }
+
+    /*
+     * Conditional extension for the RainLab.User plugin
+     */
+    protected function reverseExtendRainLabUser()
+    {
+        Event::listen('responsiv.campaign.listRecipientGroups', function() {
+            return [
+                'rainlab-user-all-users' => 'All registered users',
+            ];
+        });
+
+        Event::listen('responsiv.campaign.getRecipientsData', function($type) {
+            if ($type != 'rainlab-user-all-users') return;
+
+            $result = [];
+            $allUsers = \RainLab\User\Models\User::select('name', 'surname', 'email')->get();
+            foreach ($allUsers as $user) {
+                $result[$user->email] = ['first_name' => $user->name, 'last_name' => $user->surname];
+            }
+
+            return $result;
+        });
+    }
+
+}

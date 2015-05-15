@@ -1,0 +1,90 @@
+title = "Company"
+url = "/account/company"
+layout = "account"
+hidden = "0"
+
+[account]
+paramCode = "code"
+
+[session]
+security = "user"
+redirect = "login"
+==
+<?php
+function onStart() {
+    try {
+        $user = $this->account->user();
+        $this['email'] = $user->attributes['email'];
+    } catch (Exception $e) {
+        \Debugbar::addException($e);
+    }
+}
+?>
+==
+<h2 class="text-center">Company Details</h2>
+<div class="row">
+<div class="col-xs-1 col-md-2"></div>
+<div class="col-xs-10 col-md-8">
+{% if not can('Edit Company') %}{% set disabled = 'disabled' %}{% else %}{% set disabled = '' %}{% endif %}
+<form>
+<h3>About your business</h3>
+<div class="form-group input-group-lg">
+    <label for="business-website">Business Website</label>
+    <input type="text" class="form-control" id="business-website" placeholder="www.example.com">
+</div>
+{% if disabled %}
+<p>All other options are currently disabled because your email address, <{{email}}> does not match your company domain name. If you mistyped your domain name you can change it above. If you need to change your email address, e.g.  because you gave your personal instead of your business email, you can do so on your "My Account" page <a href="/account/details">here</a>.</p>
+{% endif %}
+<div class="form-group input-group-lg">
+    <label for="business-name">Business or organisation name</label>
+    <input type="text" class="form-control" id="business-name" placeholder="Name" {{disabled}}>
+</div>
+<div class="form-group input-group-lg">
+    <label for="business-description">Business Description</label>
+    <input type="text" class="form-control" id="business-description" placeholder="Short description of company 128 letters or less" {{disabled}}>
+</div>
+<div class="form-group input-group-lg">
+    <label for="business-size">Number of employees</label>
+    <select class="form-control" id="business-size" {{disabled}}>
+        <option value="">Please Select</option>
+        <option value="1">1 employee</option>
+        <option value="2-9">2-9 employees</option>
+        <option value="10-19">10-19 employees</option>
+        <option value="20-49">20-49 employees</option>
+        <option value="50-99">50-99 employees</option>
+        <option value="100-199">100-199 employees</option>
+        <option value="200-349">200-349 employees</option>
+        <option value="350-999">350-999 employees</option>
+        <option value="1000-2999">1000-2999 employees</option>
+        <option value="3000+">3000+ employees</option>
+    </select>
+</div>
+<div class="form-group input-group-lg">
+    <label for="business-country">Country/Region</label>
+    <select class="form-control" id="business-country" {{disabled}}>
+        {% partial "country-selector" %}
+    </select>
+</div>
+<div class="form-group input-group-lg">
+    <label for="business-address-line-1">Business address</label>
+    <input type="text" class="form-control" id="business-address-line-1" placeholder="Line 1" {{disabled}}>
+    <label for="business-address-line-2" class="sr-only">Business Address Line 2</label>
+    <input type="text" class="form-control" id="business-address-line-2" placeholder="Line 2" {{disabled}}>
+</div>
+<div class="form-group input-group-lg">
+    <label for="business-city">City/Town</label>
+    <input type="text" class="form-control" id="business-city" placeholder="City" {{disabled}}>
+</div>
+<div class="form-group input-group-lg">
+    <label for="business-state">County/State</label>
+    <input type="text" class="form-control" id="business-state" placeholder="West Sussex / Florida" {{disabled}}>
+</div>
+<div class="form-group input-group-lg">
+    <label for="business-postcode">Postcode/ZIP code</label>
+    <input type="text" class="form-control" id="business-postcode" placeholder="RH19 4JY / 33756" {{disabled}}>
+</div>
+<div class="text-right">
+    <button type="submit" class="btn btn-primary btn-lg">Submit</button>
+</div>
+</form>
+<div class="col-xs-1 col-md-2"></div>

@@ -1,30 +1,19 @@
-<form data-request="onRegister">
-	<fieldset>
-		<legend>Enter your details:</legend>
-		<ul>
-			<li class="field">
-				<!--label class ="inline" for="registerName">Full Name</label-->
-				<input class="text input" name="name" type="text" class="form-control" id="registerName" placeholder="Enter your full name">
-			</li>
-        	<li class="field">
-            	<input class="text input" name="name" type="text" class="form-control" id="registerName" placeholder="Enter your company name">
-        	</li>
-        	<li class="field">
-        	    <input class="text input" name="name" type="text" class="form-control" id="registerName" placeholder="Enter your company url">
-        	</li>
-        	<li class="field">
-        	    <!--label class="inline" for="registerEmail">Email&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</label-->
-        	    <input class="text input" name="email" type="email" class="form-control" id="registerEmail" placeholder="Enter your email">
-        	</li>
-        	<li class="field">
-        	    <input class="password input" name="password" type="password" class="form-control" id="registerPassword" placeholder="Choose a password">
-        	</li>
-			<li class="field">
-        	    <input class="password input" name="password" type="password" class="form-control" id="registerPassword" placeholder="Verify your password">
-        	</li>
-    	</ul>
-    	<div class="medium primary btn">
-			<button type="submit" class="btn-default">Register</button>
-		</div>
-	</fieldset>
+<form
+    data-request="onRegister">
+    <div class="form-group">
+        <label for="registerName">Full Name</label>
+        <input name="name" type="text" class="form-control" id="registerName" placeholder="Enter your full name">
+    </div>
+
+    <div class="form-group">
+        <label for="registerEmail">Email</label>
+        <input name="email" type="email" class="form-control" id="registerEmail" placeholder="Enter your email">
+    </div>
+
+    <div class="form-group">
+        <label for="registerPassword">Password</label>
+        <input name="password" type="password" class="form-control" id="registerPassword" placeholder="Choose a password">
+    </div>
+
+    <button type="submit" class="btn btn-default">Register</button>
 </form>

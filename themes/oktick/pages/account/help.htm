@@ -1,0 +1,36 @@
+title = "Help"
+url = "/account/help"
+layout = "account"
+hidden = "0"
+
+[session]
+security = "user"
+redirect = "login"
+
+[editable]
+
+
+[account]
+paramCode = "code"
+==
+<?php
+function onEnd()
+{
+    //echo "<pre>"; 
+    //var_dump($this['user']);
+    //exit;
+}
+
+function onStart(){
+    try {
+        $user = $this->account->user();
+        $this['email'] = $user->attributes['email'];
+        $this['name'] = $user->attributes['name'];
+        $this['surname'] = $user->attributes['surname'];
+    } catch (Exception $e) {
+        \Debugbar::addException($e);
+    }
+}
+?>
+==
+{% component 'editable' file="help.htm" %}

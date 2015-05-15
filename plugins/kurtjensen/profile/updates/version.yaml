@@ -1,0 +1,26 @@
+1.0.1: First version of Profile
+1.0.2: 
+    - Created profiles table
+    - create_profiles_table.php
+1.0.3:
+    - Change String fields to Txt to allow more content
+    - profile_change_str_to_txt.php
+1.0.4:
+    - Change family_name to surname and drop given_name
+1.0.5:
+    - Fix iPhone edit link bug.
+    - Simplify getPrimaryUsergroupOptions() in Plugin.php
+1.0.6:
+    - Update to RC compatible.
+1.0.7:
+    - missed 'foreignKey' in update to RC
+1.0.8:
+    - Added User Merge feature to backend
+1.0.9:
+    - Added single user view function to Userlist
+1.0.10:
+    - Added profile image zoom and icon style links
+1.0.11:
+    - Added avatar picture gallery
+1.0.12:
+    - Fixed sort in pagination for avatar picture gallery

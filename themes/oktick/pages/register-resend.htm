@@ -1,0 +1,52 @@
+title = "Register Resend"
+url = "/register/resend"
+layout = "main"
+hidden = "0"
+==
+<?php
+function onStart() {
+    $this['email'] = post('email');
+    $result = Db::select('select id, name, activation_code from users where email = ? and activation_code IS NOT NULL limit 1', [$this['email']]);
+    if ( ! count($result) ){
+        Flash::error(Lang::get('Sorry, this email is not scheduled for activation, try again!'));
+        return;
+    }
+    $activation_code = $result[0]->activation_code;
+    $userId = $result[0]->id;
+    $this['name'] = $result[0]->name;
+
+    $code = implode('!', [$userId, $activation_code]);
+    $link = str_replace("resend","",$this->currentPageUrl())."1/".$code;
+    
+    $params = [
+        'name' => $this['name'],
+        'link' => $link,
+        'code' => $code
+    ];
+    Mail::send('rainlab.user::mail.activate', $params, function($message) {
+        $message->to( $this['email'] , $this['name'] );
+        Flash::success(Lang::get('rainlab.user::lang.account.activation_email_sent'));
+        return;
+    });
+}
+?>
+==
+<h2 class="text-center">Account Activation<br><small>Please confirm your email!</small></h2>
+<br>
+<div class="row">
+    <div class="col-xs-1 col-md-3"></div>
+    <div class="col-xs-10 col-md-6">
+        <p>We have send you an email with a link to confirm. Please click the link to continue.</p>
+        <p>If you have not received the email in the next few minutes, then check your spam folder to make sure the mail did not land there.</p>
+        <p>If you need the email resend enter your email below.</p>
+        <br>
+        <form method="post" action="/register/resend/">
+            <div class="form-group input-group-lg">
+                <label for="email">Email</label>
+                <input name="email" type="txt" class="form-control" id="email" value="{{ email }}" placeholder="Enter your email address">
+            </div>
+            <button type="submit" class="btn btn-primary btn-lg center-block">Go!</button>
+        </form>
+    </div>
+    <div class="col-xs-1 col-md-3"></div>
+</div>

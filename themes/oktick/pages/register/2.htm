@@ -1,0 +1,35 @@
+title = "2"
+url = "/register/2/:activationcode?"
+layout = "blank"
+hidden = "0"
+
+[account]
+redirect = "register-3"
+paramCode = "activationcode"
+==
+<?php
+function onStart() {
+    $this['email'] = session::get('email');
+    if($this->account->user()) return redirect('register/3/');
+}
+?>
+==
+<h2 class="text-center">Account Activation<br><small>Please confirm your email!</small></h2>
+<br>
+<div class="row">
+    <div class="col-xs-1 col-md-3"></div>
+    <div class="col-xs-10 col-md-6">
+        <p>We have send you an email with a link to confirm. Please click the link to continue.</p>
+        <p>If you have not received the email in the next few minutes, then check your spam folder to make sure the mail did not land there.</p>
+        <br>
+        <form method="post" action="/register/resend/">
+            <div class="form-group input-group-lg">
+                <label for="email">To resend enter your email</label>
+                <input name="email" type="txt" class="form-control" id="email" value="{{ email }}" placeholder="Enter your email address">
+            </div>
+            <button type="submit" class="btn btn-primary btn-lg center-block">Resend!</button>
+        </form>
+    </div>
+    
+    <div class="col-xs-1 col-md-3"></div>
+</div>

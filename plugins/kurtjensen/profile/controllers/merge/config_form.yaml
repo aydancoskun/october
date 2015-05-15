@@ -1,0 +1,33 @@
+# ===================================
+#  Form Behavior Config
+# ===================================
+
+# Record name
+name: Merge
+
+# Model Form Field configuration
+form: $/kurtjensen/profile/controllers/merge/fields.yaml
+
+# Model Class name
+modelClass: RainLab\User\Models\User
+
+# Default redirect location
+defaultRedirect: kurtjensen/profile/merge
+
+
+
+# Create page
+create:
+    title: Create Merge
+    redirect: kurtjensen/profile/merge/update/:id
+    redirectClose: kurtjensen/profile/merge
+
+# Update page
+update:
+    title: Edit Merge
+    redirect: kurtjensen/profile/merge
+    redirectClose: kurtjensen/profile/merge
+
+# Preview page
+preview:
+    title: Preview Merge

@@ -1,0 +1,79 @@
+title = "4"
+url = "/register/4"
+layout = "blank"
+hidden = "0"
+
+[RainLab\User\Components\Account account]
+paramCode = "code"
+==
+<?php
+function onStart() {
+    $this['www']=post('www');
+    $this['company']=post('company');
+    if( $user = $this->account->user() ) {
+        $this['email'] = $user->attributes['email'];
+        $this['name'] = $user->attributes['name'];
+    } else {
+        return redirect('register/1/');
+    }
+}
+?>
+==
+<h2 class="text-center">Personal Details<br><small>Ready to finalise your registration.</small></h2>
+<br>
+<div class="row">
+<div class="col-xs-1 col-md-2"></div>
+<div class="col-xs-10 col-md-8">
+<form>
+<h3>About you {{name}} ({{ email}})</h3>
+<br>
+<h3>About {{ company }} ({{ www }})</h3>
+<div class="form-group input-group-lg">
+    <label for="business-description">Business Description</label>
+    <input type="text" class="form-control" id="business-description" placeholder="Short description of company 128 letters or less">
+</div>
+<div class="form-group input-group-lg">
+    <label for="business-size">Number of employees</label>
+    <select class="form-control" id="business-size">
+        <option value="">Please Select</option>
+        <option value="1">1 employee</option>
+        <option value="2-9">2-9 employees</option>
+        <option value="10-19">10-19 employees</option>
+        <option value="20-49">20-49 employees</option>
+        <option value="50-99">50-99 employees</option>
+        <option value="100-199">100-199 employees</option>
+        <option value="200-349">200-349 employees</option>
+        <option value="350-999">350-999 employees</option>
+        <option value="1000-2999">1000-2999 employees</option>
+        <option value="3000+">3000+ employees</option>
+    </select>
+</div>
+<div class="form-group input-group-lg">
+    <label for="business-country">Country/Region</label>
+    <select class="form-control" id="business-country">
+        {% partial "country-selector" %}
+    </select>
+</div>
+<div class="form-group input-group-lg">
+    <label for="business-address-line-1">Business address</label>
+    <input type="text" class="form-control" id="business-address-line-1" placeholder="Line 1">
+    <label for="business-address-line-2" class="sr-only">Business Address Line 2</label>
+    <input type="text" class="form-control" id="business-address-line-2" placeholder="Line 2">
+</div>
+<div class="form-group input-group-lg">
+    <label for="business-city">City/Town</label>
+    <input type="text" class="form-control" id="business-city" placeholder="City">
+</div>
+<div class="form-group input-group-lg">
+    <label for="business-state">County/State</label>
+    <input type="text" class="form-control" id="business-state" placeholder="West Sussex / Florida">
+</div>
+<div class="form-group input-group-lg">
+    <label for="business-postcode">Postcode/ZIP code</label>
+    <input type="text" class="form-control" id="business-postcode" placeholder="RH19 4JY / 33756">
+</div>
+<div class="text-right">
+    <button type="submit" class="btn btn-primary btn-lg">Submit</button>
+</div>
+</form>
+<div class="col-xs-1 col-md-2"></div>

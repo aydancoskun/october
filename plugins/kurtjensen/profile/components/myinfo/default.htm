@@ -1,0 +1,12 @@
+<div  class="text-right">
+    <button
+      claas="btn btn-default"
+      title="Edit"
+      data-request="onUserForm" 
+      data-request-update="'MyInfo::userupdate': '#user-info'">
+      Edit <i class="icon-pencil btn-icon danger"></i>
+   </button>
+</div>
+<div id="user-info">
+{% partial __SELF__~'::userdisplay' %}
+</div>

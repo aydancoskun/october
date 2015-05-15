@@ -15,7 +15,9 @@ use Exception;
 use BackendAuth;
 use Backend\Models\UserPreferences;
 use Backend\Models\BackendPreferences;
+use Cms\Widgets\MediaManager;
 use System\Classes\ErrorHandler;
+use October\Rain\Exception\AjaxException;
 use October\Rain\Exception\SystemException;
 use October\Rain\Exception\ValidationException;
 use October\Rain\Exception\ApplicationException;
@@ -146,6 +148,10 @@ class Controller extends Extendable
         $this->viewPath = $this->configPath = $this->guessViewPath();
 
         parent::__construct();
+
+        // Media Manager widget is available on all back-end pages
+        $manager = new MediaManager($this, 'ocmediamanager');
+        $manager->bindToController();
     }
 
     /**
@@ -316,7 +322,8 @@ class Controller extends Extendable
         // Execute the action
         $result = call_user_func_array([$this, $actionName], $parameters);
 
-        if ($result instanceof RedirectResponse) {
+        // Expecting \Response and \RedirectResponse
+        if ($result instanceof \Symfony\Component\HttpFoundation\Response) {
             return $result;
         }
 
@@ -401,10 +408,10 @@ class Controller extends Extendable
                  */
                 if ($result instanceof RedirectResponse) {
                     $responseContents['X_OCTOBER_REDIRECT'] = $result->getTargetUrl();
+                }
                 /*
                  * No redirect is used, look for any flash messages
                  */
-                }
                 elseif (Flash::check()) {
                     $responseContents['#layout-flash-messages'] = $this->makeLayoutPartial('flash_messages');
                 }
@@ -426,13 +433,10 @@ class Controller extends Extendable
                 $responseContents = [];
                 $responseContents['#layout-flash-messages'] = $this->makeLayoutPartial('flash_messages');
                 $responseContents['X_OCTOBER_ERROR_FIELDS'] = $ex->getFields();
-                return Response::make($responseContents, 406);
+                throw new AjaxException($responseContents);
             }
             catch (MassAssignmentException $ex) {
-                return Response::make(
-                    Lang::get('backend::lang.model.mass_assignment_failed', ['attribute' => $ex->getMessage()]),
-                    500
-                );
+                throw new ApplicationException(Lang::get('backend::lang.model.mass_assignment_failed', ['attribute' => $ex->getMessage()]));
             }
             catch (Exception $ex) {
                 throw $ex;
@@ -498,7 +502,7 @@ class Controller extends Extendable
             $this->suppressView = true;
             $this->execPageAction($this->action, $this->params);
 
-            foreach ($this->widget as $widget) {
+            foreach ((array) $this->widget as $widget) {
                 if (method_exists($widget, $handler)) {
                     $result = call_user_func_array([$widget, $handler], $this->params);
                     return ($result) ?: true;

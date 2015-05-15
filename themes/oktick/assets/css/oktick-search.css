@@ -84,6 +84,8 @@ a:active.supplier-list {
     -webkit-box-shadow: 1px 4px 3px rgba(50, 50, 50, 0.64);
     -moz-box-shadow: 1px 4px 3px rgba(50, 50, 50, 0.64);
     box-shadow: 1px 4px 3px rgba(50, 50, 50, 0.64);
+    font-weight: normal;
+    color: #3399FF;
 }
 .autocomplete-suggestion {
     padding: 2px 5px;
@@ -94,7 +96,8 @@ a:active.supplier-list {
     background: #F0F0F0;
 }
 .autocomplete-suggestions strong {
-    font-weight: normal; color: #3399FF;
+    font-weight: normal;
+    color: #3399FF;
 }
 #autocomplete-ajax {
     background: url('../img/searchoff.gif') no-repeat right center;

@@ -71,8 +71,12 @@ class Index extends Controller
         $this->addJs('/plugins/rainlab/pages/assets/js/pages-snippets.js');
         $this->addCss('/plugins/rainlab/pages/assets/css/pages.css');
 
+        // Preload the code editor class as it could be needed
+        // before it loads dynamically.
+        $this->addJs('/modules/backend/formwidgets/codeeditor/assets/js/codeeditor.js', 'core');
+
         $this->bodyClass = 'compact-container side-panel-not-fixed';
-        $this->pageTitle = 'rainlab.pages::lang.plugin_name';
+        $this->pageTitle = 'rainlab.pages::lang.plugin.name';
         $this->pageTitleTemplate = '%s Pages';
     }
 
@@ -405,7 +409,7 @@ class Index extends Controller
                 $fieldConfig['wordWrap'] = '80';
             }
 
-            $formWidget->config->secondaryTabs['fields']['placeholders['.$placeholderCode.']'] = $fieldConfig;
+            $formWidget->secondaryTabs['fields']['placeholders['.$placeholderCode.']'] = $fieldConfig;
         }
 
         $placeholderValues = $page->getPlaceholderValues();
@@ -558,5 +562,18 @@ class Index extends Controller
                 'objectMtime' => $object->mtime
             ])
         ];
+    }
+
+    /**
+     * Replaces Windows style (/r/n) line endings with unix style (/n)
+     * line endings.
+     * @param string $markup The markup to convert to unix style endings
+     * @return string
+     */
+    protected function convertLineEndings($markup)
+    {
+        $markup = str_replace("\r\n", "\n", $markup);
+        $markup = str_replace("\r", "\n", $markup);
+        return $markup;
     }
 }

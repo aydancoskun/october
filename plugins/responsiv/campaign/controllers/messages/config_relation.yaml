@@ -1,0 +1,39 @@
+# ===================================
+#  Relation Behavior Config
+# ===================================
+
+subscribers:
+    label: subscriber
+    # list: ~/plugins/responsiv/campaign/models/subscriber/columns.yaml
+
+    list:
+        columns:
+            email:
+                label: Email
+
+            pivot_sent_at:
+                width: 15%
+                label: Sent
+                valueFrom: pivot[sent_at]
+
+            pivot_read_at:
+                width: 15%
+                label: Read
+                valueFrom: pivot[read_at]
+
+            pivot_stop_at:
+                width: 15%
+                label: Stop
+                valueFrom: pivot[stop_at]
+
+    form: ~/plugins/responsiv/campaign/models/subscriber/fields.yaml
+
+    readOnly: true
+
+    view:
+        recordsPerPage: 50
+        showSearch: true
+
+    manage:
+        recordsPerPage: 10
+        context: pivot

@@ -1,0 +1,46 @@
+<style>
+    body.outer .layout > .layout-row > .layout-cell .outer-form-container .comment {color:#D6D6D6}
+    body.outer .layout > .layout-row > .layout-cell .outer-form-container .forgot-password {margin-left:20px}
+</style>
+
+<h2><?= e(trans('flynsarmy.mfa::lang.auth.mfa')) ?></h2>
+
+<p class='comment'><?= e(trans('flynsarmy.mfa::lang.auth.enter_code')) ?></p>
+
+<?= Form::open() ?>
+    <input type="hidden" name="postback" value="1" />
+
+    <div class="form-elements" role="form">
+        <div class="form-group text-field horizontal-form october">
+
+            <!-- Login -->
+            <input
+                type="text"
+                name="code"
+                value="<?= e(post('code')) ?>"
+                class="form-control width-2 icon"
+                placeholder="<?= e(trans('flynsarmy.mfa::lang.account.mfa_code_placeholder')) ?>"
+                autocomplete="off"
+                maxlength="255" />
+
+            <button type="submit" class="btn btn-primary login-button">
+                <?= e(trans('backend::lang.account.login')) ?>
+            </button>
+        </div>
+
+        <p class="pull-right forgot-password">
+            <a href="<?= Backend::url('backend/auth') ?>" class="text-muted">
+                <?= e(trans('backend::lang.form.cancel')) ?>
+            </a>
+        </p>
+
+        <p class="oc-icon-mobile pull-right forgot-password">
+            <!-- Forgot your password? -->
+            <a href="<?= Backend::url('flynsarmy/mfa/auth/lost-device') ?>" class="text-muted">
+                <?= e(trans('flynsarmy.mfa::lang.auth.lost_device')) ?>
+            </a>
+        </p>
+
+        <!-- Submit Login -->
+    </div>
+<?= Form::close() ?>

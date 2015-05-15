@@ -1,0 +1,60 @@
+[viewBag]
+==
+<nav class="navbar navbar-default navbar-fixed-top">
+    <div class="container">
+        <div class="navbar-header">
+            <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#navbar" aria-expanded="false" aria-controls="navbar">
+                <span class="sr-only">Toggle navigation</span>
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+            </button>
+        </div>
+        <div id="navbar" class="navbar-collapse collapse">
+            <ul class="nav navbar-nav">
+                <li class="active"><a href="/">
+                    <span   class="glyphicon glyphicon-home" 
+                            aria-hidden="true"
+                            data-toggle="tooltip" 
+                            data-trigger="hover" 
+                            data-placement="bottom" 
+                            title="OKTicK Search"
+                            data-content="Back to OKTicK Search">
+                    </span>
+                </a></li>
+            </ul>
+            <ul class="nav navbar-nav navbar-right">
+            {% if user %}
+                <li class="{% if this.page.id == "account-help"    %}active{% endif %}">
+                    <a href="/account/help">
+                        Help
+                    </a>
+                </li>
+                <li class="{% if this.page.id == "logout" %}active{% endif %}">
+                    <a href="/logout">
+                        <span   class="glyphicon glyphicon-log-out" 
+                                aria-hidden="true"
+                                data-toggle="tooltip" 
+                                data-trigger="hover" 
+                                data-placement="bottom" 
+                                title="Logout"
+                                data-content="Click here to Logout">
+                        </span>&nbsp;Logout
+                    </a>
+                </li>
+            {% else %}
+                <li class="{% if this.page.id == "account-help"    %}active{% endif %}">
+                    <a href="/account/help">
+                        Help
+                    </a>
+                </li>
+                <li class="{% if this.page.id == "login" %}active{% endif %}">
+                    <a href="/login">
+                        <span class="glyphicon glyphicon-log-in" aria-hidden="true"></span>&nbsp;Login
+                    </a>
+                </li>
+            {% endif %}
+            </ul>
+        </div>
+    </div>
+</nav>

@@ -1,0 +1,15 @@
+[viewBag]
+==
+<?php
+function onStart(){
+    Debugbar::addMessage($this->page->id, 'id');
+    Debugbar::addMessage($this->page->url, 'url');
+    Debugbar::addMessage($this->page->title, 'title');
+    Debugbar::addMessage($this->page->description, 'description');
+    Debugbar::addMessage($this->page->meta_title, 'meta_title');
+    Debugbar::addMessage($this->page->meta_description, 'meta_description');
+    Debugbar::addMessage($this->page->fileName, 'fileName');
+    Debugbar::addMessage($this->page->baseFileName, 'baseFileName');
+}
+?>
+==

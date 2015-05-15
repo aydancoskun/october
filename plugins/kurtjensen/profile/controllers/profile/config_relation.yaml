@@ -1,0 +1,10 @@
+# ===================================
+#  Relation Behavior Config
+# ===================================
+
+profile:
+    label: Personal
+    list: ~/plugins/kurtjensen/profile/models/profile/columns.yaml
+    form: ~/plugins/kurtjensen/profile/models/profile/fields.yaml
+    manage:
+        recordsPerPage: 4

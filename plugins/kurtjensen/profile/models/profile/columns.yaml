@@ -1,0 +1,55 @@
+# ===================================
+#  List Column Definitions
+# ===================================
+
+columns:
+    id:
+        label: ID
+        searchable: true
+    user_id:
+        label: User       
+        relation: user
+        select: name 
+        searchable: true
+        sortable: true    
+    per_text_1:
+        label: per_text_1
+        searchable: true
+        sortable: true  
+        type: text
+    per_text_2:
+        label: per_text_2
+        searchable: true
+        sortable: true  
+        type: text
+    per_text_3:
+        label: per_text_3
+        searchable: true
+        sortable: true  
+        type: text
+    per_text_4:
+        label: per_text_4
+        searchable: true
+        sortable: true  
+        type: text    
+    pro_text_1:
+        label: pro_text_1
+        searchable: true
+        sortable: true  
+        type: text
+    pro_text_2:
+        label: pro_text_2
+        searchable: true
+        sortable: true  
+        type: text
+    pro_text_3:
+        label: pro_text_3
+        searchable: true
+        sortable: true  
+        type: text
+    pro_text_4:
+        label: pro_text_4
+        searchable: true
+        sortable: true  
+        type: text  
+            

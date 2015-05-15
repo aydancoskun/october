@@ -1,0 +1,43 @@
+th.kurtjensen-profile-head {
+  
+}
+
+th.right {
+  text-align: right;
+}
+
+td.kurtjensen-profile-label {
+  text-align: right;
+  padding-right:1em;
+  vertical-align: top;
+}
+
+td.kurtjensen-profile-data {
+  text-align: left;
+  height: 3em;
+  font-weight: bold;
+  padding-left:10px;
+  padding-right:10px;
+}
+
+.bot-bord {
+  border-bottom: 1px solid black;
+}
+
+.profile-meta {
+  color: #6C6A6A;
+  font-size: .7em;
+}
+
+.date-note {
+  width: 25%;
+}
+
+.center {
+  text-align: center;
+}
+
+td.pad-left-right {
+  padding-left:10px;
+  padding-right:10px;
+}

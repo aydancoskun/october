@@ -99,21 +99,19 @@ class Page extends CmsCompoundObject
     /**
      * Helper that makes a URL for a page in the active theme.
      * @param mixed $page Specifies the Cms Page file name.
+     * @param array $params Route parameters to consider in the URL.
      * @return string
      */
-    public static function url($page, $params = [], $absolute = true)
+    public static function url($page, $params = [])
     {
         /*
          * Reuse existing controller or create a new one,
          * assuming that the method is called not during the front-end
          * request processing.
          */
-        $controller = Controller::getController();
-        if (!$controller) {
-            $controller = new Controller;
-        }
+        $controller = Controller::getController() ?: new Controller;
 
-        return $controller->pageUrl($page, $params, true, $absolute);
+        return $controller->pageUrl($page, $params, true);
     }
 
     /**
@@ -182,7 +180,8 @@ class Page extends CmsCompoundObject
             }
 
             $page = self::loadCached($theme, $item->reference);
-            $pageUrl = self::url($item->reference);
+            $controller = Controller::getController() ?: new Controller;
+            $pageUrl = $controller->pageUrl($item->reference, [], false);
 
             $result = [];
             $result['url'] = $pageUrl;

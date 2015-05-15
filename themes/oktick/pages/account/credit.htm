@@ -1,0 +1,308 @@
+title = "Credit"
+url = "/account/credit/:status?0"
+layout = "account"
+hidden = "0"
+
+[session]
+security = "user"
+redirect = "login"
+
+[account]
+paramCode = "code"
+==
+<?php
+//use \Stripe\Stripe;
+function onInit(){
+        \Debugbar::info("Credit Page onInit()");
+}
+function onEnd(){
+        \Debugbar::info("Credit Page onEnd()");
+}
+function onStart()
+{
+    \Debugbar::info("Credit Page onStart()");
+
+    $this['stripe_pk']='pk_test_6pRNASCoBOKtIshFeQd4XMUh';
+    $this['price1']='10';
+    $this['price2']='25';
+    $this['price3']='50';
+    $this['price4']='100';
+    $this['amount1'] = $credit[($this['price1']*100)]=40;
+    $this['amount2'] = $credit[($this['price2']*100)]=105;
+    $this['amount3'] = $credit[($this['price3']*100)]=225;
+    $this['amount4'] = $credit[($this['price4']*100)]=500;
+    if ( ! Request::isMethod('post')) return;
+    $amount = post('amount');
+    $credits = $credit[$amount];
+    $stripeToken = post('stripeToken');
+    $stripeTokenType = post('stripeTokenType');
+    $stripeEmail = post('stripeEmail');
+    \Debugbar::info(post());
+    \Debugbar::info("stripeToken = $stripeToken");
+    \Debugbar::info("stripeTokenType = $stripeTokenType");
+    \Debugbar::info("stripeEmail = $stripeEmail");
+    \Debugbar::info("credits = $credits");
+    \Debugbar::info("amount = $amount");
+
+    // ["data-credits"]=> "40" 
+    // ["data-amount"]=> "1000" 
+    // ["stripeToken"]=> "tok_15saHVLM0ltjwvvzxJsqVYjf"
+    // ["stripeTokenType"]=> "card"
+    // ["stripeEmail"]=> "dominicnobrien@gmail.com"
+
+    // Set your secret key: remember to change this to your live secret key in production
+    // See your keys here https://dashboard.stripe.com/account/apikeys
+    \Stripe\Stripe::setApiKey("sk_test_5CyATtLZuofD31bgwGQHIHCX");
+
+
+    // Create the charge on Stripe's servers - this will charge the user's card
+    try {
+        $charge = \Stripe\Charge::create(array(
+            "amount" => $amount, // amount in cents, again
+            "currency" => "gbp",
+            "source" => $stripeToken,
+            "description" => "Purchase of $credits OKTicK Advertising Credits")
+        );
+        $this['paymentProcessor'] = "Credit card (www.stripe.com)";
+        $this['success'] = $credits;
+        die($credits);
+        $user->attributes['credits'] = $user->attributes['credits'] + $credits;
+        \Debugbar::info($credits,"credits");
+        $user->save();
+    }
+    
+    catch(\Stripe\Error\Api $e) {
+        //
+        $this['error'] = $e->getMessage();
+        $this['code']="Api";
+    }
+    
+    catch (\Stripe\Error\ApiConnection $e) {
+        // Network communication with Stripe failed
+        $this['error'] = $e->getMessage();
+        $this['code']="ApiConnection";
+    } 
+    
+    catch (\Stripe\Error\Authentication $e) {
+        // Authentication with Stripe's API failed
+        $this['error'] = $e->getMessage();
+        $this['code']="Authentication";
+    } 
+    
+    catch (\Stripe\Error\Card $e) {
+      // The card has been declined
+        $this['declined'] = $e->getMessage();
+        $this['code']="Card";
+    } 
+    
+    catch (\Stripe\Error\InvalidRequest $e) {
+        // Display a very generic error to the user, and maybe send
+        // yourself an email
+        $msg = $e->getMessage();
+        if(strpos($msg,"Stripe token more than once") !== false) return;
+        $this['error'] = $msg;
+        $this['code']="InvalidRequest";
+    } 
+    catch (\Stripe\Error\RateLimit $e) {
+        $this['error'] = $e->getMessage();
+        $this['code']="RateLimit";
+    }
+}
+?>
+==
+<h2 class="text-center">Credits</h2>
+<div class="row">
+        <div class="info">
+            <h3>Info</h3>
+            <p>With Credits you can elevate the listing position of your products and services. With one Credit being notionally £0.25p/week this means getting to the top or close to the top of some of the lists of providers of specific products and services can be extremely economical.</p>
+            <div class="text-center">
+                <button onclick="$('.info').hide();$('.info-plus').show();" class="btn btn-primary"><span class="glyphicon glyphicon glyphicon-thumbs-up"></span>&nbsp;Got It!</button>
+                <br>
+                <br>
+            </div>
+        </div>
+</div>
+<div class="row">
+{%if error %}
+<div class="alert alert-danger" role="alert">
+<h4>Sorry, an error occurred while processing your card. This does not mean the card was declined. The message we received was:</h4>
+<h4>{{ code }}: {{ error }}</h4>
+</div>
+{% endif %}
+
+{%if declined %}
+<div class="alert alert-danger" role="alert">
+<h4>Sorry, your card was declined and we were not given a specific reason! Please check with your card issuer or try again using a different one.</h4>
+</div>
+{% endif %}
+
+{%if success %}
+<div class="alert alert-success" role="alert">
+<h4>Thank you for your custom! Your statement has been updated and your new {{success}} credits are available immediately for you to use.</h4>
+</div>
+{% endif %}
+</div>
+
+
+
+<div class="row">
+<h4 class="text-center">Purchase {{amount1}} Credits for £{{price1}}</h4>
+    <div class="col-xs-5 col-md-5"></div>
+    <div class="col-xs-1 col-md-1">
+        <button class="btn btn-primary" id="stripe-demo">Card</button>
+        <script src="https://checkout.stripe.com/checkout.js"></script>
+        <script>
+            var handler = StripeCheckout.configure({
+                key: "{{ stripe_pk }}",
+                //image: "https://stripe.com/img/documentation/checkout/marketplace.png",
+                name: "OKTicK Search Ltd",
+                description: "{{amount1}} Credits for £{{price1}}.00",
+                panelLabel: "Pay by Card",
+                allowRememberMe: true
+        });
+
+        document.getElementById('stripe-demo').addEventListener('click', function(e) {
+            handler.open();
+            e.preventDefault();
+        });
+        </script>
+    </div>
+    <div class="col-xs-1 col-md-1">
+        <form action="https://www.paypal.com/cgi-bin/webscr" method="post" target="_top">
+            <input type="hidden" name="cmd" value="_s-xclick">
+            <input type="hidden" name="hosted_button_id" value="QBFHLD898AZPG">
+            <input type="hidden" name="email" value="paypal-buyer@oktick.com">
+            <button type="submit" class="btn btn-primary">PayPal</button>
+        </form>
+    </div>
+    <div class="col-xs-5 col-md-5"></div>
+</div>
+
+
+<div class="row">
+<h4 class="text-center">Purchase {{amount1}} Credits for £{{price1}}</h4>
+    <div class="col-xs-5 col-md-5"></div>
+    <div class="col-xs-1 col-md-1">
+        <form action="" method="post">
+            <input class="btn btn-primary stripe" type="submit" value="Card" data-key="{{ stripe_pk }}" data-amount="{{ price1 * 100 }}" data-currency="gbp" data-name="OKTicK Search Ltd" data-description="Pay OKTicK £{{price1}} for {{amount1}} Credits" data-email="{{ user.email }}" />
+            <input type="hidden" name="credits" value="{{amount1}}" />
+            <input type="hidden" name="amount" value="{{ price1 * 100 }}" />
+        </form>
+    </div>
+    <div class="col-xs-1 col-md-1">
+        <form action="https://www.paypal.com/cgi-bin/webscr" method="post" target="_top">
+            <input type="hidden" name="cmd" value="_s-xclick">
+            <input type="hidden" name="hosted_button_id" value="QBFHLD898AZPG">
+            <input type="hidden" name="email" value="paypal-buyer@oktick.com">
+            <button type="submit" class="btn btn-primary">PayPal</button>
+        </form>
+    </div>
+    <div class="col-xs-5 col-md-5"></div>
+</div>
+
+
+<div class="row">
+<h4 class="text-center">Purchase {{amount2}} Credits for £{{price2}}</h4>
+    <div class="col-xs-5 col-md-5"></div>
+    <div class="col-xs-1 col-md-1">
+        <form action="" method="post">
+            <input class="btn btn-primary stripe" type="submit" value="Card" data-key="{{ stripe_pk }}" data-amount="{{ price2 * 100 }}" data-currency="gbp" data-name="OKTicK Search Ltd" data-description="Pay OKTicK £{{price2}} for {{amount2}} Credits" data-email="{{ user.email }}" />
+            <input type="hidden" name="credits" value="{{amount2}}" />
+            <input type="hidden" name="amount" value="{{ price2 * 100 }}" />
+        </form>
+    </div>
+    <div class="col-xs-1 col-md-1">
+        <form action="https://www.paypal.com/cgi-bin/webscr" method="post" target="_top">
+            <input type="hidden" name="cmd" value="_s-xclick">
+            <input type="hidden" name="hosted_button_id" value="BYB9S2HKTGMWL">
+            <input type="hidden" name="email" value="paypal-buyer@oktick.com">
+            <button type="submit" class="btn btn-primary">PayPal</button>
+        </form>
+    </div>
+    <div class="col-xs-5 col-md-5"></div>
+</div>
+
+
+<div class="row">
+<h4 class="text-center">Purchase {{amount3}} Credits for £{{price3}}</h4>
+    <div class="col-xs-5 col-md-5"></div>
+    <div class="col-xs-1 col-md-1">
+        <form action="" method="post">
+            <input class="btn btn-primary stripe" type="submit" value="Card" data-key="{{ stripe_pk }}" data-amount="{{ price3 * 100 }}" data-currency="gbp" data-name="OKTicK Search Ltd" data-description="Pay OKTicK £{{price3}} for {{amount3}} Credits" data-email="{{ user.email }}" />
+            <input type="hidden" name="credits" value="{{amount3}}" />
+            <input type="hidden" name="amount" value="{{ price3 * 100 }}" />
+        </form>
+    </div>
+    <div class="col-xs-1 col-md-1">
+        <form action="https://www.paypal.com/cgi-bin/webscr" method="post" target="_top">
+            <input type="hidden" name="cmd" value="_s-xclick">
+            <input type="hidden" name="hosted_button_id" value="9KK54MWYF2L9G">
+            <input type="hidden" name="email" value="paypal-buyer@oktick.com">
+            <button type="submit" class="btn btn-primary">PayPal</button>
+        </form>
+    </div>
+    <div class="col-xs-5 col-md-5"></div>
+</div>
+
+
+<div class="row">
+<h4 class="text-center">Purchase {{amount4}} Credits for £{{price4}}</h4>
+    <div class="col-xs-5 col-md-5"></div>
+    <div class="col-xs-1 col-md-1">
+        <form action="" method="post">
+            <input class="btn btn-primary stripe" type="submit" value="Card" data-key="{{ stripe_pk }}" data-amount="{{ price4 * 100 }}" data-currency="gbp" data-name="OKTicK Search Ltd" data-description="Pay OKTicK £{{price4}} for {{amount4}} Credits" data-email="{{ user.email }}" />
+            <input type="hidden" name="credits" value="{{amount4}}" />
+            <input type="hidden" name="amount" value="{{ price4 * 100 }}" />
+        </form>
+    </div>
+    <div class="col-xs-1 col-md-1">
+        <form action="https://www.paypal.com/cgi-bin/webscr" method="post" target="_top">
+            <input type="hidden" name="cmd" value="_s-xclick">
+            <input type="hidden" name="hosted_button_id" value="AQMT2QVDQETC8">
+            <input type="hidden" name="email" value="paypal-buyer@oktick.com">
+            <button type="submit" class="btn btn-primary">PayPal</button>
+        </form>
+    </div>
+    <div class="col-xs-5 col-md-5"></div>
+</div>
+
+<div class="row">
+    <div class="col-xs-1 col-md-0"></div>
+    <div class="col-xs-10 col-md-12">
+        <h3>Purchase History <span style="display:none;" onclick="$('.info-plus').hide();$('.info').show();" class="info-plus glyphicon glyphicon-sm glyphicon glyphicon-info-sign"></span></h3>
+        <form>
+        <table class="table table-bordered">
+            <tr class="">
+                <th class="text-center">Invoice<br>Date</th>
+                <th class="text-center">Credits<br>Purchased</th>
+                <th class="text-center">Sales<br>Tax</th>
+                <th class="text-center">Payment<br>Method</th>
+                <th class="text-center">Payment<br>Status</th>
+            </tr>
+            {% for i in range(1, 3) %}
+                <tr class="">
+                    <td class="text-center" style="text-align:center;"><!-- Delete Button -->
+                        <div class="form-group input-group text-center" style="text-align:center;">
+                            <label for="start-date-{{ i }}" class="sr-only" ></label>
+                            <input type="text" class="form-control input-sm" disabled id="start-date-{{ i }}" placeholder="---------------" value="" size="8">
+                        </div>
+                    </td>
+                    <td class="text-center" style="text-align:center;"><!-- BP -->
+                        {{ i }}
+                    </td>
+                    <td class="text-center" style="text-align:center;"><!-- Start Date -->
+                        8 1/2%
+                    </td>
+                    <td class="text-center" style="text-align:center;"><!-- Estimated Position -->
+                        Paypal
+                    </td>
+                    <td class="text-center form-inline"><!-- Credits Applied -->
+                        Completed
+                    </td>
+                </tr>
+            {% endfor %}
+        </table>
+        </form>
+    </div>
+    <div class="col-xs-1 col-md-0"></div>
+</div>

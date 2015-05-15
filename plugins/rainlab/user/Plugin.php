@@ -9,14 +9,14 @@ use RainLab\User\Models\MailBlocker;
 
 class Plugin extends PluginBase
 {
-
     public function pluginDetails()
     {
         return [
             'name'        => 'rainlab.user::lang.plugin.name',
             'description' => 'rainlab.user::lang.plugin.description',
             'author'      => 'Alexey Bobkov, Samuel Georges',
-            'icon'        => 'icon-user'
+            'icon'        => 'icon-user',
+            'homepage'    => 'https://github.com/rainlab/user-plugin'
         ];
     }
 
@@ -42,7 +42,7 @@ class Plugin extends PluginBase
         return [
             'RainLab\User\Components\Session'       => 'session',
             'RainLab\User\Components\Account'       => 'account',
-            'RainLab\User\Components\ResetPassword' => 'resetPassword',
+            'RainLab\User\Components\ResetPassword' => 'resetPassword'
         ];
     }
 
@@ -68,10 +68,9 @@ class Plugin extends PluginBase
                         'label'       => 'rainlab.user::lang.users.all_users',
                         'icon'        => 'icon-user',
                         'url'         => Backend::url('rainlab/user/users'),
-                        'permissions' => ['rainlab.users.access_users'],
-                    ],
+                        'permissions' => ['rainlab.users.access_users']
+                    ]
                 ]
-
             ]
         ];
     }
@@ -86,6 +85,7 @@ class Plugin extends PluginBase
                 'icon'        => 'icon-cog',
                 'class'       => 'RainLab\User\Models\Settings',
                 'order'       => 500,
+                'permissions' => ['rainlab.users.*'],
             ],
             'location' => [
                 'label'       => 'rainlab.user::lang.locations.menu_label',
@@ -94,6 +94,7 @@ class Plugin extends PluginBase
                 'icon'        => 'icon-globe',
                 'url'         => Backend::url('rainlab/user/locations'),
                 'order'       => 500,
+                'permissions' => ['rainlab.users.*'],
             ]
         ];
     }
@@ -102,9 +103,9 @@ class Plugin extends PluginBase
     {
         return [
             'rainlab.user::mail.activate' => 'Activation email sent to new users.',
-            'rainlab.user::mail.welcome' => 'Welcome email sent when a user is activated.',
-            'rainlab.user::mail.restore' => 'Password reset instructions for front-end users.',
-            'rainlab.user::mail.new_user' => 'Sent to administrators when a new user joins.',
+            'rainlab.user::mail.welcome'  => 'Welcome email sent when a user is activated.',
+            'rainlab.user::mail.restore'  => 'Password reset instructions for front-end users.',
+            'rainlab.user::mail.new_user' => 'Sent to administrators when a new user joins.'
         ];
     }
 
@@ -117,9 +118,8 @@ class Plugin extends PluginBase
         return [
             'functions' => [
                 'form_select_country' => ['RainLab\User\Models\Country', 'formSelect'],
-                'form_select_state' => ['RainLab\User\Models\State', 'formSelect'],
+                'form_select_state'   => ['RainLab\User\Models\State', 'formSelect'],
             ]
         ];
     }
-
 }

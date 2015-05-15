@@ -1,0 +1,150 @@
+title = "Products & Services"
+url = "/account/products-services"
+layout = "account"
+hidden = "0"
+
+[session]
+security = "user"
+redirect = "login"
+
+[account]
+paramCode = "code"
+==
+<?php
+function onStart() {
+//    try {
+//        $user = $this->account->user();
+//        $this['company_website_url'] = $user->attributes['company'];
+//        $company_id = DB::table('operations.companies')->where('company_website_url', $this['company_website_url'])->pluck('uid');
+//        $this['products'] = DB::table('operations.bp_suppliers')->where('company_uid', $company_id)->get();
+//        $this['products_count'] = count($this['products']);
+        //return ['#badge_total'] => $this->render($this['products_count']);
+ //       return;
+ //   } catch (Exception $e) {
+ //       \Debugbar::addException($e);
+ //   }
+}
+function onCreditPlus(){
+    $this['result']=17;
+}
+function onCreditMinus(){
+    $this['result']=18;
+}
+?>
+==
+<h2 class="text-center">Products & Services</h2>
+<div class="row">
+    <div class="col-xs-1 col-md-0"></div>
+    <div class="col-xs-10 col-md-12">
+        <div class="info">
+            <h3>Info</h3>
+            <p>Below are the products and services we have for your business. If you are new here some of these might be not correct because they were semi-automatically collected. In that case just delete them by pressing the <button class="btn btn-danger btn-xs"><span class="glyphicon glyphicon-remove"></span></button> button. If you want to add products or services you can do that on the <a href="/account/products-services/#add">bottom</a> of the page.</p>
+            <p>This page gives you the possibility to elevate the listing position in the search by applying some credit to a product or service. The way this works is simple: When a person searches for your product or service you come up higher in the results listing depending on how many credits are applied. The company with applying more credits gets the higher position. You can puchase credits on the <a href="/account/credit">credits</a> page. The more credits you purchase the more advantageous they are priced. You apply credits to a product or service below by pressing the <button class="btn btn-default btn-xs"><span class="glyphicon glyphicon-plus"></span></button> button. To remove credits applied press the <button class="btn btn-default btn-xs"><span class="glyphicon glyphicon-minus"></span></button> button. Credits are applied continuously until you set the credits to zero. Each week we will send you an email to let you know where your products and services stand.</p>
+<!--p>Another feature worth mentioning is the "booster" feature. If you enable this you will be able to achieve a much higher position than you could normally expect for the credit applied. The way it works is that we won't use your credit every time to push you up higher but only some of the time. The times we do use your credit, it will be more valuable for that instance.</p>
+<p>An example will help to illustrate this: Lets say you apply one credit for one week using the booster. Instead of using your credit every time to push you up, we will - lets say - use your credit every 10th time to bring you up to the top. What the ratio is depends on the popularity of the item. This is our answer to help small companies to be able to get to the top of the list as well - just not every time.</p-->
+            <p>If you don't want to see this each time you get here click below. You can always re-enable it later.</p>
+            <div class="text-center">
+                <button onclick="$('.info').hide();$('.info-plus').show();" class="btn btn-primary"><span class="glyphicon glyphicon glyphicon-thumbs-up"></span>&nbsp;Got It!</button>
+                <br>
+                <br>
+            </div>
+        </div>
+    </div>
+    <div class="col-xs-1 col-md-0"></div>
+</div>
+<div class="row">
+    <div class="col-xs-1 col-md-0"></div>
+    <div class="col-xs-10 col-md-12">
+        <h3>Products/Services on the System: {{products_count}}. Total with credits: 0 <span style="display:none;" onclick="$('.info-plus').hide();$('.info').show();" class="info-plus glyphicon glyphicon-sm glyphicon glyphicon-info-sign"></span></h3>
+        {% if products %}
+        <table class="table table-bordered">
+            <tr class="">
+                <th class="text-center"><!-- Delete Button --></th>
+                <th class="">Products & Services</th>
+                <th class="text-center">Start<br>Dates</th>
+                <th class="text-center">Estimated<br>Positions</th>
+                <th class="text-center">Credits<br>Applied</th>
+            </tr>
+            {% for product in products %}
+                <div data-request-data="id: {{ product.uid }}">
+                <tr class="">
+                    <td class="text-center"><!-- Delete Button -->
+                        <button class="btn btn-danger btn-sm"><span class="glyphicon glyphicon-remove"></span></button>
+                    </td>
+                    <td class=""><!-- BP -->
+                        {{ product.bp }}
+                    </td>
+                    <td class="text-center" style="text-align:center;"><!-- Start Date -->
+                        <div class="form-group input-group text-center">
+                            <label for="start-date-{{ product.uid }}" class="sr-only" ></label>
+                            <input type="text" class="form-control input-sm" disabled id="start-date-{{ product.uid }}" placeholder="---------------" value="" size="8">
+                        </div>
+                    </td>
+                    <td class="text-center" style="text-align:center;"><!-- Estimated Position -->
+                        <div class="form-group input-group text-center">
+                            <label for="estimated-position-{{ product.uid }}" class="sr-only" ></label>
+                            <input type="text" class="form-control input-sm" disabled id="estimated-position-{{ product.uid }}" placeholder="--------" value="" size="2">
+                        </div>
+                    </td>
+                    <td class="text-center form-inline"><!-- Credits Applied -->
+                        <div class="input-group">
+                            <span class="input-group-btn">
+                                <button id="ButtonCreditMinus" type="button" class="btn btn-default btn-number btn-sm" disabled="disabled" data-type="minus" data-field="credit[{{product.uid}}]" uest="onCreditMinus" data-request-success="onCreditChange: '#credit[{{product.uid}}]'">
+                                    <span class="glyphicon glyphicon-minus"></span>
+                                </button>
+                            </span> 
+                            <input type="text" id="credit[{{product.uid}}]" name="credit[{{product.uid}}]" class="form-control input-number input-sm" value="0" data-min="0" data-max="99" size="2" style="width:35px;min-width:35px;">
+                            <span class="input-group-btn">
+                                <button id="ButtonCreditPlus" type="button" class="btn btn-default btn-number btn-sm" data-type="plus" data-field="credit[{{product.uid}}]" >
+                                    <span class="glyphicon glyphicon-plus"></span>
+                                </button>
+                            </span>
+                        </div>
+                    </td>
+                </tr>
+            {% endfor %}
+        </table>
+        {% endif %}
+    </div>
+    <div class="col-xs-1 col-md-0"></div>
+</div>
+<div class="row">
+    <div class="col-xs-1 col-md-0"></div>
+    <div class="col-xs-10 col-md-12">
+        <h3 id="add">Add products and services <span style="display:none;" onclick="$('.info-plus').hide();$('.info').show();" class="info-plus glyphicon glyphicon-sm glyphicon glyphicon-info-sign"></span></h3>
+        <div class="info">
+            <p>Here you can add products and services that your company provides that we are currently not listing.</p>
+            <p>Below is a search box, just like the one on the OKticK home page. Just find and select you product and then press the "add" button. You are done.</p>
+            <p>If you can't find your product, type it in, exactly, while carefully checking spelling, and then click add. If you use this method I.e. not selecting what we show but to add something not already there, the addition might not occur right away as this type of addition is usually subject to verification and approval by our research team.</p>
+            <p>Each time you click add the product will be added to the list above. In case its unverified it will simply not be usable until its been verified.</p>
+            <div class="text-center">
+                <button onclick="$('.info').hide();$('.info-plus').show();" class="btn btn-primary"><span class="glyphicon glyphicon glyphicon-thumbs-up"></span>&nbsp;Got It!</button>
+                <br>
+                <br>
+            </div>
+        </div>
+        {% partial "search-section" datatype="Add!"%}
+        <br>
+        <br>
+        <br>
+        <br>
+        <br>
+        <br>
+        <br>
+        <br>
+        <br>
+        <br>
+    <div class="col-xs-1 col-md-0"></div>
+</div>
+<!-- page specific javascript goes here-->
+<script>
+function PageInit(){
+$("#badge_total").html("{{products_count}}");
+
+$('#ButtonCreditPlus').request('onCreditPlus', {
+    update: {onCreditChange: '#credit[{{product.uid}}]'}
+});
+$('#ButtonCreditMinus').request('onCreditMinus', {
+    update: {onCreditChange: '#credit[{{product.uid}}]'}
+});
+</script>

@@ -50,14 +50,15 @@ trait ViewMaker
     public function makePartial($partial, $params = [], $throwException = true)
     {
         if (!File::isPathSymbol($partial) && realpath($partial) === false) {
-            $partial = '_' . strtolower($partial) . '.htm';
+            $folder = strpos($partial, '/') !== false ? dirname($partial) . '/' : '';
+            $partial = $folder . '_' . strtolower(basename($partial)).'.htm';
         }
 
         $partialPath = $this->getViewPath($partial);
 
-        if (!File::isFile($partialPath)) {
+        if (!File::exists($partialPath)) {
             if ($throwException) {
-                throw new SystemException(Lang::get('backend::lang.partial.not_found', ['name' => $partialPath]));
+                throw new SystemException(Lang::get('backend::lang.partial.not_found_name', ['name' => $partialPath]));
             }
             else {
                 return false;
@@ -115,9 +116,9 @@ trait ViewMaker
 
         $layoutPath = $this->getViewPath($layout . '.htm', $this->layoutPath);
 
-        if (!File::isFile($layoutPath)) {
+        if (!File::exists($layoutPath)) {
             if ($throwException) {
-                throw new SystemException(Lang::get('cms::lang.layout.not_found', ['name' => $layoutPath]));
+                throw new SystemException(Lang::get('cms::lang.layout.not_found_name', ['name' => $layoutPath]));
             }
             else {
                 return false;
@@ -136,7 +137,8 @@ trait ViewMaker
     public function makeLayoutPartial($partial, $params = [])
     {
         if (!File::isLocalPath($partial) && !File::isPathSymbol($partial)) {
-            $partial = '_' . strtolower($partial);
+            $folder = strpos($partial, '/') !== false ? dirname($partial) . '/' : '';
+            $partial = $folder . '_' . strtolower(basename($partial));
         }
 
         return $this->makeLayout($partial, $params);

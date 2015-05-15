@@ -1,0 +1,31 @@
+# ===================================
+#  Form Behavior Config
+# ===================================
+
+# Record name
+name: Profile
+
+# Model Form Field configuration
+form: $/kurtjensen/profile/models/profile/fields.yaml
+
+# Model Class name
+modelClass: KurtJensen\Profile\Models\Profile
+
+# Default redirect location
+defaultRedirect: kurtjensen/profile/profile
+
+# Create page
+create:
+    title: Create Profile
+    redirect: kurtjensen/profile/profile/update/:id
+    redirectClose: kurtjensen/profile/profile
+
+# Update page
+update:
+    title: Edit Profile
+    redirect: kurtjensen/profile/profile
+    redirectClose: kurtjensen/profile/profile
+
+# Preview page
+preview:
+    title: Preview Profile

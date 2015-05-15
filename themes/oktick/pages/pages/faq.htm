@@ -1,0 +1,22 @@
+title = "FAQ"
+url = "/faq"
+layout = "main"
+hidden = "0"
+
+[editable]
+==
+<?php
+function onInit()
+{
+//    foreach($this->faqDisplayer->selectedFaqGroup->questions() as $q) echo $q;
+ //   $selectedFaqGroup = $this['faqDisplayer']->selectedFaqGroup();
+ //   $questions_obj = $selectedFaqGroup['relations']['questions'];
+ //   var_dump($questions_obj->items());
+ //   exit;
+}
+function onStart(){
+
+}
+?>
+==
+{% component 'editable' file="faq.htm" %}

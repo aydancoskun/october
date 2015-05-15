@@ -1,0 +1,29 @@
+title = "Overview"
+url = "/account"
+layout = "account"
+hidden = "0"
+
+[session]
+security = "user"
+redirect = "login"
+
+[editable]
+
+
+[account]
+paramCode = "code"
+==
+<?php
+function onStart(){
+    try {
+        $user = $this->account->user();
+        $this['email'] = $user->attributes['email'];
+        $this['name'] = $user->attributes['name'];
+        $this['surname'] = $user->attributes['surname'];
+    } catch (Exception $e) {
+        \Debugbar::addException($e);
+    }
+}
+?>
+==
+{% component 'editable' file="account-overview.htm" %}

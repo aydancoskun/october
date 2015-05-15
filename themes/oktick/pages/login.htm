@@ -1,33 +1,17 @@
 title = "Login"
-url = "/_login"
+url = "/login"
+layout = "main"
 hidden = "0"
 
-[staticMenu oktickMenu]
-code = "oktick-menu"
-
 [account]
+redirect = "account/overview"
 paramCode = "code"
-
-[staticPage]
 ==
-{% partial "header"  cssfile="oktick-static.css" %}
-<body style="background-color:#fcfcfc !important;" class="default">
-<div class="row" id="body-container" >
-{% partial 'menu-top' items=oktickMenu.menuItems %}
-{% partial 'back-to-search-button' visibility='' %}
-{% partial 'logo' %}
-<div class="row" >{{nbsp|raw}}</div>
-<div class="row">
-    <div class="centered eleven columns text-left">
-        <h4 id = "page_title">{{this.page.title}}</h4>
-    </div>
-</div>
-<div class="row" >{{nbsp|raw}}</div>
-<div class="row">
-	<div class="centered eleven columns text-left">
-		{% component 'account::signin' %}
-	</div>
-</div>
-<div class="row" >{{nbsp|raw}}</div>
-{% partial 'copyright' %}
-{% partial 'footer' %}
+<?php
+function onStart(){
+    //\Debugbar::disable();
+    $this['nbsp'] = " ";
+}
+?>
+==
+{% partial "acc-login" %}

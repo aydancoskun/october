@@ -1,0 +1,71 @@
+title = "paypal"
+url = "/paypal"
+hidden = "0"
+==
+{% partial "header"  cssfile="oktick-static.css" %}
+<body style="background-color:#fcfcfc !important;" class="default">
+<div class="row" id="body-container" >
+{% partial 'menu-top' items=oktickMenu.menuItems %}
+{% partial 'back-to-search-button' visibility='' %}
+{% partial 'logo' %}
+<div class="row" >{{nbsp|raw}}</div>
+<div class="row">
+    <div class="centered eleven columns text-left">
+        <h4 id = "page_title">Buy Credits:</h4>
+    </div>
+</div>
+</br>
+<div class="row" >{{nbsp|raw}}</div>
+<div class="row">
+	<div class="centered eleven columns text-left">
+	<p>£10.00 Credit
+<script async="async" src="https://www.paypalobjects.com/js/external/paypal-button.min.js?merchant=paypal@oktick.com" 
+    data-button="buynow" 
+    data-name="£10.00 Credit" 
+    data-amount="10.00" 
+    data-currency="GBP" 
+    data-shipping="0" 
+    data-tax="0" 
+    data-callback="http://oktick.com/thankyou" 
+    data-env="sandbox"
+></script>
+	</div>
+	</p>
+</div>
+<div class="row" >{{nbsp|raw}}</div>
+<div class="row">
+	<div class="centered eleven columns text-left">
+	<p>£20.00 Credit
+<script async="async" src="https://www.paypalobjects.com/js/external/paypal-button.min.js?merchant=paypal@oktick.com" 
+    data-button="buynow" 
+    data-name="£10.00 Credit" 
+    data-amount="20.00" 
+    data-currency="GBP" 
+    data-shipping="0" 
+    data-tax="0" 
+    data-callback="http://oktick.com/thankyou" 
+    data-env="sandbox"
+></script>
+	</div>
+	</p>
+</div>
+<div class="row" >{{nbsp|raw}}</div>
+<div class="row">
+	<div class="centered eleven columns text-left">
+	<p>£30.00 Credit
+<script async="async" src="https://www.paypalobjects.com/js/external/paypal-button.min.js?merchant=paypal@oktick.com" 
+    data-button="buynow" 
+    data-name="£30.00 Credit" 
+    data-amount="10.00" 
+    data-currency="GBP" 
+    data-shipping="0" 
+    data-tax="0" 
+    data-callback="http://oktick.com/thankyou" 
+    data-env="sandbox"
+></script>
+	</div>
+	</p>
+</div>
+<div class="row" >{{nbsp|raw}}</div>
+{% partial 'copyright' %}
+{% partial 'footer' %}

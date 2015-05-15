@@ -1,8 +1,5 @@
 static-pages:
-    news: {  }
     brief: {  }
     tips: {  }
     why: {  }
     suppliers: {  }
-    about: {  }
-    search: {  }

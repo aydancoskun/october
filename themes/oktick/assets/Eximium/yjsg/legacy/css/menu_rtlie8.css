@@ -1,0 +1,36 @@
+/**
+ * @package      YJSG Framework
+ * @copyright    Copyright(C) since 2007  Youjoomla.com. All Rights Reserved.
+ * @author       YouJoomla
+ * @license      http://www.gnu.org/licenses/gpl-2.0.html GNU/GPLv2 only
+ * @websites     http://www.youjoomla.com | http://www.yjsimplegrid.com
+ */
+/*TOP MENU*/
+#topmenu_holder{
+	text-align:right;
+}
+.horiz_rtl li ul {
+	top:-999em!important;
+	left:auto;
+	right:-999em;
+	display:none!important;
+}
+.horiznav li:hover ul > ul{
+	top:-999em!important;
+	left:auto;
+	right:-999em;
+	display:none!important;
+	
+}
+.horiznav li:hover ul > ul,
+.horiznav li.active ul ul{
+	display:block!important;
+}
+.horiznav li:hover ul, 
+.horiznav li > li:hover ul, 
+.horiznav li.haschild.active ul.dropline.level1{
+	z-index:100;
+	top:auto!important;
+	right:auto;
+	display:block!important;
+}

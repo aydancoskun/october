@@ -1,4 +1,4 @@
-oktick Theme
-=======?====
+OT App
+======
 
-This theme is for oktick
+OT App

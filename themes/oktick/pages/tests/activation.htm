@@ -1,0 +1,22 @@
+title = "Activation"
+url = "/activation/:activationcode?"
+layout = "main"
+hidden = "0"
+
+[account]
+paramCode = "activationcode"
+==
+{% if user.is_activated %}
+    <h2 class="text-center">Account Activation<br><small>Please provide your credentials below.</small></h2>
+    </br>
+    <h2 class="text-center">Account Activation</h2>
+    <p>Your account is now active!</p>
+    <p>We'll have to get some more data from you.... (fill in form below matching to domain etc)</p>
+{% else %}
+    <h2 class="text-center">Account Activation<br><small>OK, we are almost there....</small></h2>
+    </br>
+    <p>OK! Just one more thing....</p>
+    <p>Please check your email and and click the activation link in the mail we just send you</p>
+    <p>Here is a link provided by the component: {% component 'account::activation_check' %}</p>
+    <p>Here is a plain link, see if it works: <a href="javascript:;" data-request="onSendActivationEmail">Send the verification email again</a>.</p>
+{% endif %}

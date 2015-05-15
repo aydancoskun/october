@@ -70,7 +70,7 @@ class Page extends Content
             'url.unique_url' => Lang::get('rainlab.pages::lang.page.url_not_unique')
         ];
 
-        $this->placeholders = new PlaceholderList();
+        $this->placeholders = new PlaceholderList;
     }
 
     /**
@@ -230,22 +230,22 @@ class Page extends Content
 
         $result = [];
         $bodyNode = $layout->getTwigNodeTree()->getNode('body')->getNode(0);
+
         foreach ($bodyNode as $node) {
-            if ($node instanceof \Cms\Twig\PlaceholderNode) {
+            if (!$node instanceof \Cms\Twig\PlaceholderNode) continue;
 
-                $title = $node->hasAttribute('title') ? trim($node->getAttribute('title')) : null;
-                if (!strlen($title))
-                    $title = $node->getAttribute('name');
+            $title = $node->hasAttribute('title') ? trim($node->getAttribute('title')) : null;
+            if (!strlen($title))
+                $title = $node->getAttribute('name');
 
-                $type = $node->hasAttribute('type') ? trim($node->getAttribute('type')) : null;
+            $type = $node->hasAttribute('type') ? trim($node->getAttribute('type')) : null;
 
-                $placeholderInfo = [
-                    'title' => $title,
-                    'type' => $type ?: 'html'
-                ];
+            $placeholderInfo = [
+                'title' => $title,
+                'type' => $type ?: 'html'
+            ];
 
-                $result[$node->getAttribute('name')] = $placeholderInfo;
-            }
+            $result[$node->getAttribute('name')] = $placeholderInfo;
         }
 
         return $result;
@@ -266,10 +266,10 @@ class Page extends Content
 
         $result = [];
         foreach ($bodyNode as $node) {
-            if ($node instanceof \Cms\Twig\PutNode) {
-                $bodyNode = $node->getNode('body');
-                $result[$node->getAttribute('name')] = trim($bodyNode->getAttribute('data'));
-            }
+            if (!$node instanceof \Cms\Twig\PutNode) continue;
+
+            $bodyNode = $node->getNode('body');
+            $result[$node->getAttribute('name')] = trim($bodyNode->getAttribute('data'));
         }
 
         return $result;
@@ -281,9 +281,10 @@ class Page extends Content
             return $this->processedMarkupCache;
 
         $markup = Snippet::processPageMarkup(
-            $this->getFileName(), 
-            $this->theme, 
-            $this->markup);
+            $this->getFileName(),
+            $this->theme,
+            $this->markup
+        );
 
         return $this->processedMarkupCache = $markup;
     }
@@ -294,9 +295,10 @@ class Page extends Content
             return $this->processedBlockMarkupCache[$placeholderName];
 
         $markup = Snippet::processPageMarkup(
-            $this->getFileName().md5($placeholderName), 
-            $this->theme, 
-            $placeholderContents);
+            $this->getFileName().md5($placeholderName),
+            $this->theme,
+            $placeholderContents
+        );
 
         return $this->processedBlockMarkupCache[$placeholderName] = $markup;
     }
@@ -307,7 +309,7 @@ class Page extends Content
     public function initCmsComponents($cmsController)
     {
         $snippetComponents = Snippet::listPageComponents(
-            $this->getFileName(), 
+            $this->getFileName(),
             $this->theme,
             $this->markup.$this->code
         );
@@ -325,7 +327,8 @@ class Page extends Content
             $cmsController->addComponent(
                 $componentInfo['class'],
                 $componentInfo['alias'],
-                $componentInfo['properties']);
+                $componentInfo['properties']
+            );
         }
     }
 
@@ -344,8 +347,9 @@ class Page extends Content
                 if (
                     $existingPage->getBaseFileName() !== $this->getBaseFileName() &&
                     strtolower($existingPage->getViewBag()->property('url')) == $value
-                )
+                ) {
                     return false;
+                }
             }
 
             return true;
@@ -373,13 +377,15 @@ class Page extends Content
                 $pageName = $pageInfo->page->getViewBag()->property('title');
                 $fileName = $pageInfo->page->getBaseFileName();
 
-                if (!$pageInfo->subpages)
+                if (!$pageInfo->subpages) {
                     $result[$fileName] = $pageName;
-                else
+                }
+                else {
                     $result[$fileName] = [
                         'title' => $pageName,
                         'items' => $iterator($pageInfo->subpages)
                     ];
+                }
             }
 
             return $result;

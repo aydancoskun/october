@@ -22,9 +22,105 @@ class ServiceProvider extends ModuleServiceProvider
     {
         parent::register('backend');
 
-        /*
-         * Register widgets
-         */
+        $this->registerMailer();
+        $this->registerAssetBundles();
+
+        // Disabled for now
+        // if (App::runningInBackend()) {
+            $this->registerBackendNavigation();
+            $this->registerBackendWidgets();
+            $this->registerBackendPermissions();
+            $this->registerBackendSettings();
+        // }
+    }
+
+    /**
+     * Bootstrap the module events.
+     *
+     * @return void
+     */
+    public function boot()
+    {
+        parent::boot('backend');
+    }
+
+    /**
+     * Register mail templates
+     */
+    protected function registerMailer()
+    {
+        MailTemplate::registerCallback(function ($template) {
+            $template->registerMailTemplates([
+                'backend::mail.invite'  => 'Invitation for newly created administrators.',
+                'backend::mail.restore' => 'Password reset instructions for backend-end administrators.',
+            ]);
+        });
+    }
+
+    /**
+     * Register asset bundles
+     */
+    protected function registerAssetBundles()
+    {
+        CombineAssets::registerCallback(function($combiner) {
+            $combiner->registerBundle('~/modules/backend/assets/less/controls.less');
+            $combiner->registerBundle('~/modules/backend/assets/less/october.less');
+            $combiner->registerBundle('~/modules/backend/assets/js/october.js');
+            $combiner->registerBundle('~/modules/backend/assets/js/vendor/vendor.js');
+            $combiner->registerBundle('~/modules/backend/widgets/table/assets/js/build.js');
+            $combiner->registerBundle('~/modules/backend/formwidgets/datepicker/assets/js/build.js');
+            $combiner->registerBundle('~/modules/backend/formwidgets/richeditor/assets/less/richeditor.less');
+            $combiner->registerBundle('~/modules/backend/formwidgets/richeditor/assets/js/build.js');
+            $combiner->registerBundle('~/modules/backend/formwidgets/codeeditor/assets/less/codeeditor.less');
+        });
+    }
+
+    /*
+     * Register navigation
+     */
+    protected function registerBackendNavigation()
+    {
+        BackendMenu::registerCallback(function ($manager) {
+            $manager->registerMenuItems('October.Backend', [
+                'dashboard' => [
+                    'label'       => 'backend::lang.dashboard.menu_label',
+                    'icon'        => 'icon-dashboard',
+                    'url'         => Backend::url('backend'),
+                    'permissions' => ['backend.access_dashboard'],
+                    'order'       => 1
+                ]
+            ]);
+        });
+    }
+
+    /*
+     * Register permissions
+     */
+    protected function registerBackendPermissions()
+    {
+        BackendAuth::registerCallback(function ($manager) {
+            $manager->registerPermissions('October.Backend', [
+                'backend.access_dashboard' => [
+                    'label' => 'system::lang.permissions.view_the_dashboard',
+                    'tab'   => 'system::lang.permissions.name'
+                ],
+                'backend.manage_users' => [
+                    'label' => 'system::lang.permissions.manage_other_administrators',
+                    'tab'   => 'system::lang.permissions.name'
+                ],
+                'backend.manage_branding' => [
+                    'label' => 'system::lang.permissions.manage_branding',
+                    'tab'   => 'system::lang.permissions.name'
+                ]
+            ]);
+        });
+    }
+
+    /*
+     * Register widgets
+     */
+    protected function registerBackendWidgets()
+    {
         WidgetManager::instance()->registerFormWidgets(function ($manager) {
             $manager->registerFormWidget('Backend\FormWidgets\CodeEditor', [
                 'label' => 'Code editor',
@@ -66,26 +162,18 @@ class ServiceProvider extends ModuleServiceProvider
                 'label' => 'Record Finder',
                 'code'  => 'recordfinder'
             ]);
-        });
-
-        /*
-         * Register navigation
-         */
-        BackendMenu::registerCallback(function ($manager) {
-            $manager->registerMenuItems('October.Backend', [
-                'dashboard' => [
-                    'label'       => 'backend::lang.dashboard.menu_label',
-                    'icon'        => 'icon-dashboard',
-                    'url'         => Backend::url('backend'),
-                    'permissions' => ['backend.access_dashboard'],
-                    'order'       => 1
-                ]
+            $manager->registerFormWidget('Backend\FormWidgets\Repeater', [
+                'label' => 'Repeater',
+                'code'  => 'repeater'
             ]);
         });
+    }
 
-        /*
-         * Register settings
-         */
+    /*
+     * Register settings
+     */
+    protected function registerBackendSettings()
+    {
         SettingsManager::instance()->registerCallback(function ($manager) {
             $manager->registerSettingItems('October.Backend', [
                 'branding' => [
@@ -94,25 +182,8 @@ class ServiceProvider extends ModuleServiceProvider
                     'category'    => SettingsManager::CATEGORY_SYSTEM,
                     'icon'        => 'icon-paint-brush',
                     'class'       => 'Backend\Models\BrandSettings',
+                    'permissions' => ['backend.manage_branding'],
                     'order'       => 500
-                ],
-                'editor' => [
-                    'label'       => 'backend::lang.editor.menu_label',
-                    'description' => 'backend::lang.editor.menu_description',
-                    'category'    => SettingsManager::CATEGORY_MYSETTINGS,
-                    'icon'        => 'icon-code',
-                    'url'         => Backend::URL('backend/editorpreferences'),
-                    'order'       => 600,
-                    'context'     => 'mysettings'
-                ],
-                'backend_preferences' => [
-                    'label'       => 'backend::lang.backend_preferences.menu_label',
-                    'description' => 'backend::lang.backend_preferences.menu_description',
-                    'category'    => SettingsManager::CATEGORY_MYSETTINGS,
-                    'icon'        => 'icon-laptop',
-                    'class'       => 'Backend\Models\BackendPreferences',
-                    'order'       => 500,
-                    'context'     => 'mysettings'
                 ],
                 'myaccount' => [
                     'label'       => 'backend::lang.myaccount.menu_label',
@@ -120,9 +191,27 @@ class ServiceProvider extends ModuleServiceProvider
                     'category'    => SettingsManager::CATEGORY_MYSETTINGS,
                     'icon'        => 'icon-user',
                     'url'         => Backend::URL('backend/users/myaccount'),
-                    'order'       => 400,
+                    'order'       => 500,
                     'context'     => 'mysettings',
                     'keywords'    => 'backend::lang.myaccount.menu_keywords'
+                ],
+                'backend_preferences' => [
+                    'label'       => 'backend::lang.backend_preferences.menu_label',
+                    'description' => 'backend::lang.backend_preferences.menu_description',
+                    'category'    => SettingsManager::CATEGORY_MYSETTINGS,
+                    'icon'        => 'icon-laptop',
+                    'class'       => 'Backend\Models\BackendPreferences',
+                    'order'       => 510,
+                    'context'     => 'mysettings'
+                ],
+                'editor' => [
+                    'label'       => 'backend::lang.editor.menu_label',
+                    'description' => 'backend::lang.editor.menu_description',
+                    'category'    => SettingsManager::CATEGORY_MYSETTINGS,
+                    'icon'        => 'icon-code',
+                    'url'         => Backend::URL('backend/editorpreferences'),
+                    'order'       => 520,
+                    'context'     => 'mysettings'
                 ],
                 'access_logs' => [
                     'label'       => 'backend::lang.access_log.menu_label',
@@ -130,57 +219,10 @@ class ServiceProvider extends ModuleServiceProvider
                     'category'    => SettingsManager::CATEGORY_LOGS,
                     'icon'        => 'icon-lock',
                     'url'         => Backend::url('backend/accesslogs'),
-                    'permissions' => ['backend.access_admin_logs'],
-                    'order'       => 800
+                    'permissions' => ['system.access_logs'],
+                    'order'       => 920
                 ]
             ]);
         });
-
-        /*
-         * Register permissions
-         */
-        BackendAuth::registerCallback(function ($manager) {
-            $manager->registerPermissions('October.Backend', [
-                'backend.access_dashboard' => [
-                    'label' => 'system::lang.permissions.view_the_dashboard',
-                    'tab'   => 'system::lang.permissions.name'
-                ],
-                'backend.manage_users' => [
-                    'label' => 'system::lang.permissions.manage_other_administrators',
-                    'tab'   => 'system::lang.permissions.name'
-                ]
-            ]);
-        });
-
-        /*
-         * Register mail templates
-         */
-        MailTemplate::registerCallback(function ($template) {
-            $template->registerMailTemplates([
-                'backend::mail.invite'  => 'Invitation for newly created administrators.',
-                'backend::mail.restore' => 'Password reset instructions for backend-end administrators.',
-            ]);
-        });
-
-        /*
-         * Register asset bundles
-         */
-        CombineAssets::registerCallback(function($combiner) {
-            $combiner->registerBundle('~/modules/backend/assets/less/october.less');
-            $combiner->registerBundle('~/modules/backend/assets/js/october.js');
-            $combiner->registerBundle('~/modules/backend/assets/js/vendor/vendor.js');
-            $combiner->registerBundle('~/modules/backend/widgets/table/assets/js/build.js');
-            $combiner->registerBundle('~/modules/backend/formwidgets/richeditor/assets/js/build.js');
-        });
-    }
-
-    /**
-     * Bootstrap the module events.
-     *
-     * @return void
-     */
-    public function boot()
-    {
-        parent::boot('backend');
     }
 }

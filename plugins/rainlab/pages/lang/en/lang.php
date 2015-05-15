@@ -1,7 +1,10 @@
 <?php
 
 return [
-    'plugin_name' => 'Pages',
+    'plugin' => [
+        'name' => 'Pages',
+        'description' => 'Pages & menus features.',
+    ],
     'page' => [
         'menu_label' => 'Pages',
         'delete_confirmation' => 'Do you really want to delete selected pages? This will also delete the subpages, if any.',
@@ -13,7 +16,11 @@ return [
         'url_not_unique' => 'This URL is already used by another page.',
         'layout' => 'Layout',
         'layouts_not_found' => 'Layouts not found',
-        'saved' => 'The page has been successfully saved.'
+        'saved' => 'The page has been successfully saved.',
+        'manage_pages' => 'Manage the static pages',
+        'manage_menus' => 'Manage the static menus',
+        'access_snippets' => 'Manage snippets',
+        'manage_content' => 'Manage content'
     ],
     'menu' => [
         'menu_label' => 'Menus',
@@ -99,7 +106,7 @@ return [
         'column_type_string' => 'String',
         'column_type_checkbox' => 'Checkbox',
         'column_type_dropdown' => 'Dropdown',
-        'not_found' => 'Snippet with the requested code %s was not found in the theme.',
+        'not_found' => 'Snippet with the requested code :code was not found in the theme.',
         'property_format_error' => 'Property code should start with a Latin letter and can contain only Latin letters and digits',
         'invalid_option_key' => 'Invalid drop-down option key: %s. Option keys can contain only digits, Latin letters and characters _ and -'
     ]
