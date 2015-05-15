@@ -1,9 +1,42 @@
-[submodule "DbConnector"]
+[submodule "registered-domain-libs.git"]
+        path = themes/oktick/assets/libs/classes/registered-domain-libs.git
+	url = https://github.com/usrflo/registered-domain-libs.git
+[submodule "log.git"]
+        path = themes/oktick/assets/libs/classes/log
+	url = https://github.com/php-fig/log.git
+[submodule "forceutf8.git"]
+        path = themes/oktick/assets/libs/classes/forceutf8.git
+	url = https://github.com/neitanod/forceutf8.git
+[submodule "firelogger.php.git"]
+        path = themes/oktick/assets/libs/classes/firelogger.git
+	url = https://github.com/binaryage/firelogger.php.git
+[submodule "Readmore.js.git"]
+        path = themes/oktick/assets/libs/Readmore.js
+	url = https://github.com/jedfoster/Readmore.js.git
+[submodule "bootstrap-show-password.git"]
+        path = themes/oktick/assets/jquery.show-password
+	url = https://github.com/wenzhixin/bootstrap-show-password.git
+[submodule "Gumby.git"]
 	path = themes/oktick/assets/Gumby
 	url = https://github.com/GumbyFramework/Gumby.git
-[submodule "DbConnector"]
-        path = web-hooks
+[submodule "gitlab-webhook-php.git"]
+        path = gitlab-webhook-php
         url = https://github.com/magenx/gitlab-webhook-php.git
-[jQuery-readmore]
+[submodule "Readmore.js.git"]
 	path = themes/oktick/assets/libs/jQuery-readmore
-	utl = 
+	url = https://github.com/jedfoster/Readmore.js.git
+[submodule "xataface.git"]
+        path = api/xataface
+        url = https://github.com/shannah/xataface.git
+[submodule "flexbox.git"]
+        path = themes/oktick/assets/flexbox.git
+        url = https://github.com/VitaliyMF/flexbox.git
+[submodule "jQuery.dotdotdot"]
+        path = themes/oktick/assets/jquery.dotdotdot.git
+	url = https://github.com/BeSite/jQuery.dotdotdot
+[submodule "jscroll"]
+        path = themes/oktick/assets/jquery.jscroll.git
+	url = https://github.com/pklauzinski/jscroll
+[submodule "Responsive-Image-Placeholders"]
+        path = themes/oktick/assets/jquery.placeholders.git
+	url = https://github.com/i-like-robots/Responsive-Image-Placeholders
