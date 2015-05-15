@@ -13,6 +13,7 @@
 [submodule "Readmore.js.git"]
         path = themes/oktick/assets/libs/Readmore.js
 	url = https://github.com/jedfoster/Readmore.js.git
+        branch = master
 [submodule "bootstrap-show-password.git"]
         path = themes/oktick/assets/jquery.show-password
 	url = https://github.com/wenzhixin/bootstrap-show-password.git
