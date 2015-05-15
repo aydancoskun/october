@@ -4,6 +4,7 @@
 /api/database/templates_c
 api/database/templates_c
 /api/piwik/tmp/sessions
+/stats
 composer.lock
 composer.phar
 .DS_Store
