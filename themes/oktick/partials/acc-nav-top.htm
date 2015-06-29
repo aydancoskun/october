@@ -1,26 +1,9 @@
 [viewBag]
-
-
-[session]
-security = "user"
-redirect = "login"
-==
-<?php
-function onInit() {
-    \Debugbar::info("acc-nav-top onInit()");
-}
-function onStart(){
-        \Debugbar::info("acc-nav-top onStart()");
-}
-function onEnd(){
-        \Debugbar::info("acc-nav-top onEnd()");
-}
-?>
 ==
 <nav class="navbar navbar-default navbar-fixed-top">
     <div class="container">
         <div class="navbar-header">
-            <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#navbar" aria-expanded="false" aria-controls="navbar">
+            <button type="button" class="navbar-toggle collapse" data-toggle="collapse" data-target="#navbar" aria-expanded="false" aria-controls="navbar">
                 <span class="sr-only">Toggle navigation</span>
                 <span class="icon-bar"></span>
                 <span class="icon-bar"></span>
@@ -28,7 +11,7 @@ function onEnd(){
             </button>
         </div>
         <div id="navbar" class="navbar-collapse collapse">
-            <ul class="nav navbar-nav">
+            <ul class="nav navbar-nav nav-pills">
                 <li class="active">
                     <a href="/" style="height:50px;">
                         <span class="glyphicon glyphicon-home" aria-hidden="true"></span>&nbsp;
@@ -42,49 +25,27 @@ function onEnd(){
                         <span style="color:#7b7b7b;font-size:0.6rem;font-weight:100;letter-spacing: 0rem;position: relative;bottom: 2rem;" class="logohtml LTM"><sup> TM</sup></span>
                     </a>
                 </li>
-                <li class="{% if this.page.id == "details" %}active{% endif %}">
-                    <a href="/account/details">
-                        My Account
-                    </a>
+                <li class="{% if this.page.id == "account-details" %}active{% endif %}">
+                    <a href="/account/details">Account</a>
                 </li>
-                <li class="{% if this.page.id == "company" %}active{% endif %}">
-                    <a href="/account/company">
-                        Company
-                    </a>
+                <li class="{% if this.page.id == "account-company" %}active{% endif %}">
+                    <a href="/account/company">Company</a>
                 </li>
-                <li class="{% if this.page.id == "credit" %}active{% endif %}">
-                    <a href="/account/credit">Credits 
-                        <span
-                        class="badge badge-danger" 
+                <li class="{% if this.page.id == "account-credit" %}active{% endif %}">
+                    <a href="/account/credit">Credits <span
+                        id="ok_credits"
+                        class="badge badge-danger badge-menu" 
                         data-toggle="tooltip" 
                         data-trigger="hover" 
                         data-placement="bottom" 
                         title="Number of credits"
-                        data-content="This shows the number of credits you have on account and available to place on products and services">
-                        {% if credits %}{{credits}}{%else%}0{% endif %}
-                        </span>
+                        data-content="This shows the number of credits you have on account and available to place on products and services"
+                        data-value="{% if user.ok_credits %}{{user.ok_credits}}{%else%}0{% endif %}">{% if user.ok_credits and user.ok_credits > 0 %}{{ user.ok_credits|round(2, 'common') }}{%else%}0{% endif %}</span>
                     </a>
                 </li>
-                <li class="{% if this.page.id == "products-services" %}active{% endif %}">
+                <li class="{% if this.page.id == "account-products-services" %}active{% endif %}">
                     <a href="/account/products-services">
-                        Products/Services 
-                        <span id="badge_total" 
-                        class="badge badge-primary" 
-                        data-toggle="tooltip" 
-                        data-trigger="hover" 
-                        data-placement="bottom" 
-                        title="Total number of products and services on the system"
-                        data-content="This shows the number of products and services your company has on the system at all times">
-                        {% if products_count %}{{products_count}}{%else%}0{% endif %}
-                        </span>
-                        <span  id="badge_active" 
-                        class="badge badge-success"
-                        data-toggle="tooltip" 
-                        data-trigger="hover" 
-                        data-placement="bottom" 
-                        title="Amount of products and services you are enhancing">
-                        {% if active_count %}{{active_count}}{%else%}0{% endif %}
-                        </span>
+                        Products/Services
                     </a>
                 </li>
             </ul>
@@ -103,13 +64,30 @@ function onEnd(){
                 </li>
                 <li class="{% if this.page.id == "account" %}active{% endif %}">
                     <a href="/account">
-                        <span   class="glyphicon glyphicon-th" 
+                        <span   class="glyphicon glyphicon-user glyphicon-danger" 
                                 aria-hidden="true"
                                 data-toggle="tooltip" 
                                 data-trigger="hover" 
                                 data-placement="bottom" 
                                 title="Dashboard"
                                 data-content="Dashboard">
+                        </span>
+                        <span id="badge_total" 
+                            class="badge badge-warning badge-icon" 
+                            data-toggle="tooltip" 
+                            data-trigger="hover" 
+                            data-placement="bottom" 
+                            title="Total number of products and services on the system"
+                            data-content="This shows the number of products and services your company has on the system at all times">
+                            {% if user.ok_company_products_count %}{{user.ok_company_products_count}}{%else%}0{% endif %}
+                        </span>
+                        <span  id="badge_active" 
+                            class="badge badge-success badge-icon"
+                            data-toggle="tooltip" 
+                            data-trigger="hover" 
+                            data-placement="bottom" 
+                            title="Amount of products and services you are sponsoring">
+                            {% if user.ok_sponored_products_count %}{{user.ok_sponored_products_count}}{%else%}0{% endif %}
                         </span>
                     </a>
                 </li>

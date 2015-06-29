@@ -33,4 +33,12 @@ function onStart(){
 }
 ?>
 ==
+{% partial "acc-head" cssfile="oktick.css" %}
+{% partial "acc-nav-top"%}
+<div class="container">
+
 {% component 'editable' file="help.htm" %}
+
+</div><!--/container -->
+{% partial "acc-nav-bottom" %}
+{% partial "acc-foot" %}

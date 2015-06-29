@@ -1,10 +1,6 @@
 description = "nav-top"
 
 [viewBag]
-
-
-[session]
-security = "all"
 ==
 <?php
 function onStart(){
@@ -28,71 +24,130 @@ function onStart(){
         </div>
         <div id="navbar" class="navbar-collapse collapse">
             <ul class="nav navbar-nav">
-                <li class="active"><a href="/">
-                    <span   class="glyphicon glyphicon-home" 
-                            aria-hidden="true"
+                <li class="active">
+                    <a href="/" style="height:50px;">
+                        <span class="glyphicon glyphicon-home" aria-hidden="true"></span>&nbsp;
+                        {% if user %}
+                            <span style="color:#e83442;letter-spacing: -0.45rem;" class="logohtml LO1">O</span>
+                            <span style="color:#3469aa;letter-spacing: -0.6rem;"  class="logohtml LK2">K</span>
+                            <span style="color:#ffffff;letter-spacing: -0.6rem;"  class="logohtml LNBSP3"> </span>
+                            <span style="color:#f4ac52;letter-spacing: -0.3rem;"  class="logohtml LT4">T</span>
+                            <span style="color:#82b75d;letter-spacing: -0.3rem;"  class="logohtml LI5">i</span>
+                            <span style="color:#e83442;letter-spacing: -0.3rem;"  class="logohtml LC6">c</span>
+                            <span style="color:#3469aa;letter-spacing: -0.4rem;"  class="logohtml LK7">K</span>
+                            <span style="color:#7b7b7b;font-size:0.6rem;font-weight:100;letter-spacing: 0rem;position: relative;bottom: 2rem;" class="logohtml LTM"><sup> TM</sup></span>
+                        {% endif %}
+                    </a>
+                </li>
+                {% if user %}
+                    <li class="{% if this.page.id == "account-ranking" %}active{% endif %}">
+                        <a href="/account/ranking">Ranking</a>
+                    </li>
+                    <li class="{% if this.page.id == "account-credit" %}active{% endif %}">
+                        <a href="/account/credit">Credits <span
+                            id="ok_credits"
+                            class="badge badge-primary badge-menu" 
                             data-toggle="tooltip" 
                             data-trigger="hover" 
                             data-placement="bottom" 
-                            title="OKTicK Search"
-                            data-content="Back to OKTicK Search">
-                    </span>
-                </a></li>
-                <li class="{% if this.page.id == "pages-news" %}active{% endif %}"><a href="/news">News</a></li>
-                <li class="{% if this.page.id == "pages-search-tips" %}active{% endif %}"><a href="/search-tips">Search Tips</a></li>
-                <li class="{% if this.page.id == "pages-why-register" %}active{% endif %}"><a href="/why-register">Why Register?</a></li>
-                <li class="{% if this.page.id == "pages-faq" %}active{% endif %}"><a href="/faq">FAQ</a></li>
+                            title="Number of credits"
+                            data-content="This shows the number of credits you have on account and available to place on products and services"
+                            data-value="{% if user.ok_credits %}{{user.ok_credits}}{%else%}0{% endif %}">{% if user.ok_credits and user.ok_credits > 0 %}{{ user.ok_credits|round(2, 'common') }}{%else%}0{% endif %}</span>
+                        </a>
+                    </li>
+                    <li class="{% if this.page.id == "account-products-services" %}active{% endif %}">
+                        <a href="/account/products-services">
+                            Products/Services
+                            <span id="badge_total" 
+                                class="badge badge-primary badge-menu" 
+                                data-toggle="tooltip" 
+                                data-trigger="hover" 
+                                data-placement="bottom" 
+                                title="Total number of products and services on the system"
+                                data-content="Total Number of products on system">
+                                {% if user.ok_company_products_count %}{{user.ok_company_products_count}}{%else%}0{% endif %}
+                            </span>
+                                <span  id="badge_active" 
+                                    class="badge badge-success badge-menu"
+                                    data-toggle="tooltip" 
+                                    data-trigger="hover" 
+                                    data-placement="bottom" 
+                                    title="Number of sponored Products and Services">
+                                    {% if user.ok_sponored_products_count %}{{user.ok_sponored_products_count}}{%else%}0{% endif %}
+                                </span>
+                        </a>
+                    </li>
+                {% else %}
+                    <!--
+                     li class="{% if this.page.id == "pages-news" %}active{% endif %}"><a href="/news">News</a></li
+                     -->
+                    <li class="{% if this.page.id == "pages-search-tips" %}active{% endif %}"><a href="/search-tips">Search Tips</a></li>
+                    <li class="{% if this.page.id == "pages-why-register" %}active{% endif %}"><a href="/why-register">Why Register?</a></li>
+                    <li class="{% if this.page.id == "pages-faq" %}active{% endif %}"><a href="/faq">FAQ</a></li>
+                {% endif %}
             </ul>
             <ul class="nav navbar-nav navbar-right">
-            {% if user and not logout %}
-                <li class="{% if this.page.id == "account-help" %}active{% endif %}">
-                    <a href="/account/help">
-                        <span   class="glyphicon glyphicon-question-sign" 
-                                aria-hidden="true"
-                                data-toggle="tooltip" 
-                                data-trigger="hover" 
-                                data-placement="bottom" 
-                                title="Help"
-                                data-content="Help">
-                        </span>
-                    </a>
-                </li>
-                <li class="{% if this.page.id == "account" %}active{% endif %}">
-                    <a href="/account">
-                        <span   class="glyphicon glyphicon-th" 
-                                aria-hidden="true"
-                                data-toggle="tooltip" 
-                                data-trigger="hover" 
-                                data-placement="bottom" 
-                                title="Dashboard"
-                                data-content="Dashboard">
-                        </span>
-                    </a>
-                </li>
-                <li class="{% if this.page.id == "logout" %}active{% endif %}">
-                    <a href="/logout">
-                        <span   class="glyphicon glyphicon-off" 
-                                aria-hidden="true"
-                                data-toggle="tooltip" 
-                                data-trigger="hover" 
-                                data-placement="bottom" 
-                                title="Logout {{user.email}}"
-                                data-content="Click here to Logout">
-                        </span>
-                    </a>
-                </li>
-            {% else %}
-                <li class="{% if this.page.id == "register-1" %}active{% endif %}">
-                    <a href="/register/1/">
-                        <!--span class="glyphicon glyphicon-cog" aria-hidden="true"></span-->&nbsp;Register
-                    </a>
-                </li>
-                <li class="{% if this.page.id == "login" %}active{% endif %}">
-                    <a href="/login" style="text-decoration:none;">
-                        <span class="glyphicon glyphicon-user" aria-hidden="true"></span>&nbsp;Login
-                    </a>
-                </li>
-            {% endif %}
+                {% if user %}
+                    <li class="{% if this.page.id == "account-help" %}active{% endif %}">
+                        <a href="/account/help">
+                            <span   class="glyphicon glyphicon-question-sign" 
+                                    aria-hidden="true"
+                                    data-toggle="tooltip" 
+                                    data-trigger="hover" 
+                                    data-placement="bottom" 
+                                    title="Help"
+                                    data-content="Help">
+                            </span>
+                        </a>
+                    </li>
+                    <li class="{% if this.page.id == "account-details" %}active{% endif %}">
+                        <a href="/account/details">
+                            <span   class="glyphicon glyphicon-user" 
+                                    aria-hidden="true"
+                                    data-toggle="tooltip" 
+                                    data-trigger="hover" 
+                                    data-placement="bottom" 
+                                    title="{{user.email}}"
+                                    data-content="Account Detail">
+                            </span>
+                        </a>
+                    </li>
+                    <li class="{% if this.page.id == "account-company" %}active{% endif %}">
+                        <a href="/account/company">
+                            <span   class="glyphicon glyphicon-link" 
+                                    aria-hidden="true"
+                                    data-toggle="tooltip" 
+                                    data-trigger="hover" 
+                                    data-placement="bottom" 
+                                    title="{{user.company}}"
+                                    data-content="Company Details">
+                            </span>
+                        </a>
+                    </li>
+                    <li class="{% if this.page.id == "logout" %}active{% endif %}">
+                        <a href="/logout">
+                            <span   class="glyphicon glyphicon-off" 
+                                    aria-hidden="true"
+                                    data-toggle="tooltip" 
+                                    data-trigger="hover" 
+                                    data-placement="bottom" 
+                                    title="Logout"
+                                    data-content="Click here to Logout">
+                            </span>
+                        </a>
+                    </li>
+                {% else %}
+                    <li class="{% if this.page.id == "register-1" %}active{% endif %}">
+                        <a href="/register/1/">
+                            <!--span class="glyphicon glyphicon-cog" aria-hidden="true"></span-->&nbsp;Register
+                        </a>
+                    </li>
+                    <li class="{% if this.page.id == "login" %}active{% endif %}">
+                        <a href="/login" style="text-decoration:none;">
+                            <span class="glyphicon glyphicon-user" aria-hidden="true"></span>&nbsp;Login
+                        </a>
+                    </li>
+                {% endif %}
             </ul>
         </div>
     </div>

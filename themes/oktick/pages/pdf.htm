@@ -1,0 +1,41 @@
+title = "pdf_invoice"
+url = "/account/pdf_invoice/:invoice_id?0"
+hidden = "0"
+==
+<?php
+function onStart(){
+
+
+//    $pdf = App::make('dompdf'); //Note: in 0.6.x this will be 'dompdf.wrapper'
+//    return $pdf->stream();
+    //$data = '<h1>Test</h1>';
+//    $pdf = PDF::loadView('pdf.htm', array());
+    //$pdf = PDF::loadHTML('<h1>test</h1>');
+//    $pdf = PDF::loadFile(public_path().'/myfile.html');
+    $invoice_id = $this->param('invoice_id');
+    $result = DB::select(
+        "SELECT ".
+        "concat((user_id*10),(id*10)) as invoice_number, ".
+        "SUBSTRING(last4, -3)  as last3, ".
+        "brand, ".
+        "exp_month, ".
+        "exp_year, ".
+        "transaction_date, ".
+        "credits_purchased, ".
+        "price_paid, ".
+        "transaction_currency ".
+        "FROM ok_payments ".
+        "WHERE ".
+        "download_code = '$invoice_id' " .
+        "ORDER BY transaction_date DESC LIMIT 1"
+    );
+//    foreach($result)invoice_number
+    $html = file_get_contents("http://www.oktick.com/account/invoice/$invoice_id");
+    //$html = file_get_contents("https://www.google.com");
+    return PDF::loadHTML($html)->download($result[0]->invoice_number . '.pdf');
+    //return PDF::loadFile(public_path().'/myfile.html')->save('/path-to/my_stored_file.pdf')->stream('download.pdf');
+
+    
+}
+?>
+==

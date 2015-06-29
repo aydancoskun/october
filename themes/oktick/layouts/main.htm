@@ -1,7 +1,27 @@
+[session]
+security = "all"
+==
+<?php
+function onInit()
+{ 
+    $debug = strtolower(Input::get("debug"));
+    if($debug=="yes" OR $debug=="y" OR $debug=="true" OR $debug=="1" OR $debug=="" ) \Debugbar::enable();
+    else \Debugbar::disable();
+    $this['nbsp'] = "&nbsp;";
+}
+function onStart()
+{
+    try {
+        $user = $this->session->user()->attributes;
+    } catch (Exception $e) {
+        \Debugbar::addException($e);
+    }
+}
+?>
 ==
 {% partial "head" cssfile="oktick.css" %}
 {% partial "nav-top" %}
-{% partial "container-spacer" %}
+<div class="container"><div class="row"></div></div>
 <div class="container">
 {% partial "logo-embeded-defered" %}
 <br>

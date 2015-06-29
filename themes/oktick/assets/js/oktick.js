@@ -1,7 +1,13 @@
 function set_str_status_msg(message){
 	$("#str_status_msg").html(decodeURIComponent(message)+'&nbsp;');
 }
+
+function isNumeric(n) {
+  return !isNaN(parseFloat(n)) && isFinite(n);
+}
+
 function searchSubmit(){
+//	$( ".autocomplete-suggestions" ).hide();
 	$( "#autocomplete-ajax").css({"background": "url('themes/oktick/assets/img/searchip.gif') no-repeat right center"});
 	$( "#str_status_msg" ).html($( "#str_status_msg_searchSubmit" ).html()+'&nbsp;');
 	var queryvalue = encodeURIComponent(get_clean_value('autocomplete-ajax'));
@@ -13,23 +19,25 @@ function searchSubmit(){
 		$( "#str_status_msg" ).html('&nbsp;');
 		dotdotdot_init();
 	});
-
 //	$("#search-section").load(url);
 	//search_reset();
 	//window.location.replace(url);
 }
+
 function get_clean_value(id){
 	var tmp = document.getElementById(id).value;
 	tmp = tmp.replace(/\//g,' ');
 	tmp = encodeURIComponent(tmp);
 	return tmp;
 }
+
 function get_clean_innerHTML(id){
 	var tmp = document.getElementById(id).innerHTML;
 	tmp = tmp.replace(/\//g,' ');
 	tmp = encodeURIComponent(tmp);
 	return tmp;
 }
+
 function search_reset(){
 	$( "#autocomplete-suggestions" ).hide();
 	$( "#results-container" ).html("");
@@ -47,12 +55,15 @@ function search_reset(){
 	$( "#results" ).hide();
 	$('#autocomplete-ajax').focus();
 }
+
 function reset_search_box_glow(){
 	$( "#autocomplete-ajax").removeClass('no-glow');
 }
+
 function remove_search_box_glow(){
 	$( "#autocomplete-ajax").addClass('no-glow');
 }
+
 function convert_links_to_ajax() {
 	var menu = "/_";
 	var menulength = menu.length;
@@ -68,8 +79,9 @@ function convert_links_to_ajax() {
 		}
 	});
 }
+
 function readmore_init() {
-	return;
+	if (true) return;
 //	console.log("readmore_init inits");
 	$('.wrapper').each(function() {
 		try {
@@ -88,6 +100,7 @@ function readmore_init() {
 		}
 	});
 }
+
 function dotdotdot_init() {
 //	console.log("dotdotdot_init inits");
 	$('.dot-dot-dot').each(function() {
@@ -101,13 +114,16 @@ function dotdotdot_init() {
 		});
 	});
 }
+
 function str_replace(search,replace,subject){
 	return subject.split(search).join(replace);
 }
+
 function strpos (haystack, needle, offset) {
 	var i = (haystack+'').indexOf(needle, (offset || 0));
 	return i === -1 ? false : i;
 }
+
 $( document ).ready(function() {
     var dev=false;
 	if (!window.console) console = {};
@@ -117,12 +133,12 @@ $( document ).ready(function() {
 	console.info = console.info || function(){};
 //	$( "#autocomplete-ajax" ).val('Search...');
     $(function () {
-        $('[data-toggle="tooltip"]').tooltip()
+        $('[data-toggle="tooltip"]').tooltip();
     });
     $(function () {
-        $('[data-toggle="popover"]').popover()
-    })
-	$('#autocomplete-ajax').focus();
+        $('[data-toggle="popover"]').popover();
+    });
+	//$('#autocomplete-ajax').focus();
 	//																						convert_links_to_ajax();
 	//history.pushState(data, event.target.textContent, event.target.href);
 	/*
@@ -141,6 +157,7 @@ $( document ).ready(function() {
 	if(dev) console.log("autocomplete init");
 	$('#autocomplete-ajax').autocomplete({
 		paramName: 'suggest',
+		serviceUrl: 'suggest',
 		preventBadQueries: false,
 		tabDisabled: true,
 		autoSelectFirst: false,
@@ -192,7 +209,7 @@ $( document ).ready(function() {
 			if( suggestions.length == 1){
 				$('#autocomplete-ajax').autocomplete().hide();
 			}
-			response["suggestions"] = suggestions;
+			response.suggestions = suggestions;
 			return response;
 		},
 	});
@@ -202,11 +219,23 @@ $( document ).ready(function() {
 
 $(document).on("keypress", "#autocomplete-ajax", function(e) {
 	if (e.which == 13) {
-		$( ".autocomplete-suggestions" ).hide();
+//		$( ".autocomplete-suggestions" ).hide();
 		searchSubmit();
 		return false;
 	}
 });
+$('#submit-button').click(function(event){
+    event.preventDefault();
+//	$( ".autocomplete-suggestions" ).hide();
+	searchSubmit();
+	return false;
+})
+$('#add-ps-button').click(function(event){
+    event.preventDefault();
+//	$( ".autocomplete-suggestions" ).hide();
+	addpsSubmit();
+	return false;
+})
 
 // COOKIE LAW COMPLIANCE JS ####################################################
 // Based on Creare's EU Cookie Law Banner http://www.creare.co.uk
@@ -238,13 +267,12 @@ $( document ).ready(function() {
 
 function createCookie(days,dev) {
     var value="On";
+    var expires="";
 	if(dev) console.log("Cookie Law Init: createCookie");
 	if (days) {
 		var date = new Date();
 		date.setTime(date.getTime()+(days*24*60*60*1000));
-		var expires = "; expires="+date.toGMTString();
-	}else {
-		var expires = "";
+		expires = "; expires="+date.toGMTString();
 	}
 	document.cookie = "CookieComplianceCookie="+value+expires+"; path=/";
 }
@@ -255,7 +283,7 @@ function getCookieValue(dev) {
 	for(var i=0;i < ca.length;i++) {
 		var c = ca[i];
 		while (c.charAt(0)==' ') c = c.substring(1,c.length);
-		if (c.indexOf(nameEQ) == 0) {
+		if (c.indexOf(nameEQ) === 0) {
         	if(dev) console.log("Cookie Law Init: getCookieValue='"+c.substring(nameEQ.length,c.length)+"'");
 		    return c.substring(nameEQ.length,c.length);
 		}
@@ -297,7 +325,7 @@ function eraseCookie(name,dev) {
 				img.setAttribute(attr.name.replace('data-', ''), attr.value);
 			}
 		}
-	}
+	};
 
 	document.addEventListener('DOMContentLoaded', function() {
 		var placeholders = document.querySelectorAll('.defer-image');
@@ -305,80 +333,303 @@ function eraseCookie(name,dev) {
 			deferImage(placeholders[i]);
 		}
 	});
-
 })();
 
-//plugin bootstrap minus and plus
-//http://jsfiddle.net/laelitenetwork/puJ6G/
-$('.btn-number').click(function(e){
-    e.preventDefault();
-
-    fieldName = $(this).attr('data-field');
-    console.log(fieldName);
-    type      = $(this).attr('data-type');
-    var input = $("input[name='"+fieldName+"']");
-    var currentVal = parseInt(input.val());
-    if (!isNaN(currentVal)) {
-        if(type == 'minus') {
-
-            if(currentVal > input.attr('data-min')) {
-                input.val(currentVal - 1).change();
-            }
-            if(parseInt(input.val()) == input.attr('data-min')) {
-                $(this).attr('disabled', true);
-            }
-
-        } else if(type == 'plus') {
-
-            if(currentVal < input.attr('data-max')) {
-                input.val(currentVal + 1).change();
-            }
-            if(parseInt(input.val()) == input.attr('data-max')) {
-                $(this).attr('disabled', true);
-            }
-
-        }
+function getEstimatedPosition(credits_estimated,type,boundaryValue,estimated_position){
+    if(credits_estimated >= parseInt($('#ok_credits').attr('data-value')) && type=="plus"){
+        boundaryValue=credits_estimated;
+    };
+    if(estimated_position=="1" && type=="plus"){
+        $( '#estimated-position'+bp_id ).val("1");
+        setTimeout(function(){
+            $( '#btn-confirm' + bp_id).css( "visibility","visible" );
+            reset_attributes(credits_estimated,type,boundaryValue);
+        }, 100);
+        return;
     } else {
-        input.val(0);
+        $.request('onGetEstimatedPosition', {
+            data: {
+                bp_id: bp_id, 
+                credits_estimated: credits_estimated,
+            },
+            success: function(data) {
+                console.log('getEstimatedPosition success '+type+'=' + data.estimatedPosition);
+                $( '#estimated-position'+bp_id ).val(data.estimatedPosition);
+                $( '#btn-confirm' + bp_id).css( "visibility","visible" );
+                reset_attributes(credits_estimated,type,boundaryValue);
+            },
+            error: function(data) {// Assign handlers immediately after making the request,
+                var tmp = data.responseText.split('"');
+                var msg = tmp[1];
+                alert(msg);
+                $( '#estimated-position' + bp_id ).val("--------");
+                $( '#btn-confirm' + bp_id).css( "visibility","visible" );
+                reset_attributes(credits_estimated,type,boundaryValue);
+            }
+        });
+    }
+}
+function getOriginalPosition(current_credits,type,boundaryValue,current_position){
+    $( '#btn-confirm'+bp_id ).css( "visibility","hidden" );
+//    $( '#estimated-position'+bp_id ).val(current_position);
+    $( '#estimated-position'+bp_id ).val("--------");
+    $( '#btn-confirm' + bp_id).css( "visibility","hidden" );
+    reset_attributes(current_credits,type,boundaryValue);
+    return;
+}
+function set_attributes(type,current_credits) {
+    $( '#btn-credit-' + type + bp_id ).removeClass('btn-default');
+    $( '#btn-credit-' + type + bp_id ).addClass('btn-warning');
+    $( '#glyphicon-'  + type + bp_id ).removeClass('glyphicon-'+type);
+    $( '#glyphicon-'  + type + bp_id ).addClass('glyphicon-refresh');
+    $( '#btn-confirm' + bp_id ).attr('disabled', true);
+    $( '#btn-confirm' + bp_id).css( "visibility","visible" );
+    $( '#btn-credit-plus' + bp_id).attr('disabled', true);
+    $( '#btn-credit-minus' + bp_id).attr('disabled', true);
+    $('#credit'+bp_id).val(current_credits);
+}
+function reset_attributes(current_credits,type,boundaryValue) {
+    $( '#btn-credit-' + type + bp_id ).removeClass('btn-warning');
+    $( '#btn-credit-' + type + bp_id ).addClass('btn-default');
+    $( '#glyphicon-'  + type + bp_id ).removeClass('glyphicon-refresh');
+    $( '#glyphicon-'  + type + bp_id ).addClass('glyphicon-'+type);
+    $( '#btn-confirm' + bp_id ).removeAttr('disabled');
+    $( '#btn-credit-plus' + bp_id).removeAttr('disabled');
+    $( '#btn-credit-minus' + bp_id).removeAttr('disabled');
+    if( current_credits == boundaryValue ) $( '#btn-credit-' + type + bp_id).attr('disabled', true);
+}
+$('.btn-credit').click(function(event){
+    event.preventDefault();
+    bp_id = $(this).attr('data-bp_id');
+    type = $(this).attr('data-type'); //plus or minus
+    
+    // REMOVING OLD BUTTONS IF JUMPED LINE
+    if(previous.bp_id != false && previous.bp_id != bp_id){
+        console.log("Restore previous buttons");
+        var previous_bp_user_credits = $('#bp' + previous.bp_id).attr('data-bp_user_credits');
+        $( '#estimated-position'+previous.bp_id ).val("--------");
+        $( '#btn-confirm' + previous.bp_id).css( "visibility","hidden" );
+        $( '#btn-confirm' + previous.bp_id ).removeAttr('disabled');
+        $( '#glyphicon-minus' + previous.bp_id ).removeClass('glyphicon-refresh');
+        $( '#glyphicon-minus'  + previous.bp_id ).addClass('glyphicon-minus');
+        $( '#glyphicon-plus' + previous.bp_id ).removeClass('glyphicon-refresh');
+        $( '#glyphicon-plus'  + previous.bp_id ).addClass('glyphicon-plus');
+        $( '#btn-credit-plus' + previous.bp_id).removeClass('btn-warning');
+        $( '#btn-credit-minus' + previous.bp_id).removeClass('btn-warning');
+        $( '#btn-credit-plus' + previous.bp_id).addClass('btn-default');
+        $( '#btn-credit-minus' + previous.bp_id).addClass('btn-default');
+        $( '#btn-credit-plus' + previous.bp_id).removeAttr('disabled');
+        if( previous_bp_user_credits =="" || previous_bp_user_credits ==0) {
+            $('#credit' + previous.bp_id).val( "0" );
+            $('#btn-credit-minus' + previous.bp_id).attr('disabled', true);
+        } else {
+            $('#credit' + previous.bp_id).val( previous_bp_user_credits );
+            $( '#btn-credit-minus' + previous.bp_id).removeAttr('disabled');
+        }
+    }
+    previous.bp_id = bp_id;
+    
+    var credit_field = $('#credit'+bp_id);
+    var bp_user_credits = $('#bp'+bp_id).attr('data-bp_user_credits');
+    var current_credits = parseInt(credit_field.val());
+    var estimated_position = $('#estimated-position'+bp_id).val();
+    var current_position = $('#current-position'+bp_id).val();
+    
+    if (isNaN(current_credits)) {
+        credit_field.val(0);
+        return;
+    }
+
+    var minValue =  credit_field.attr('data-max-minus');
+    var maxValue =  credit_field.attr('data-max-plus');
+    if(type == 'minus') {
+        if(current_credits > minValue) {
+            current_credits = current_credits -1;
+            set_attributes(type,current_credits)
+            if(current_credits == bp_user_credits) {
+                getOriginalPosition(current_credits,type,minValue,current_position);
+            } else {
+                getEstimatedPosition(current_credits,type,minValue,estimated_position);
+            }
+        }
+    } else if(type == 'plus') {
+        if(current_credits < maxValue) {
+            current_credits = current_credits +1;
+            set_attributes(type,current_credits)
+            if(current_credits == bp_user_credits) {
+                getOriginalPosition(current_credits,type,minValue,current_position);
+            } else {
+                getEstimatedPosition(current_credits,type,maxValue,estimated_position);
+            }
+        }
     }
 });
-$('.input-number').focusin(function(){
-   $(this).data('oldValue', $(this).val());
-});
-$('.input-number').change(function() {
-
-    minValue =  parseInt($(this).attr('data-min'));
-    maxValue =  parseInt($(this).attr('data-max'));
-    valueCurrent = parseInt($(this).val());
-
-    name = $(this).attr('name');
-    if(valueCurrent >= minValue) {
-        $(".btn-number[data-type='minus'][data-field='"+name+"']").removeAttr('disabled')
-    } else {
-        //alert('Sorry, the minimum value was reached');
-        $(this).val(minValue);
-    }
-    if(valueCurrent <= maxValue) {
-        $(".btn-number[data-type='plus'][data-field='"+name+"']").removeAttr('disabled')
-    } else {
-        //alert('Sorry, the maximum value was reached');
-        $(this).val(maxValue);
-    }
-
-
-});
-$(".input-number").keydown(function (e) {
-        // Allow: backspace, delete, tab, escape, enter and .
-        if ($.inArray(e.keyCode, [46, 8, 9, 27, 13, 190]) !== -1 ||
-             // Allow: Ctrl+A
-            (e.keyCode == 65 && e.ctrlKey === true) ||
-             // Allow: home, end, left, right
-            (e.keyCode >= 35 && e.keyCode <= 39)) {
-                 // let it happen, don't do anything
-                 return;
+$('.btn-confirm').click(function(event){
+    event.preventDefault();
+    bp_id = $(this).attr('data-bp_id');
+    $( '#btn-confirm' + bp_id ).attr('disabled', true);
+    $( '#btn-credit-plus'  + bp_id).attr('disabled', true);
+    $( '#btn-credit-minus' + bp_id).attr('disabled', true);
+    $( '#glyphicon-confirm' + bp_id ).removeClass('glyphicon-ok');
+    $( '#glyphicon-confirm' + bp_id ).addClass('glyphicon-refresh');
+    
+    var credits_confirmed = $('#credit' + bp_id).val();
+    if(!credits_confirmed) credits_confirmed="0";
+    $.request('onCreditConfirm', {
+        data: {
+            bp_id: bp_id, 
+            credits_confirmed: credits_confirmed,
         }
-        // Ensure that it is a number and stop the keypress
-        if ((e.shiftKey || (e.keyCode < 48 || e.keyCode > 57)) && (e.keyCode < 96 || e.keyCode > 105)) {
-            e.preventDefault();
+    })
+    .always(function( data, textStatus, errorThrown ) {
+            if(data.status=="error"){
+                console.log(data.log);
+                alert(data.message);
+                $( '#btn-confirm' + bp_id ).removeAttr('disabled');
+                $( '#btn-credit-plus'  + bp_id).removeAttr('disabled');
+                $( '#btn-credit-minus' + bp_id).removeAttr('disabled');
+                $( '#glyphicon-confirm' + bp_id ).removeClass('glyphicon-refresh');
+                $( '#glyphicon-confirm' + bp_id ).addClass('glyphicon-ok');
+                return
+            }
+        //success: function(data) {
+            console.log(textStatus);
+            //console.log('Setting $("#ok_credits").text('+data.ok_credits+')');
+            var total_credits=data.ok_credits;
+            if(total_credits < 0) total_credits = 0;
+            $('#ok_credits').text(total_credits.toFixed(2));
+            if (data.badge_active == 1){
+                $( '#badge_active' ).text(Math.round($("#badge_active").text())+1);
+                $( '#row' + bp_id ).addClass('success');
+            }
+            else if(data.badge_active == -1){
+                $('#badge_active').text(Math.round($("#badge_active").text())-1);
+                $( '#row' + bp_id ).removeClass('success');
+            }
+            
+            $('#current-position' + bp_id).val($( '#estimated-position'+bp_id ).val());
+            $( '#estimated-position' + bp_id ).val("--------");
+            $( '#bp' + bp_id).attr('data-bp_user_credits', credits_confirmed);
+            $( '#end_stamp' + bp_id ).val(data.end_stamp);
+
+//            var badge_total = Math.round($("#badge_total").text()) + data.badge_total;
+//            console.log('Setting $("#badge_total").text('+badge_total+')');
+//            $('#badge_total').text(badge_total);
+            
+            $( '#btn-confirm' + previous.bp_id).css( "visibility","hidden" );
+            $( '#btn-confirm' + bp_id ).removeAttr('disabled');
+            $( '#glyphicon-confirm' + bp_id ).removeClass('glyphicon-refresh');
+            $( '#glyphicon-confirm' + bp_id ).addClass('glyphicon-ok');
+            $( '#btn-credit-plus'  + bp_id).removeAttr('disabled');
+            if(credits_confirmed > 0) $( '#btn-credit-minus' + bp_id).removeAttr('disabled');
+            else $( '#btn-credit-minus' + bp_id).attr('disabled', true);
+//        },
+/*        error: function(data) {// Assign handlers immediately after making the request,
+            console.log('error');
+            var tmp = data.responseText.split('"');
+            var msg = tmp[1];
+            alert(msg);
+//            $( '#credit' + bp_id).removeAttr('disabled');
+            $( '#btn-confirm' + bp_id ).removeAttr('disabled');
+            $( '#btn-credit-plus'  + bp_id).removeAttr('disabled');
+            $( '#btn-credit-minus' + bp_id).removeAttr('disabled');
+            $( '#glyphicon-confirm' + bp_id ).removeClass('glyphicon-refresh');
+            $( '#glyphicon-confirm' + bp_id ).addClass('glyphicon-ok');
         }
+*/        
     });
+});
+$('.btn-delete').click(function(event){
+    var types = [BootstrapDialog.TYPE_DEFAULT, 
+                     BootstrapDialog.TYPE_INFO, 
+                     BootstrapDialog.TYPE_PRIMARY, 
+                     BootstrapDialog.TYPE_SUCCESS, 
+                     BootstrapDialog.TYPE_WARNING, 
+                     BootstrapDialog.TYPE_DANGER];
+    event.preventDefault();
+    bp_id = $(this).attr('data-bp_id');
+    var bp_name = $('#bp'+bp_id).text();
+    BootstrapDialog.show({
+        title: 'WARNING - Product Deletion!',
+        message: 'Are you sure you want to permanently delete "'+bp_name.trim()+'"?',
+        type: BootstrapDialog.TYPE_DANGER,
+        size: BootstrapDialog.SIZE_SMALL,
+        buttons: [{
+            label: 'Yes',
+            //icon: 'glyphicon glyphicon-remove',
+            cssClass: 'btn-danger',
+            action: function(dialog) {
+                $.request('onProductDelete', {
+                    data: {
+                        bp_id: bp_id, 
+                    }
+                })
+                .always(function( data, textStatus, errorThrown ) {
+                    $('#row'+bp_id).hide();
+                    dialog.close();
+                });
+            }
+        }, {
+            label: 'No',
+            action: function(dialog) {
+                dialog.close();
+            }
+        }]
+    });
+});
+$('.help').click(function(event){
+    event.preventDefault();
+    var id = $(this).attr('id').replace('_off','').replace('_on','');
+    var onoff = $(this).attr('id').replace(id,'');
+    if (onoff=="_off"){
+        console.log("Help off called");
+        console.log("Hidding:'"+id+"'");
+        $("#"+id).hide();
+        console.log("Showing:'"+id+"_on'");
+        $("#"+id+"_on").show();
+    }
+    if (onoff=="_on"){
+        console.log("Help on called");
+        console.log("Showing:'"+id+"'");
+        $("#"+id).show();
+        console.log("Hiding:'"+id+"_on'");
+        $("#"+id+"_on").hide();
+    }
+    $.request('onHelp',{data: {store: id,state: onoff}});
+})
+$('#btn-add').click(function(event){
+    event.preventDefault();
+    console.log("adding");
+    bp = $('#autocomplete-ajax').val();
+    console.log("adding"+bp);
+    BootstrapDialog.show({
+        title: 'Confirmation',
+        message: 'Are you sure you want to add "'+bp+'"?',
+        type: BootstrapDialog.TYPE_PRIMARY,
+        size: BootstrapDialog.SIZE_SMALL,
+        buttons: [{
+            label: 'Yes',
+            //icon: 'glyphicon glyphicon-remove',
+            cssClass: 'btn-primary',
+            action: function(dialog) {
+                $('#autocomplete-ajax').val('');
+
+//                $.request('onProductDelete', {
+//                    data: {
+//                        bp_id: bp_id, 
+//                    }
+//                })
+//                .always(function( data, textStatus, errorThrown ) {
+//                    $('#row'+bp_id).hide();
+                    dialog.close();
+//                });
+            }
+
+        }, {
+            label: 'No',
+            action: function(dialog) {
+                dialog.close();
+            }
+        }]
+    });
+});

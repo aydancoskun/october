@@ -2,20 +2,18 @@ title = "Details"
 url = "/account/details"
 layout = "account"
 hidden = "0"
-
-[account]
-paramCode = "code"
-
-[session]
-security = "user"
-redirect = "login"
 ==
 <?php
-function onInit() {
-    \Debugbar::info("Details page onInit()");
-}
 function onStart() {
     \Debugbar::info("Details page onStart()");
+//    $user = $this->session->user()-attr;
+    $this['invoices']= DB::select(
+        "SELECT download_code, transaction_date, credits_purchased, price_paid, transaction_currency, concat((user_id*10),(id*10)) as invoice_number ".
+        "FROM ok_payments ".
+        "WHERE ".
+        "user_id = ". $this->session->user()->attributes['id'] . " " .
+        "ORDER BY transaction_date DESC"
+    );
 }
 function onDelete() {
     \Debugbar::info("Details page onDelete()");
@@ -36,8 +34,8 @@ if ($v->fails())
 
     });
 
-    $this['result'] = 'Success!';
-}
+        $this['result'] = 'Success!';
+    }
 }
 
 function onUpdate() {
@@ -45,6 +43,10 @@ function onUpdate() {
 }
 ?>
 ==
+{% partial "acc-head" cssfile="oktick.css" %}
+{% partial "nav-top" %}
+<div class="container">
+
 <h2 class="text-center">My Account</h2>
 <div class="row">
 <div class="col-xs-1 col-md-2"></div>
@@ -55,19 +57,19 @@ function onUpdate() {
             <div class="col-lg-6">
                 <label for="name" >First name</label>
                 <div class="input-group-lg">
-                    <input type="text" class="form-control wide" id="name" placeholder="First name" value="{{name}}">
+                    <input type="text" class="form-control wide" id="name" placeholder="First name" value="{{user.name}}">
                 </div>
             </div>
             <div class="col-lg-6">
                 <label for="surname">Last name</label>
                 <div class="input-group-lg">
-                    <input type="text" class="form-control" id="surname" placeholder="Last name" value="{{surname}}">
+                    <input type="text" class="form-control" id="surname" placeholder="Last name" value="{{user.surname}}">
                 </div>
             </div>
         </div>
         <div class="form-group input-group-lg">
             <label for="business-email" >Current email address you use at work</label>
-            <input type="text" class="form-control" id="business-email" placeholder="you@emailaddress.com" value="{{email}}">
+            <input type="text" class="form-control" id="business-email" placeholder="you@emailaddress.com" value="{{user.email}}">
         </div>
         <div class="form-group input-group-lg has-feedback">
             <label for="current-password" >Password</label>
@@ -85,13 +87,71 @@ function onUpdate() {
         <div class="text-right">
             <button type="submit" class="btn btn-primary btn-lg">Submit</button>
         </div>
-        <div class="form-group has-success has-feedback">
+        <!--div class="form-group has-success has-feedback">
             <label class="control-label" for="inputSuccess2">Input with success</label>
             <input type="text" class="form-control" id="inputSuccess2" aria-describedby="inputSuccess2Status">
             <span class="glyphicon glyphicon-ok form-control-feedback" aria-hidden="true"></span>
             <span id="inputSuccess2Status" class="sr-only">(success)</span>
-        </div>
+        </div-->
     </form>
+    {%if invoices %}
+        <div class="row">
+        <div class="col-xs-1 col-md-0"></div>
+        <div class="col-xs-10 col-md-12">
+            <div class="text-center" id="purchase_history_show">
+                <button class="btn btn-default btn-lg" onclick="$('#purchase_history').show();$('#purchase_history_show').hide();$('#purchase_history_hide').show();">Show Purchase History</button>
+            </div>
+            <div class="text-center collapse" id="purchase_history_hide">
+                <button class="btn btn-default btn-lg" onclick="$('#purchase_history').hide();$('#purchase_history_show').show();$('#purchase_history_hide').hide();">Hide Purchase History</button>
+            </div>
+            <div id="purchase_history" class="collapse">
+                <h3>Purchase History</h3>
+                <table class="table table-bordered table-striped">
+                    <tr class="">
+                        <th class="text-center">Invoice<br>Number</th>
+                        <th class="text-center">Invoice<br>Date</th>
+                        <th class="text-center">Credits<br>Purchased</th>
+                        <!--th class="text-center">Sales<br>Tax</th-->
+                        <!--th class="text-center">Payment<br>Method</th-->
+                        <th class="text-center">Amount<br>Paid</th>
+                        <th class="text-center">Transaction<br>Currency</th>
+                        <th class="text-center">Print<br>Invoice</th>
+                    </tr>
+                    {% for invoice in invoices %}
+                        <tr class="">
+                            <td class="text-center" style="vertical-align: middle">
+                                {{ invoice.invoice_number }}
+                            </td>
+                            <td class="text-center" style="vertical-align: middle">
+                                {{ invoice.transaction_date|date("j M Y") }}
+                            </td>
+                            <td class="text-center" style="vertical-align: middle">
+                                {{ invoice.credits_purchased }}
+                            </td>
+                            <td class="text-center" style="vertical-align: middle">
+                                {{ ((invoice.price_paid)/100)|number_format(2, '.', ',') }}
+                            </td>
+                            <td class="text-center" style="vertical-align: middle">
+                                {{ invoice.transaction_currency|upper }}
+                            </td>
+                            <td class="text-center" style="vertical-align: middle">
+                                <a class="btn btn-primary"
+                                   href="javascript:download('{{ invoice.download_code}}')"
+                                   role="button">
+                                    <span style="vertical-align: middle" class="glyphicon glyphicon-print" aria-hidden="true"></span>
+                                </button>
+                            </td>
+                        </tr>
+                    {% endfor %}
+                </table>
+            </div>
+        </div>
+        <div class="col-xs-1 col-md-0"></div>
+    </div>
+    {% endif %}
+    
+    
+    
     <br>
     <br>
     <br>
@@ -133,6 +193,8 @@ function onUpdate() {
 
 <div class="col-xs-1 col-md-2"></div>
 </div>
+
+<iframe id="invoice" style="display:none"></iframe>
 <!-- page specific javascript goes here-->
 <script>
 function pageInit(){
@@ -142,4 +204,16 @@ function pageInit(){
 //    confirm: 'Are you sure?',
 //    redirect: '/dashboard'
 //});
+function download(download_code) 
+{
+    $.oc.stripeLoadIndicator.show();
+    var ifrm = document.getElementById('invoice');
+    ifrm.src = 'http://www.oktick.com/account/pdf_invoice/'+download_code;
+}
+$('#invoice').load(function(){
+    $.oc.stripeLoadIndicator.hide();
+});
 </script>
+</div><!--/container -->
+{% partial "acc-nav-bottom" %}
+{% partial "acc-foot" %}

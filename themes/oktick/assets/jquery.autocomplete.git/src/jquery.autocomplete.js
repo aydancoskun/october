@@ -518,13 +518,19 @@
             }
         },
 
+        set_serviceUrl: function (serviceUrl) {
+            var test = this.options.serviceUrl;
+            console.log(test);
+        },
+
         get_serviceUrl: function (q) {
+            var serviceUrl = this.options.serviceUrl;
         	q = encodeURIComponent(q);
 //            var str_page_url = encodeURIComponent(document.getElementById('str_page_url').innerHTML);
 //            var str_page_type_search = encodeURIComponent(document.getElementById('str_page_type_search').innerHTML);
 //            var str_page_type_suggest = encodeURIComponent(document.getElementById('str_page_type_suggest').innerHTML);
 //            return str_page_url + '/' + q;
-            return '/suggest/' + q + "~";
+            return '/' + serviceUrl + '/' + q + "~";
         },
 
         isBadQuery: function (q) {

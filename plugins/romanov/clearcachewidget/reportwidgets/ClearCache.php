@@ -8,6 +8,7 @@ class ClearCache extends ReportWidgetBase
 	
     public function render(){
         $this->vars['size'] = $this->getSizes();
+        $this->vars['radius'] = $this->property("radius");
         $widget = ($this->property("nochart"))? 'widget2' : 'widget';
         return $this->makePartial($widget);
     }
@@ -26,15 +27,28 @@ class ClearCache extends ReportWidgetBase
                 'title'             => 'romanov.clearcachewidget::lang.plugin.nochart',
                 'type'              => 'checkbox',
             ],
+            'radius' => [
+                'title'             => 'romanov.clearcachewidget::lang.plugin.radius',
+                'type'              => 'string',
+                'validationPattern' => '^[0-9]+$',
+                'validationMessage' => 'Only numbers!',
+                'default'           => '200',
+            ],
+            'delthumbs' => [
+                'title'             => 'romanov.clearcachewidget::lang.plugin.delthumbs',
+                'type'              => 'checkbox',
+                'default'           => false,
+            ],
         ];
     }
 
     public function onClear(){
         \Artisan::call('cache:clear');
+        if($this->property("delthumbs"))    $this->delThumbs();
         \Flash::success(e(trans('romanov.clearcachewidget::lang.plugin.success')));
         $widget = ($this->property("nochart"))? 'widget2' : 'widget';
         return [
-            'partial' => $this->makePartial($widget, ['size' => $this->getSizes()])
+            'partial' => $this->makePartial($widget, ['size' => $this->getSizes(),'radius' => $this->property("radius")])
         ];
     }
 
@@ -68,6 +82,19 @@ class ClearCache extends ReportWidgetBase
         $s['fcache'] = $this->format_size($s['fcache_b']);
         $s['all'] = $this->format_size($s['ccache_b'] + $s['ccombiner_b'] + $s['ctwig_b'] + $s['fcache_b']);
         return $s;
+    }
+
+    private function delThumbs(){
+        $thumbs = array();
+        $iterator = new \RecursiveDirectoryIterator(storage_path()."/app/uploads/public");
+        foreach (new \RecursiveIteratorIterator($iterator) as $file) {
+            if(preg_match("/^thumb_\w+_crop.*/", $file->getFilename())){
+                $thumbs[] = $file->getRealPath();
+            }
+        }
+        foreach($thumbs as $img){
+            unlink($img);
+        }
     }
 
 }

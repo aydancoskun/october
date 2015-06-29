@@ -30,7 +30,10 @@
         "october/backend": "~1.0",
         "october/cms": "~1.0",
         "october/rain": "~1.0",
-	"stripe/stripe-php": "2.*"
+	"stripe/stripe-php": "2.*",
+	"dompdf/dompdf" : "0.6.*",
+	"barryvdh/laravel-dompdf": "0.5.*",
+	"dinesh/barcode": "5.0.*@dev"
     },
     "autoload-dev": {
         "classmap": [

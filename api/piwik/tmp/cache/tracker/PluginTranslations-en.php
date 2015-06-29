@@ -2116,6 +2116,6 @@ And thank you for using Piwik!',
     'DimensionName' => 'Example Dimension',
   ),
 );
-$expires_on   = 1426246254;
+$expires_on   = 1435509905;
 $cache_complete   = true;
 ?>

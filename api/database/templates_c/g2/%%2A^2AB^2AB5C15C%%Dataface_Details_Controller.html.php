@@ -1,4 +1,4 @@
-<?php /* Smarty version 2.6.18, created on 2015-02-17 10:33:47
+<?php /* Smarty version 2.6.18, created on 2015-05-20 04:55:29
          compiled from Dataface_Details_Controller.html */ ?>
 <?php require_once(SMARTY_CORE_DIR . 'core.load_plugins.php');
 smarty_core_load_plugins(array('plugins' => array(array('block', 'translate', 'Dataface_Details_Controller.html', 21, false),array('function', 'prev_link', 'Dataface_Details_Controller.html', 26, false),array('function', 'next_link', 'Dataface_Details_Controller.html', 30, false),array('function', 'actions_menu', 'Dataface_Details_Controller.html', 34, false),)), $this); ?>

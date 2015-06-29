@@ -1,4 +1,4 @@
-<?php /* Smarty version 2.6.18, created on 2015-02-22 20:22:08
+<?php /* Smarty version 2.6.18, created on 2015-05-20 10:41:09
          compiled from copy_replace.html */ ?>
 <?php require_once(SMARTY_CORE_DIR . 'core.load_plugins.php');
 smarty_core_load_plugins(array('plugins' => array(array('block', 'use_macro', 'copy_replace.html', 1, false),array('block', 'fill_slot', 'copy_replace.html', 2, false),array('block', 'translate', 'copy_replace.html', 7, false),array('function', 'html_options', 'copy_replace.html', 55, false),)), $this); ?>

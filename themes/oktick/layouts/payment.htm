@@ -1,0 +1,36 @@
+==
+<?php
+function onInit(){
+    \Debugbar::info("account layout onInit()");
+    try {
+        $user = $this->account->user();
+        $this['company_website_url'] = $user->attributes['company'];
+        $company_id = DB::table('operations.companies')->where('company_website_url', $this['company_website_url'])->pluck('uid');
+        $this['products'] = DB::table('operations.bp_suppliers')->where('company_uid', $company_id)->get();
+        $this['products_count'] = count($this['products']);
+        $this['ok_credits'] = $user->attributes['ok_credits'];
+        $this['email'] = $user->attributes['email'];
+        $this['name'] = $user->attributes['name'];
+        $this['surname'] = $user->attributes['surname'];
+        //return ['#badge_total'] => $this->render($this['products_count']);
+        return;
+    } catch (Exception $e) {
+        \Debugbar::addException($e);
+    }
+}
+function onEnd(){
+        \Debugbar::info("account layout onEnd()");
+}
+function onStart()
+{
+    \Debugbar::info("account layout onStart()");
+}
+?>
+==
+{% partial "acc-pay-head" cssfile="oktick.css" %}
+{% partial "acc-nav-top" %}
+<div class="container">
+{% page %}
+</div><!--/container -->
+{% partial "acc-nav-bottom" %}
+{% partial "acc-pay-foot" %}

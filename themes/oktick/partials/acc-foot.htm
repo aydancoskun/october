@@ -4,11 +4,6 @@
 <div id="str_status_msg_onSearchStart" style="display:none;">Searching...</div>
 <div id="str_status_msg_onSelect"	   style="display:none;">Searching...</div>
 <div id="str_status_msg_searchSubmit"  style="display:none;">Searching...</div>
-<!-- Bootstrap core JavaScript -->
-<script src="//ajax.googleapis.com/ajax/libs/jquery/1.11.2/jquery.min.js"></script><!--try to use CDN first-->
-<script>window.jQuery || document.write('<script src="/app/ot/assets/jquery/1.11.2/jquery.min.js"><\/script>')</script><!--if CDN file isn't delivered, send a local file-->
-<script src="//maxcdn.bootstrapcdn.com/bootstrap/3.3.4/js/bootstrap.min.js"></script><!--try to use CDN first-->
-<script>$.fn.modal || document.write('<script src="/app/ot/assets/bs3/js/bootstrap.min.js"><\/script>')</script><!--if CDN file isn't delivered, send a local file-->
 
 <!-- IE10 viewport hack for Surface/desktop Windows 8 bug -->
 <!--script src="/app/ot/assets/bs3/js/ie10-viewport-bug-workaround.js"></script-->
@@ -16,49 +11,18 @@
 <!--script src="/app/ot/assets/js/responsive-placeholder-images-custom.js"></script-->
 <!--script src="/app/ot/assets/libs/Readmore.js/readmore.js"></script-->
 <script src="/app/ot/assets/jquery.dotdotdot.git/src/js/jquery.dotdotdot.min.js"></script>
-<script src="/modules/system/assets/js/framework.js"></script>
-<script src="/modules/system/assets/js/framework.extras.js"></script>
+<script src="/app/ot/assets/jquery.bs-confirmation.git/bootstrap-confirmation.js"></script>
 <script src="/app/ot/assets/js/oktick.js"></script>
-<script src="https://checkout.stripe.com/v2/checkout.js"></script>
 <script src="modules/backend/formwidgets/richeditor/assets/vendor/redactor/redactor.js"></script>
 <script src="/plugins/rainlab/editable/assets/js/editable.js"></script>
 <script src="/app/ot/assets/jquery.show-password/bootstrap-show-password.min.js"></script>
-
-<script>
-    $(document).ready(function() {
-        if (typeof pageInit == 'function') { 
-            pageInit(); 
-        }
-        $('.stripe').on('click', function(event) {
-            event.preventDefault();
-            var $button = $(this),
-                $form   = $button.parents('form');
-            var opts = $.extend({}, $button.data(), {
-                token: function(result) {
-                    $form.append($('<input>').attr({ type: 'hidden', name: 'stripeToken', value: result.id })).submit();
-                    $form.append($('<input>').attr({ type: 'hidden', name: 'stripeTokenType', value: result.type })).submit();
-                    $form.append($('<input>').attr({ type: 'hidden', name: 'stripeEmail', value: result.email })).submit();
-                    //$form.append($('<input>').attr({ type: 'hidden', name: 'stripeCredits', value: $button.data("credits") })).submit();
-                    //+ JSON.stringify($button.data()) })).submit();
-                }
-            });
-            StripeCheckout.open(opts);
-        });
-    });
-</script>
+<script src="/app/ot/assets/jquery.bs3dialog.git/dist/js/bootstrap-dialog.min.js"></script>
 <noscript><div id="noscript-warning" class="alert alert-danger">The accounts section of OKTicK requires that JavaScript is enabled</div>
 <div>You must <a href="http://www.enable-javascript.com" target="_blank">enable JavaScript</a> in your web browser.</div>
 </noscript>
 {% flash %} 
 <div id="top-alert" class="alert alert-{{ type == 'error' ? 'danger' : type }}">{{ message }}</div> 
 {% endflash %}
-<div id="cookie-law">
-    <div>
-    <h4 id="cookie-law-H4">We do use cookies on our site...</h4>
-    <p id="cookie-law-p">We use them to ensure that we give you the best user experience possible. If you continue without changing your browser's settings, we'll assume that you are happy to receive all those yummy cookies.</p>
-    <a class="enlace text-center" href="/privacy-policy">Please see our privacy policy for full details on how we use cookies.</a>
-    <a class="close-cookie-banner" href="javascript:void(0);" onclick="$(this).parent().parent().hide();createCookie(365,false);"><span>Close</span></a>
-    </div>
-</div>
+
 </body>
 </html>

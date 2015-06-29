@@ -2,26 +2,12 @@ title = "Company"
 url = "/account/company"
 layout = "account"
 hidden = "0"
-
-[account]
-paramCode = "code"
-
-[session]
-security = "user"
-redirect = "login"
 ==
-<?php
-function onStart() {
-    try {
-        $user = $this->account->user();
-        $this['email'] = $user->attributes['email'];
-    } catch (Exception $e) {
-        \Debugbar::addException($e);
-    }
-}
-?>
-==
-<h2 class="text-center">Company Details</h2>
+{% partial "acc-head" cssfile="oktick.css" %}
+{% partial "nav-top" %}
+<div class="container">
+
+<h2 class="text-center">Company Link</h2>
 <div class="row">
 <div class="col-xs-1 col-md-2"></div>
 <div class="col-xs-10 col-md-8">
@@ -33,7 +19,7 @@ function onStart() {
     <input type="text" class="form-control" id="business-website" placeholder="www.example.com">
 </div>
 {% if disabled %}
-<p>All other options are currently disabled because your email address, <{{email}}> does not match your company domain name. If you mistyped your domain name you can change it above. If you need to change your email address, e.g.  because you gave your personal instead of your business email, you can do so on your "My Account" page <a href="/account/details">here</a>.</p>
+<p>All other options are currently disabled because your email address, <{{user.email}}> does not match your company domain name. If you mistyped your domain name you can change it above. If you need to change your email address, e.g.  because you gave your personal instead of your business email, you can do so on your "My Account" page <a href="/account/details">here</a>.</p>
 {% endif %}
 <div class="form-group input-group-lg">
     <label for="business-name">Business or organisation name</label>
@@ -88,3 +74,7 @@ function onStart() {
 </div>
 </form>
 <div class="col-xs-1 col-md-2"></div>
+
+</div><!--/container -->
+{% partial "acc-nav-bottom" %}
+{% partial "acc-foot" %}

@@ -3,7 +3,7 @@
 <footer class="footer navbar-default">
 <div class="container">
 
-<p class="navbar-text">Copyright &copy; 2002-2015 Clive H. Whittaker</p>
+<p class="navbar-text">Copyright &copy; 2002-{{ "now"|date("Y") }} Clive H. Whittaker</p>
 <ul class="nav navbar-nav navbar-right">
 <li class="{% if this.page.id == "terms-and-conditions" %}active{% endif %}"><a class="navbar-bottom" href="/terms-and-conditions">Terms and Conditions</a></li>
 <li class="{% if this.page.id == "privacy-policy" %}active{% endif %}"><a class="navbar-bottom" href="/privacy-policy">Privacy Policy</a></li>
@@ -11,5 +11,5 @@
 <li class="{% if this.page.id == "about-us" %}active{% endif %}"><a class="navbar-bottom" href="/about-us">About Us</a></li>
 </ul>
 </div>
-{% partial "page-data" %}
+<!--{% partial "page-data" %}-->
 </footer>

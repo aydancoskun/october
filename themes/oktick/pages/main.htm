@@ -4,18 +4,17 @@ layout = "main"
 hidden = "0"
 ==
 <?php
-function onStart(){
+function onInit()
+{ 
     $debug = strtolower(Input::get("debug"));
-    //if (Input::get("debug")===NULL) \Debugbar::disable();
-    //elseif($debug=="yes" OR $debug=="y" OR $debug=="true" OR $debug=="1" OR $debug=="" ) \Debugbar::enable();
-    //else \Debugbar::disable();
-    $this['nbsp'] = " ";
+    if($debug=="yes" OR $debug=="y" OR $debug=="true" OR $debug=="1" OR $debug=="" ) \Debugbar::enable();
+    else \Debugbar::disable();
 }
 ?>
 ==
-{% partial "container-spacer" %}
+<div class="container"><div class="row"></div></div>
 {% partial "search-section" datatype="Go!" %}
-{% partial "container-spacer" %}
+<div class="container"><div class="row"></div></div>
 <br>
-{% partial "container-spacer" %}
+<div class="container"><div class="row"></div></div>
 <div id="results-container"></div>

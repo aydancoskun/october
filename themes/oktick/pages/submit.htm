@@ -72,28 +72,21 @@ function onStart(){
 }
 
 function submit(){
-    //DB::enableQueryLog();
-
-    $this['companies'] =
-        DB::select("( SELECT ".
-        "companies.company_name as name ,".
-        "bp_suppliers.company_website_url as url, ".
-        "companies.vendor_data ".
-        "FROM operations.companies ".
-        "INNER JOIN operations.bp_suppliers ON bp_suppliers.company_uid=companies.uid ".
-        "WHERE ".
-        "bp_suppliers.bp= ? AND ".
-        "companies.company_website_url <> '' AND ".
-        "companies.banned <> 1 ".
-        "GROUP BY name ".
-        ") ORDER BY ".
-        "credit DESC, ".
-        "vendor_data_edited, ".
-        "companies.company_country DESC, ".
-        "company_name_calculated, ".
-        "RAND() ".
+    $this['companies'] =DB::select(
+        "SELECT ".
+        "s.company_website_url AS website_url, ".
+	    "c.company_name_edited AS name_edited, ".
+	    "concat(c.vendor_data_edited,'(',s.bp_position,')') AS description_edited ".
+        "FROM operations.bp_supplier_positions s ".
+        "INNER JOIN ".
+        "operations.companies_details_edited c ON c.id = s.company_id ".
+	    "INNER JOIN ".
+	    "operations.bps b ON b.bp_uid = s.bp_id ".
+        "WHERE b.bp = ? ".
+        "ORDER BY ".
+        "s.bp_position DESC ".
+        ",RAND() ".
         "LIMIT ".FROM.", 25", array(URL_QUERY));
-
     if(empty($this['companies'])) return false;
     $this['companies_count'] = count($this['companies']);
     $this['search'] = $this->debracket(URL_QUERY);
@@ -223,11 +216,22 @@ function show_result($suggestions, $onSearchComplete=" ", $debug=""){
                     <tr>
                         <td>
                             <div class="dotdotdot">
-                                <a style='color:#D04526;font-size:15px;' href='{{ company.url }}' target='_blank'>
-                                    <strong>{% if company.name starts with 'www' %}{{ company.name|replace({ "www":"www."}) }}{% else %}{{ company.name }}{% endif %}</strong>
+                                <a style='color:#D04526;font-size:15px;' href='{{ company.website_url }}' target='_blank'>
+                                    <strong>
+                                        {% if company.name_edited %}
+                                            {% if company.name_edited starts with 'www' %}
+                                                {{ company.name_edited|replace({ "www":"www."}) }}
+                                            {% else %}
+                                                {{ company.name_edited }}
+                                            {% endif %}
+                                        {% else %}
+                                            {{ company.website_url }}
+                                        {% endif %}
+                                    </strong>
                                 </a>
                                 <span style='color:#D04526;font-size:15px;'>
-                                {{ company.vendor_data }}</span>
+                                    {{ company.description_edited }}
+                                </span>
                             </div>
                         </td>
                     </tr>

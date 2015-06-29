@@ -75,6 +75,7 @@ redirect = "login"
 <link rel="stylesheet" href="/themes/oktick/assets/css/{{cssfile}}">
 <link rel="stylesheet" href="/modules/backend/formwidgets/richeditor/assets/vendor/redactor/redactor.css">
 <link rel="stylesheet" href="/plugins/rainlab/editable/assets/css/editable.css" />
+<link rel="stylesheet" href="/app/ot/assets/jquery.bs3dialog.git/dist/css/bootstrap-dialog.min.css" />
 <noscript>
 <!--link rel="stylesheet" href="/themes/oktick/assets/css/oktick-noscript.css"-->
 </noscript>
@@ -82,5 +83,12 @@ redirect = "login"
 <script src="https://oss.maxcdn.com/html5shiv/3.7.2/html5shiv.min.js"></script>
 <script src="https://oss.maxcdn.com/respond/1.4.2/respond.min.js"></script>
 <![endif]-->
+<!-- Bootstrap core JavaScript -->
+<script src="//ajax.googleapis.com/ajax/libs/jquery/1.11.2/jquery.min.js"></script><!--try to use CDN first-->
+<script>window.jQuery || document.write('<script src="/app/ot/assets/jquery/1.11.2/jquery.min.js"><\/script>')</script><!--if CDN file isn't delivered, send a local file-->
+<script src="//maxcdn.bootstrapcdn.com/bootstrap/3.3.4/js/bootstrap.min.js"></script><!--try to use CDN first-->
+<script>$.fn.modal || document.write('<script src="/app/ot/assets/bs3/js/bootstrap.min.js"><\/script>')</script><!--if CDN file isn't delivered, send a local file-->
+<script src="/modules/system/assets/js/framework.js"></script>
+<script src="/modules/system/assets/js/framework.extras.js"></script>
 </head>
 <body id="body">

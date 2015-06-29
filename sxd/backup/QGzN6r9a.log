@@ -1,0 +1,4 @@
+2015.05.16 20:30:09	1	Start export DB `oktick`
+2015.05.16 20:30:09	1	Export table `backend_access_log`
+2015.05.16 20:30:09	1	Export table `backend_user_groups`
+2015.05.16 20:30:09	4	MySQL Error: Access denied for user \'oktick\'@\'localhost\' (using password: YES) (/home/oktick/public_html/sxd/index.php:1)

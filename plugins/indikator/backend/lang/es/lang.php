@@ -7,15 +7,22 @@ return [
         'author' => 'Gergő Szabó'
     ],
     'settings' => [
-        'sidebar_description' => 'Ocultar la descripción del menú en la barra lateral.',
-        'focus_searchfield' => 'Hacer "focus" en el campo de búsqueda automáticamente.',
-        'virtual_keyboard' => 'Mostrar el teclado virtual para introducir datos.',
-        'more_themes' => 'Esconder el "Buscar más temas..." enlace.',
-        'themes_comment' => 'Está en la página del tema Front-end.',
-        'comment' => 'Sólo funciona en las páginas de configuración.'
+        'search_label' => 'Hacer "focus" en el campo de búsqueda automáticamente.',
+        'search_comment' => 'En primer lugar en las listas, en segundo lugar, en la barra lateral.',
+        'sidebar_label' => 'Ocultar la descripción del menú en la barra lateral.',
+        'sidebar_comment' => 'No funciona en la página de actualización todavía.',
+        'avatar_label' => 'Imagen de perfil redondeado en lugar de un solo cubo.',
+        'avatar_comment' => 'La avataro modifas nur en supera menuo.',
+        'keyboard_label' => 'Mostrar el teclado virtual para introducir datos.',
+        'keyboard_comment' => 'Sólo funciona con campos de texto simples.',
+        'media_label' => 'Ocultar el enlace de los medios de comunicación en el menú superior.',
+        'media_comment' => 'Todavía disponible, pero no muestra.',
+        'themes_label' => 'Esconder el "Buscar nuevos temas" enlace.',
+        'themes_comment' => 'Está en la página del tema Front-end.'
     ],
     'widgets' => [
         'system' => [
+            'title' => 'Backend - Estado del Sistema Plus',
             'label' => 'Estado del Sistema Plus',
             'webpage' => 'Página Web',
             'updates' => 'Actualizaciones',
@@ -23,12 +30,14 @@ return [
             'themes' => 'Temas'
         ],
         'version' => [
+            'title' => 'Backend - Versiones',
             'label' => 'Versiones',
             'cms' => 'CMS',
             'php' => 'PHP',
             'gd' => 'GD'
         ],
         'logs' => [
+            'title' => 'Backend - Logs',
             'label' => 'Logs',
             'access' => 'Accesos',
             'event' => 'Evento',
@@ -36,32 +45,38 @@ return [
             'total' => 'Total'
         ],
         'admins' => [
+            'title' => 'Backend - Administradores',
             'label' => 'Administradores',
             'users' => 'Usuarios',
             'groups' => 'Grupos',
             'login' => 'Último acceso'
         ],
         'logins' => [
+            'title' => 'Backend - Últimos accesos',
             'label' => 'Últimos accesos'
         ],
         'server' => [
+            'title' => 'Backend - Información del Servidor',
             'label' => 'Información del Servidor',
             'host' => 'Host',
             'ip' => 'Dirección IP',
             'os' => 'Sistema Operativo'
         ],
         'php' => [
+            'title' => 'Backend - Configuración PHP',
             'label' => 'Configuración PHP',
             'upload_limit' => 'Upload límite',
             'memory_limit' => 'Memoria límite',
             'timezone' => 'Zona Horaria'
         ],
         'rss' => [
+            'title' => 'Backend - Visor RSS',
             'label' => 'Visor RSS',
             'error' => 'La dirección URL es incorrecta o',
             'refresh' => 'Actualizar página'
         ],
         'images' => [
+            'title' => 'Backend - Imágenes aleatorias',
             'label' => 'Imágenes aleatorias',
             'error' => 'El campo solo puede contener números.',
             'simple' => 'Simple',
