@@ -5,8 +5,11 @@ hidden = "0"
 ==
 <?php
 //use \Stripe\Stripe;
+
 use Illuminate\Http\Response;
+
 function onInit(){
+
     header("Access-Control-Allow-Origin: https://js.stripe.com:443");
     header("Access-Control-Allow-Origin: https://api.stripe.com:443");
 }
