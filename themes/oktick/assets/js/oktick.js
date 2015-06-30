@@ -604,7 +604,7 @@ $('#btn-add').click(function(event){
     console.log("adding"+bp);
     BootstrapDialog.show({
         title: 'Confirmation',
-        message: 'Are you sure you want to add "'+bp+'"?',
+        message: 'Do you confirm you are a supplier of "'+bp+'" and that it is mentioned on your website?',
         type: BootstrapDialog.TYPE_PRIMARY,
         size: BootstrapDialog.SIZE_SMALL,
         buttons: [{
