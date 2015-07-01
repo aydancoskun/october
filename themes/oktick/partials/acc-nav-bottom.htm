@@ -1,14 +1,21 @@
 [viewBag]
 ==
+<?php
+function onStart(){
+    //dd($_SERVER);
+    //exit;
+    $this['host']=gethostname().rand(1,20);
+}
+?>
+==
 <footer class="footer navbar-default">
 <div class="container">
-
-<p class="navbar-text">Copyright &copy; 2002-{{ "now"|date("Y") }} Clive H. Whittaker</p>
+<p class="navbar-text"><small>Content served by {{host}}, &copy; 2002-{{ "now"|date("Y") }} Clive H. Whittaker</small></p>
 <ul class="nav navbar-nav navbar-right">
-<li class="{% if this.page.id == "terms-and-conditions" %}active{% endif %}"><a class="navbar-bottom" href="/terms-and-conditions">Terms and Conditions</a></li>
-<li class="{% if this.page.id == "privacy-policy" %}active{% endif %}"><a class="navbar-bottom" href="/privacy-policy">Privacy Policy</a></li>
-<li class="{% if this.page.id == "disclaimer" %}active{% endif %}"><a class="navbar-bottom" href="/disclaimer">Disclaimer</a></li>
-<li class="{% if this.page.id == "about-us" %}active{% endif %}"><a class="navbar-bottom" href="/about-us">About Us</a></li>
+<li class="{% if this.page.id == "pages-terms-and-conditions" %}active{% endif %}"><a class="navbar-bottom" href="/terms-and-conditions"><small>Terms and Conditions</small></a></li>
+<li class="{% if this.page.id == "pages-privacy-policy" %}active{% endif %}"><a class="navbar-bottom" href="/privacy-policy"><small>Privacy Policy</small></a></li>
+<li class="{% if this.page.id == "pages-disclaimer" %}active{% endif %}"><a class="navbar-bottom" href="/disclaimer"><small>Disclaimer</small></a></li>
+<li class="{% if this.page.id == "pages-about-us" %}active{% endif %}"><a class="navbar-bottom" href="/about-us"><small>About Us</small></a></li>
 </ul>
 </div>
 <!--{% partial "page-data" %}-->
