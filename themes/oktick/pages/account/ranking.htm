@@ -9,18 +9,6 @@ use Illuminate\Http\Response;
 function onStart() {
 //    \Debugbar::info("productservices page onStart()");
 }
-function onInfo1Off() {
-    DB::table('oktick.users')->where('id', $this->account->user()->attributes['id'])->update(array('ok_help1_productservices' => 0));
-}
-function onInfo1On() {
-    DB::table('oktick.users')->where('id', $this->account->user()->attributes['id'])->update(array('ok_help1_productservices' => 1));
-}
-function onInfo2Off() {
-    DB::table('oktick.users')->where('id', $this->account->user()->attributes['id'])->update(array('ok_help2_productservices' => 0));
-}
-function onInfo2On() {
-    DB::table('oktick.users')->where('id', $this->account->user()->attributes['id'])->update(array('ok_help2_productservices' => 1));
-}
 function verifyPost($post_name,$check="int"){
     if( !isset($_POST[$post_name]) ) App::abort(403, 'Forbidden');
     $post_val_raw = post($post_name);
@@ -115,12 +103,15 @@ function onCreditConfirm(){
     $refund=false;
     $pre_refund_total_credits = $total_credits;
     $over_seconds = 0;
+    $credits_confirmed_value = $credits_confirmed;
     $sql=   "SELECT ".
             "id, ".
             "applied_credit as bp_user_credits, ".
             "UNIX_TIMESTAMP(end_stamp)-UNIX_TIMESTAMP(start_stamp) as original_duration_secs, ".
-            "$now - UNIX_TIMESTAMP(start_stamp) as new_duration_secs, ".
-            "start_stamp ".
+            "$now - UNIX_TIMESTAMP(start_stamp) as adj_duration_secs, ".
+            "start_stamp, ".
+            "UNIX_TIMESTAMP(end_stamp) as end_stamp, ".
+            "UNIX_TIMESTAMP(end_stamp) - $now as new_duration_secs ".
             "FROM operations.bp_sponsors ".
             "WHERE ".
             "bp_id = $bp_id AND ".
@@ -132,9 +123,10 @@ function onCreditConfirm(){
     if( isset($dbr[0]) ){
         $bp_was_active=true;
         $bp_user_credits = $dbr[0]->bp_user_credits;
-        $cost = $bp_user_credits / $dbr[0]->original_duration_secs * $dbr[0]->new_duration_secs;
-        $refund = $bp_user_credits - $cost;
+        $adj_cost = $bp_user_credits / $dbr[0]->original_duration_secs * $dbr[0]->adj_duration_secs;
+        $refund = $bp_user_credits - $adj_cost;
         $total_credits = $total_credits + $refund;
+        $end_stamp = $dbr[0]->end_stamp;
         DB::table('operations.bp_sponsor_transactions_completed')
         ->insert(array(
             'id' => $dbr[0]->id,
@@ -142,14 +134,16 @@ function onCreditConfirm(){
             'bp_id' => $bp_id,
             'user_id' => $user_id,
             'applied_credit' => $bp_user_credits,
-            'cost' => $cost,
+            'cost' => $adj_cost,
             'refund' => $refund,
             'start_stamp' => $dbr[0]->start_stamp,
             'end_stamp' => date( 'Y-m-d H:i:s', $now),
         ));
         DB::table('operations.bp_sponsors')->where('id',$dbr[0]->id)->delete();
+        $credits_confirmed_value = $credits_confirmed / 604800 * $dbr[0]->new_duration_secs;
+
     }
-    $total_credits = $total_credits - $credits_confirmed;
+    $total_credits = $total_credits - $credits_confirmed_value;
     if($total_credits < 0) {
         if($total_credits < -0.01 && ! $refund) {
             return [
@@ -196,7 +190,13 @@ function onCreditConfirm(){
     $one_week = 604800 - $over_seconds;
     $end_stamp_displayed = "None Assigned";
     if($credits_confirmed > 0){
-        $end_stamp_displayed = date( 'd/m/y H:i', $now + $one_week );
+        if($bp_was_active){
+            $end_stamp_sql = date( 'Y-m-d H:i:s', $end_stamp );
+            $end_stamp_displayed = date( 'd/m/y H:i', $end_stamp );
+        } else {
+            $end_stamp_sql = date( 'Y-m-d H:i:s', $now + $one_week );
+            $end_stamp_displayed = date( 'd/m/y H:i', $now + $one_week );
+        }
         $bp_is_active=true;
         DB::table('operations.bp_sponsors')
         ->insert(array(
@@ -205,7 +205,7 @@ function onCreditConfirm(){
             'user_id' => $user_id,
             'applied_credit' => $credits_confirmed,
             'start_stamp' => date( 'Y-m-d H:i:s', $now),
-            'end_stamp' => date( 'Y-m-d H:i:s', $now + $one_week ),
+            'end_stamp' => $end_stamp_sql,
         ));
     }
     DB::table('operations.bp_supplier_positions')
@@ -225,11 +225,23 @@ function onCreditConfirm(){
     if ($bp_was_active AND $bp_is_active == false) $badge_active=-1;
 //        if ($bp_was_active == false AND $bp_is_active == false) $badge_active=0;
 //        if ($bp_was_active AND $bp_is_active) $badge_active=0;
+    $message = $credits_confirmed . " credits were applied.";
+    if($pre_refund_total_credits <> $total_credits AND $refund <> ""){
+        $message .=<<<EOS
+The unused portion of the previous transaction ($bp_user_credits) was returned to your account in the amount of $refund.
+previous_transaction_cost=$adj_cost 
+current_transaction_cost=$credits_confirmed_value 
+credits_confirmed_value=$credits_confirmed_value 
+credits_confirmed=$credits_confirmed 
+EOS;
+    }
     return ['ok_credits' => $total_credits,
             'badge_active' => $badge_active,
             'end_stamp' => $end_stamp_displayed,
             'status' => 'success',
             'log' => '',
+            'title' => 'Credit Applied!',
+            'message' => $message,
             ];
 //        return (new Response('"'.$Message.'" %'.$ok_credits.'%', "200"))->header('Content-Type', "text/html; charset=UTF-8");
 //    return true;
@@ -285,7 +297,7 @@ function onProductDelete(){
                 <th class="text-center">Current<br>Position</th>
                 <th class="text-center">Estimated<br>Position</th>
                 <th class="text-center">Renewal<br>Date</th>
-                <th class="text-center">Credits<br>Applied</th>
+                <th class="text-center">Weekly<br>Amount</th>
                 <!--th class="text-center"></th-->
 
                 <!--th class="text-center border_only_right"></th-->

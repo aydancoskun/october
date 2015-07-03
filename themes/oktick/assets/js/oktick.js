@@ -484,7 +484,7 @@ $('.btn-confirm').click(function(event){
     .always(function( data, textStatus, errorThrown ) {
             if(data.status=="error"){
                 console.log(data.log);
-                alert(data.message);
+//                alert(data.message);
                 $( '#btn-confirm' + bp_id ).removeAttr('disabled');
                 $( '#btn-credit-plus'  + bp_id).removeAttr('disabled');
                 $( '#btn-credit-minus' + bp_id).removeAttr('disabled');
@@ -495,6 +495,19 @@ $('.btn-confirm').click(function(event){
         //success: function(data) {
             console.log(textStatus);
             //console.log('Setting $("#ok_credits").text('+data.ok_credits+')');
+            BootstrapDialog.show({
+                title: data.title,
+                message: data.message,
+                type: BootstrapDialog.TYPE_SUCCESS,
+                size: BootstrapDialog.SIZE_SMALL,
+                buttons: [{
+                    label: 'OK',
+                    //icon: 'glyphicon glyphicon-remove',
+                    cssClass: 'btn-default',
+                    action: function(dialog) {dialog.close();},
+                }]
+            });
+
             var total_credits=data.ok_credits;
             if(total_credits < 0) total_credits = 0;
             $('#ok_credits').text(total_credits.toFixed(2));
