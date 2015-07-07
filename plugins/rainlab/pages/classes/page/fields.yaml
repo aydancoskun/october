@@ -32,7 +32,7 @@ tabs:
             type: dropdown
             options: getLayoutOptions
 
-        viewBag[hidden]:
+        viewBag[is_hidden]:
             tab: cms::lang.editor.settings
             span: left
             label: rainlab.pages::lang.editor.hidden
@@ -45,6 +45,16 @@ tabs:
             label: rainlab.pages::lang.editor.navigation_hidden
             type: checkbox
             comment: rainlab.pages::lang.editor.navigation_hidden_comment
+
+        viewBag[meta_title]:
+            tab: cms::lang.editor.meta
+            label: cms::lang.editor.meta_title
+
+        viewBag[meta_description]:
+            tab: cms::lang.editor.meta
+            label: cms::lang.editor.meta_description
+            type: textarea
+            size: tiny
 
 secondaryTabs:
     stretch: true

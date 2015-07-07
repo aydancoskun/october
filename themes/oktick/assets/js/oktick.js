@@ -8,13 +8,13 @@ function isNumeric(n) {
 
 function searchSubmit(){
 //	$( ".autocomplete-suggestions" ).hide();
-	$( "#autocomplete-ajax").css({"background": "url('themes/oktick/assets/img/searchip.gif') no-repeat right center"});
+	$( "#autocomplete-ajax").css({"background": "url('app/ot/assets/img/searchip.gif') no-repeat right center"});
 	$( "#str_status_msg" ).html($( "#str_status_msg_searchSubmit" ).html()+'&nbsp;');
 	var queryvalue = encodeURIComponent(get_clean_value('autocomplete-ajax'));
 	var url = '/submit/' + queryvalue;
 	$.get( url, function( data ) {
 		$( "#results-container" ).html( data );
-		$( "#autocomplete-ajax").css({"background": "url('themes/oktick/assets/img/searchoff.gif') no-repeat right center"});
+		$( "#autocomplete-ajax").css({"background": "url('app/ot/assets/img/searchoff.gif') no-repeat right center"});
 		reset_search_box_glow();
 		$( "#str_status_msg" ).html('&nbsp;');
 		dotdotdot_init();
@@ -41,7 +41,7 @@ function get_clean_innerHTML(id){
 function search_reset(){
 	$( "#autocomplete-suggestions" ).hide();
 	$( "#results-container" ).html("");
-	$( "#autocomplete-ajax").css({"background": "url('themes/oktick/assets/img/searchoff.gif') no-repeat right center"});
+	$( "#autocomplete-ajax").css({"background": "url('app/ot/assets/img/searchoff.gif') no-repeat right center"});
 	reset_search_box_glow();
 	$( "#str_status_msg" ).html('&nbsp;');
 	$( "#str_status_msg_onSearchStart" ).html('&nbsp;');
@@ -172,7 +172,7 @@ $( document ).ready(function() {
     		len = len.length;
     		if(dev) console.log("len="+len);
     		if(len < 2) return false;
-			$("#autocomplete-ajax").css({"background": "url('/themes/oktick/assets/img/searchip.gif') no-repeat right center"});
+			$("#autocomplete-ajax").css({"background": "url('/app/ot/assets/img/searchip.gif') no-repeat right center"});
 			$( "#str_status_msg" ).html($( "#str_status_msg_onSearchStart" ).html()+'&nbsp;');
 //   			query.suggest = encodeURIComponent(query.suggest+"~");
 			return;
@@ -180,13 +180,13 @@ $( document ).ready(function() {
 		onSearchComplete: function (query, suggestions) {
         	if(dev) console.log("autocomplete onSearchComplete");
 			remove_search_box_glow();
-			$("#autocomplete-ajax").css({"background": "url('themes/oktick/assets/img/searchoff.gif') no-repeat right center"});
+			$("#autocomplete-ajax").css({"background": "url('app/ot/assets/img/searchoff.gif') no-repeat right center"});
 			//$( "#str_status_msg" ).html('Put in your Keyword (e.g. Pump or Valve)');
 		},
 		onSelect: function (suggestion) {
 			document.getElementById('autocomplete-ajax').focus();
 			$("#autocomplete-ajax").autocomplete().hide();
-			$("#autocomplete-ajax").css({"background": "url('themes/oktick/assets/img/searchoff.gif') no-repeat right center"});
+			$("#autocomplete-ajax").css({"background": "url('app/ot/assets/img/searchoff.gif') no-repeat right center"});
 			$("#str_status_msg" ).html($( "#str_status_msg_onSelect" ).html()+'&nbsp;');
 			$("#autocomplete-suggestions" ).hide();
 			$("#autocomplete-ajax").focus();
@@ -230,12 +230,12 @@ $('#submit-button').click(function(event){
 	searchSubmit();
 	return false;
 })
-$('#add-ps-button').click(function(event){
-    event.preventDefault();
+//$('#add-ps-button').click(function(event){
+//    event.preventDefault();
 //	$( ".autocomplete-suggestions" ).hide();
-	addpsSubmit();
-	return false;
-})
+//	addpsSubmit();
+//	return false;
+//})
 
 // COOKIE LAW COMPLIANCE JS ####################################################
 // Based on Creare's EU Cookie Law Banner http://www.creare.co.uk
@@ -610,14 +610,13 @@ $('.help').click(function(event){
     }
     $.request('onHelp',{data: {store: id,state: onoff}});
 })
-$('#btn-add').click(function(event){
+$('#btn-add-products-services').click(function(event){
     event.preventDefault();
-    console.log("adding");
+    console.log("add-products-services");
     bp = $('#autocomplete-ajax').val();
-    console.log("adding"+bp);
     BootstrapDialog.show({
         title: 'Confirmation',
-        message: 'Do you confirm you are a supplier of "'+bp+'" and that it is mentioned on your website?',
+        message: 'Do you confirm you are a supplier of "'+bp+'" and that this is expressly mentioned on your website?',
         type: BootstrapDialog.TYPE_PRIMARY,
         size: BootstrapDialog.SIZE_SMALL,
         buttons: [{

@@ -1,15 +1,15 @@
 <?php namespace RainLab\Pages;
 
-use Backend;
 use Event;
-use System\Classes\PluginBase;
+use Backend;
 use RainLab\Pages\Classes\Controller;
 use RainLab\Pages\Classes\Page as StaticPage;
 use RainLab\Pages\Classes\Router;
 use RainLab\Pages\Classes\Snippet;
+use RainLab\Pages\Classes\SnippetManager;
 use Cms\Classes\Theme;
 use Cms\Classes\Controller as CmsController;
-use RainLab\Pages\Classes\SnippetManager;
+use System\Classes\PluginBase;
 
 class Plugin extends PluginBase
 {
@@ -36,10 +36,10 @@ class Plugin extends PluginBase
     public function registerPermissions()
     {
         return [
-            'rainlab.pages.manage_pages'    => ['tab' => 'Pages', 'label' => 'rainlab.pages::lang.page.manage_pages'],
-            'rainlab.pages.manage_menus'    => ['tab' => 'Pages', 'label' => 'rainlab.pages::lang.page.manage_menus'],
-            'rainlab.pages.manage_content'  => ['tab' => 'Pages', 'label' => 'rainlab.pages::lang.page.manage_content'],
-            'rainlab.pages.access_snippets' => ['tab' => 'Pages', 'label' => 'rainlab.pages::lang.page.access_snippets']
+            'rainlab.pages.manage_pages'    => ['tab' => 'Pages', 'order' => 200, 'label' => 'rainlab.pages::lang.page.manage_pages'],
+            'rainlab.pages.manage_menus'    => ['tab' => 'Pages', 'order' => 200, 'label' => 'rainlab.pages::lang.page.manage_menus'],
+            'rainlab.pages.manage_content'  => ['tab' => 'Pages', 'order' => 200, 'label' => 'rainlab.pages::lang.page.manage_content'],
+            'rainlab.pages.access_snippets' => ['tab' => 'Pages', 'order' => 200, 'label' => 'rainlab.pages::lang.page.access_snippets']
         ];
     }
 
@@ -118,12 +118,14 @@ class Plugin extends PluginBase
         Event::listen('cms.block.render', function($blockName, $blockContents) {
             $page = CmsController::getController()->getPage();
 
-            if (!isset($page->apiBag['staticPage']))
+            if (!isset($page->apiBag['staticPage'])) {
                 return;
+            }
 
             $contents = Controller::instance()->getPlaceholderContents($page, $blockName, $blockContents);
-            if (strlen($contents))
+            if (strlen($contents)) {
                 return $contents;
+            }
         });
 
         Event::listen('pages.menuitem.listTypes', function() {
@@ -147,8 +149,9 @@ class Plugin extends PluginBase
         });
 
         Event::listen('backend.form.extendFieldsBefore', function($formWidget) {
-            if ($formWidget->model instanceof \Cms\Classes\Partial)
+            if ($formWidget->model instanceof \Cms\Classes\Partial) {
                 Snippet::extendPartialForm($formWidget);
+            }
         });
 
         Event::listen('cms.template.save', function($controller, $template, $type) {
@@ -162,6 +165,37 @@ class Plugin extends PluginBase
         Event::listen('cms.template.processSettingsAfterLoad', function($controller, $template) {
             Snippet::processTemplateSettings($template);
         });
+
+        Event::listen('cms.template.processTwigContent', function($template, $dataHolder) {
+            if ($template instanceof \Cms\Classes\Layout) {
+                $dataHolder->content = Controller::instance()->parseSyntaxFields($dataHolder->content);
+            }
+        });
+
+        Event::listen('backend.richeditor.listTypes', function () {
+            return [
+                'static-page' => 'Static page',
+            ];
+        });
+
+        Event::listen('backend.richeditor.getTypeInfo', function ($type) {
+            if ($type == 'static-page') {
+                return StaticPage::getRichEditorTypeInfo($type);
+            }
+        });
+    }
+
+    /**
+     * Register new Twig variables
+     * @return array
+     */
+    public function registerMarkupTags()
+    {
+        return [
+            'filters' => [
+                'staticPage' => ['RainLab\Pages\Classes\Page', 'url'],
+            ]
+        ];
     }
 
     public static function clearCache()

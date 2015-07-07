@@ -6,13 +6,14 @@
 ]) ?>
     <?= $form->render() ?>
 
+    <input type="hidden" value="<?= e($form->alias) ?>" name="formWidgetAlias" />
     <input type="hidden" value="<?= e($objectType) ?>" name="objectType" />
     <input type="hidden" value="<?= e($objectPath) ?>" name="objectPath" />
     <input type="hidden" value="<?= e($objectTheme) ?>" name="theme" />
     <input type="hidden" value="<?= e($objectMtime) ?>" name="objectMtime" />
 
     <?php if (isset($objectParent)): ?>
-        <input type="hidden" value="<?= e($objectParent) ?>" name="parent" />
+        <input type="hidden" value="<?= e($objectParent) ?>" name="parentFileName" />
     <?php endif ?>
 
     <?php if (isset($parentPage)): ?>

@@ -1,11 +1,13 @@
 title = "Products & Services"
 url = "/account/products-services"
 layout = "account"
-hidden = "0"
+is_hidden = "0"
 ==
 <?php
 use Illuminate\Http\Response;
-
+function onStart(){
+   // Sets a successful message
+}
 function verifyPost($post_name,$check="int"){
     if( !isset($_POST[$post_name]) ) App::abort(403, 'Forbidden');
     $post_val_raw = post($post_name);
@@ -28,13 +30,13 @@ function onGetEstimatedPosition(){
     $dbr = DB::select($sql);
     $bp_position = (isset($dbr[0])  ? $dbr[0]->bp_position : 0);
     
-    $sql="SELECT applied_credit as bp_user_credits FROM operations.bp_sponsors WHERE ".
+    $sql="SELECT applied_credit FROM operations.bp_sponsors WHERE ".
          "bp_id = $bp_id AND company_id = $company_id AND user_id = $user_id AND ".
          "start_stamp < now() AND now() < end_stamp";
     $dbr = DB::select($sql);
-    $bp_user_credits = (isset($dbr[0])  ? $dbr[0]->bp_user_credits : 0);
+    $applied_credit = (isset($dbr[0])  ? $dbr[0]->applied_credit : 0);
 
-    $position_new = ($bp_position - $bp_user_credits *10) + $credits_estimated * 10;
+    $position_new = ($bp_position - $applied_credit *10) + $credits_estimated * 10;
 
     try {
         $sql=   "SELECT count(*)+1 as bp_low FROM operations.bp_supplier_positions ".
@@ -64,10 +66,8 @@ function onGetEstimatedPosition(){
     }
 }
 
-
 function onCreditConfirm(){
     $now = time();
-
     $credits_confirmed = $this->verifyPost('credits_confirmed',"int");
     $bp_id = $this->verifyPost('bp_id',"int");
 
@@ -83,9 +83,12 @@ function onCreditConfirm(){
             "company_id = $company_id";
     $dbr = DB::select($sql);
     $bp_position = (isset($dbr[0])  ? $dbr[0]->bp_position : 0);
-    $bp_user_credits = 0;
+    $applied_credit = 0;
     $bp_was_active = false;
     $bp_is_active = false;
+    $one_week = 604800;
+    $end_stamp = $now + $one_week;
+    $end_stamp_displayed = "None Assigned";
 
     DB::beginTransaction();
     $refund=false;
@@ -93,10 +96,9 @@ function onCreditConfirm(){
     $over_seconds = 0;
     $sql=   "SELECT ".
             "id, ".
-            "applied_credit as bp_user_credits, ".
-            "UNIX_TIMESTAMP(end_stamp)-UNIX_TIMESTAMP(start_stamp) as original_duration_secs, ".
-            "$now - UNIX_TIMESTAMP(start_stamp) as new_duration_secs, ".
-            "start_stamp ".
+            "applied_credit, ".
+            "UNIX_TIMESTAMP(start_stamp) as start_stamp, ".
+            "UNIX_TIMESTAMP(end_stamp) as end_stamp ".
             "FROM operations.bp_sponsors ".
             "WHERE ".
             "bp_id = $bp_id AND ".
@@ -104,20 +106,28 @@ function onCreditConfirm(){
             "user_id = $user_id AND ".
             "UNIX_TIMESTAMP(start_stamp) < $now < UNIX_TIMESTAMP(end_stamp)";
     $dbr = DB::select($sql);
+
+
     // If there is a current transaction
     if( isset($dbr[0]) ){
         $bp_was_active=true;
-        $bp_user_credits = $dbr[0]->bp_user_credits;
-        $cost = $bp_user_credits / $dbr[0]->original_duration_secs * $dbr[0]->new_duration_secs;
-        $refund = $bp_user_credits - $cost;
+        $applied_credit = $dbr[0]->applied_credit;
+        $start_stamp = $dbr[0]->start_stamp;
+        $end_stamp = $dbr[0]->end_stamp;
+        $original_duration = $end_stamp - $start_stamp;
+        $new_duration = $now - $start_stamp;
+        $original_cost = $applied_credit / $one_week * $original_duration;
+        $cost = $applied_credit / $original_duration * $new_duration;
+        $refund = $original_cost - $cost;
         $total_credits = $total_credits + $refund;
+
         DB::table('operations.bp_sponsor_transactions_completed')
         ->insert(array(
             'id' => $dbr[0]->id,
             'company_id' => $company_id,
             'bp_id' => $bp_id,
             'user_id' => $user_id,
-            'applied_credit' => $bp_user_credits,
+            'applied_credit' => $applied_credit,
             'cost' => $cost,
             'refund' => $refund,
             'start_stamp' => $dbr[0]->start_stamp,
@@ -125,55 +135,19 @@ function onCreditConfirm(){
         ));
         DB::table('operations.bp_sponsors')->where('id',$dbr[0]->id)->delete();
     }
-    $total_credits = $total_credits - $credits_confirmed;
-    if($total_credits < 0) {
-        if($total_credits < -0.01 && ! $refund) {
+    $total_credits = $total_credits - $credits_confirmed / $one_week * ($end_stamp - $now);
+    if($total_credits < -0.01 ) {
             return [
                 'status' => 'error',
                 'message' => 'Sorry, insufficient credits. Please consider purchasing credits.',
                 'log' => "total_credits=$total_credits < -0.01 AND no refund",
             ];
-        }
-        if($refund){
-            if($pre_refund_total_credits < 0.995) {
-                return [
-                    'status' => 'error',
-                    'message' => 'Sorry, insufficient credits. Please consider purchasing credits.',
-                    'log' => [  'user_credits' => $total_credits,
-                                'bp_user_credits' => $bp_user_credits,
-                                'credits_confirmed' => $credits_confirmed,
-                                'refund' => $refund,
-                                'user_credits' => $total_credits,
-                            ],
-                ];
-            }
-            $over_credit = abs($total_credits); // e.g 0.001 POSITIVE
-            // One credit is worth 60*60*24*7  = 604800
-            $value_of_one_second = 0.000001653; // 1/(60*60*24*7)
-            $over_seconds = intval($over_credit / $value_of_one_second) + 1;
-            $total_credits=0;
-/*
-            return [
-                'status' => 'error',
-                'message' => 'Sorry, insufficient credits. Please consider purchasing credits.',
-                'log' => [  'calc' => $total_credits + 0.006 + $refund,
-                            'credits_confirmed' => $credits_confirmed,
-                            'user_credits' => $total_credits,
-                            'over_credit' => $over_credit,
-                            'over_seconds' => $over_seconds,
-                            'refund' => $refund,
-                            'user_credits' => $total_credits,
-                        ],
-            ];
-*/
-        }
     }
-    $position_new = ($bp_position - $bp_user_credits *10) + $credits_confirmed * 10;
-    $one_week = 604800 - $over_seconds;
-    $end_stamp_displayed = "None Assigned";
+
+    $position_new = $bp_position - $applied_credit*10 + $credits_confirmed*10;
     if($credits_confirmed > 0){
-        $end_stamp_displayed = date( 'd/m/y H:i', $now + $one_week );
         $bp_is_active=true;
+        $end_stamp_displayed = date( 'j M y, H:i', $end_stamp );
         DB::table('operations.bp_sponsors')
         ->insert(array(
             'company_id' => $company_id,
@@ -181,9 +155,10 @@ function onCreditConfirm(){
             'user_id' => $user_id,
             'applied_credit' => $credits_confirmed,
             'start_stamp' => date( 'Y-m-d H:i:s', $now),
-            'end_stamp' => date( 'Y-m-d H:i:s', $now + $one_week ),
+            'end_stamp' => date( 'Y-m-d H:i:s', $end_stamp ),
         ));
     }
+    
     DB::table('operations.bp_supplier_positions')
     ->where('bp_id', $bp_id)
     ->where('company_id', $company_id)
@@ -201,6 +176,7 @@ function onCreditConfirm(){
     if ($bp_was_active AND $bp_is_active == false) $badge_active=-1;
 //        if ($bp_was_active == false AND $bp_is_active == false) $badge_active=0;
 //        if ($bp_was_active AND $bp_is_active) $badge_active=0;
+    Flash::success($applied_credit.' credits successfully applied!');
     return ['ok_credits' => $total_credits,
             'badge_active' => $badge_active,
             'end_stamp' => $end_stamp_displayed,
@@ -220,6 +196,7 @@ function onProductDelete(){
         'log' => [  'Product ID' => $bp_id,
                 ],
         ];
+    Flash::warning("You are now logged out");
 }
 ?>
 ==
@@ -232,6 +209,7 @@ function onProductDelete(){
 <div class="row">
     <div class="col-xs-1 col-md-0"></div>
     <div class="col-xs-10 col-md-12">
+        
         <div id="ok_help_productservices" {% if user.ok_help_productservices==0 %}class="collapse"{% endif %} >
             <p>{{"&nbsp;&nbsp;&nbsp;"|raw}}</p>
             <p>Below you can add and delete products and services we have for your business. If you are new here some of these might be not correct because they were semi-automatically collected. In that case just delete them by pressing the <button class="btn btn-default btn-sm"><span class="glyphicon-danger glyphicon glyphicon-remove-sign"></span></button> button. If you want to add products or services you can do that in the field below. Just enter your item, select your choice from the list and click the <button class="btn btn-default btn-sm"><span class="glyphicon-success glyphicon glyphicon-ok-sign"></span></button> button. Items entered do not show up immediately because they are verified by our research team.</p>
@@ -264,12 +242,12 @@ function onProductDelete(){
                     <input  class="form-control"
                             type="search"
                             name="q"
-                            id="autocomplete-ajax" placeholder="Search..." value="{% if search and search != 404 %}{{ search }}{% endif %}" maxlength="100%" size="100%" onclick="$('#autocomplete-ajax').autocomplete().options.serviceUrl='add';
+                            id="autocomplete-ajax" placeholder="Search..." value="{% if search and search != 404 %}{{ search }}{% endif %}" maxlength="100%" size="100%" onclick="$('#autocomplete-ajax').autocomplete().options.serviceUrl='account/add-products-services';
 "/>
                 </div>
                 </td>
                 <td class="text-center">
-                    <button id="btn-add" class="btn btn-default btn-lg" type="button"><span class="glyphicon-success glyphicon glyphicon-ok-sign"></span></button>
+                    <button id="btn-add-products-services" class="btn btn-default btn-lg" type="button"><span class="glyphicon-success glyphicon glyphicon-ok-sign"></span></button>
                 </td>
             </tr>            
             {% for product in products %}

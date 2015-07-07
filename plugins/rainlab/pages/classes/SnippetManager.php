@@ -55,11 +55,13 @@ class SnippetManager
             $snippets = $this->listSnippets($theme);
 
             foreach ($snippets as $snippet) {
-                if ($componentClass && $snippet->getComponentClass() == $componentClass)
+                if ($componentClass && $snippet->getComponentClass() == $componentClass) {
                     return $snippet;
+                }
 
-                if ($snippet->code == $code)
+                if ($snippet->code == $code) {
                     return $snippet;
+                }
             }
 
             return null;
@@ -71,15 +73,17 @@ class SnippetManager
 
         if (!strlen($componentClass)) {
             $map = $this->getPartialSnippetMap($theme);
-            if (!array_key_exists($code, $map))
+            if (!array_key_exists($code, $map)) {
                 return null;
+            }
 
             $partialName = $map[$code];
             $partial = Partial::loadCached($theme, $partialName);
-            if (!$partial)
+            if (!$partial) {
                 return null;
+            }
 
-            $snippet = new Snippet();
+            $snippet = new Snippet;
             $snippet->initFromPartial($partial);
 
             return $snippet;
@@ -92,7 +96,7 @@ class SnippetManager
                 throw new SystemException(sprintf('The snippet component class %s is not found.', $componentClass));
             }
 
-            $snippet = new Snippet();
+            $snippet = new Snippet;
             $snippet->initFromComponentInfo($componentClass, $code);
 
             return $snippet;
@@ -132,7 +136,7 @@ class SnippetManager
         foreach ($partials as $partial) {
             $viewBag = $partial->getViewBag();
 
-            $snippetCode = $viewBag->property('staticPageSnippetCode');
+            $snippetCode = $viewBag->property('snippetCode');
             if (!strlen($snippetCode)) {
                 continue;
             }
@@ -158,8 +162,8 @@ class SnippetManager
         foreach ($partials as $partial) {
             $viewBag = $partial->getViewBag();
 
-            if (strlen($viewBag->property('staticPageSnippetCode'))) {
-                $snippet = new Snippet();
+            if (strlen($viewBag->property('snippetCode'))) {
+                $snippet = new Snippet;
                 $snippet->initFromPartial($partial);
                 $result[] = $snippet;
             }
@@ -180,17 +184,19 @@ class SnippetManager
         $plugins = $pluginManager->getPlugins();
 
         foreach ($plugins as $id => $plugin) {
-            if (!method_exists($plugin, 'registerPageSnippets'))
+            if (!method_exists($plugin, 'registerPageSnippets')) {
                 continue;
+            }
 
             $snippets = $plugin->registerPageSnippets();
-            if (!is_array($snippets))
+            if (!is_array($snippets)) {
                 continue;
+            }
 
             foreach ($snippets as $componentClass=>$componentCode) {
                 // TODO: register snippet components later, during 
                 // the page life cycle.
-                $snippet = new Snippet();
+                $snippet = new Snippet;
                 $snippet->initFromComponentInfo($componentClass, $componentCode);
                 $result[] = $snippet;
             }

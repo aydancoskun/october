@@ -1,6 +1,7 @@
 <?php namespace RainLab\Pages\Classes;
 
 use Yaml;
+use Lang;
 use File;
 use ApplicationException;
 use RainLab\Pages\Classes\Page;
@@ -41,77 +42,6 @@ class PageList
     }
 
     /**
-     * Finds a page by its URL. Returns the page object and sets the $parameters property.
-     * @param string $url The requested URL string.
-     * @return \Cms\Classes\Page Returns \Cms\Classes\Page object or null if the page cannot be found.
-     */
-    public function findByUrl($url)
-    {
-        $url = RouterHelper::normalizeUrl($url);
-
-        for ($pass = 1; $pass <= 2; $pass++) {
-            $fileName = null;
-            $urlList = [];
-
-            $cacheable = Config::get('cms.enableRoutesCache') && in_array(
-                Cache::getDefaultDriver(),
-                ['apc', 'memcached', 'redis', 'array']
-            );
-
-            if ($cacheable) {
-                $fileName = $this->getCachedUrlFileName($url, $urlList);
-            }
-
-            /*
-             * Find the page by URL and cache the route
-             */
-
-            if (!$fileName) {
-                $router = $this->getRouterObject();
-
-                if ($router->match($url)) {
-                    $this->parameters = $router->getParameters();
-
-                    $fileName = $router->matchedRoute();
-
-                    if ($cacheable) {
-                        if (!$urlList || !is_array($urlList))
-                            $urlList = [];
-
-                        $urlList[$url] = $fileName;
-
-                        $key = $this->getUrlListCacheKey();
-                        Cache::put($key, serialize($urlList), Config::get('cms.urlCacheTtl', 1));
-                    }
-                }
-            }
-
-            /*
-             * Return the page 
-             */
-
-            if ($fileName) {
-                if (($page = Page::loadCached($this->theme, $fileName)) === null) {
-                    /*
-                     * If the page was not found on the disk, clear the URL cache
-                     * and repeat the routing process.
-                     */
-                    if ($pass == 1) {
-                        $this->clearCache();
-                        continue;
-                    }
-
-                    return null;
-                }
-
-                return $page;
-            }
-
-            return null;
-        }
-    }
-
-    /**
      * Returns a list of top-level pages with subpages.
      * The method uses the theme's meta/static-pages.yaml file to build the hierarchy. The pages are returned
      * in the order defined in the YAML file. The result of the method is used for building the back-end UI
@@ -127,7 +57,7 @@ class PageList
         $iterator = function($configPages) use (&$iterator, &$pages) {
             $result = [];
 
-            foreach ($configPages as $fileName=>$subpages) {
+            foreach ($configPages as $fileName => $subpages) {
                 $pageObject = null;
                 foreach ($pages as $page) {
                     if ($page->getBaseFileName() == $fileName) {
@@ -136,8 +66,9 @@ class PageList
                     }
                 }
 
-                if ($pageObject === null)
+                if ($pageObject === null) {
                     continue;
+                }
 
                 $result[] = (object)[
                     'page' => $pageObject,
@@ -149,6 +80,66 @@ class PageList
         };
 
         return $iterator($config['static-pages']);
+    }
+
+    /**
+     * Returns the parent name of the specified page.
+     * @param \Cms\Classes\Page $page Specifies a page object.
+     * @param string Returns the parent page name.
+     */
+    public function getPageParent($page)
+    {
+        $pagesConfig = $this->getPagesConfig();
+        $requestedFileName = $page->getBaseFileName();
+
+        $parent = null;
+
+        $iterator = function($configPages) use (&$iterator, &$parent, $requestedFileName) {
+            foreach ($configPages as $fileName => $subpages) {
+                if ($fileName == $requestedFileName) {
+                    return true;
+                }
+
+                if ($iterator($subpages) == true) {
+                    $parent = $fileName;
+                    return true;
+                }
+            }
+        };
+
+        $iterator($pagesConfig['static-pages']);
+
+        return $parent;
+    }
+
+    /**
+     * Returns a part of the page hierarchy starting from the specified page.
+     * @param \Cms\Classes\Page $page Specifies a page object.
+     * @param array Returns a nested array of page names.
+     */
+    public function getPageSubTree($page)
+    {
+        $pagesConfig = $this->getPagesConfig();
+        $requestedFileName = $page->getBaseFileName();
+
+        $subTree = [];
+
+        $iterator = function($configPages) use (&$iterator, &$subTree, $requestedFileName) {
+            foreach ($configPages as $fileName => $subpages) {
+                if ($fileName == $requestedFileName) {
+                    $subTree = $subpages;
+                    return true;
+                }
+
+                if ($iterator($subpages) == true) {
+                    return true;
+                }
+            }
+        };
+
+        $iterator($pagesConfig['static-pages']);
+
+        return $subTree;
     }
 
     /**
@@ -167,12 +158,14 @@ class PageList
         $filePath = $this->getConfigFilePath();
         $dirPath = dirname($filePath);
         if (!file_exists($dirPath) || !is_dir($dirPath)) {
-            if (!File::makeDirectory($dirPath, 0777, true, true))
-                throw new ApplicationException(Lang::get('cms::lang.cms_object.error_creating_directory', ['name'=>$dirPath]));
+            if (!File::makeDirectory($dirPath, 0777, true, true)) {
+                throw new ApplicationException(Lang::get('cms::lang.cms_object.error_creating_directory', ['name' => $dirPath]));
+            }
         }
 
-        if (@File::put($filePath, $yamlData) === false)
-            throw new ApplicationException(Lang::get('cms::lang.cms_object.error_saving', ['name'=>$filePath]));
+        if (@File::put($filePath, $yamlData) === false) {
+            throw new ApplicationException(Lang::get('cms::lang.cms_object.error_saving', ['name' => $filePath]));
+        }
     }
 
     /**
@@ -181,16 +174,17 @@ class PageList
      */
     public function appendPage($page)
     {
-        $parent = $page->parent;
+        $parent = $page->parentFileName;
 
         $originalData = $this->getPagesConfig();
         $structure = $originalData['static-pages'];
 
-        if (!strlen($parent))
+        if (!strlen($parent)) {
             $structure[$page->getBaseFileName()] = [];
+        }
         else {
             $iterator = function(&$configPages) use (&$iterator, $parent, $page) {
-                foreach ($configPages as $fileName=>&$subpages) {
+                foreach ($configPages as $fileName => &$subpages) {
                     if ($fileName == $parent) {
                         $subpages[$page->getBaseFileName()] = [];
                         return true;
@@ -208,35 +202,6 @@ class PageList
     }
 
     /**
-     * Returns a part of the page hierarchy starting from the specified page.
-     * @param \Cms\Classes\Page $page Specifies a page object.
-     * @param array Returns a nested array of page names.
-     */
-    public function getPageSubTree($page)
-    {
-        $pagesConfig = $this->getPagesConfig();
-        $requestedFileName = $page->getBaseFileName();
-
-        $subTree = [];
-
-        $iterator = function($configPages) use (&$iterator, &$pages, &$subTree, $requestedFileName) {
-            foreach ($configPages as $fileName=>$subpages) {
-                if ($fileName == $requestedFileName) {
-                    $subTree = $subpages;
-                    return true;
-                }
-
-                if ($iterator($subpages) == true)
-                    return true;
-            }
-        };
-
-        $iterator($pagesConfig['static-pages']);
-
-        return $subTree;
-    }
-
-    /**
      * Removes a part of the page hierarchy starting from the specified page.
      * @param \Cms\Classes\Page $page Specifies a page object.
      */
@@ -250,9 +215,10 @@ class PageList
         $iterator = function($configPages) use (&$iterator, &$pages, $requestedFileName) {
             $result = [];
 
-            foreach ($configPages as $fileName=>$subpages) {
-                if ($requestedFileName != $fileName)
+            foreach ($configPages as $fileName => $subpages) {
+                if ($requestedFileName != $fileName) {
                     $result[$fileName] = $iterator($subpages);
+                }
             }
 
             return $result;
@@ -268,17 +234,20 @@ class PageList
      */
     protected function getPagesConfig()
     {
-        if (self::$configCache !== false)
+        if (self::$configCache !== false) {
             return self::$configCache;
+        }
 
         $filePath = $this->getConfigFilePath();
 
-        if (!file_exists($filePath))
+        if (!file_exists($filePath)) {
             return self::$configCache = ['static-pages'=>[]];
+        }
 
         $config = Yaml::parse(File::get($filePath));
-        if (!array_key_exists('static-pages', $config))
+        if (!array_key_exists('static-pages', $config)) {
             throw new SystemException('The content of the theme meta/static-pages.yaml file is invalid: the "static-pages" root element is not found.');
+        }
 
         return self::$configCache = $config;
     }

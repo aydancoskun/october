@@ -20,7 +20,13 @@
 <noscript><div id="noscript-warning" class="alert alert-danger">The accounts section of OKTicK requires that JavaScript is enabled</div>
 <div>You must <a href="http://www.enable-javascript.com" target="_blank">enable JavaScript</a> in your web browser.</div>
 </noscript>
-{% flash %} 
+{% flash %}
+<script>
+function hideTopAlert() {
+    $('#top-alert').addClass('collapse');
+}
+setTimeout(hideTopAlert,5000);
+</script>
 <div id="top-alert" class="alert alert-{{ type == 'error' ? 'danger' : type }}">{{ message }}</div> 
 {% endflash %}
 

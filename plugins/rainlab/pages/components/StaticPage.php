@@ -1,9 +1,9 @@
 <?php namespace RainLab\Pages\Components;
 
+use Request;
+use Cms\Classes\Theme;
 use Cms\Classes\ComponentBase;
 use RainLab\Pages\Classes\Router;
-use Cms\Classes\Theme;
-use Request;
 
 /**
  * The static page component.
@@ -16,13 +16,21 @@ class StaticPage extends ComponentBase
     /**
      * @var \RainLab\Pages\Classes\Page A reference to the static page object
      */
-    public $page;
+    public $pageObject;
 
     /**
      * @var string The static page title
      */
     public $title;
 
+    /**
+     * @var array Extra data added by syntax fields.
+     */
+    public $extraData = [];
+
+    /**
+     * @var string Content cache.
+     */
     protected $contentCached = false;
 
     public function componentDetails()
@@ -36,15 +44,33 @@ class StaticPage extends ComponentBase
     public function onRun()
     {
         $url = Request::path();
-        
-        if (!strlen($url))
+
+        if (!strlen($url)) {
             $url = '/';
+        }
 
         $router = new Router(Theme::getActiveTheme());
-        $this->page = $this->page['page'] = $router->findByUrl($url);
+        $this->pageObject = $this->page['page'] = $router->findByUrl($url);
 
-        if ($this->page)
-            $this->title = $this->page['title'] = $this->page->getViewBag()->property('title');
+        if ($this->pageObject) {
+            $this->title = $this->page['title'] = $this->pageObject->getViewBag()->property('title');
+            $this->extraData = $this->page['extraData'] = $this->defineExtraData();
+        }
+    }
+
+    public function page()
+    {
+        return $this->pageObject;
+    }
+
+    public function parent()
+    {
+        return $this->pageObject ? $this->pageObject->getParent() : null;
+    }
+
+    public function children()
+    {
+        return $this->pageObject ? $this->pageObject->getChildren() : null;
     }
 
     public function content()
@@ -53,13 +79,61 @@ class StaticPage extends ComponentBase
         // render time. Calling the page's getProcessedMarkup() method in the
         // onRun() handler is too early as it triggers rendering component-based
         // snippets defined on the static page too early in the page life cycle. -ab
-        
-        if ($this->contentCached !== false)
-            return $this->contentCached;
 
-        if ($this->page)
-            return $this->contentCached = $this->page->getProcessedMarkup();
+        if ($this->contentCached !== false) {
+            return $this->contentCached;
+        }
+
+        if ($this->pageObject) {
+            return $this->contentCached = $this->pageObject->getProcessedMarkup();
+        }
 
         $this->contentCached = '';
+    }
+
+    /**
+     * Find foreign view bag values and add them to 
+     * the component and page vars.
+     */
+    protected function defineExtraData()
+    {
+        $extraData = array_diff_key(
+            $this->pageObject->viewBag,
+            array_flip($this->pageObject->getVisible())
+        );
+
+        foreach ($extraData as $key => $value) {
+            $this->page[$key] = $value;
+        }
+
+        return $extraData;
+    }
+
+    /**
+     * Implements the getter functionality.
+     * @param  string  $name
+     * @return void
+     */
+    public function __get($name)
+    {
+        if (array_key_exists($name, $this->extraData)) {
+            return $this->extraData[$name];
+        }
+
+        return null;
+    }
+
+    /**
+     * Determine if an attribute exists on the object.
+     * @param  string  $key
+     * @return void
+     */
+    public function __isset($key)
+    {
+        if (array_key_exists($key, $this->extraData)) {
+            return true;
+        }
+
+        return false;
     }
 }

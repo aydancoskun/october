@@ -1,13 +1,13 @@
 <?php namespace RainLab\Pages\Widgets;
 
-use Backend\Classes\WidgetBase;
-use Cms\Classes\Theme;
-use RainLab\Pages\Classes\PageList as StaticPageList;
-use Input;
-use Response;
-use Request;
 use Str;
 use Lang;
+use Input;
+use Request;
+use Response;
+use Backend\Classes\WidgetBase;
+use RainLab\Pages\Classes\PageList as StaticPageList;
+use Cms\Classes\Theme;
 
 /**
  * Static page list widget.
@@ -108,7 +108,7 @@ class PageList extends WidgetBase
 
                 foreach ($pages as $page) {
                     if ($this->textMatchesSearch($words, $this->subtreeToText($page))) {
-                        $result[] = (object)[
+                        $result[] = (object) [
                             'page' => $page->page,
                             'subpages' => $iterator($page->subpages)
                         ];
