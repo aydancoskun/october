@@ -1,1 +1,0 @@
-/home/oktick/public_html/index.php
