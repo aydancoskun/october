@@ -18,15 +18,11 @@
 /api/database/templates_c
 /api/piwik/tmp/sessions
 /stats
-/config/app.php
-/config/cms.php
-/config/database.php
 composer.lock
 composer.phar
 .DS_Store
 .htpasswd
 .htaccess
-php_errors.log
 nginx-error.log
 nginx-access.log
 nginx-ssl.access.log
@@ -34,5 +30,7 @@ nginx-ssl.error.log
 php-errors.log
 sftp-config.json
 selenium.php
-.env.*.php
-.env.php
+.env
+access_log
+error_log
+php.log
