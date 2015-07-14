@@ -8,24 +8,24 @@ description = "foot"
 <div id="str_status_msg_searchSubmit"  style="display:none;">Searching...</div>
 <!-- Bootstrap core JavaScript -->
 <script src="//ajax.googleapis.com/ajax/libs/jquery/1.11.2/jquery.min.js"></script><!--try to use CDN first-->
-<script>window.jQuery || document.write('<script src="/themes/oktick/assets/jquery/1.11.2/jquery.min.js"><\/script>')</script><!--if CDN file isn't delivered, send a local file-->
+<script>window.jQuery || document.write('<script src="/app/ot/assets/jquery/1.11.2/jquery.min.js"><\/script>')</script><!--if CDN file isn't delivered, send a local file-->
 <script src="//maxcdn.bootstrapcdn.com/bootstrap/3.3.4/js/bootstrap.min.js"></script><!--try to use CDN first-->
-<script>$.fn.modal || document.write('<script src="//srv/www/oktick/html/themes/oktick/assets/bs3/js/bootstrap.min.js"><\/script>')</script><!--if CDN file isn't delivered, send a local file-->
+<script>$.fn.modal || document.write('<script src="//srv/www/oktick/html/app/ot/assets/bs3/js/bootstrap.min.js"><\/script>')</script><!--if CDN file isn't delivered, send a local file-->
 
 <!-- IE10 viewport hack for Surface/desktop Windows 8 bug -->
-<!--script src="/themes/oktick/assets/bs3/js/ie10-viewport-bug-workaround.js"></script-->
-<script src="/themes/oktick/assets/jquery.autocomplete.git/src/jquery.autocomplete.js"></script>
-<!--script src="/themes/oktick/assets/js/responsive-placeholder-images-custom.js"></script-->
-<!--script src="/themes/oktick/assets/libs/Readmore.js/readmore.js"></script-->
-<script src="/themes/oktick/assets/jquery.dotdotdot.git/src/js/jquery.dotdotdot.min.js"></script>
+<!--script src="/app/ot/assets/bs3/js/ie10-viewport-bug-workaround.js"></script-->
+<script src="/app/ot/assets/jquery.autocomplete.git/src/jquery.autocomplete.js"></script>
+<!--script src="/app/ot/assets/js/responsive-placeholder-images-custom.js"></script-->
+<!--script src="/app/ot/assets/libs/Readmore.js/readmore.js"></script-->
+<script src="/app/ot/assets/jquery.dotdotdot.git/src/js/jquery.dotdotdot.min.js"></script>
 <script src="/modules/system/assets/js/framework.js"></script>
 <script src="/modules/system/assets/js/framework.extras.js"></script>
-<script src="/themes/oktick/assets/js/oktick.js"></script>
-<script src="modules/backend/formwidgets/richeditor/assets/vendor/redactor/redactor.js"></script>
+<script src="/app/ot/assets/js/oktick.js"></script>
+<script src="/app/ot/assets/js/redactor.js"></script>
 <script src="/plugins/rainlab/editable/assets/js/editable.js"></script>
 <noscript><div id="noscript-warning" class="alert alert-danger">OKTicK works best with JavaScript enabled</div></noscript>
-{% flash %} 
-<div id="top-alert" class="alert alert-{{ type == 'error' ? 'danger' : type }}">{{ message }}</div> 
+{% flash %}
+<div id="top-alert" class="alert alert-{{ type == 'error' ? 'danger' : type }}">{{ message }}</div>
 {% endflash %}
 <div id="cookie-lawe" class="collapse">
     <div>

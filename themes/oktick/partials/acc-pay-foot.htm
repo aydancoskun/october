@@ -12,14 +12,14 @@
 <!--script src="/app/ot/assets/libs/Readmore.js/readmore.js"></script-->
 <script src="/app/ot/assets/jquery.dotdotdot.git/src/js/jquery.dotdotdot.min.js"></script>
 <script src="/app/ot/assets/js/oktick.js"></script>
-<script src="modules/backend/formwidgets/richeditor/assets/vendor/redactor/redactor.js"></script>
+<script src="/app/ot/assets/js/redactor.js"></script>
 <script src="/plugins/rainlab/editable/assets/js/editable.js"></script>
 <script src="/app/ot/assets/jquery.show-password/bootstrap-show-password.min.js"></script>
 <noscript><div id="noscript-warning" class="alert alert-danger">The accounts section of OKTicK requires that JavaScript is enabled</div>
 <div>You must <a href="http://www.enable-javascript.com" target="_blank">enable JavaScript</a> in your web browser.</div>
 </noscript>
-{% flash %} 
-<div id="top-alert" class="alert alert-{{ type == 'error' ? 'danger' : type }}">{{ message }}</div> 
+{% flash %}
+<div id="top-alert" class="alert alert-{{ type == 'error' ? 'danger' : type }}">{{ message }}</div>
 {% endflash %}
 
 </body>

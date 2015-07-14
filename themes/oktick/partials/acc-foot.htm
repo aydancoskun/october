@@ -13,7 +13,7 @@
 <script src="/app/ot/assets/jquery.dotdotdot.git/src/js/jquery.dotdotdot.min.js"></script>
 <script src="/app/ot/assets/jquery.bs-confirmation.git/bootstrap-confirmation.js"></script>
 <script src="/app/ot/assets/js/oktick.js"></script>
-<script src="modules/backend/formwidgets/richeditor/assets/vendor/redactor/redactor.js"></script>
+<script src="/app/ot/assets/js/redactor.js"></script>
 <script src="/plugins/rainlab/editable/assets/js/editable.js"></script>
 <script src="/app/ot/assets/jquery.show-password/bootstrap-show-password.min.js"></script>
 <script src="/app/ot/assets/jquery.bs3dialog.git/dist/js/bootstrap-dialog.min.js"></script>
@@ -27,7 +27,7 @@ function hideTopAlert() {
 }
 setTimeout(hideTopAlert,5000);
 </script>
-<div id="top-alert" class="alert alert-{{ type == 'error' ? 'danger' : type }}">{{ message }}</div> 
+<div id="top-alert" class="alert alert-{{ type == 'error' ? 'danger' : type }}">{{ message }}</div>
 {% endflash %}
 
 </body>

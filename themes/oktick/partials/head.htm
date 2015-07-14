@@ -59,21 +59,21 @@ description = "new head"
     if (!cssLoaded('bootstrap.min.css')) {
         local_bootstrap = new CustomEvent('link');
         local_bootstrap.setAttribute("rel", "stylesheet");
-        local_bootstrap.setAttribute("href", "/themes/oktick/assets/bs3/css/bootstrap.min.css");
+        local_bootstrap.setAttribute("href", "/app/ot/assets/bs3/css/bootstrap.min.css");
         document.getElementsByTagName("head")[0].appendChild(local_bootstrap);
     }
 </script>
 <!-- Custom styles for this template -->
 <link rel="stylesheet" href="//fonts.googleapis.com/css?family=Open+Sans:400,300,600,700">
 
-<!--link rel="stylesheet" href="/themes/oktick/assets/flexbox.git/jquery.flexbox.css" /-->
-<link rel="stylesheet" href="/themes/oktick/assets/css/responsive-placeholder-images-custom.css" />
+<!--link rel="stylesheet" href="/app/ot/assets/flexbox.git/jquery.flexbox.css" /-->
+<link rel="stylesheet" href="/app/ot/assets/css/responsive-placeholder-images-custom.css" />
 <link rel="stylesheet" href="/modules/system/assets/css/framework.extras.css">
-<link rel="stylesheet" href="/themes/oktick/assets/css/{{cssfile}}">
-<link rel="stylesheet" href="/modules/backend/formwidgets/richeditor/assets/vendor/redactor/redactor.css">
+<link rel="stylesheet" href="/app/ot/assets/css/{{cssfile}}">
+<link rel="stylesheet" href="/app/ot/assets/css/redactor.css">
 <link rel="stylesheet" href="/plugins/rainlab/editable/assets/css/editable.css" />
 <noscript>
-<!--link rel="stylesheet" href="/themes/oktick/assets/css/oktick-noscript.css"-->
+<!--link rel="stylesheet" href="/app/ot/assets/css/oktick-noscript.css"-->
 </noscript>
 <!--[if lt IE 9]>
 <script src="https://oss.maxcdn.com/html5shiv/3.7.2/html5shiv.min.js"></script>
