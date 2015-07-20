@@ -6,231 +6,458 @@ is_hidden = "0"
 <?php
 use Illuminate\Http\Response;
 
+
+
 function onStart() {
+
 //    \Debugbar::info("productservices page onStart()");
+
 }
+
 function verifyPost($post_name,$check="int"){
+
     if( !isset($_POST[$post_name]) ) App::abort(403, 'Forbidden');
+
     $post_val_raw = post($post_name);
+
     if($check=="int") $post_val_cast = (int) $post_val_raw;
+
     if($check=="float") $post_val_cast = (float) $post_val_raw;
+
     if($check=="string") $post_val_cast = (string) $post_val_raw;
+
     if( $post_val_raw <> $post_val_cast ) App::abort(403, 'Forbidden');
+
     return $post_val_cast;
+
 }
+
 function onGetEstimatedPosition(){
+
     $credits_estimated = $this->verifyPost('credits_estimated',"int");
+
     $bp_id = $this->verifyPost('bp_id',"int");
+
+
 
     $user = $this->session->user()->attributes;
 
+
+
     $company_id = $user['ok_company_id'];
+
     $user_id = $user['id'];
 
+
+
     $sql="SELECT bp_position FROM operations.bp_supplier_positions WHERE bp_id = $bp_id AND company_id = $company_id";
+
     $dbr = DB::select($sql);
+
     $bp_position = (isset($dbr[0])  ? $dbr[0]->bp_position : 0);
-    
+
+
+
     $sql="SELECT applied_credit as bp_user_credits FROM operations.bp_sponsors WHERE ".
+
          "bp_id = $bp_id AND company_id = $company_id AND user_id = $user_id AND ".
+
          "start_stamp < now() AND now() < end_stamp";
+
     $dbr = DB::select($sql);
+
     $bp_user_credits = (isset($dbr[0])  ? $dbr[0]->bp_user_credits : 0);
+
+
 
     $position_new = ($bp_position - $bp_user_credits *10) + $credits_estimated * 10;
 
+
+
     try {
+
         $sql=   "SELECT count(*)+1 as bp_low FROM operations.bp_supplier_positions ".
+
                 "WHERE ".
+
                 "bp_id = $bp_id AND ".
+
                 "bp_position   > $position_new AND ".
+
                 "company_id <> $company_id";
+
         $dbr = DB::select($sql);
+
         $bp_low = (isset($dbr[0])  ? $dbr[0]->bp_low : 0);
+
 //        return ['estimatedPosition' => "$bp_low:".__LINE__];
 
+
+
         $sql=   "SELECT count(*)+1 as bp_high  FROM operations.bp_supplier_positions ".
+
                 "WHERE ".
+
                 "bp_id = $bp_id AND ".
+
                 "bp_position  >= $position_new AND ".
+
                 "company_id <> $company_id";
+
         $dbr = DB::select($sql);
+
         $bp_high = (isset($dbr[0])  ? $dbr[0]->bp_high : 0);
+
         if ($bp_high > 50) return ['estimatedPosition' => "+50"];
+
         if ($bp_high > 25) return ['estimatedPosition' => "Top 50"];
+
         if ($bp_high > 20) return ['estimatedPosition' => "Top 25"];
+
         if ($bp_high > 15) return ['estimatedPosition' => "Top 20"];
+
         if ($bp_high > 10) return ['estimatedPosition' => "Top 15"];
+
         if ($bp_high >  5) return ['estimatedPosition' => "Top 10"];
+
         if ($bp_high >  3) return ['estimatedPosition' => "Top 5"];
+
         if ($bp_high >  0) return ['estimatedPosition' => "Top 3"];
+
         return ['estimatedPosition' => "-----------"];
+
         if($bp_low==$bp_high) return ['estimatedPosition' => $bp_low];
+
         return ['estimatedPosition' => "$bp_low to $bp_high"];
+
     }
+
     catch(Exception $e) {
+
         \Debugbar::addException($e);
+
         return ['error' => "Something went wrong"];
+
         return (new Response(['error' => "Something went wrong"], "500"))->header('Content-Type', "text/html; charset=UTF-8");
+
     }
+
     // value="{% if product.bp_low==product.bp_high %}{{product.bp_low}}{%else%}{{product.bp_low}} to {{ product.bp_high }}{%endif%}">
+
 }
+
+
+
 
 
 function onCreditConfirm(){
+
     $now = time();
+
     $credits_confirmed = $this->verifyPost('credits_confirmed',"int");
+
     $bp_id = $this->verifyPost('bp_id',"int");
+
+
 
     $user = $this->session->user()->attributes;
 
+
+
     $total_credits = $user['ok_credits'];
+
     $company_id = $user['ok_company_id'];
+
     $user_id = $user['id'];
 
+
+
     $sql=   "SELECT bp_position FROM operations.bp_supplier_positions ".
+
             "WHERE ".
+
             "bp_id = $bp_id AND ".
+
             "company_id = $company_id";
+
     $dbr = DB::select($sql);
+
     $bp_position = (isset($dbr[0])  ? $dbr[0]->bp_position : 0);
+
     $applied_credit = 0;
+
     $bp_was_active = false;
+
     $bp_is_active = false;
+
     $one_week = 604800;
+
     $end_stamp = $now + $one_week;
+
     $end_stamp_displayed = "None Assigned";
+
     $refund=false;
+
     $pre_refund_total_credits = $total_credits;
+
     $message = "";
 
+
+
     DB::beginTransaction();
+
     $sql=   "SELECT ".
+
             "id, ".
+
             "applied_credit, ".
+
             "UNIX_TIMESTAMP(start_stamp) as start_stamp, ".
+
             "UNIX_TIMESTAMP(end_stamp) as end_stamp ".
+
             "FROM operations.bp_sponsors ".
+
             "WHERE ".
+
             "bp_id = $bp_id AND ".
+
             "company_id = $company_id AND ".
+
             "user_id = $user_id AND ".
+
             "UNIX_TIMESTAMP(start_stamp) < $now < UNIX_TIMESTAMP(end_stamp)";
+
     $dbr = DB::select($sql);
+
+
+
 
 
     // If there is a current transaction
+
     if( isset($dbr[0]) ){
+
         $bp_was_active=true;
+
         $applied_credit = $dbr[0]->applied_credit;
+
         $start_stamp = $dbr[0]->start_stamp;
+
         $end_stamp = $dbr[0]->end_stamp;
+
         $original_duration = $end_stamp - $start_stamp;
+
         $new_duration = $now - $start_stamp;
+
         $original_cost = $applied_credit / $one_week * $original_duration;
+
         $cost = $applied_credit / $original_duration * $new_duration;
+
         $refund = $original_cost - $cost;
+
         $total_credits = $total_credits + $refund;
 
+
+
         DB::table('operations.bp_sponsor_transactions_completed')
+
         ->insert(array(
+
             'id' => $dbr[0]->id,
+
             'company_id' => $company_id,
+
             'bp_id' => $bp_id,
+
             'user_id' => $user_id,
+
             'applied_credit' => $applied_credit,
+
             'cost' => $cost,
+
             'refund' => $refund,
+
             'start_stamp' => $dbr[0]->start_stamp,
+
             'end_stamp' => date( 'Y-m-d H:i:s', $now),
+
         ));
+
         DB::table('operations.bp_sponsors')->where('id',$dbr[0]->id)->delete();
+
     }
+
     $credits_confirmed_value = $credits_confirmed / $one_week * ($end_stamp - $now);
+
     $total_credits = $total_credits - $credits_confirmed_value;
+
     $transaction_cost = $credits_confirmed_value - $refund;
+
     if($total_credits < -0.01 ) {
+
             return [
+
                 'status' => 'error',
+
                 'message' => 'Sorry, insufficient credits. Please consider purchasing credits.',
+
                 'log' => "total_credits=$total_credits < -0.01 AND no refund",
+
             ];
+
     }
+
+
 
     $position_new = $bp_position - $applied_credit*10 + $credits_confirmed*10;
+
     if($credits_confirmed > 0){
+
         $bp_is_active=true;
+
         $end_stamp_displayed = date( 'j M y, g:i a', $end_stamp );// j M y, g:i a
+
         DB::table('operations.bp_sponsors')
+
         ->insert(array(
+
             'company_id' => $company_id,
+
             'bp_id' => $bp_id,
+
             'user_id' => $user_id,
+
             'applied_credit' => $credits_confirmed,
+
             'start_stamp' => date( 'Y-m-d H:i:s', $now),
+
             'end_stamp' => date( 'Y-m-d H:i:s', $end_stamp ),
+
         ));
+
     }
-    
+
+
+
     DB::table('operations.bp_supplier_positions')
+
     ->where('bp_id', $bp_id)
+
     ->where('company_id', $company_id)
+
     ->update(array(
+
         'bp_position' => $position_new,
+
     ));
+
     DB::table('oktick.users')
+
     ->where('id', $user_id)
+
     ->update(array(
+
         'ok_credits' => $total_credits,
+
     ));
+
     DB::commit();
+
     $badge_active=0;
+
     if ($bp_was_active == false AND $bp_is_active) $badge_active=1;
+
     if ($bp_was_active AND $bp_is_active == false) $badge_active=-1;
+
 //        if ($bp_was_active == false AND $bp_is_active == false) $badge_active=0;
+
 //        if ($bp_was_active AND $bp_is_active) $badge_active=0;
+
 //    Flash::success($applied_credit.' credits successfully applied!');
 
+
+
     if( $applied_credit > $credits_confirmed AND $credits_confirmed > 0  ) { // he's gone down but not zero
+
         $s = round(abs($transaction_cost),2)==1 ? "" : "s";
+
         $message = "Your weekly credits were adjusted to $credits_confirmed. We refunded you ".round(abs($transaction_cost),2)." credit$s.";
+
     }
+
     elseif( $applied_credit > $credits_confirmed AND $credits_confirmed == 0  ) { // he's gone down to zero
+
         $s = round(abs($transaction_cost),2)==1 ? "" : "s";
+
         $message = "Your weekly credits were set to zero. There will be no weekly charges on your credits. Sponsoring is now suspended. We refunded you " . round(abs($transaction_cost),2) . " credit$s.";
+
     }
+
     elseif( $applied_credit < $credits_confirmed AND $applied_credit > 0 ) { // he's gone up from something
+
         $s = round(abs($credits_confirmed-$applied_credit),2)==1 ? "" : "s";
+
         $were = round(abs($credits_confirmed-$applied_credit),2)==1 ? "was" : "were";
-        
+
+
+
         $message = ($credits_confirmed-$applied_credit) . " credit$s $were added to your weekly amount which now sits at $credits_confirmed. ";
+
         $s = round(abs($transaction_cost),2)==1 ? "" : "s";
-        $message .= "This transaction cost ".round(abs($transaction_cost),2)." credit$s.";
+
+        $message .= "This transaction costs ".round(abs($transaction_cost),2)." credit$s.";
+
     }
+
     elseif( $applied_credit < $credits_confirmed AND ! $applied_credit ) { // he's gone up from nothing
+
         $message = "Your weekly credits were set to $credits_confirmed.";
+
     }
+
     return ['ok_credits' => $total_credits,
+
             'badge_active' => $badge_active,
+
             'end_stamp' => $end_stamp_displayed,
+
             'status' => 'success',
+
             'log' => '',
+
             'title' => 'Credit Applied!',
+
             'message' => $message,
+
             ];
+
 //        return (new Response('"'.$Message.'" %'.$ok_credits.'%', "200"))->header('Content-Type', "text/html; charset=UTF-8");
+
 //    return true;
+
     return (new Response('"here is the error"', "402"))->header('Content-Type', "text/html; charset=UTF-8");
+
 //    return (new Response('"'.$Message.'" %'.$ok_credits.'%', "200"))->header('Content-Type', "text/html; charset=UTF-8");
+
 }
+
 function onProductDelete(){
+
     $bp_id = $this->verifyPost('bp_id',"int");
+
     return [
+
         'status' => 'success',
+
         'message' => 'Product Deleted!',
+
         'log' => [  'Product ID' => $bp_id,
+
                 ],
+
         ];
+
 }
 ?>
 ==
@@ -257,7 +484,7 @@ function onProductDelete(){
         </div>
     </div>
     <div class="col-xs-1 col-md-0"></div>
-</div> 
+</div>
 <br>
 <br>
 <div class="row">
@@ -279,8 +506,8 @@ function onProductDelete(){
             </tr>
             {% for product in products %}
                 <tr class="{% if product.bp_user_credits %}success{%endif%}" id="row{{product.bp_id}}">
-                    <td class="" 
-                        id="bp{{ product.bp_id }}" 
+                    <td class=""
+                        id="bp{{ product.bp_id }}"
                         data-bp_id="{{ product.bp_id }}"
                         data-bp_user_credits="{% if product.bp_user_credits %}{{product.bp_user_credits}}{%else%}0{%endif%}">
                         {{ product.bp_name }}
@@ -288,7 +515,7 @@ function onProductDelete(){
                     <td class="text-center"><!-- Current Position -->
                         <div class="form-group input-group col-centered">
                             <label for="current-position{{ product.bp_id }}" class="sr-only" ></label>
-                            <input  type="text" 
+                            <input  type="text"
                                    class="form-control input text-center"
                                     disabled
                                     id="current-position{{ product.bp_id }}"
@@ -323,34 +550,34 @@ function onProductDelete(){
                             <!---MINUS  -->
                             <span class="input-group-btn">
                                 <button id="btn-credit-minus{{product.bp_id}}"
-                                        type="button" 
+                                        type="button"
                                         class="btn btn-default btn-credit"
-                                        {% if not product.bp_user_credits %}disabled="disabled"{%endif%} 
-                                        data-type="minus" 
+                                        {% if not product.bp_user_credits %}disabled="disabled"{%endif%}
+                                        data-type="minus"
                                         data-bp_id="{{product.bp_id}}">
                                     <span id="glyphicon-minus{{product.bp_id}}" class="glyphicon glyphicon-minus"></span>
                                 </button>
                             </span>
                             <!---CREDITS -->
                             <span class="input-group-btn">
-                                <input  type="text" 
-                                    id="credit{{product.bp_id}}" 
-                                    name="credit{{product.bp_id}}" 
-                                    class="form-control input input-number text-center" 
-                                    value="{% if product.bp_user_credits %}{{product.bp_user_credits}}{%else%}0{%endif%}" 
-                                    data-max-minus="0" 
-                                    data-max-plus="99" 
-                                    size="2" 
-                                    style="width:41px;min-width:41px;" 
+                                <input  type="text"
+                                    id="credit{{product.bp_id}}"
+                                    name="credit{{product.bp_id}}"
+                                    class="form-control input input-number text-center"
+                                    value="{% if product.bp_user_credits %}{{product.bp_user_credits}}{%else%}0{%endif%}"
+                                    data-max-minus="0"
+                                    data-max-plus="99"
+                                    size="2"
+                                    style="width:41px;min-width:41px;"
                                     disabled >
                             </span>
                             <!---PLUS -->
                             <span class="input-group-btn">
-                                <button id="btn-credit-plus{{product.bp_id}}" 
-                                        type="button" 
-                                        class="btn btn-default btn-credit" 
-                                        {% if user.ok_credits < 0.995 %}disabled="disabled"{%endif%} 
-                                        data-type="plus" 
+                                <button id="btn-credit-plus{{product.bp_id}}"
+                                        type="button"
+                                        class="btn btn-default btn-credit"
+                                        {% if user.ok_credits < 0.995 %}disabled="disabled"{%endif%}
+                                        data-type="plus"
                                         data-bp_id="{{product.bp_id}}">
                                     <span id="glyphicon-plus{{product.bp_id}}" class="glyphicon glyphicon-plus"></span>
                                 </button>
@@ -359,9 +586,9 @@ function onProductDelete(){
                     </td>
                     <td class="text-center"><!-- Expiration  -->
                         <!---CONFIRM -->
-                        <button id="btn-confirm{{product.bp_id}}" 
-                                style="visibility:hidden;" 
-                                type="button" 
+                        <button id="btn-confirm{{product.bp_id}}"
+                                style="visibility:hidden;"
+                                type="button"
                                 class="btn-confirm btn btn-success btn-sm"
                                 data-bp_id="{{product.bp_id}}">
                             <span id="glyphicon-confirm{{product.bp_id}}" class="glyphicon glyphicon-ok"></span>

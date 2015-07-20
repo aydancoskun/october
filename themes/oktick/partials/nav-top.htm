@@ -4,11 +4,17 @@ description = "nav-top"
 ==
 <?php
 function onStart(){
+
     if ( Request::segment(1) == "logout"){
+
         $this['logout'] = true;
+
     } else {
+
         $this['logout'] = false;
+
     }
+
 }
 ?>
 ==
@@ -41,40 +47,40 @@ function onStart(){
                 </li>
                 {% if user %}
                     <li class="{% if this.page.id == "account-ranking" %}active{% endif %}">
-                        <a href="/account/ranking">Ranking</a>
+                        <a href="/account/ranking">Ranking <span
+                            id="badge_active"
+                            class="badge badge-success badge-menu"
+                            data-toggle="tooltip"
+                            data-trigger="hover"
+                            data-placement="bottom"
+                            title="Number of sponored Products and Services">
+                        {% if user.ok_sponored_products_count %}{{user.ok_sponored_products_count}}{%else%}0{% endif %}
+                            </span>
+                        </a>
+                    </li>
+                    <li class="{% if this.page.id == "account-products-services" %}active{% endif %}">
+                        <a href="/account/products-services">Products/Services <span
+                            id="badge_total"
+                            class="badge badge-primary badge-menu"
+                            data-toggle="tooltip"
+                            data-trigger="hover"
+                            data-placement="bottom"
+                            title="Total number of products and services on the system"
+                            data-content="Total Number of products on system">
+                        {% if user.ok_company_products_count %}{{user.ok_company_products_count}}{%else%}0{% endif %}
+                            </span>
+                        </a>
                     </li>
                     <li class="{% if this.page.id == "account-credit" %}active{% endif %}">
                         <a href="/account/credit">Credits <span
                             id="ok_credits"
-                            class="badge badge-primary badge-menu" 
-                            data-toggle="tooltip" 
-                            data-trigger="hover" 
-                            data-placement="bottom" 
+                            class="badge badge-primary badge-menu"
+                            data-toggle="tooltip"
+                            data-trigger="hover"
+                            data-placement="bottom"
                             title="Number of credits"
                             data-content="This shows the number of credits you have on account and available to place on products and services"
                             data-value="{% if user.ok_credits %}{{user.ok_credits}}{%else%}0{% endif %}">{% if user.ok_credits and user.ok_credits > 0 %}{{ user.ok_credits|round(2, 'common') }}{%else%}0{% endif %}</span>
-                        </a>
-                    </li>
-                    <li class="{% if this.page.id == "account-products-services" %}active{% endif %}">
-                        <a href="/account/products-services">
-                            Products/Services
-                            <span id="badge_total" 
-                                class="badge badge-primary badge-menu" 
-                                data-toggle="tooltip" 
-                                data-trigger="hover" 
-                                data-placement="bottom" 
-                                title="Total number of products and services on the system"
-                                data-content="Total Number of products on system">
-                                {% if user.ok_company_products_count %}{{user.ok_company_products_count}}{%else%}0{% endif %}
-                            </span>
-                                <span  id="badge_active" 
-                                    class="badge badge-success badge-menu"
-                                    data-toggle="tooltip" 
-                                    data-trigger="hover" 
-                                    data-placement="bottom" 
-                                    title="Number of sponored Products and Services">
-                                    {% if user.ok_sponored_products_count %}{{user.ok_sponored_products_count}}{%else%}0{% endif %}
-                                </span>
                         </a>
                     </li>
                 {% else %}
@@ -90,11 +96,11 @@ function onStart(){
                 {% if user %}
                     <li class="{% if this.page.id == "account-help" %}active{% endif %}">
                         <a href="/account/help">
-                            <span   class="glyphicon glyphicon-question-sign" 
+                            <span   class="glyphicon glyphicon-question-sign"
                                     aria-hidden="true"
-                                    data-toggle="tooltip" 
-                                    data-trigger="hover" 
-                                    data-placement="bottom" 
+                                    data-toggle="tooltip"
+                                    data-trigger="hover"
+                                    data-placement="bottom"
                                     title="Help"
                                     data-content="Help">
                             </span>
@@ -102,11 +108,11 @@ function onStart(){
                     </li>
                     <li class="{% if this.page.id == "account-details" %}active{% endif %}">
                         <a href="/account/details">
-                            <span   class="glyphicon glyphicon-user" 
+                            <span   class="glyphicon glyphicon-user"
                                     aria-hidden="true"
-                                    data-toggle="tooltip" 
-                                    data-trigger="hover" 
-                                    data-placement="bottom" 
+                                    data-toggle="tooltip"
+                                    data-trigger="hover"
+                                    data-placement="bottom"
                                     title="{{user.email}}"
                                     data-content="Account Detail">
                             </span>
@@ -114,11 +120,11 @@ function onStart(){
                     </li>
                     <li class="{% if this.page.id == "account-company" %}active{% endif %}">
                         <a href="/account/company">
-                            <span   class="glyphicon glyphicon-link" 
+                            <span   class="glyphicon glyphicon-link"
                                     aria-hidden="true"
-                                    data-toggle="tooltip" 
-                                    data-trigger="hover" 
-                                    data-placement="bottom" 
+                                    data-toggle="tooltip"
+                                    data-trigger="hover"
+                                    data-placement="bottom"
                                     title="{{user.company}}"
                                     data-content="Company Details">
                             </span>
@@ -126,11 +132,11 @@ function onStart(){
                     </li>
                     <li class="{% if this.page.id == "logout" %}active{% endif %}">
                         <a href="/logout">
-                            <span   class="glyphicon glyphicon-off" 
+                            <span   class="glyphicon glyphicon-off"
                                     aria-hidden="true"
-                                    data-toggle="tooltip" 
-                                    data-trigger="hover" 
-                                    data-placement="bottom" 
+                                    data-toggle="tooltip"
+                                    data-trigger="hover"
+                                    data-placement="bottom"
                                     title="Logout"
                                     data-content="Click here to Logout">
                             </span>
