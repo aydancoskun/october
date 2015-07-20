@@ -43,15 +43,19 @@ function onStart()
     if(env('APP_ENV') == "production"){
         $this['StripePublishableKey']='pk_live_nsHDHCb4OJwHNtEcla3BYlEz';
         $this_stripe_secret_key ='sk_live_C4dkHoob5l3P48BVT4G6gtOA';
+        $this['c_card']="";
+        $this['c_year']="";
+        $this['c_month']="";
+        $this['c_cvc']="";
         $d=false;
     }
     elseif(env('APP_ENV') == "development"){
         $this['StripePublishableKey']='pk_test_i0BnSwZKTGm1TSrTxyiJWFt6';
         $this_stripe_secret_key ='sk_test_5CyATtLZuofD31bgwGQHIHCX';
-        $this['debug_card']="4242424242424242";
-        $this['debug_year']="16";
-        $this['debug_month']="12";
-        $this['debug_cvc']="123";
+        $this['c_card']="4242424242424242";
+        $this['c_year']="16";
+        $this['c_month']="12";
+        $this['c_cvc']="123";
         $d=true;
     }
     else {
@@ -697,7 +701,7 @@ function onStart()
                                     <div class="form-group">
                                         <label for="cardNumber">CARD NUMBER</label>
                                         <div class="input-group">
-                                            <input type="text" class="form-control" placeholder="Valid Card Number" size="20" data-stripe="number" value="4242424242424242"/>
+                                            <input type="text" class="form-control" placeholder="Valid Card Number" size="20" data-stripe="number" value="{{c_card}}"/>
                                             <span class="input-group-addon"><i class="fa fa-credit-card"></i></span>
                                         </div>
                                     </div>
@@ -708,17 +712,17 @@ function onStart()
                                     <div class="form-group">
                                         <label for="expMonth">EXPIRATION DATE</label>
                                         <div class="col-xs-6 col-lg-6 pl-ziro">
-                                            <input type="text" class="form-control" placeholder="MM" size="2" data-stripe="exp_month" value="12"/>
+                                            <input type="text" class="form-control" placeholder="MM" size="2" data-stripe="exp_month" value="{{c_month}}"/>
                                         </div>
                                         <div class="col-xs-6 col-lg-6 pl-ziro">
-                                            <input type="text" class="form-control" placeholder="YY" size="2" data-stripe="exp_year" value="16"/>
+                                            <input type="text" class="form-control" placeholder="YY" size="2" data-stripe="exp_year" value="{{c_year}}"/>
                                         </div>
                                     </div>
                                 </div>
                                 <div class="col-xs-5 col-md-5 pull-right">
                                     <div class="form-group">
                                         <label for="cvCode">CV CODE</label>
-                                        <input type="txt" class="form-control" placeholder="CV" size="4" data-stripe="cvc" value="123"/>
+                                        <input type="txt" class="form-control" placeholder="CV" size="4" data-stripe="cvc" value="{{c_cvc}}"/>
                                     </div>
                                 </div>
                             </div>
