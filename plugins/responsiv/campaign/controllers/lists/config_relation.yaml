@@ -4,9 +4,11 @@
 
 subscribers:
     label: subscriber
-    list: ~/plugins/responsiv/campaign/models/subscriber/columns.yaml
+    list: ~/plugins/responsiv/campaign/models/subscriber/columns_list.yaml
     form: ~/plugins/responsiv/campaign/models/subscriber/fields.yaml
     view:
         toolbarButtons: create|add|remove
+        recordsPerPage: 10
+        showSearch: true
     manage:
         recordsPerPage: 10

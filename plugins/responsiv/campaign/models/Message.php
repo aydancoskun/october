@@ -129,8 +129,19 @@ class Message extends Model
     public function getStaggerCount()
     {
         if (!$this->is_staggered) return -1;
-        $spread = max(1, (int) $this->stagger_time);
-        return ceil($this->count_subscriber / $spread);
+
+        /*
+         * Stagger by time
+         */
+        if ($this->stagger_type == 'time') {
+            $spread = max(1, (int) $this->stagger_time);
+            return ceil($this->count_subscriber / $spread);
+        }
+
+        /*
+         * Stagger by count
+         */
+        return max(1, (int) $this->stagger_count);
     }
 
     public function duplicateCampaign()
@@ -143,7 +154,9 @@ class Message extends Model
             'name'          => $this->name,
             'subject'       => $this->subject,
             'is_staggered'  => $this->is_staggered,
+            'stagger_type'  => $this->stagger_type,
             'stagger_time'  => $this->stagger_time,
+            'stagger_count' => $this->stagger_count,
             'is_repeating'  => $this->is_repeating,
             'count_repeat'  => $this->count_repeat,
             'repeat_frequency' => $this->repeat_frequency,
@@ -171,7 +184,6 @@ class Message extends Model
      */
     public static function getAvailableTags()
     {
-        //@todo Convert to language strings
         return [
             'first_name'      => "Subscriber's first name",
             'last_name'       => "Subscriber's last name",

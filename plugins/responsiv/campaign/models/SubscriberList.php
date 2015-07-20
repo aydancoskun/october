@@ -29,6 +29,7 @@ class SubscriberList extends Model
      */
     public $belongsToMany = [
         'subscribers' => ['Responsiv\Campaign\Models\Subscriber', 'table' => 'responsiv_campaign_lists_subscribers', 'key' => 'list_id'],
+        'subscribers_count' => ['Responsiv\Campaign\Models\Subscriber', 'table' => 'responsiv_campaign_lists_subscribers', 'key' => 'list_id', 'count' => true],
     ];
 
     public function getCountSubscribersAttribute()

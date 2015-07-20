@@ -20,15 +20,6 @@
                 frameContents.html(messageContents)
                 messageFrame.height(frameContents.height())
             })
-
-            messageFrame.on('print.message', function(){
-               var printWindow = window.open('','','left=0,top=0,width=950,height=500,toolbar=0,scrollbars=0,status=0')
-               printWindow.document.write(messageContents)
-               printWindow.document.close()
-               printWindow.focus()
-               printWindow.print()
-               printWindow.close()
-            })
         })(window.jQuery);
     </script>
 

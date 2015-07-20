@@ -144,7 +144,6 @@ class CampaignManager
 
     protected function getTextMessage($browserUrl)
     {
-        //@todo Convert to language strings
         $lines = [];
         $lines[] = '---------------------------------------------';
         $lines[] = '------- Graphical email content';

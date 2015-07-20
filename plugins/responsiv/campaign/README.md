@@ -22,7 +22,7 @@ Once you are ready to send the message click the **Launch campaign** button wher
 
 - **Delayed launch** - If this is checked, a date picker will appear and you can select an exact date and time to send the message. This is good for perfectly timing your campaign.
 
-- **Staggered launch** - If this is checked, the campaign subscribers will be divided in to smaller groups depending on the selected time period. Each group will be contacted every hour until all subscribers have been sent the message.
+- **Staggered launch** - If this is checked, the campaign subscribers will be divided in to smaller groups depending on the selected time period or by a fixed amount of messages. Each group will be contacted every hour until all subscribers have been sent the message.
 
 - **Repeating campaign** - This option is particularly useful if you are generating the message content dynamically, for example, a message that contains the latest blog posts on your site. If this is checked, the campaign will duplicate itself after it has launched and automatically apply the **Delayed launch** option to match the repeating frequency. This will continue perpetually until you manually cancel the most recent iteration.
 
@@ -141,7 +141,7 @@ Renders a file upload editor field, the output value is the full path to the fil
 
 Renders a repeating section with other fields inside.
 
-    {repeater}
+    {repeater name="content_sections" prompt="Add another content section"}
         <h2>{text name="title" label="Title"}Title{/text}</h2>
         <p>{textarea name="content" label="Content"}Content{/textarea}</p>
     {/repeater}

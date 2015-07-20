@@ -11,3 +11,7 @@
 1.0.4: Implement the verification process for new subscribers.
 1.0.5: Minor fix for latest build.
 1.0.6: Fixes bug preventing a list from being deleted.
+1.0.7: Improve the efficiency of the subscriber list page.
+1.0.8:
+    - Staggered launch can now be performed for a fixed amount of messages sent every hour.
+    - messages_add_stagger_time.php

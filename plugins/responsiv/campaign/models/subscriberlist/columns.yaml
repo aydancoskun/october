@@ -10,5 +10,8 @@ columns:
     description:
         label: Description
 
-    total_subscribers:
+    subscribers_count:
         label: Subscribers
+        relation: subscribers_count
+        valueFrom: count
+        default: 0
