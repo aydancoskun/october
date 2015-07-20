@@ -2,9 +2,17 @@
 ==
 <?php
 function onStart(){
+
     //dd($_SERVER);
+
     //exit;
-    $this['host']=gethostname().rand(1,20);
+
+    if(env('APP_ENV') == "production"){
+        $this['host']=gethostname().rand(1,20);
+    }
+    elseif(env('APP_ENV') == "development"){
+        $this['host']=strtoupper(gethostname())." - DEVELOPMENT";
+    }
 }
 ?>
 ==
