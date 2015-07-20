@@ -75,7 +75,7 @@ return [
         'menu_description' => 'Gérer les utilisateurs, les groupes et les permissions depuis l’administration.',
         'list_title' => 'Gérer les administrateurs',
         'new' => 'Créer un nouvel administrateur',
-        'login' => 'Identifiant',
+        'login' => 'S’identifier',
         'first_name' => 'Prénom',
         'last_name' => 'Nom',
         'full_name' => 'Nom complet',
@@ -107,6 +107,7 @@ return [
             'new' => 'Ajouter un groupe d’administrateur',
             'delete_confirm' => 'Confirmer la suppression de ce groupe d’administrateurs ?',
             'return' => 'Retour à la liste des groupes',
+            'users_count' => 'Utilisateurs'
         ],
         'preferences' => [
             'not_authenticated' => 'Il n’y a aucun utilisateur identifié pour lequel il est possible de charger ou modifier les préférences.'

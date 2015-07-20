@@ -1,6 +1,6 @@
 <div
     id="<?= $this->getId() ?>"
-    class="field-fileupload style-file-multi is-sortable is-multi <?= count($fileList) ? 'is-populated' : '' ?>"
+    class="field-fileupload style-file-multi is-sortable is-multi <?= count($fileList) ? 'is-populated' : '' ?> <?= $this->previewMode ? 'is-preview' : '' ?>"
     data-control="fileupload"
     data-template="#<?= $this->getId('template') ?>"
     data-error-template="#<?= $this->getId('errorTemplate') ?>"
@@ -12,13 +12,13 @@
 
     <!-- Upload Button -->
     <button type="button" class="btn btn-sm btn-primary oc-icon-upload upload-button">
-        Upload file
+        <?= e(trans('backend::lang.fileupload.upload_file')) ?>
     </button>
 
     <!-- Existing files -->
     <div class="upload-files-container">
         <?php foreach ($fileList as $file): ?>
-            <div class="upload-object is-success" data-id="<?= $file->id ?>" data-path="<?= $file->path ?>">
+            <div class="upload-object is-success" data-id="<?= $file->id ?>" data-path="<?= $file->pathUrl ?>">
                 <div class="icon-container">
                     <i class="icon-file"></i>
                 </div>
@@ -29,7 +29,7 @@
                             href="javascript:;"
                             class="upload-remove-button"
                             data-request="<?= $this->getEventHandler('onRemoveAttachment') ?>"
-                            data-request-confirm="Are you sure?"
+                            data-request-confirm="<?= e(trans('backend::lang.fileupload.remove_confirm')) ?>"
                             data-request-data="file_id: <?= $file->id ?>"
                             ><i class="icon-times"></i></a>
                     </h4>
@@ -57,7 +57,7 @@
                     href="javascript:;"
                     class="upload-remove-button"
                     data-request="<?= $this->getEventHandler('onRemoveAttachment') ?>"
-                    data-request-confirm="Are you sure?"
+                    data-request-confirm="<?= e(trans('backend::lang.fileupload.remove_confirm')) ?>"
                     ><i class="icon-times"></i></a>
             </h4>
             <p class="size" data-dz-size></p>

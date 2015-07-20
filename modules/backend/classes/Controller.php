@@ -6,6 +6,7 @@ use Lang;
 use View;
 use Flash;
 use Event;
+use Config;
 use Request;
 use Backend;
 use Session;
@@ -34,9 +35,9 @@ use Illuminate\Http\RedirectResponse;
  */
 class Controller extends Extendable
 {
+    use \System\Traits\ViewMaker;
     use \System\Traits\AssetMaker;
     use \System\Traits\ConfigMaker;
-    use \System\Traits\ViewMaker;
     use \Backend\Traits\WidgetMaker;
     use \October\Rain\Support\Traits\Emitter;
 
@@ -167,6 +168,13 @@ class Controller extends Extendable
     {
         $this->action = $action;
         $this->params = $params;
+
+        /*
+         * Check security token.
+         */
+        if (!$this->verifyCsrfToken()) {
+            return Response::make(Lang::get('backend::lang.page.invalid_token.label'), 403);
+        }
 
         /*
          * Extensibility
@@ -344,12 +352,30 @@ class Controller extends Extendable
     }
 
     /**
+     * Returns the AJAX handler for the current request, if available.
+     * @return string
+     */
+    public function getAjaxHandler()
+    {
+        if (!Request::ajax() || Request::method() != 'POST') {
+            return null;
+        }
+
+        if ($handler = Request::header('X_OCTOBER_REQUEST_HANDLER')) {
+            return trim($handler);
+        }
+
+        return null;
+    }
+
+    /**
      * This method is used internally.
      * Invokes a controller event handler and loads the supplied partials.
      */
     protected function execAjaxHandlers()
     {
-        if ($handler = trim(Request::header('X_OCTOBER_REQUEST_HANDLER'))) {
+
+        if ($handler = $this->getAjaxHandler()) {
             try {
                 /*
                  * Validate the handler name
@@ -363,16 +389,6 @@ class Controller extends Extendable
                  */
                 if ($partialList = trim(Request::header('X_OCTOBER_REQUEST_PARTIALS'))) {
                     $partialList = explode('&', $partialList);
-
-                    // @todo Do we need to validate backend partials?
-                    // foreach ($partialList as $partial) {
-                    //     if (!preg_match('/^(?:\w+\:{2}|@)?[a-z0-9\_\-\.\/]+$/i', $partial)) {
-                    //         throw new SystemException(Lang::get(
-                    //             'cms::lang.partial.invalid_name',
-                    //             ['name' => $partial]
-                    //         ));
-                    //     }
-                    // }
                 }
                 else {
                     $partialList = [];
@@ -601,5 +617,33 @@ class Controller extends Extendable
     {
         $hiddenHints = UserPreferences::forUser()->get('backend::hints.hidden', []);
         return array_key_exists($name, $hiddenHints);
+    }
+
+    //
+    // CSRF Protection
+    //
+
+    /**
+     * Checks the request data / headers for a valid CSRF token.
+     * Returns false if a valid token is not found. Override this
+     * method to disable the check.
+     * @return bool
+     */
+    protected function verifyCsrfToken()
+    {
+        if (!Config::get('cms.enableCsrfProtection')) {
+            return true;
+        }
+
+        if (in_array(Request::method(), ['HEAD', 'GET', 'OPTIONS'])) {
+            return true;
+        }
+
+        $token = Request::input('_token') ?: Request::header('X-CSRF-TOKEN');
+
+        return \Symfony\Component\Security\Core\Util\StringUtils::equals(
+            Session::getToken(),
+            $token
+        );
     }
 }

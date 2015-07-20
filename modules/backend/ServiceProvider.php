@@ -25,13 +25,15 @@ class ServiceProvider extends ModuleServiceProvider
         $this->registerMailer();
         $this->registerAssetBundles();
 
-        // Disabled for now
-        // if (App::runningInBackend()) {
+        /*
+         * Backend specific
+         */
+        if (App::runningInBackend()) {
             $this->registerBackendNavigation();
             $this->registerBackendWidgets();
             $this->registerBackendPermissions();
             $this->registerBackendSettings();
-        // }
+        }
     }
 
     /**
@@ -70,6 +72,7 @@ class ServiceProvider extends ModuleServiceProvider
             $combiner->registerBundle('~/modules/backend/formwidgets/richeditor/assets/less/richeditor.less');
             $combiner->registerBundle('~/modules/backend/formwidgets/richeditor/assets/js/build.js');
             $combiner->registerBundle('~/modules/backend/formwidgets/codeeditor/assets/less/codeeditor.less');
+            $combiner->registerBundle('~/modules/backend/formwidgets/codeeditor/assets/js/build.js');
         });
     }
 

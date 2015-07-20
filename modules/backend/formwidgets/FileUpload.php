@@ -3,12 +3,14 @@
 use Str;
 use Lang;
 use Input;
+use Request;
 use Response;
 use Validator;
 use System\Models\File;
 use ApplicationException;
 use Backend\Classes\FormField;
 use Backend\Classes\FormWidgetBase;
+use Backend\Controllers\Files as FilesController;
 use ValidationException;
 use Exception;
 
@@ -34,7 +36,7 @@ class FileUpload extends FormWidgetBase
     /**
      * @var string Prompt to display if no record is selected.
      */
-    public $prompt = 'Click the %s or drag a file here to upload';
+    public $prompt = 'backend::lang.fileupload.default_prompt';
 
     /**
      * @var int Preview image width
@@ -45,11 +47,6 @@ class FileUpload extends FormWidgetBase
      * @var int Preview image height
      */
     public $imageHeight = null;
-
-    /**
-     * @var string Text to display when no file is associated
-     */
-    public $previewNoFilesMessage = 'backend::lang.form.preview_no_files_message';
 
     /**
      * @var mixed Collection of acceptable file types.
@@ -92,7 +89,6 @@ class FileUpload extends FormWidgetBase
             'prompt',
             'imageWidth',
             'imageHeight',
-            'previewNoFilesMessage',
             'fileTypes',
             'mimeTypes',
             'thumbOptions',
@@ -116,16 +112,21 @@ class FileUpload extends FormWidgetBase
      */
     protected function prepareVars()
     {
-        $this->vars['fileList'] = $this->getFileList();
-        $this->vars['singleFile'] = array_get($this->vars['fileList'], 0, null);
+        if ($this->previewMode) {
+            $this->useCaption = false;
+        }
+
+        $this->vars['fileList'] = $fileList = $this->getFileList();
+        $this->vars['singleFile'] = $fileList->first();
         $this->vars['displayMode'] = $this->getDisplayMode();
         $this->vars['emptyIcon'] = $this->getConfig('emptyIcon', 'icon-plus');
         $this->vars['imageHeight'] = $this->imageHeight;
         $this->vars['imageWidth'] = $this->imageWidth;
         $this->vars['acceptedFileTypes'] = $this->getAcceptedFileTypes(true);
         $this->vars['cssDimensions'] = $this->getCssDimensions();
+        $this->vars['cssBlockDimensions'] = $this->getCssDimensions('block');
         $this->vars['useCaption'] = $this->useCaption;
-        $this->vars['prompt'] = str_replace('%s', '<i class="icon-upload"></i>', $this->prompt);
+        $this->vars['prompt'] = str_replace('%s', '<i class="icon-upload"></i>', trans($this->prompt));
     }
 
     protected function getFileList()
@@ -168,18 +169,35 @@ class FileUpload extends FormWidgetBase
     /**
      * Returns the CSS dimensions for the uploaded image,
      * uses auto where no dimension is provided.
+     * @param string $mode
      * @return string
      */
-    protected function getCssDimensions()
+    protected function getCssDimensions($mode = null)
     {
-        $cssDimensions = '';
-        $cssDimensions .= ($this->imageWidth)
-            ? 'width: '.$this->imageWidth.'px;'
-            : 'width: auto;';
+        if (!$this->imageWidth && !$this->imageHeight) {
+            return '';
+        }
 
-        $cssDimensions .= ($this->imageHeight)
-            ? 'height: '.$this->imageHeight.'px;'
-            : 'height: auto;';
+        $cssDimensions = '';
+
+        if ($mode == 'block') {
+            $cssDimensions .= ($this->imageWidth)
+                ? 'width: '.$this->imageWidth.'px;'
+                : 'width: '.$this->imageHeight.'px;';
+
+            $cssDimensions .= ($this->imageHeight)
+                ? 'height: '.$this->imageHeight.'px;'
+                : 'height: auto;';
+        }
+        else {
+            $cssDimensions .= ($this->imageWidth)
+                ? 'width: '.$this->imageWidth.'px;'
+                : 'width: auto;';
+
+            $cssDimensions .= ($this->imageHeight)
+                ? 'height: '.$this->imageHeight.'px;'
+                : 'height: auto;';
+        }
 
         return $cssDimensions;
     }
@@ -340,7 +358,7 @@ class FileUpload extends FormWidgetBase
      */
     protected function checkUploadPostback()
     {
-        if (!($uniqueId = post('X_OCTOBER_FILEUPLOAD')) || $uniqueId != $this->getId()) {
+        if (!($uniqueId = Request::header('X-OCTOBER-FILEUPLOAD')) || $uniqueId != $this->getId()) {
             return;
         }
 
@@ -386,8 +404,8 @@ class FileUpload extends FormWidgetBase
 
             $result = [
                 'id' => $file->id,
-                'thumb' => $file->thumb,
-                'path' => $file->path
+                'thumb' => $file->thumbUrl,
+                'path' => $file->pathUrl
             ];
 
             Response::json($result, 200)->send();
@@ -401,19 +419,36 @@ class FileUpload extends FormWidgetBase
     }
 
     /**
-     * Adds the bespoke thumb and path property used by this widget.
+     * Adds the bespoke attributes used internally by this widget.
+     * - thumbUrl
+     * - pathUrl
      * @return System\Models\File
      */
     protected function decorateFileAttributes($file)
     {
-        $file->thumb = ($this->imageWidth || $this->imageHeight)
-            ? $file->getThumb($this->imageWidth, $this->imageHeight, $this->thumbOptions)
-            : $file->path;
+        /*
+         * File is protected, create a secure public path
+         */
+        if (!$file->isPublic()) {
+            $path = $thumb = FilesController::getDownloadUrl($file);
 
-        // Internal download link
-        if (!$file->isImage() || !$file->isPublic()) {
-            $file->pathOverride = \Backend\Controllers\Files::getDownloadUrl($file);
+            if ($this->imageWidth || $this->imageHeight) {
+                $thumb = FilesController::getThumbUrl($file, $this->imageWidth, $this->imageHeight, $this->thumbOptions);
+            }
         }
+        /*
+         * Otherwise use public paths
+         */
+        else {
+            $path = $thumb = $file->getPath();
+
+            if ($this->imageWidth || $this->imageHeight) {
+                $thumb = $file->getThumb($this->imageWidth, $this->imageHeight, $this->thumbOptions);
+            }
+        }
+
+        $file->pathUrl = $path;
+        $file->thumbUrl = $thumb;
 
         return $file;
     }

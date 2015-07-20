@@ -1,6 +1,6 @@
 <div
     id="<?= $this->getId() ?>"
-    class="field-fileupload style-image-multi is-sortable is-multi <?= count($fileList) ? 'is-populated' : '' ?>"
+    class="field-fileupload style-image-multi is-sortable is-multi <?= count($fileList) ? 'is-populated' : '' ?> <?= $this->previewMode ? 'is-preview' : '' ?>"
     data-control="fileupload"
     data-template="#<?= $this->getId('template') ?>"
     data-error-template="#<?= $this->getId('errorTemplate') ?>"
@@ -12,15 +12,15 @@
 
     <!-- Upload Button -->
     <a href="javascript:;" class="upload-button">
-        <table><tr><td class="oc-<?= $emptyIcon ?>"></td></tr></table>
+        <span class="upload-button-icon oc-<?= $emptyIcon ?>"></span>
     </a>
 
     <!-- Existing files -->
     <div class="upload-files-container">
         <?php foreach ($fileList as $file): ?>
-            <div class="upload-object is-success" data-id="<?= $file->id ?>" data-path="<?= $file->path ?>">
+            <div class="upload-object is-success" data-id="<?= $file->id ?>" data-path="<?= $file->pathUrl ?>">
                 <div class="icon-container image">
-                    <img src="<?= $file->thumb ?>" />
+                    <img src="<?= $file->thumbUrl ?>" />
                 </div>
                 <div class="info">
                     <h4 class="filename">
@@ -29,7 +29,7 @@
                             href="javascript:;"
                             class="upload-remove-button"
                             data-request="<?= $this->getEventHandler('onRemoveAttachment') ?>"
-                            data-request-confirm="Are you sure?"
+                            data-request-confirm="<?= e(trans('backend::lang.fileupload.remove_confirm')) ?>"
                             data-request-data="file_id: <?= $file->id ?>"
                             ><i class="icon-times"></i></a>
                     </h4>
@@ -56,7 +56,7 @@
                     href="javascript:;"
                     class="upload-remove-button"
                     data-request="<?= $this->getEventHandler('onRemoveAttachment') ?>"
-                    data-request-confirm="Are you sure?"
+                    data-request-confirm="<?= e(trans('backend::lang.fileupload.remove_confirm')) ?>"
                     ><i class="icon-times"></i></a>
             </h4>
             <p class="size" data-dz-size></p>

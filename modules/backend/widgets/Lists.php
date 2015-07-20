@@ -513,8 +513,10 @@ class Lists extends WidgetBase
             return null;
         }
 
-        $columns = array_keys($record->getAttributes());
-        $url = RouterHelper::parseValues($record, $columns, $this->recordUrl);
+        $data = $record->toArray();
+        $columns = array_keys($data);
+
+        $url = RouterHelper::parseValues($data, $columns, $this->recordUrl);
         return Backend::url($url);
     }
 
@@ -781,6 +783,13 @@ class Lists extends WidgetBase
 
         if (method_exists($this, 'eval'. studly_case($column->type) .'TypeValue')) {
             $value = $this->{'eval'. studly_case($column->type) .'TypeValue'}($record, $column, $value);
+        }
+
+        /*
+         * Apply default value.
+         */
+        if (empty($value)) {
+            $value = $column->defaults;
         }
 
         /*

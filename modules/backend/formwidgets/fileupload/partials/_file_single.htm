@@ -1,6 +1,6 @@
 <div
     id="<?= $this->getId() ?>"
-    class="field-fileupload style-file-single <?= $singleFile ? 'is-populated' : '' ?>"
+    class="field-fileupload style-file-single <?= $singleFile ? 'is-populated' : '' ?> <?= $this->previewMode ? 'is-preview' : '' ?>"
     data-control="fileupload"
     data-template="#<?= $this->getId('template') ?>"
     data-error-template="#<?= $this->getId('errorTemplate') ?>"
@@ -17,7 +17,7 @@
     <!-- Existing file -->
     <div class="upload-files-container">
         <?php if ($singleFile): ?>
-            <div class="upload-object is-success" data-id="<?= $singleFile->id ?>" data-path="<?= $singleFile->path ?>">
+            <div class="upload-object is-success" data-id="<?= $singleFile->id ?>" data-path="<?= $singleFile->pathUrl ?>">
                 <div class="icon-container">
                     <i class="icon-file"></i>
                 </div>
@@ -32,7 +32,7 @@
                         href="javascript:;"
                         class="upload-remove-button"
                         data-request="<?= $this->getEventHandler('onRemoveAttachment') ?>"
-                        data-request-confirm="Are you sure?"
+                        data-request-confirm="<?= e(trans('backend::lang.fileupload.remove_confirm')) ?>"
                         data-request-data="file_id: <?= $singleFile->id ?>"
                         ><i class="icon-times"></i></a>
                 </div>
@@ -65,7 +65,7 @@
                 href="javascript:;"
                 class="upload-remove-button"
                 data-request="<?= $this->getEventHandler('onRemoveAttachment') ?>"
-                data-request-confirm="Are you sure?"
+                data-request-confirm="<?= e(trans('backend::lang.fileupload.remove_confirm')) ?>"
                 ><i class="icon-times"></i></a>
             <div class="progress-bar"><span class="upload-progress" data-dz-uploadprogress></span></div>
             <div class="error-message"><span data-dz-errormessage></span></div>
