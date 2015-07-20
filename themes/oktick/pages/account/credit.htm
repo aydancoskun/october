@@ -1,29 +1,51 @@
 title = "Credit"
 url = "/account/credit/:status?0"
 layout = "account"
-hidden = "0"
+is_hidden = "0"
 ==
 <?php
 //use \Stripe\Stripe;
 
+
+
 use Illuminate\Http\Response;
+
+
 
 function onInit(){
 
-    header("Access-Control-Allow-Origin: https://js.stripe.com:443");
-    header("Access-Control-Allow-Origin: https://api.stripe.com:443");
-}
-function onInfo1Off() {
-    DB::table('oktick.users')->where('id', $this->session->user()->attributes['id'])->update(array('ok_help1_credit' => 0));
-}
-function onInfo1On() {
-    DB::table('oktick.users')->where('id', $this->session->user()->attributes['id'])->update(array('ok_help1_credit' => 1));
+    header("Access-Control-Allow-Origin: *");
+    //header("Access-Control-Allow-Origin: https://js.stripe.com:443 https://api.stripe.com:443 https://api.stripe.com https://js.stripe.com");
+
 }
 
+function onInfo1Off() {
+
+    DB::table('oktick.users')->where('id', $this->session->user()->attributes['id'])->update(array('ok_help1_credit' => 0));
+
+}
+
+function onInfo1On() {
+
+    DB::table('oktick.users')->where('id', $this->session->user()->attributes['id'])->update(array('ok_help1_credit' => 1));
+
+}
+
+
+
 function onStart()
+
 {
+
     \Debugbar::info("Credit Page onStart()");
-    if(Config::get('app.debug')==true){
+
+    $d=false;
+    if(env('APP_ENV') == "production"){
+        $this['StripePublishableKey']='pk_live_nsHDHCb4OJwHNtEcla3BYlEz';
+        $this_stripe_secret_key ='sk_live_C4dkHoob5l3P48BVT4G6gtOA';
+        $d=false;
+    }
+    elseif(env('APP_ENV') == "development"){
         $this['StripePublishableKey']='pk_test_i0BnSwZKTGm1TSrTxyiJWFt6';
         $this_stripe_secret_key ='sk_test_5CyATtLZuofD31bgwGQHIHCX';
         $this['debug_card']="4242424242424242";
@@ -31,182 +53,518 @@ function onStart()
         $this['debug_month']="12";
         $this['debug_cvc']="123";
         $d=true;
-    } else {
-        $d=false;
-        $this['StripePublishableKey']='pk_live_nsHDHCb4OJwHNtEcla3BYlEz';
-        $this_stripe_secret_key ='sk_live_C4dkHoob5l3P48BVT4G6gtOA';
-        $this['StripePublishableKey']='pk_test_i0BnSwZKTGm1TSrTxyiJWFt6';
-        $this_stripe_secret_key ='sk_test_5CyATtLZuofD31bgwGQHIHCX';
+    }
+    else {
+        $error = "Sorry, something went wrong! We'll try to fix this as soon as possible. Sorry for the inconvinience.";
+        $err = "555";
+        return (new Response('"'.$error.$err.'"', "402"))->header('Content-Type', "text/html; charset=UTF-8");
     }
 
     try {
+
         $user = $this->session->user()->attributes;
+
         $user_name = $user['name'];
+
         $user_surname = $user['surname'];
+
         $user_email = $user['email'];
+
         $user_company = $user['company'];
+
         $user_id = $user['id'];
+
         $amt1=50;$amt2=100;$amt3=250;$amt4=500;$amt5=5000;
+
         $pri1=15;$pri2=25 ;$pri3=55 ;$pri4=100;$pri5=1000;
+
         if( $user['ok_first_time_buyer'] ) {
+
             $this['iprice']  = array(1=>$pri1,2=>$pri2,3=>$pri3,4=>$pri4,5=>$pri5);
+
             $this['iamount'] = array(1=>$amt1,2=>$amt2,3=>$amt3,4=>$amt4,5=>$amt5);
+
             $amt1=50;$amt2=200;$amt3=500;$amt4=1000;$amt5=10000;
+
             $pri1=0;$pri2=25 ;$pri3=55 ;$pri4=100;$pri5=1000;
+
             $this['initial']=true;
+
         } else {
+
             $this['initial']=false;
+
         }
+
         $this['price']=array(1=>$pri1,2=>$pri2,3=>$pri3,4=>$pri4,5=>$pri5);
+
         $this['amount']=array(1=>$amt1,2=>$amt2,3=>$amt3,4=>$amt4,5=>$amt5);
+
     }
+
     catch(Exception $e) {
+
         return Redirect::to("/login", 302);
+
     }
-    
+
+
+
     $credit[$pri1 * 100]=$amt1;
+
     $credit[$pri2 * 100]=$amt2;
+
     $credit[$pri3 * 100]=$amt3;
+
     $credit[$pri4 * 100]=$amt4;
+
     $credit[$pri5 * 100]=$amt5;
+
     $error = "Sorry, something went wrong. Please refresh the page and start again.";
+
     $err = $charge_id = "";
+
     $last4 = "N/A";
+
     $brand = "N/A (BONUS)";
+
     $exp_month = "N";
+
     $exp_year = "A";
+
     $transaction_currency = 'gbp';
+
     $chargeCreatedTime = time();
+
     \Debugbar::info($_POST);
+
     if ( ! Request::isMethod('post')) return;
+
     if( (! post('stripePrice') AND post('stripePrice') <> "0" ) OR ! post('stripeToken') OR ! post('stripeAmount') ){
+
         if($d) $err=" (err 1)";
+
         return (new Response('"'.$error.$err.'"', "402"))->header('Content-Type', "text/html; charset=UTF-8");
+
     }
+
     $stripeAmount =  post('stripeAmount');
+
     $stripePrice = post('stripePrice') * 100;
+
     if( ! isset($credit[$stripePrice]) OR $credit[$stripePrice]<>$stripeAmount){
+
         if($d) $err=" (err 2)";
+
         return (new Response('"'.$error.$err.'"', "402"))->header('Content-Type', "text/html; charset=UTF-8");
+
     }
+
     $stripeToken = post('stripeToken');
 
+
+
     \Debugbar::info(post(),"info:65");
+
     \Debugbar::info("stripeToken = $stripeToken","info:66");
+
     \Debugbar::info("stripeAmount = $stripeAmount");
+
     \Debugbar::info("stripePrice = $stripePrice");
 
+
+
     // Set your secret key: remember to change this to your live secret key in production
+
     // See your keys here https://dashboard.stripe.com/account/apikey
 
+
+
     if($stripePrice<>"0"):
+
     // Create the charge on Stripe's servers - this will charge the user's card
+
     try {
+
         \Stripe\Stripe::setApiKey($this_stripe_secret_key);
+
         $charge = \Stripe\Charge::create(array(
+
             "amount" => $stripePrice, // amount in cents, again
+
             "currency" => "gbp",
+
             "source" => $stripeToken,
+
             "metadata" => array(
+
                 "user_company" => $user_company,
+
                 "user_name" => $user_name,
+
                 "user_surname" => $user_surname,
+
                 "user_mail" => $user_email,
+
                 "user_id" => $user_id,
+
             ),
+
             "description" => "Purchase of $stripeAmount OKTicK Advertising Credits")
+
         );
 
+
+
     }
+
     catch(\Stripe\Error\Api $e) {
+
         \Debugbar::info("Api = ".$e->getMessage());
+
         if($d) $err=" (err 3)";
+
         return (new Response('"'.$error.$err.'"', "402"))->header('Content-Type', "text/html; charset=UTF-8");
+
     }
+
     catch (\Stripe\Error\ApiConnection $e) {
+
         // Network communication with Stripe failed
+
         \Debugbar::info("ApiConnection = ".$e->getMessage());
+
         if($d) $err=" (err 4)";
+
         return (new Response('"'.$error.$err.'"', "402"))->header('Content-Type', "text/html; charset=UTF-8");
-    } 
+
+    }
+
     catch (\Stripe\Error\Authentication $e) {
+
         // Authentication with Stripe's API failed
+
         \Debugbar::info("Authentication = ".$e->getMessage());
+
         if($d) $err=" (err 5)";
+
         return (new Response('"'.$error.$err.'"', "402"))->header('Content-Type', "text/html; charset=UTF-8");
-    } 
+
+    }
+
     catch (\Stripe\Error\InvalidRequest $e) {
+
         // Display a very generic error to the user, and maybe send yourself an email
+
         \Debugbar::info("InvalidRequest = ".$e->getMessage());
+
         if($d) $err=" (err 6)";
+
         return (new Response('"'.$error.$err.'"', "402"))->header('Content-Type', "text/html; charset=UTF-8");
-    } 
+
+    }
+
     catch (\Stripe\Error\RateLimit $e) {
+
         \Debugbar::info("RateLimit = ".$e->getMessage());
+
         if($d) $err=" (err 7)";
+
         return (new Response('"'.$error.$err.'"', "402"))->header('Content-Type', "text/html; charset=UTF-8");
+
     }
+
     catch (\Stripe\Error\Card $e) {
+
       // The card has been declined
+
         \Debugbar::info("Card = ".$e->getMessage());
+
         $error = "Sorry, your card was declined. Please refresh the page and start again, using another card";
+
         if($d) $err=" (err 8)";
+
         return (new Response('"'.$error.$err.'"', "402"))->header('Content-Type', "text/html; charset=UTF-8");
-    } 
-    if ($charge->paid <> true
-//        OR $charge->livemode <> true
-//        OR $charge->currency <> 'gbp' OR
-//        $charge->amount <> $stripePrice
-    ) {
-        $error = "Sorry, your card was declined. Please refresh the page and start again, using another card";
-        if($d) $err=" (err 9)";
-        return (new Response('"'.$error.$err.'"', "402"))->header('Content-Type', "text/html; charset=UTF-8");
-    } else {
-        $charge_id = $charge->id;
-        $chargeCreatedTime = $charge->created;
-        $transaction_currency = $charge->currency;
-        $last4 = $charge->source->last4;
-        $brand = $charge->source->brand;
-        $exp_month = $charge->source->exp_month;
-        $exp_year = $charge->source->exp_year;
+
     }
+
+    if ($charge->paid <> true
+
+//        OR $charge->livemode <> true
+
+//        OR $charge->currency <> 'gbp' OR
+
+//        $charge->amount <> $stripePrice
+
+    ) {
+
+        $error = "Sorry, your card was declined. Please refresh the page and start again, using another card";
+
+        if($d) $err=" (err 9)";
+
+        return (new Response('"'.$error.$err.'"', "402"))->header('Content-Type', "text/html; charset=UTF-8");
+
+    } else {
+
+        $charge_id = $charge->id;
+
+        $chargeCreatedTime = $charge->created;
+
+        $transaction_currency = $charge->currency;
+
+        $last4 = $charge->source->last4;
+
+        $brand = $charge->source->brand;
+
+        $exp_month = $charge->source->exp_month;
+
+        $exp_year = $charge->source->exp_year;
+
+    }
+
     endif;
+
     DB::beginTransaction();
+
     \Debugbar::info($stripeAmount,"credits","info:116");
+
     $ok_credits = $user['ok_credits'] + $stripeAmount;
+
     DB::table('ok_payments')->insert(
+
                             array(
+
                                 'company' => $user_company,
+
                                 'user_id' => $user_id,
+
                                 'transaction_date' => date( 'Y-m-d H:i:s', $chargeCreatedTime ),
+
                                 'transaction_currency' => $transaction_currency,
+
                                 'credits_purchased' => $stripeAmount,
+
                                 'credits_total' => $ok_credits,
+
                                 'price_paid' => $stripePrice,
+
                                 'charge_id' => $charge_id,
+
                                 'last4' => $last4,
+
                                 'brand' => $brand,
+
                                 'exp_month' => $exp_month,
+
                                 'exp_year' => $exp_year,
+
                                 'download_code' => Hash('sha512',$charge_id),
+
                                 'created_at' => date( 'Y-m-d H:i:s', $chargeCreatedTime ),
+
                                 'updated_at' => date( 'Y-m-d H:i:s', $chargeCreatedTime ),
+
                                 )
+
     );
+
     DB::table('oktick.users')
+
     ->where('id', $user_id)
+
     ->update(array(
+
         'ok_credits' => $ok_credits,
+
         'ok_first_time_buyer' => 0,
+
     ));
+
     DB::commit();
 
+
+
     $Message = "Success! $stripeAmount Credits added. ";
+
     return (new Response('"'.$Message.'" %'.$ok_credits.'%', "200"))->header('Content-Type', "text/html; charset=UTF-8");
+
 }
 ?>
 ==
-{% partial "acc-pay-head" cssfile="oktick.css" %}
+<!DOCTYPE html>
+<html lang="en" itemscope itemtype="http://schema.org/ProductSearch">
+<head>
+<meta charset="utf-8">
+<meta http-equiv="X-UA-Compatible" content="IE=edge">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<!-- The above 3 meta tags *must* come first in the head; any other head content must come *after* these tags -->
+<base href="/" />
+<title> {% if search %}Suppliers of {{ search }}{% else %}OKTick Suppliers Search{% endif %} </title>
+<meta name="description" content="OKTick Suppliers Search - {% if search %}{{ search|capitalize }} suppliers.{% else %}Simplicity Itself{% endif %}" />
+<meta name="keywords" content="{% if search %}{{ search|capitalize }}, {% endif %}Suppliers Search, Products Search, Services Search" />
+<meta name="msapplication-TileColor" content="#da532c">
+<meta name="msapplication-TileImage" content="/mstile-144x144.png">
+<meta name="theme-color" content="#ffffff">
+<!-- Facebook Metadata /-->
+<meta property="fb:page_id" content="" />
+<meta property="og:image" content="" />
+<meta property="og:description" content="OKTick Suppliers Search - {% if search %}{{ search|capitalize }} suppliers.{% else %}Simplicity Itself{% endif %}"/>
+<meta property="og:title" content="{% if search %}Suppliers of {{ search }}{% else %}OKTick Suppliers Search{% endif %}"/>
+<!-- Google+ Metadata /-->
+<meta itemprop="name" content="{% if search %}Suppliers of {{ search }}{% else %}OKTick Suppliers Search{% endif %}">
+<meta itemprop="description" content="OKTick Suppliers Search - {% if search %}{{ search|capitalize }} suppliers.{% else %}Simplicity Itself{% endif %}">
+<meta itemprop="image" content="">
+
+<meta name="author" content="humans.txt">
+<link rel="apple-touch-icon" sizes="57x57" href="/apple-touch-icon-57x57.png">
+<link rel="apple-touch-icon" sizes="60x60" href="/apple-touch-icon-60x60.png">
+<link rel="apple-touch-icon" sizes="72x72" href="/apple-touch-icon-72x72.png">
+<link rel="apple-touch-icon" sizes="76x76" href="/apple-touch-icon-76x76.png">
+<link rel="apple-touch-icon" sizes="114x114" href="/apple-touch-icon-114x114.png">
+<link rel="apple-touch-icon" sizes="120x120" href="/apple-touch-icon-120x120.png">
+<link rel="apple-touch-icon" sizes="144x144" href="/apple-touch-icon-144x144.png">
+<link rel="apple-touch-icon" sizes="152x152" href="/apple-touch-icon-152x152.png">
+<link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon-180x180.png">
+<link rel="icon" type="image/png" href="/favicon-32x32.png" sizes="32x32">
+<link rel="icon" type="image/png" href="/android-chrome-192x192.png" sizes="192x192">
+<link rel="icon" type="image/png" href="/favicon-96x96.png" sizes="96x96">
+<link rel="icon" type="image/png" href="/favicon-16x16.png" sizes="16x16">
+<link rel="manifest" href="/manifest.json">
+<!-- Bootstrap core CSS -->
+<link href="//maxcdn.bootstrapcdn.com/bootstrap/3.3.4/css/bootstrap.min.css" rel="stylesheet">
+<script>
+    function cssLoaded(href) {
+        var cssFound = false;
+        for (var i = 0; i < document.styleSheets.length; i++) {
+            var sheet = document.styleSheets[i];
+            if (
+            sheet['href'] == "http://maxcdn.bootstrapcdn.com/bootstrap/3.3.4/css/bootstrap.min.css" ||
+            sheet['href'] == "https://maxcdn.bootstrapcdn.com/bootstrap/3.3.4/css/bootstrap.min.css") {
+                cssFound = true;
+            }
+        };
+        return cssFound;
+    }
+    if (!cssLoaded('bootstrap.min.css')) {
+        local_bootstrap = new CustomEvent('link');
+        local_bootstrap.setAttribute("rel", "stylesheet");
+        local_bootstrap.setAttribute("href", "/app/ot/assets/bs3/css/bootstrap.min.css");
+        document.getElementsByTagName("head")[0].appendChild(local_bootstrap);
+    }
+</script>
+<!-- Custom styles for this template -->
+<link rel="stylesheet" href="//fonts.googleapis.com/css?family=Open+Sans:400,300,600,700">
+
+<!--link rel="stylesheet" href="/app/ot/assets/flexbox.git/jquery.flexbox.css" /-->
+<link rel="stylesheet" href="/app/ot/assets/css/responsive-placeholder-images-custom.css" />
+<link rel="stylesheet" href="/modules/system/assets/css/framework.extras.css">
+<link rel="stylesheet" href="/app/ot/assets/css/oktick.css">
+<link rel="stylesheet" href="/app/ot/assets/css/redactor.css">
+<link rel="stylesheet" href="/plugins/rainlab/editable/assets/css/editable.css" />
+<noscript>
+<!--link rel="stylesheet" href="/app/ot/assets/css/oktick-noscript.css"-->
+</noscript>
+<!--[if lt IE 9]>
+<script src="https://oss.maxcdn.com/html5shiv/3.7.2/html5shiv.min.js"></script>
+<script src="https://oss.maxcdn.com/respond/1.4.2/respond.min.js"></script>
+<![endif]-->
+<!-- Bootstrap Stripe -->
+<script type="text/javascript" src="https://js.stripe.com/v2/"></script>
+<!-- Bootstrap core JavaScript -->
+<script src="//ajax.googleapis.com/ajax/libs/jquery/1.11.2/jquery.min.js"></script><!--try to use CDN first-->
+<script>window.jQuery || document.write('<script src="/app/ot/assets/jquery/1.11.2/jquery.min.js"><\/script>')</script><!--if CDN file isn't delivered, send a local file-->
+<script src="//maxcdn.bootstrapcdn.com/bootstrap/3.3.4/js/bootstrap.min.js"></script><!--try to use CDN first-->
+<script>$.fn.modal || document.write('<script src="/app/ot/assets/bs3/js/bootstrap.min.js"><\/script>')</script><!--if CDN file isn't delivered, send a local file-->
+<script src="/modules/system/assets/js/framework.js"></script>
+<script src="/modules/system/assets/js/framework.extras.js"></script>
+<script type="text/javascript">
+    function has_selected(option,e){
+        e.preventDefault();
+        var  amount = ["{{amount[1]}}", "{{amount[1]}}","{{amount[2]}}", "{{amount[3]}}","{{amount[4]}}","{{amount[5]}}"];
+        var  price = ["FREE", "{{price[1]}}","{{price[2]}}", "{{price[3]}}","{{price[4]}}","{{price[5]}}"];
+        var selected_amount=amount[option];
+        var selected_price=price[option];
+        if(isNumeric(selected_price) && selected_price != 0 ){
+            $('#pay_button').html('Buy '+ (selected_amount) + ' Credits for £' + selected_price).prop('disabled', false).show();
+            $('.notfree').show();
+            $('#payment-errors').html("").hide();
+        } else {
+            $('#pay_button').html('Get '+ (selected_amount) + ' Credits for FREE!').show();
+            $('.notfree').hide();
+            $('#payment-errors').html("<p>Are you sure you want to use your introductory bonus to get just 50 Credits?</p><p>Remember, you can get up to 500 Credits free if you select one of the other options.</p><p>Afterwards you will not be able to take advantage of any of the other bonuses.</p>").show();
+        }
+        $('#stripePrice').val(selected_price);
+        $('#stripeAmount').val(selected_amount);
+        $('.select-product').hide();
+        $('#cc_product1').show();
+        return false;
+    }
+    jQuery(function($) {
+      $('#payment-form').submit(function(e) {
+        msg = $('#pay_button').html();
+        // Disable the submit button to prevent repeated clicks
+        $('#pay_button').prop('disabled', true).show();
+        $('#pay_button').html('Validating <i class="fa fa-spinner fa-pulse"></i>');
+        var $form = $(this);
+        Stripe.setPublishableKey('{{StripePublishableKey}}');
+        var stripePrice = $("#stripePrice").val();
+        if(stripePrice != 0){
+            Stripe.card.createToken($form, stripeResponseHandler);
+            // Prevent the form from submitting with the default action
+            return false;
+        }
+        $.post('', {
+            stripeToken: "FREE",
+            stripeAmount:  $('#stripeAmount').val(),
+            stripePrice: $('#stripePrice').val(),
+            dataType: "json",
+        })
+        return false;
+      });
+    });
+
+    var stripeResponseHandler = function(status, response) {
+        var $form = $('#payment-form');
+        if (response.error) {
+            // Show the errors on the form
+            $('#payment-errors').html(response.error.message).show();
+            $('#pay_button').html(msg).prop('disabled', false).show();
+//        alert(response.error.message);
+        } else {
+            /* Hide Stripe errors on the form */
+            $('#payment-errors').html("").hide();
+            $('#pay_button').html('Processing <i class="fa fa-spinner fa-pulse"></i>');
+
+            // token contains id, last4, and card type
+            var token = response.id;
+            $.post('', {
+                stripeToken: token,
+                stripeAmount:  $('#stripeAmount').val(),
+                stripePrice: $('#stripePrice').val(),
+                dataType: "json",
+            })
+            .done(function(data, textStatus, jqXHR) {// Assign handlers immediately after making the request,
+//                alert(jqXHR.responseText);
+                var tmp = jqXHR.responseText.split('"');
+                var msg = tmp[1];
+                var tmp = jqXHR.responseText.split('%');
+                $('#pay_button').html(msg + '<i class="fa fa-check"></i>').prop('disabled', true).show();
+                var total_credits = parseFloat(tmp[1]);
+                if(total_credits < 0) total_credits = 0;
+                $('#ok_credits').text(total_credits.toFixed(2));
+            })
+            .fail(function(jqXHR, textStatus, errorThrown) {
+                /* Show Stripe errors on the form */
+                var tmp = jqXHR.responseText.split('"');
+                var msg = tmp[1];
+                $('#payment-errors').html(msg).show();
+                $('#pay_button').hide('Error');
+            });
+        }
+    };
+  </script>
+</head>
+<body id="body">
 {% partial "nav-top" %}
 <div class="container">
 <h2 class="text-center">Credits and Offers{{"&nbsp;"|raw}}<span onclick="$('#credit-info1-plus').hide();$('#credit-info1').show();$.request('onInfo1On');" id="credit-info1-plus" class="text-primary glyphicon glyphicon-sm glyphicon glyphicon-info-sign {% if user.ok_help1_credit==1 %}collapse{%endif%}"></span></h2>
@@ -216,7 +574,7 @@ function onStart()
         <div class="col-xs-10">
         <div id="credit-info1" {% if user.ok_help1_credit==0 %}class="collapse"{% endif %} >
                 <p>{{"&nbsp;&nbsp;&nbsp;"|raw}}</p>
-                
+
                 <p>Welcome! Below you find our introductory offers. Introductory offers are only valid the first time you add Credits. Subsequently our standard plans will be available to you.</p>
                 <p>For first timers we offer our Ultralight package for FREE or DOUBLE the amount of Credits on any of our standard plans. Our gold plan is the best deal available because the price per credit is only £0.10 for the first time buyer.</p>
                 <p>With Credits you elevate the listing position of your products and services. With one Credit/week per product, getting to the top or close to the top of the lists of providers of specific products and services is extremely economical.</p>
@@ -395,4 +753,27 @@ function onStart()
 
 </div><!--/container -->
 {% partial "acc-nav-bottom" %}
-{% partial "acc-pay-foot" %}
+<!-- Bootstrap needed fields -->
+<div id="str_status_msg_onSearchStart" style="display:none;">Searching...</div>
+<div id="str_status_msg_onSelect"	   style="display:none;">Searching...</div>
+<div id="str_status_msg_searchSubmit"  style="display:none;">Searching...</div>
+
+<!-- IE10 viewport hack for Surface/desktop Windows 8 bug -->
+<!--script src="/app/ot/assets/bs3/js/ie10-viewport-bug-workaround.js"></script-->
+<script src="/app/ot/assets/jquery.autocomplete.git/src/jquery.autocomplete.js"></script>
+<!--script src="/app/ot/assets/js/responsive-placeholder-images-custom.js"></script-->
+<!--script src="/app/ot/assets/libs/Readmore.js/readmore.js"></script-->
+<script src="/app/ot/assets/jquery.dotdotdot.git/src/js/jquery.dotdotdot.min.js"></script>
+<script src="/app/ot/assets/js/oktick.js"></script>
+<script src="/app/ot/assets/js/redactor.js"></script>
+<script src="/plugins/rainlab/editable/assets/js/editable.js"></script>
+<script src="/app/ot/assets/jquery.show-password/bootstrap-show-password.min.js"></script>
+<noscript><div id="noscript-warning" class="alert alert-danger">The accounts section of OKTicK requires that JavaScript is enabled</div>
+<div>You must <a href="http://www.enable-javascript.com" target="_blank">enable JavaScript</a> in your web browser.</div>
+</noscript>
+{% flash %}
+<div id="top-alert" class="alert alert-{{ type == 'error' ? 'danger' : type }}">{{ message }}</div>
+{% endflash %}
+
+</body>
+</html>
