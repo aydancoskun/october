@@ -16,7 +16,7 @@ function onStart() {
 
 function verifyPost($post_name,$check="int"){
 
-    if( !isset($_POST[$post_name]) ) App::abort(403, 'Forbidden');
+    if( !isset($_POST[$post_name]) ) App::abort(403, "Forbidden");
 
     $post_val_raw = post($post_name);
 
@@ -38,11 +38,7 @@ function onGetEstimatedPosition(){
 
     $bp_id = $this->verifyPost('bp_id',"int");
 
-
-
     $user = $this->session->user()->attributes;
-
-
 
     $company_id = $user['ok_company_id'];
 
@@ -108,7 +104,7 @@ function onGetEstimatedPosition(){
 
         $bp_high = (isset($dbr[0])  ? $dbr[0]->bp_high : 0);
 
-        if ($bp_high > 50) return ['estimatedPosition' => "+50"];
+        if ($bp_high > 50) return ['estimatedPosition' => "None"];
 
         if ($bp_high > 25) return ['estimatedPosition' => "Top 50"];
 
@@ -158,11 +154,9 @@ function onCreditConfirm(){
 
     $bp_id = $this->verifyPost('bp_id',"int");
 
-
+    $bp_name = urldecode($this->verifyPost('bp_name',"string"));
 
     $user = $this->session->user()->attributes;
-
-
 
     $total_credits = $user['ok_credits'];
 
@@ -201,8 +195,6 @@ function onCreditConfirm(){
     $pre_refund_total_credits = $total_credits;
 
     $message = "";
-
-
 
     DB::beginTransaction();
 
@@ -362,8 +354,6 @@ function onCreditConfirm(){
 
     ));
 
-    DB::commit();
-
     $badge_active=0;
 
     if ($bp_was_active == false AND $bp_is_active) $badge_active=1;
@@ -377,59 +367,63 @@ function onCreditConfirm(){
 //    Flash::success($applied_credit.' credits successfully applied!');
 
 
-
-    if( $applied_credit > $credits_confirmed AND $credits_confirmed > 0  ) { // he's gone down but not zero
-
-        $s = round(abs($transaction_cost),2)==1 ? "" : "s";
-
-        $message = "Your weekly credits were adjusted to $credits_confirmed. We refunded you ".round(abs($transaction_cost),2)." credit$s.";
-
+// he's gone down but not zero
+    if( $applied_credit > $credits_confirmed AND $credits_confirmed > 0  ) {
+        $tc = round(abs($transaction_cost),2);
+        $s = $tc==1 ? "" : "s";
+        $help="";
+        if( $tc <> round($tc) ) $help = " (See help to see how refunds are calculated)";
+        $message = "Your weekly credits were adjusted to $credits_confirmed. We refunded you ".round(abs($transaction_cost),2)." credit$s".$help.".";
     }
 
-    elseif( $applied_credit > $credits_confirmed AND $credits_confirmed == 0  ) { // he's gone down to zero
-
-        $s = round(abs($transaction_cost),2)==1 ? "" : "s";
-
-        $message = "Your weekly credits were set to zero. There will be no weekly charges on your credits. Sponsoring is now suspended. We refunded you " . round(abs($transaction_cost),2) . " credit$s.";
-
+// he's gone down to zero
+    elseif( $applied_credit > $credits_confirmed AND $credits_confirmed == 0  ) {
+        $tc = round(abs($transaction_cost),2);
+        $s = $tc==1 ? "" : "s";
+        $help="";
+        if( $tc <> round($tc) ) $help = " (See help to see how refunds are calculated)";
+        $message = "Your weekly credits were set to zero. There will be no weekly charge. Sponsoring is now suspended. We refunded you " . round(abs($transaction_cost),2) . " credit$s".$help.".";
+        $user['ok_sponored_products_count']=$user['ok_sponored_products_count']-1;
+        DB::table('oktick.users')
+           ->where('id', $user_id)
+                ->update(array(
+                'ok_sponored_products_count' => $user['ok_sponored_products_count'],
+            ));
     }
 
-    elseif( $applied_credit < $credits_confirmed AND $applied_credit > 0 ) { // he's gone up from something
-
+// he's gone up from something
+    elseif( $applied_credit < $credits_confirmed AND $applied_credit > 0 ) {
         $s = round(abs($credits_confirmed-$applied_credit),2)==1 ? "" : "s";
-
+        $help="";
         $were = round(abs($credits_confirmed-$applied_credit),2)==1 ? "was" : "were";
-
-
-
         $message = ($credits_confirmed-$applied_credit) . " credit$s $were added to your weekly amount which now sits at $credits_confirmed. ";
-
-        $s = round(abs($transaction_cost),2)==1 ? "" : "s";
-
-        $message .= "This transaction costs ".round(abs($transaction_cost),2)." credit$s.";
+        $tc = round(abs($transaction_cost),2);
+        $s = $tc==1 ? "" : "s";
+        if( $tc <> round($tc) ) $help = " (See help to see how costs are calculated)";
+        $message .= "This transaction costs ".round(abs($transaction_cost),2)." credit$s".$help.".";
 
     }
 
-    elseif( $applied_credit < $credits_confirmed AND ! $applied_credit ) { // he's gone up from nothing
-
+// he's gone up from nothing
+    elseif( $applied_credit < $credits_confirmed AND ! $applied_credit ) {
         $message = "Your weekly credits were set to $credits_confirmed.";
-
+        $user['ok_sponored_products_count']=$user['ok_sponored_products_count']+1;
+        DB::table('oktick.users')
+           ->where('id', $user_id)
+                ->update(array(
+                'ok_sponored_products_count' => $user['ok_sponored_products_count'],
+            ));
     }
+
+    DB::commit();
 
     return ['ok_credits' => $total_credits,
-
             'badge_active' => $badge_active,
-
             'end_stamp' => $end_stamp_displayed,
-
             'status' => 'success',
-
             'log' => '',
-
-            'title' => 'Credit Applied!',
-
+            'title' => $bp_name,
             'message' => $message,
-
             ];
 
 //        return (new Response('"'.$Message.'" %'.$ok_credits.'%', "200"))->header('Content-Type', "text/html; charset=UTF-8");
@@ -442,42 +436,28 @@ function onCreditConfirm(){
 
 }
 
-function onProductDelete(){
-
-    $bp_id = $this->verifyPost('bp_id',"int");
-
-    return [
-
-        'status' => 'success',
-
-        'message' => 'Product Deleted!',
-
-        'log' => [  'Product ID' => $bp_id,
-
-                ],
-
-        ];
-
-}
 ?>
 ==
 {% partial "acc-head" cssfile="oktick.css" %}
 {% partial "nav-top"%}
 <div class="container">
-<h2 class="text-center">My Rankings{{"&nbsp;"|raw}}<button id="ok_help_ranking_on" class="help border-none btn btn-default btn-lg {% if user.ok_help_ranking_on==1 %}collapse{%endif%}"><span class="glyphicon-primary glyphicon glyphicon-info-sign"></span></button></h2>
+<h2 class="text-center">My Rankings<br>
+<span class="text-center" style="font-size:14px;">(Click here <span id="ok_help_ranking_on" class="help glyphicon-primary glyphicon glyphicon-question-sign"></span> for help)</span>
+</h2>
+
 <div class="row">
     <div class="col-xs-1 col-md-0"></div>
     <div class="col-xs-10 col-md-12">
         <div id="ok_help_ranking" {% if user.ok_help_ranking==0 %}class="collapse"{% endif %} >
             <p>{{"&nbsp;&nbsp;&nbsp;"|raw}}</p>
-            <p>Below are the products and services we have for your business. If you are new here some of these might be not correct because they were semi-automatically collected. In that case just delete them by pressing the <button class="btn btn-danger btn-xs"><span class="glyphicon glyphicon-remove"></span></button> button. If you want to add products or services you can do that on the <a href="/account/products-services/#add">bottom</a> of the page.</p>
             <p>This page gives you the possibility to elevate the listing position in the search by applying some credit to a product or service. The way this works is simple: When a person searches for your product or service you come up higher in the results listing depending on how many credits are applied. The company with applying more credits gets the higher position. You can puchase credits on the <a href="/account/credit">credits</a> page. The more credits you purchase the more advantageous they are priced. You apply credits to a product or service below by pressing the <button class="btn btn-default btn-xs"><span class="glyphicon glyphicon-plus"></span></button> button. To remove credits applied press the <button class="btn btn-default btn-xs"><span class="glyphicon glyphicon-minus"></span></button> button. Credits are applied continuously until you set the credits to zero. Each week we will send you an email to let you know where your products and services stand.</p>
 <!--p>Another feature worth mentioning is the "booster" feature. If you enable this you will be able to achieve a much higher position than you could normally expect for the credit applied. The way it works is that we won't use your credit every time to push you up higher but only some of the time. The times we do use your credit, it will be more valuable for that instance.</p>
 
 <p>An example will help to illustrate this: Lets say you apply one credit for one week using the booster. Instead of using your credit every time to push you up, we will - lets say - use your credit every 10th time to bring you up to the top. What the ratio is depends on the popularity of the item. This is our answer to help small companies to be able to get to the top of the list as well - just not every time.</p-->
-            <p>If you don't want to see this each time you get here click below. You can always re-enable it later by clicking on the <button class="btn btn-default btn-sm"><span class="glyphicon-primary glyphicon glyphicon-info-sign"></span></button> sign.</p>
+            <p>When you add or subtract credits you get refunded any amount of credits unused since a credit is valid for one whole week. So if you set your credits to zero half way through the week you'll be refunded half a credit. Similarly when you add credits to product which already has credits applied to it, you "join" their renewal date, so adding a credit might not cost you a whole credit but only half if you do it halfway through the week.</p>
+            <p>If you don't need help, click below. You can always re-enable it later by clicking the <span class="glyphicon-primary glyphicon glyphicon-question-sign"></span> sign above.</p>
             <div class="text-center">
-                <button id="ok_help_ranking_off" class="btn btn-default btn-sm help"><span class="glyphicon glyphicon glyphicon-thumbs-up"></span>&nbsp;Got it!</button>
+                <button id="ok_help_ranking_off" class="btn btn-default btn-sm help"><span class="glyphicon glyphicon-primary glyphicon-thumbs-up"></span>&nbsp;Got it!</button>
                 <br>
                 <br>
             </div>
@@ -507,6 +487,7 @@ function onProductDelete(){
             {% for product in products %}
                 <tr class="{% if product.bp_user_credits %}success{%endif%}" id="row{{product.bp_id}}">
                     <td class=""
+                        style="vertical-align: middle;"
                         id="bp{{ product.bp_id }}"
                         data-bp_id="{{ product.bp_id }}"
                         data-bp_user_credits="{% if product.bp_user_credits %}{{product.bp_user_credits}}{%else%}0{%endif%}">
@@ -515,27 +496,27 @@ function onProductDelete(){
                     <td class="text-center"><!-- Current Position -->
                         <div class="form-group input-group col-centered">
                             <label for="current-position{{ product.bp_id }}" class="sr-only" ></label>
-                            <input  type="text"
-                                   class="form-control input text-center"
-                                    disabled
-                                    id="current-position{{ product.bp_id }}"
-                                    placeholder="--------"
-                                    value= "{% if product.bp_high > 50 %}+50
-                                            {%elseif product.bp_high > 25%}Top 50
-                                            {%elseif product.bp_high > 20%}Top 25
-                                            {%elseif product.bp_high > 15%}Top 20
-                                            {%elseif product.bp_high > 10%}Top 15
-                                            {%elseif product.bp_high > 5%}Top 10
-                                            {%elseif product.bp_high > 3%}Top 5
-                                            {%elseif product.bp_high > 0%}Top 3
-                                            {%endif%}"
-                                    size="6">
+                            <input
+                            type="text"
+                            class="form-control input text-center"
+                            disabled
+                            id="current-position{{ product.bp_id }}"
+                            placeholder="--------"
+                            value= "{% if product.bp_high > 50 %}None{%elseif product.bp_high > 25%}Top 50{%elseif product.bp_high > 20%}Top 25{%elseif product.bp_high > 15%}Top 20{%elseif product.bp_high > 10%}Top 15{%elseif product.bp_high > 5%}Top 10{%elseif product.bp_high > 3%}Top 5{%elseif product.bp_high > 0%}Top 3{%endif%}"
+                             size="6">
                         </div>
                     </td>
                     <td class="text-center"><!-- Estimated Position -->
                         <div class="form-group input-group col-centered">
                             <label for="estimated-position{{ product.bp_id }}" class="sr-only" ></label>
-                            <input type="text" class="form-control input text-center" disabled id="estimated-position{{ product.bp_id }}" placeholder="--------" value="" size="6">
+                            <input
+                            type="text"
+                            class="form-control input text-center"
+                            disabled
+                            id="estimated-position{{ product.bp_id }}"
+                            placeholder=""
+                            value="--------"
+                            size="6">
                         </div>
                     </td>
                     <td class="text-center"><!-- Expiration  -->
@@ -589,7 +570,8 @@ function onProductDelete(){
                         <button id="btn-confirm{{product.bp_id}}"
                                 style="visibility:hidden;"
                                 type="button"
-                                class="btn-confirm btn btn-success btn-sm"
+                                class="btn btn-confirm btn-success btn-sm"
+                                data-bp_name="{{ product.bp_name }}"
                                 data-bp_id="{{product.bp_id}}">
                             <span id="glyphicon-confirm{{product.bp_id}}" class="glyphicon glyphicon-ok"></span>
                         </button>

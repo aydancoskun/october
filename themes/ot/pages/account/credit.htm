@@ -19,20 +19,6 @@ function onInit(){
 
 }
 
-function onInfo1Off() {
-
-    DB::table('oktick.users')->where('id', $this->session->user()->attributes['id'])->update(array('ok_help1_credit' => 0));
-
-}
-
-function onInfo1On() {
-
-    DB::table('oktick.users')->where('id', $this->session->user()->attributes['id'])->update(array('ok_help1_credit' => 1));
-
-}
-
-
-
 function onStart()
 
 {
@@ -556,6 +542,7 @@ function onStart()
                 var total_credits = parseFloat(tmp[1]);
                 if(total_credits < 0) total_credits = 0;
                 $('#ok_credits').text(total_credits.toFixed(2));
+                $('#credits_page_ok_credits').text(total_credits.toFixed(2));
             })
             .fail(function(jqXHR, textStatus, errorThrown) {
                 /* Show Stripe errors on the form */
@@ -571,28 +558,43 @@ function onStart()
 <body id="body">
 {% partial "nav-top" %}
 <div class="container">
-<h2 class="text-center">Credits and Offers{{"&nbsp;"|raw}}<span onclick="$('#credit-info1-plus').hide();$('#credit-info1').show();$.request('onInfo1On');" id="credit-info1-plus" class="text-primary glyphicon glyphicon-sm glyphicon glyphicon-info-sign {% if user.ok_help1_credit==1 %}collapse{%endif%}"></span></h2>
-
+<h2 class="text-center">Credits and Offers<br>
+<span class="text-center" style="font-size:14px;">(Click here <span id="ok_help_credit_on" class="help glyphicon-primary glyphicon glyphicon-question-sign"></span> for help)</span>
+</h2>
 <div class="row select-product">
     <div class="col-xs-1"></div>
         <div class="col-xs-10">
-        <div id="credit-info1" {% if user.ok_help1_credit==0 %}class="collapse"{% endif %} >
+            <div id="ok_help_credit" {% if user.ok_help_credit==0 %}class="collapse"{% endif %} >
                 <p>{{"&nbsp;&nbsp;&nbsp;"|raw}}</p>
-
+        {%if initial %}
                 <p>Welcome! Below you find our introductory offers. Introductory offers are only valid the first time you add Credits. Subsequently our standard plans will be available to you.</p>
-                <p>For first timers we offer our Ultralight package for FREE or DOUBLE the amount of Credits on any of our standard plans. Our gold plan is the best deal available because the price per credit is only £0.10 for the first time buyer.</p>
+                <p>We recommend the Platinum Plan specifically for high volume first timers and it is positively the very best deal available because we DOUBLE the amount of Credits on any of our standard plans for the first purchase only. So if you are going for this you are getting an extra 5000 credits. The price per credit is only £0.10 for first time buyers.</p>
+                <p>Our gold plan is the most popular with our returning customers because the price per credit is the same as for our platinum offer.</p>
+                <p>For first timers we also offer our Ultralight package for free.</p>
+        {% else %}
+                <p>Welcome! Below you find our packages.</p>
+                <p>Our gold plan is the most popular with our returning customers because the price per credit is the same as for our platinum package at £0.20 per credit. The platinum offer is most attractive for high volume users who don't want to have to reload their credits too frequently. If you require higher volumes or prefer to purchase by purchase order, please get in touch with our sales team.</p>
+        {% endif %}
+                <p>All other plans speak for themselves.</p>
                 <p>With Credits you elevate the listing position of your products and services. With one Credit/week per product, getting to the top or close to the top of the lists of providers of specific products and services is extremely economical.</p>
+                <p>We are processing all payments using the ultra secure stripe payment gateway (<a href="https://stripe.com/gb/features#seamless-security" target="_blank">https://stripe.com</a>). Your data is transfered using the highest standard TLS https encryption. We never store your credit card information, in fact it never even touches our servers. We promise you can shop in confidence.</p>
+                <p>If you don't need help, click below. You can always re-enable it later by clicking the <span class="glyphicon-primary glyphicon glyphicon-question-sign"></span> sign above.</p>
                 <div class="text-center">
-                    <button onclick="$('#credit-info1').hide();$('#credit-info1-plus').show();$.request('onInfo1Off');" class="btn btn-primary"><span class="glyphicon glyphicon glyphicon-thumbs-up"></span>&nbsp;Got it!</button>
-                    <br>
-                    <br>
+                    <button id="ok_help_credit_off" class="btn btn-default btn-sm help"><span class="glyphicon glyphicon-primary glyphicon-thumbs-up"></span>&nbsp;Got it!</button>
+                   <br>
+                   <br>
                 </div>
             </div>
         </div>
     <div class="col-xs-1"></div>
 </div>
-<br>
-<br>
+<div class="row">
+    <div class="col-md-1"></div>
+    <div class="col-md-10">
+        <h3>You currently have <span id="credits_page_ok_credits">{% if user.ok_credits and user.ok_credits > 0 %}{{ user.ok_credits|round(2, 'common') }}{%else%}0{% endif %}</span> credits.</h3>
+    </div>
+    <div class="col-md-1"></div>
+</div>
 <div class="row">
     <div class="col-md-1"></div>
     <div class="col-md-2">
@@ -738,14 +740,14 @@ function onStart()
                             </div>
                             <input id="stripeAmount" type="hidden" name="stripeAmount" value=""/>
                             <input id="stripePrice" type="hidden" name="stripePrice" value=""/>
-                            <input id="stripePrice" type="hidden" name="stripeToken" value=""/>
+                            <input id="stripeToken" type="hidden" name="stripeToken" value=""/>
                         </form>
                     </div>
                     <div class="panel-heading notfree" style="border:0">
                         <h3 class="panel-title">
                             <img alt="" class="pull-left" src="/app/ot/assets/img/lock.png">
                             <img alt="" class="pull-right" src="/app/ot/assets/img/RapidSSL_SEAL.gif">
-                            &nbsp;Secure credit card payment<br><small>&nbsp;This is a secure 128-bit SSL encrypted payment.</small>
+                            &nbsp;Secure credit card payment<br><small>&nbsp;This is a secure 256-bit SSL encrypted payment.</small>
                         </h3>
                     </div>
                 </div>
@@ -757,27 +759,7 @@ function onStart()
 
 </div><!--/container -->
 {% partial "acc-nav-bottom" %}
-<!-- Bootstrap needed fields -->
-<div id="str_status_msg_onSearchStart" style="display:none;">Searching...</div>
-<div id="str_status_msg_onSelect"	   style="display:none;">Searching...</div>
-<div id="str_status_msg_searchSubmit"  style="display:none;">Searching...</div>
 
-<!-- IE10 viewport hack for Surface/desktop Windows 8 bug -->
-<!--script src="/app/ot/assets/bs3/js/ie10-viewport-bug-workaround.js"></script-->
-<script src="/app/ot/assets/jquery.autocomplete.git/src/jquery.autocomplete.js"></script>
-<!--script src="/app/ot/assets/js/responsive-placeholder-images-custom.js"></script-->
-<!--script src="/app/ot/assets/libs/Readmore.js/readmore.js"></script-->
-<script src="/app/ot/assets/jquery.dotdotdot.git/src/js/jquery.dotdotdot.min.js"></script>
-<script src="/app/ot/assets/js/oktick.js"></script>
-<script src="/app/ot/assets/js/redactor.js"></script>
-<script src="/plugins/rainlab/editable/assets/js/editable.js"></script>
-<script src="/app/ot/assets/jquery.show-password/bootstrap-show-password.min.js"></script>
-<noscript><div id="noscript-warning" class="alert alert-danger">The accounts section of OKTicK requires that JavaScript is enabled</div>
-<div>You must <a href="http://www.enable-javascript.com" target="_blank">enable JavaScript</a> in your web browser.</div>
-</noscript>
-{% flash %}
-<div id="top-alert" class="alert alert-{{ type == 'error' ? 'danger' : type }}">{{ message }}</div>
-{% endflash %}
 
 </body>
 </html>

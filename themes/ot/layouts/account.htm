@@ -1,5 +1,5 @@
 [session]
-security = "user"
+security = "all"
 redirect = "login"
 ==
 <?php
@@ -31,6 +31,7 @@ function onStart()
         $company_id = $user['ok_company_id'];
         //$this['products'] = DB::table('operations.bp_suppliers')->where('company_uid', $company_id)->get();
         #SELECT position FROM operations.bps_suppliers s2 WHERE s2.bp_id = 406992 AND s2.company_id = 12870 LIMIT 1
+
 
 //        if (Session::has('products')) {
 //            $this['products'] = Session::get('products');

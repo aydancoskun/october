@@ -1,0 +1,240 @@
+title = "Products & Services"
+url = "/account/products-services"
+layout = "account"
+is_hidden = "0"
+==
+<?php
+use Illuminate\Http\Response;
+
+function onStart(){
+
+   // Sets a successful message
+
+}
+
+function verifyPost($post_name,$check="int"){
+
+    if( !isset($_POST[$post_name]) ) App::abort(403, 'Forbidden');
+
+    $post_val_raw = post($post_name);
+
+    if($check=="int") $post_val_cast = (int) $post_val_raw;
+
+    if($check=="float") $post_val_cast = (float) $post_val_raw;
+
+    if($check=="string") $post_val_cast = (string) $post_val_raw;
+
+    if( $post_val_raw <> $post_val_cast ) App::abort(403, 'Forbidden');
+
+    return $post_val_cast;
+
+}
+
+function onProductDelete(){
+
+    $now = time();
+    $bp_id = $this->verifyPost('bp_id',"int");
+    $user = $this->session->user()->attributes;
+    $company_id = $user['ok_company_id'];
+    $user_id = $user['id'];
+
+    // EXIT if there is money riding on it by anyone
+    $sql=   "SELECT count(*) as count ".
+            "FROM operations.bp_sponsors ".
+            "WHERE ".
+            "bp_id = $bp_id AND ".
+            "company_id = $company_id AND ".
+            "UNIX_TIMESTAMP(start_stamp) < $now < UNIX_TIMESTAMP(end_stamp)";
+    $dbr = DB::select($sql);
+    if( $dbr[0]->count > 0 ){
+        return ['status' => 'error','message' => 'Product could not be deleted! (err: CR)','log' => [  'err: CR' => $bp_id,],];
+    }
+
+
+    // EXIT if there is no product
+    $sql=   "SELECT ".
+            "uid, ".
+            "trawling_rule_no, ".
+            "company_website_url, ".
+            "same_name_flag, ".
+            "jump_flag, ".
+            "sing, ".
+            "prime_uid ".
+            "FROM operations.bp_suppliers ".
+            "WHERE ".
+            "bp_uid = $bp_id AND ".
+            "company_uid = $company_id ".
+            "LIMIT 1";
+    $dbr = DB::select($sql);
+    if( ! isset($dbr[0]) ){
+        return ['status' => 'error','message' => 'Product could not be deleted! (err: NP)','log' => [  'err: NP' => $bp_id,],];
+    }
+
+    // EXIT if app in DEVELOPMENT
+    if( env("APP_ENV") == "development" OR env("APP_ENV") <> "production" ){
+        return ['status' => 'success','message' => 'Product Deleted in Development mode!','log' => [  'Product ID' => $bp_id,],];
+    }
+
+    DB::beginTransaction();
+
+    $uid = $dbr[0]->uid;
+    $trawling_rule_no = $dbr[0]->trawling_rule_no;
+    $company_website_url = $dbr[0]->company_website_url;
+    $same_name_flag = $dbr[0]->same_name_flag;
+    $jump_flag = $dbr[0]->jump_flag;
+    $sing = $dbr[0]->sing;
+    $prime_uid = $dbr[0]->prime_uid;
+
+    DB::table('operations.bp_suppliers_deleted')
+        ->insert(array(
+            'uid' => $dbr[0]->uid,
+            'trawling_rule_no' => $dbr[0]->trawling_rule_no,
+            'company_website_url' => $dbr[0]->company_website_url,
+            'same_name_flag' => $dbr[0]->same_name_flag,
+            'jump_flag' => $dbr[0]->jump_flag,
+            'sing' => $dbr[0]->sing,
+            'prime_uid' => $dbr[0]->prime_uid,
+            'company_uid' => $company_id,
+            'bp_uid' => $bp_id,
+            'user_id' => $user_id,
+        ));
+
+    DB::table('operations.bp_suppliers')->where('uid',$dbr[0]->uid)->delete();
+        $user['ok_company_products_count']=$user['ok_company_products_count']-1;
+        DB::table('oktick.users')
+           ->where('id', $user_id)
+                ->update(array(
+                'ok_company_products_count' => $user['ok_company_products_count'],
+            ));
+
+    DB::commit();
+
+    return ['status' => 'success','message' => 'Product Deleted!','log' => [  'Product ID' => $bp_id,],];
+}
+?>
+==
+{% partial "acc-head" cssfile="oktick.css" %}
+{% partial "nav-top"%}
+
+<div class="container">
+
+<h2 class="text-center">Products & Services Management<br>
+<span class="text-center" style="font-size:14px;">(Click here <span id="ok_help_productservices_on" class="help glyphicon-primary glyphicon glyphicon-question-sign"></span> for help)</span>
+</h2>
+
+<div class="row">
+    <div class="col-xs-1 col-md-0"></div>
+    <div class="col-xs-10 col-md-12">
+
+        <div id="ok_help_productservices" {% if user.ok_help_productservices==0 %}class="collapse"{% endif %} >
+            <p>{{"&nbsp;&nbsp;&nbsp;"|raw}}</p>
+            <p>Below you can add and delete products and services we have for your business. If you are new here some of these might be not correct because they were semi-automatically collected. In that case just delete them by pressing the                         <button type="button" class="btn btn-delete btn-danger btn-xs"><span class="glyphicon glyphicon-trash"></span></button>
+button. If you want to add products or services you can do that in the field below. Just enter your item, select your choice from the list and click the <button type="button" class="btn btn-confirm btn-success btn-xs"><span class="glyphicon glyphicon-ok"></span></button> button. Items entered do not show up immediately because they are verified by our research team.</p>
+            <p>If you don't need help, click below. You can always re-enable it later by clicking the <span class="glyphicon-primary glyphicon glyphicon-question-sign"></span> sign above.</p>
+            <div class="text-center">
+
+                <button id="ok_help_productservices_off" class="btn btn-default btn-sm help"><span class="glyphicon glyphicon-primary glyphicon-thumbs-up"></span>&nbsp;Got it!</button>
+                <br>
+                <br>
+            </div>
+        </div>
+    </div>
+    <div class="col-xs-1 col-md-0"></div>
+</div>
+<br>
+<br>
+<div class="row">
+    <div class="col-xs-1 col-md-0"></div>
+    <div class="col-xs-10 col-md-12">
+        {% if products %}
+        <table class="table table-bordered">
+            <tr class="">
+                <th class="">Products & Services</th>
+                <th class="text-center">Add/Delete</th>
+            </tr>
+            <tr>
+                <td class="text-center">
+                    <div class="input-group input-group-lg">
+                    <label class="sr-only" for="autocomplete-ajax">Enter Keyword (e.g. Tools, Boots, etc)</label>
+                    <input  class="form-control"
+                            type="search"
+                            name="q"
+                            id="autocomplete-ajax" placeholder="Search..." value="{% if search and search != 404 %}{{ search }}{% endif %}" maxlength="100%" size="100%" onclick="$('#autocomplete-ajax').autocomplete().options.serviceUrl='account/add-products-services';
+"/>
+                </div>
+                </td>
+                <td class="text-center" style="vertical-align: middle;">
+                    <button id="btn-add-products-services"
+                            type="button"
+                            class="btn btn-confirm btn-success btn-sm">
+                        <span class="glyphicon glyphicon-ok"></span>
+                    </button>
+                </td>
+            </tr>
+            {% for product in products %}
+                <tr class="{% if product.bp_user_credits %}success{%endif%}" id="row{{product.bp_id}}">
+                    <td class=""
+                        id="bp{{ product.bp_id }}"
+                        data-bp_id="{{ product.bp_id }}"
+                        data-bp_user_credits="{% if product.bp_user_credits %}{{product.bp_user_credits}}{%else%}0{%endif%}">
+                        {{ product.bp_name }}
+                    </td>
+
+                    <td class="text-center">
+                        {% if product.bp_user_credits %}
+                        <button id="btn-na-products-services{{product.bp_id}}"
+                                type="button"
+                                class="btn btn-delete btn-default btn-sm"
+                                data-toggle="tooltip"
+                                data-trigger="hover"
+                                data-placement="left"
+                                title="Can't delete with credits">
+                            <span class="glyphicon glyphicon-ban-circle"></span>
+                        </button>
+                        <!--button id="btn-na-products-services{{product.bp_id}}"
+                                class="btn btn-default btn-lg"
+                        type="button"
+                            data-toggle="tooltip"
+                            data-trigger="hover"
+                            data-placement="left"
+                            title="Can't delete with credits">
+                            <span
+                            class="glyphicon-primary glyphicon glyphicon-info-sign">
+                            </span>
+                        </button-->
+                        {%else%}
+                        <button id="go-button{{product.bp_id}}"
+                                type="button"
+                                class="btn btn-delete btn-danger btn-sm"
+                                data-bp_id="{{product.bp_id}}">
+                            <span class="glyphicon glyphicon-trash"></span>
+                        </button>
+                        {%endif%}
+
+                    </td>
+                </tr>
+            {% endfor %}
+        </table>
+        {% endif %}
+    </div>
+
+    <div class="col-xs-1 col-md-0"></div>
+</div>
+
+<!-- page specific javascript goes here-->
+<script>
+function PageInit(){
+    $("#badge_total").html("{{products_count}}");
+
+    $('#ButtonCreditPlus').request('onCreditPlus', {
+        update: {onCreditChange: '#credit{{product.bp_id}}'}
+    });
+    $('#ButtonCreditMinus').request('onCreditMinus', {
+        update: {onCreditChange: '#credit{{product.bp_id}}'}
+    });
+}
+</script>
+
+</div><!--/container -->
+{% partial "acc-nav-bottom" %}
+{% partial "acc-foot" %}

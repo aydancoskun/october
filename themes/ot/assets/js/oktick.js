@@ -349,7 +349,7 @@ function getEstimatedPosition(credits_estimated,type,boundaryValue,estimated_pos
     } else {
         $.request('onGetEstimatedPosition', {
             data: {
-                bp_id: bp_id, 
+                bp_id: bp_id,
                 credits_estimated: credits_estimated,
             },
             success: function(data) {
@@ -402,7 +402,7 @@ $('.btn-credit').click(function(event){
     event.preventDefault();
     bp_id = $(this).attr('data-bp_id');
     type = $(this).attr('data-type'); //plus or minus
-    
+
     // REMOVING OLD BUTTONS IF JUMPED LINE
     if(previous.bp_id != false && previous.bp_id != bp_id){
         console.log("Restore previous buttons");
@@ -428,13 +428,13 @@ $('.btn-credit').click(function(event){
         }
     }
     previous.bp_id = bp_id;
-    
+
     var credit_field = $('#credit'+bp_id);
     var bp_user_credits = $('#bp'+bp_id).attr('data-bp_user_credits');
     var current_credits = parseInt(credit_field.val());
     var estimated_position = $('#estimated-position'+bp_id).val();
     var current_position = $('#current-position'+bp_id).val();
-    
+
     if (isNaN(current_credits)) {
         credit_field.val(0);
         return;
@@ -467,17 +467,19 @@ $('.btn-credit').click(function(event){
 $('.btn-confirm').click(function(event){
     event.preventDefault();
     bp_id = $(this).attr('data-bp_id');
+    bp_name = encodeURI($(this).attr('data-bp_name'));
     $( '#btn-confirm' + bp_id ).attr('disabled', true);
     $( '#btn-credit-plus'  + bp_id).attr('disabled', true);
     $( '#btn-credit-minus' + bp_id).attr('disabled', true);
     $( '#glyphicon-confirm' + bp_id ).removeClass('glyphicon-ok');
     $( '#glyphicon-confirm' + bp_id ).addClass('glyphicon-refresh');
-    
+
     var credits_confirmed = $('#credit' + bp_id).val();
     if(!credits_confirmed) credits_confirmed="0";
     $.request('onCreditConfirm', {
         data: {
-            bp_id: bp_id, 
+            bp_id: bp_id,
+            bp_name: bp_name,
             credits_confirmed: credits_confirmed,
         }
     })
@@ -512,14 +514,28 @@ $('.btn-confirm').click(function(event){
             if(total_credits < 0) total_credits = 0;
             $('#ok_credits').text(total_credits.toFixed(2));
             if (data.badge_active == 1){
-                $( '#badge_active' ).text(Math.round($("#badge_active").text())+1);
+                var badge_active = Math.round($("#badge_active").text())+1;
                 $( '#row' + bp_id ).addClass('success');
+                $( '#badge_active').text(badge_active);
+                    $( '#badge_active' ).removeClass('badge-danger');
+                    $( '#badge_active' ).removeClass('badge-warning');
+                    $( '#badge_active' ).removeClass('badge-default');
+                    $( '#badge_active' ).removeClass('badge-primary');
+                    $( '#badge_active' ).addClass('badge-success');
             }
             else if(data.badge_active == -1){
-                $('#badge_active').text(Math.round($("#badge_active").text())-1);
+                var badge_active = Math.round($("#badge_active").text())-1;
+                $('#badge_active').text(badge_active);
                 $( '#row' + bp_id ).removeClass('success');
+                if(badge_active == 0) {
+                    $( '#badge_active' ).removeClass('badge-success');
+                    $( '#badge_active' ).removeClass('badge-danger');
+                    $( '#badge_active' ).removeClass('badge-warning');
+                    $( '#badge_active' ).removeClass('badge-default');
+                    $( '#badge_active' ).addClass('badge-primary');
+                }
             }
-            
+
             $('#current-position' + bp_id).val($( '#estimated-position'+bp_id ).val());
             $( '#estimated-position' + bp_id ).val("--------");
             $( '#bp' + bp_id).attr('data-bp_user_credits', credits_confirmed);
@@ -528,7 +544,7 @@ $('.btn-confirm').click(function(event){
 //            var badge_total = Math.round($("#badge_total").text()) + data.badge_total;
 //            console.log('Setting $("#badge_total").text('+badge_total+')');
 //            $('#badge_total').text(badge_total);
-            
+
             $( '#btn-confirm' + previous.bp_id).css( "visibility","hidden" );
             $( '#btn-confirm' + bp_id ).removeAttr('disabled');
             $( '#glyphicon-confirm' + bp_id ).removeClass('glyphicon-refresh');
@@ -549,15 +565,15 @@ $('.btn-confirm').click(function(event){
             $( '#glyphicon-confirm' + bp_id ).removeClass('glyphicon-refresh');
             $( '#glyphicon-confirm' + bp_id ).addClass('glyphicon-ok');
         }
-*/        
+*/
     });
 });
 $('.btn-delete').click(function(event){
-    var types = [BootstrapDialog.TYPE_DEFAULT, 
-                     BootstrapDialog.TYPE_INFO, 
-                     BootstrapDialog.TYPE_PRIMARY, 
-                     BootstrapDialog.TYPE_SUCCESS, 
-                     BootstrapDialog.TYPE_WARNING, 
+    var types = [BootstrapDialog.TYPE_DEFAULT,
+                     BootstrapDialog.TYPE_INFO,
+                     BootstrapDialog.TYPE_PRIMARY,
+                     BootstrapDialog.TYPE_SUCCESS,
+                     BootstrapDialog.TYPE_WARNING,
                      BootstrapDialog.TYPE_DANGER];
     event.preventDefault();
     bp_id = $(this).attr('data-bp_id');
@@ -574,11 +590,31 @@ $('.btn-delete').click(function(event){
             action: function(dialog) {
                 $.request('onProductDelete', {
                     data: {
-                        bp_id: bp_id, 
+                        bp_id: bp_id,
                     }
                 })
                 .always(function( data, textStatus, errorThrown ) {
-                    $('#row'+bp_id).hide();
+                    if(data.status=="error"){
+                        console.log(data.log);
+                        dialog.close();
+                        return;
+                    }
+                    if(data.status=="success"){
+                        $('#row'+bp_id).hide();
+                        var badge_total = $("#badge_total").html() - 1;
+                        $("#badge_total").html(badge_total);
+                        if(badge_total == 0) {
+                            $( '#badge_total' ).removeClass('badge-primary');
+                            $( '#badge_total' ).removeClass('badge-success');
+                            $( '#badge_total' ).removeClass('badge-danger');
+                            $( '#badge_total' ).removeClass('badge-warning');
+                            $( '#badge_total' ).addClass('badge-default');
+                        }
+                        $("#badge_total").html(badge_total);
+                        console.log(data.log);
+                        dialog.close();
+                        return;
+                    }
                     dialog.close();
                 });
             }
@@ -598,15 +634,15 @@ $('.help').click(function(event){
         console.log("Help off called");
         console.log("Hidding:'"+id+"'");
         $("#"+id).hide();
-        console.log("Showing:'"+id+"_on'");
-        $("#"+id+"_on").show();
+//        console.log("Showing:'"+id+"_on'");
+//        $("#"+id+"_on").show();
     }
     if (onoff=="_on"){
         console.log("Help on called");
         console.log("Showing:'"+id+"'");
         $("#"+id).show();
-        console.log("Hiding:'"+id+"_on'");
-        $("#"+id+"_on").hide();
+//        console.log("Hiding:'"+id+"_on'");
+//        $("#"+id+"_on").hide();
     }
     $.request('onHelp',{data: {store: id,state: onoff}});
 })
@@ -628,7 +664,7 @@ $('#btn-add-products-services').click(function(event){
 
 //                $.request('onProductDelete', {
 //                    data: {
-//                        bp_id: bp_id, 
+//                        bp_id: bp_id,
 //                    }
 //                })
 //                .always(function( data, textStatus, errorThrown ) {

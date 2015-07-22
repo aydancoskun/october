@@ -49,7 +49,7 @@ function onStart(){
                     <li class="{% if this.page.id == "account-ranking" %}active{% endif %}">
                         <a href="/account/ranking">Ranking <span
                             id="badge_active"
-                            class="badge badge-success badge-menu"
+                            class="badge {% if user.ok_sponored_products_count %}badge-success{%else%}badge-primary{% endif %} badge-menu"
                             data-toggle="tooltip"
                             data-trigger="hover"
                             data-placement="bottom"
@@ -61,7 +61,7 @@ function onStart(){
                     <li class="{% if this.page.id == "account-products-services" %}active{% endif %}">
                         <a href="/account/products-services">Products/Services <span
                             id="badge_total"
-                            class="badge badge-primary badge-menu"
+                            class="badge {% if user.ok_company_products_count %}badge-success{%else%}badge-primary{% endif %} badge-menu"
                             data-toggle="tooltip"
                             data-trigger="hover"
                             data-placement="bottom"
@@ -74,7 +74,7 @@ function onStart(){
                     <li class="{% if this.page.id == "account-credit" %}active{% endif %}">
                         <a href="/account/credit">Credits <span
                             id="ok_credits"
-                            class="badge badge-primary badge-menu"
+                            class="badge {% if user.ok_credits|round(2, 'common') > 0 %}badge-success{%else%}badge-primary{% endif %} badge-menu"
                             data-toggle="tooltip"
                             data-trigger="hover"
                             data-placement="bottom"
