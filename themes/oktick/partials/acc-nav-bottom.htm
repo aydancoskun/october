@@ -3,16 +3,23 @@
 <?php
 function onStart(){
 
+
+
     //dd($_SERVER);
 
-    //exit;
-
-    if(env('APP_ENV') == "production"){
-        $this['host']=gethostname().rand(1,20);
+    $host = gethostname();
+    if(strpos($host, ".") !== false){
+        $host = substr(gethostname(),0,strpos(gethostname(),"."));
+    }
+   if(env('APP_ENV') == "production"){
+        $this['host']=$host.rand(1,20);
     }
     elseif(env('APP_ENV') == "development"){
-        $this['host']=strtoupper(gethostname())." - DEVELOPMENT";
+        $this['host']=strtoupper($host)." - DEVELOPMENT";
     }
+
+    //exit;
+    $this['host']=$host.rand(1,20);
 }
 ?>
 ==
