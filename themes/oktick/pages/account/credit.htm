@@ -22,7 +22,7 @@ function onInit(){
 function onStart()
 
 {
-
+    return;
     \Debugbar::info("Credit Page onStart()");
 
     $d=false;
@@ -561,6 +561,7 @@ function onStart()
 <h2 class="text-center">Credits and Offers<br>
 <span class="text-center" style="font-size:14px;">(Click here <span id="ok_help_credit_on" class="help glyphicon-primary glyphicon glyphicon-question-sign"></span> for help)</span>
 </h2>
+
 <div class="row select-product">
     <div class="col-xs-1"></div>
         <div class="col-xs-10">
@@ -760,6 +761,22 @@ function onStart()
 </div><!--/container -->
 {% partial "acc-nav-bottom" %}
 
+<!-- IE10 viewport hack for Surface/desktop Windows 8 bug -->
+<!--script src="/app/ot/assets/bs3/js/ie10-viewport-bug-workaround.js"></script-->
+<script src="/app/ot/assets/jquery.autocomplete.git/src/jquery.autocomplete.js"></script>
+<!--script src="/app/ot/assets/js/responsive-placeholder-images-custom.js"></script-->
+<!--script src="/app/ot/assets/libs/Readmore.js/readmore.js"></script-->
+<script src="/app/ot/assets/jquery.dotdotdot.git/src/js/jquery.dotdotdot.min.js"></script>
+<script src="/app/ot/assets/js/oktick.js"></script>
+<script src="/app/ot/assets/js/redactor.js"></script>
+<script src="/plugins/rainlab/editable/assets/js/editable.js"></script>
+<script src="/app/ot/assets/jquery.show-password/bootstrap-show-password.min.js"></script>
+<noscript><div id="noscript-warning" class="alert alert-danger">The accounts section of OKTicK requires that JavaScript is enabled</div>
+<div>You must <a href="http://www.enable-javascript.com" target="_blank">enable JavaScript</a> in your web browser.</div>
+</noscript>
+{% flash %}
+<div id="top-alert" class="alert alert-{{ type == 'error' ? 'danger' : type }}">{{ message }}</div>
+{% endflash %}
 
 </body>
 </html>
