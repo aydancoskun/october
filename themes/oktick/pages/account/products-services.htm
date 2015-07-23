@@ -7,9 +7,16 @@ is_hidden = "0"
 use Illuminate\Http\Response;
 
 function onStart(){
+    $now = time();
+    $user = $this->session->user()->attributes;
+    $company_id = $user['ok_company_id'];
+    $user_id = $user['id'];
 
-   // Sets a successful message
-
+    $this['pending_products'] = DB::table('operations.bp_suppliers_added')
+                    ->where('user_id', $user_id)
+                    ->where('company_uid', $company_id)
+                    ->orderBy('created_stamp', 'desc')
+                    ->get();
 }
 
 function verifyPost($post_name,$check="int"){
@@ -27,6 +34,36 @@ function verifyPost($post_name,$check="int"){
     if( $post_val_raw <> $post_val_cast ) App::abort(403, 'Forbidden');
 
     return $post_val_cast;
+
+}
+
+function onProductPendingDelete(){
+    $now = time();
+    $uid = $this->verifyPost('uid',"int");
+    $user = $this->session->user()->attributes;
+    $company_id = $user['ok_company_id'];
+    $user_id = $user['id'];
+
+    // EXIT if there is no product
+    $sql=   "SELECT * FROM operations.bp_suppliers_added ".
+            "WHERE ".
+            "uid = $uid AND ".
+            "company_uid = $company_id AND ".
+            "user_id = $user_id ".
+            "LIMIT 1";
+    $dbr = DB::select($sql);
+    if( ! isset($dbr[0]) ){
+        return ['status' => 'error','message' => 'Pending product could not be deleted! (err: NP)','log' => [  'err: NP' => $uid,],];
+    }
+
+    // EXIT if app in DEVELOPMENT
+    if( env("APP_ENV") == "development" OR env("APP_ENV") <> "production" ){
+//        return ['status' => 'success','message' => 'Product Deleted in Development mode!','log' => [  'DEV Deleted Product ID' => $uid,],];
+    }
+
+    DB::table('operations.bp_suppliers_added')->where('uid',$uid)->delete();
+
+    return ['status' => 'success','message' => 'Pending product deleted!','log' => [  'Pending Product Deleted' => $uid,],];
 
 }
 
@@ -100,18 +137,67 @@ function onProductDelete(){
         ));
 
     DB::table('operations.bp_suppliers')->where('uid',$dbr[0]->uid)->delete();
-        $user['ok_company_products_count']=$user['ok_company_products_count']-1;
-        DB::table('oktick.users')
-           ->where('id', $user_id)
-                ->update(array(
-                'ok_company_products_count' => $user['ok_company_products_count'],
-            ));
+    $user['ok_company_products_count']=$user['ok_company_products_count']-1;
+    DB::table('oktick.users')
+       ->where('id', $user_id)
+            ->update(array(
+            'ok_company_products_count' => $user['ok_company_products_count'],
+        ));
 
     DB::commit();
 
     return ['status' => 'success','message' => 'Product Deleted!','log' => [  'Product ID' => $bp_id,],];
 }
+
+function onProductAdd(){
+    $now = time();
+    $bp_name = $this->verifyPost('bp_name',"string");
+    $user = $this->session->user()->attributes;
+    $company_id = $user['ok_company_id'];
+    $user_id = $user['id'];
+
+    $bp_id = DB::table('operations.bps')->where('bp',$bp_name)->pluck('bp_uid');
+
+    if( ! $bp_id) $bp_id = 0;
+
+    // EXIT if app in DEVELOPMENT
+/*
+    if( env("APP_ENV") == "development" OR env("APP_ENV") <> "production" ){
+        return [
+            'status' => 'success',
+            'message' => 'DEV: Product added but subject to verification by our research team!',
+            'log' => [ 'DEVELOPMENT MODE'=>'','Product Name' => $bp_name,],
+        ];
+    }
+*/
+    try {
+
+        DB::table('operations.bp_suppliers_added')
+            ->insert(array(
+                'bp_name' => $bp_name,
+                'company_uid' => $company_id,
+                'status' => 'Pending verification',
+                'bp_uid' => $bp_id,
+                'user_id' => $user_id,)
+            );
+    }
+    catch(Exception $e) {
+        \Debugbar::info("insert = ".$e->getMessage());
+    return [
+        'status' => 'error',
+        'message' => $e->getMessage(),
+        'log' => [ 'Product Name' => $bp_name, 'error'=>$e->getMessage(),],
+    ];
+    }
+
+    return [
+        'status' => 'success',
+        'message' => 'Product added but subject to verification by our research team',
+        'log' => [ 'Product Name' => $bp_name,],
+    ];
+}
 ?>
+
 ==
 {% partial "acc-head" cssfile="oktick.css" %}
 {% partial "nav-top"%}
@@ -128,8 +214,13 @@ function onProductDelete(){
 
         <div id="ok_help_productservices" {% if user.ok_help_productservices==0 %}class="collapse"{% endif %} >
             <p>{{"&nbsp;&nbsp;&nbsp;"|raw}}</p>
-            <p>Below you can add and delete products and services we have for your business. If you are new here some of these might be not correct because they were semi-automatically collected. In that case just delete them by pressing the                         <button type="button" class="btn btn-delete btn-danger btn-xs"><span class="glyphicon glyphicon-trash"></span></button>
-button. If you want to add products or services you can do that in the field below. Just enter your item, select your choice from the list and click the <button type="button" class="btn btn-confirm btn-success btn-xs"><span class="glyphicon glyphicon-ok"></span></button> button. Items entered do not show up immediately because they are verified by our research team.</p>
+            <p>Below you can add and delete products and services we have on file for your business.</p>
+            {% if user.ok_purchase_number < 2 %}
+            <p>If you are new here, some of these might be not correct because they were semi-automatically collected.</p>
+            {% endif %}
+            <p>In case any are incorrect just delete the offending item by pressing the trash <button type="button" class="btn btn-delete btn-danger btn-xs"><span class="glyphicon glyphicon-trash"></span></button> button.</p>
+            <p>If any products or services are missing from the list, you can add them in first row below. Just enter your item, as you would normally in OKTicK, select your choice from the list and click the ok <button type="button" class="btn btn-confirm btn-success btn-xs"><span class="glyphicon glyphicon-ok"></span></button> button.</p>
+            <p>Please note that items you add will not show up immediately because we have to schedule our engine to collect the url from your website and then verify the results with our research team.</p>
             <p>If you don't need help, click below. You can always re-enable it later by clicking the <span class="glyphicon-primary glyphicon glyphicon-question-sign"></span> sign above.</p>
             <div class="text-center">
 
@@ -146,7 +237,6 @@ button. If you want to add products or services you can do that in the field bel
 <div class="row">
     <div class="col-xs-1 col-md-0"></div>
     <div class="col-xs-10 col-md-12">
-        {% if products %}
         <table class="table table-bordered">
             <tr class="">
                 <th class="">Products & Services</th>
@@ -166,7 +256,7 @@ button. If you want to add products or services you can do that in the field bel
                 <td class="text-center" style="vertical-align: middle;">
                     <button id="btn-add-products-services"
                             type="button"
-                            class="btn btn-confirm btn-success btn-sm">
+                            class="btn btn-success btn-sm">
                         <span class="glyphicon glyphicon-ok"></span>
                     </button>
                 </td>
@@ -215,11 +305,46 @@ button. If you want to add products or services you can do that in the field bel
                 </tr>
             {% endfor %}
         </table>
-        {% endif %}
     </div>
-
     <div class="col-xs-1 col-md-0"></div>
 </div>
+{% if pending_products %}
+<div class="row">
+    <div class="col-xs-1 col-md-0"></div>
+    <div class="col-xs-10 col-md-12">
+        {% if products %}
+        <table class="table table-bordered">
+            <tr class="">
+                <th class="text-center">Delete</th>
+                <th class="">Products & Services pending approval</th>
+                <th class="text-center">Status</th>
+            </tr>
+            {% for pending_product in pending_products %}
+                <tr id="PendingRow{{pending_product.uid}}">
+                    <td class="text-center">
+                        <button id="pending-go-button{{pending_product.uid}}"
+                                type="button"
+                                class="btn btn-delete-pending btn-danger btn-sm"
+                                data-uid="{{pending_product.uid}}">
+                            <span class="glyphicon glyphicon-trash"></span>
+                        </button>
+                    </td>
+                    <td class=""
+                        id="pending-bp{{ pending_product.uid }}"
+                        data-uid="{{ pending_product.uid }}">
+                        {{ pending_product.bp_name }}
+                    </td>
+                    <td>
+                        {{ pending_product.status }}
+                    </td>
+                </tr>
+            {% endfor %}
+        </table>
+        {% endif %}
+    </div>
+    <div class="col-xs-1 col-md-0"></div>
+</div>
+{%endif%}
 
 <!-- page specific javascript goes here-->
 <script>

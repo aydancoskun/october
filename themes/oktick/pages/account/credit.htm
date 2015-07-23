@@ -67,23 +67,19 @@ function onStart()
 
         $pri1=15;$pri2=25 ;$pri3=55 ;$pri4=100;$pri5=1000;
 
-        if( $user['ok_first_time_buyer'] ) {
+        $this['list_price']=array(1=>$pri1,2=>$pri2,3=>$pri3,4=>$pri4,5=>$pri5);
 
-            $this['iprice']  = array(1=>$pri1,2=>$pri2,3=>$pri3,4=>$pri4,5=>$pri5);
+        $this['list_amount']=array(1=>$amt1,2=>$amt2,3=>$amt3,4=>$amt4,5=>$amt5);
 
-            $this['iamount'] = array(1=>$amt1,2=>$amt2,3=>$amt3,4=>$amt4,5=>$amt5);
+        if( $user['ok_purchase_number'] == 0 ) {
 
             $amt1=50;$amt2=200;$amt3=500;$amt4=1000;$amt5=10000;
 
             $pri1=0;$pri2=25 ;$pri3=55 ;$pri4=100;$pri5=1000;
 
-            $this['initial']=true;
-
-        } else {
-
-            $this['initial']=false;
-
         }
+
+        $this['ok_purchase_number']=$user['ok_purchase_number'];
 
         $this['price']=array(1=>$pri1,2=>$pri2,3=>$pri3,4=>$pri4,5=>$pri5);
 
@@ -357,6 +353,8 @@ function onStart()
 
     );
 
+    $this['ok_purchase_number'] = $user['ok_purchase_number'] = $user['ok_purchase_number'] + 1;
+
     DB::table('oktick.users')
 
     ->where('id', $user_id)
@@ -365,7 +363,7 @@ function onStart()
 
         'ok_credits' => $ok_credits,
 
-        'ok_first_time_buyer' => 0,
+        'ok_purchase_number' => $user['ok_purchase_number'],
 
     ));
 
@@ -480,7 +478,7 @@ function onStart()
         } else {
             $('#pay_button').html('Get '+ (selected_amount) + ' Credits for FREE!').show();
             $('.notfree').hide();
-            $('#payment-errors').html("<p>Are you sure you want to use your introductory bonus to get just 50 Credits?</p><p>Remember, you can get up to 500 Credits free if you select one of the other options.</p><p>Afterwards you will not be able to take advantage of any of the other bonuses.</p>").show();
+            $('#payment-errors').html("<p>Are you sure you want to use your introductory bonus to get just 50 Credits?</p><p>Remember, you can get up to 5000 Credits free if you select one of the other options.</p><p>Afterwards you will not be able to take advantage of any of the other bonuses.</p>").show();
         }
         $('#stripePrice').val(selected_price);
         $('#stripeAmount').val(selected_amount);
@@ -508,6 +506,10 @@ function onStart()
             stripePrice: $('#stripePrice').val(),
             dataType: "json",
         })
+        .always(function(jqXHR, textStatus, errorThrown) {
+            location.reload(true);
+            return false;
+        });
         return false;
       });
     });
@@ -542,6 +544,7 @@ function onStart()
                 if(total_credits < 0) total_credits = 0;
                 $('#ok_credits').text(total_credits.toFixed(2));
                 $('#credits_page_ok_credits').text(total_credits.toFixed(2));
+                location.reload();
             })
             .fail(function(jqXHR, textStatus, errorThrown) {
                 /* Show Stripe errors on the form */
@@ -566,7 +569,7 @@ function onStart()
         <div class="col-xs-10">
             <div id="ok_help_credit" {% if user.ok_help_credit==0 %}class="collapse"{% endif %} >
                 <p>{{"&nbsp;&nbsp;&nbsp;"|raw}}</p>
-        {%if initial %}
+        {%if ok_purchase_number == 0 %}
                 <p>Welcome! Below you find our introductory offers. Introductory offers are only valid the first time you add Credits. Subsequently our standard plans will be available to you.</p>
                 <p>We recommend the Platinum Plan specifically for high volume first timers and it is positively the very best deal available because we DOUBLE the amount of Credits on any of our standard plans for the first purchase only. So if you are going for this you are getting an extra 5000 credits. The price per credit is only £0.10 for first time buyers.</p>
                 <p>Our gold plan is the most popular with our returning customers because the price per credit is the same as for our platinum offer.</p>
@@ -603,13 +606,13 @@ function onStart()
             <div class="caption">
                 <h3 class="text-center">Ultralight</h3>
                 <!--span class="label label-success">POPULAR</span-->
-                <p class="lead text-center">{{amount[1]}}<br>Credits<br>{%if initial %}FREE{% else %}£{{price[1]}}</p>{% endif %}
+                <p class="lead text-center">{{amount[1]}}<br>Credits<br>{%if ok_purchase_number == 0 %}FREE{% else %}£{{price[1]}}</p>{% endif %}
                 <p class="text-center">
                     <a href="" class="btn btn-primary" onclick="has_selected(1,event);">Select</a>
                 </p>
             </div>
         </div>
-        {%if initial %}<p class="text-center">Free package<br>first time you<br>add credits.<br>Normally<br>{{iamount[1]}} Credits<br>£{{iprice[1]}}.</p>{% endif %}
+        {%if ok_purchase_number == 0 %}<p class="text-center">Free package<br>first time you<br>add credits.<br>Normally<br>{{list_amount[1]}} Credits<br>£{{list_price[1]}}.</p>{% endif %}
     </div>
     <div class="col-md-2">
         <div class="thumbnail payment_options_div" onclick="has_selected(2,event);">
@@ -622,7 +625,7 @@ function onStart()
                 </p>
             </div>
         </div>
-        {%if initial %}<p class="text-center">Double value<br>first time you<br>add credits.<br>Normally<br>{{iamount[2]}} Credits<br>£{{iprice[2]}}.</p>{% endif %}
+        {%if ok_purchase_number == 0 %}<p class="text-center">Double value<br>first time you<br>add credits.<br>Normally<br>{{list_amount[2]}} Credits<br>£{{list_price[2]}}.</p>{% endif %}
     </div>
     <div class="col-md-2">
         <div class="thumbnail payment_options_div" onclick="has_selected(3,event);">
@@ -635,7 +638,7 @@ function onStart()
                 </p>
             </div>
         </div>
-        {%if initial %}<p class="text-center">Double value<br>first time you<br>add credits.<br>Normally<br>{{iamount[3]}} Credits<br>£{{iprice[3]}}.</p>{% endif %}
+        {%if ok_purchase_number == 0 %}<p class="text-center">Double value<br>first time you<br>add credits.<br>Normally<br>{{list_amount[3]}} Credits<br>£{{list_price[3]}}.</p>{% endif %}
     </div>
     <div class="col-md-2">
         <div class="thumbnail payment_options_div" onclick="has_selected(4,event);">
@@ -653,7 +656,7 @@ function onStart()
                 </p>
             </div>
         </div>
-        {%if initial %}<p class="text-center">Double value<br>first time you<br>add credits.<br>Normally<br>{{iamount[4]}} Credits<br>£{{iprice[4]}}.</p>{% endif %}
+        {%if ok_purchase_number == 0 %}<p class="text-center">Double value<br>first time you<br>add credits.<br>Normally<br>{{list_amount[4]}} Credits<br>£{{list_price[4]}}.</p>{% endif %}
     </div>
     <div class="col-md-2">
         <div class="thumbnail payment_options_div" onclick="has_selected(5,event);">
@@ -666,7 +669,7 @@ function onStart()
                 </p>
             </div>
         </div>
-        {%if initial %}<p class="text-center">Double value<br>first time you<br>add credits.<br>Normally<br>{{iamount[5]}} Credits<br>£{{iprice[5]}}.</p>{% endif %}
+        {%if ok_purchase_number == 0 %}<p class="text-center">Double value<br>first time you<br>add credits.<br>Normally<br>{{list_amount[5]}} Credits<br>£{{list_price[5]}}.</p>{% endif %}
     </div>
     <div class="col-md-1"></div>
 </div>

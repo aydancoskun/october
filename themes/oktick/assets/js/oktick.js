@@ -626,6 +626,34 @@ $('.btn-delete').click(function(event){
         }]
     });
 });
+$('.btn-delete-pending').click(function(event){
+    var types = [BootstrapDialog.TYPE_DEFAULT,
+                     BootstrapDialog.TYPE_INFO,
+                     BootstrapDialog.TYPE_PRIMARY,
+                     BootstrapDialog.TYPE_SUCCESS,
+                     BootstrapDialog.TYPE_WARNING,
+                     BootstrapDialog.TYPE_DANGER];
+    event.preventDefault();
+    uid = $(this).attr('data-uid');
+    var bp_name = $('#bp'+uid).text();
+    $.request('onProductPendingDelete', {
+        data: {
+            uid: uid,
+        }
+    })
+    .always(function( data, textStatus, errorThrown ) {
+        if(data.status=="error"){
+            console.log(data.log);
+            return;
+        }
+        if(data.status=="success"){
+            $('#PendingRow'+uid).hide();
+            console.log(data.log);
+            return;
+        }
+    });
+});
+
 $('.help').click(function(event){
     event.preventDefault();
     var id = $(this).attr('id').replace('_off','').replace('_on','');
@@ -649,10 +677,11 @@ $('.help').click(function(event){
 $('#btn-add-products-services').click(function(event){
     event.preventDefault();
     console.log("add-products-services");
-    bp = $('#autocomplete-ajax').val();
+    bp_name = $('#autocomplete-ajax').val();
+    if ( ! bp_name ) return;
     BootstrapDialog.show({
         title: 'Confirmation',
-        message: 'Do you confirm you are a supplier of "'+bp+'" and that this is expressly mentioned on your website?',
+        message: 'Do you confirm you are a supplier of <strong>'+bp_name+'</strong> and that this is expressly mentioned on your website?<br><br>Our engine will be scheduled to visit your website and confirm the exact url.<br><br>The result will then be manually reviewed by our research team and added to the list below.',
         type: BootstrapDialog.TYPE_PRIMARY,
         size: BootstrapDialog.SIZE_SMALL,
         buttons: [{
@@ -660,19 +689,26 @@ $('#btn-add-products-services').click(function(event){
             //icon: 'glyphicon glyphicon-remove',
             cssClass: 'btn-primary',
             action: function(dialog) {
-                $('#autocomplete-ajax').val('');
-
-//                $.request('onProductDelete', {
-//                    data: {
-//                        bp_id: bp_id,
-//                    }
-//                })
-//                .always(function( data, textStatus, errorThrown ) {
-//                    $('#row'+bp_id).hide();
+                $.request('onProductAdd', {
+                    data: {
+                        bp_name: bp_name,
+                    }
+                })
+                .always(function( data, textStatus, errorThrown ) {
+                    if(data.status=="error"){
+                        console.log(data.log);
+                        dialog.close();
+                        return;
+                    }
+                    if(data.status=="success"){
+                        console.log(data.log);
+                        dialog.close();
+                        location.reload(true);
+                        return;
+                    }
                     dialog.close();
-//                });
+                });
             }
-
         }, {
             label: 'No',
             action: function(dialog) {
@@ -681,3 +717,21 @@ $('#btn-add-products-services').click(function(event){
         }]
     });
 });
+function confirm_password(){
+    BootstrapDialog.show({
+           message: 'Your most favorite fruit: <input type="text" class="form-control">',
+            onhide: function(dialogRef){
+                var fruit = dialogRef.getModalBody().find('input').val();
+                if($.trim(fruit.toLowerCase()) !== 'banana') {
+                    alert('Need banana!');
+                    return false;
+                }
+            },
+            buttons: [{
+                label: 'Close',
+                action: function(dialogRef) {
+                    dialogRef.close();
+                }
+            }]
+        });
+}

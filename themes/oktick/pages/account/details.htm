@@ -5,41 +5,77 @@ hidden = "0"
 ==
 <?php
 function onStart() {
+
     \Debugbar::info("Details page onStart()");
+
 //    $user = $this->session->user()-attr;
+
     $this['invoices']= DB::select(
+
         "SELECT download_code, transaction_date, credits_purchased, price_paid, transaction_currency, concat((user_id*10),(id*10)) as invoice_number ".
+
         "FROM ok_payments ".
+
         "WHERE ".
+
         "user_id = ". $this->session->user()->attributes['id'] . " " .
+
         "ORDER BY transaction_date DESC"
+
     );
+
 }
+
 function onDelete() {
+
     \Debugbar::info("Details page onDelete()");
+
     $data = Input::all();
+
     $rules = ['email' => 'required|email'];
+
     $msgs = ['required' => 'Please fill in your email','email' => 'Please enter a valid email address'];
+
     $v = Validator::make($data, $rules, $msgs);
 
+
+
 if ($v->fails())
+
 {
+
     $this['result'] = $v->messages()->first();
+
 }else{
+
     Mail::queue('email.newsletter', $data, function($message)
+
     {
+
         $message->from(post('email'));
+
+
 
         $message->to('simon@skwebproject.com')->subject('New newsletter registration');
 
+
+
     });
 
+
+
         $this['result'] = 'Success!';
+
     }
+
 }
 
+
+
 function onUpdate() {
+
     \Debugbar::info("Details page onUpdate()");
+
 }
 ?>
 ==
@@ -149,9 +185,9 @@ function onUpdate() {
         <div class="col-xs-1 col-md-0"></div>
     </div>
     {% endif %}
-    
-    
-    
+
+
+
     <br>
     <br>
     <br>
@@ -204,11 +240,11 @@ function pageInit(){
 //    confirm: 'Are you sure?',
 //    redirect: '/dashboard'
 //});
-function download(download_code) 
+function download(download_code)
 {
     $.oc.stripeLoadIndicator.show();
     var ifrm = document.getElementById('invoice');
-    ifrm.src = 'http://www.oktick.com/account/pdf_invoice/'+download_code;
+    ifrm.src = 'https://www.oktick.com/account/pdf_invoice/'+download_code;
 }
 $('#invoice').load(function(){
     $.oc.stripeLoadIndicator.hide();
