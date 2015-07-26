@@ -83,7 +83,7 @@ function onUpdate() {
 {% partial "nav-top" %}
 <div class="container">
 
-<h2 class="text-center">My Account</h2>
+<h2 class="text-center">Administer Account</h2>
 <div class="row">
 <div class="col-xs-1 col-md-2"></div>
 <div class="col-xs-10 col-md-8">
@@ -106,19 +106,6 @@ function onUpdate() {
         <div class="form-group input-group-lg">
             <label for="business-email" >Current email address you use at work</label>
             <input type="text" class="form-control" id="business-email" placeholder="you@emailaddress.com" value="{{user.email}}">
-        </div>
-        <div class="form-group input-group-lg has-feedback">
-            <label for="current-password" >Password</label>
-            <span class="glyphicon glyphicon-ok form-control-feedback" aria-hidden="true"></span>
-            <input type="password" class="form-control" id="current-password" placeholder="">
-        </div>
-        <div class="form-group input-group-lg">
-            <label for="new-password-1" >Choose a new password<br><small>Only fill this if you intent to change your password.</small></label>
-            <input type="password" class="form-control" id="new-password-1" placeholder="">
-        </div>
-        <div class="form-group input-group-lg">
-            <label for="new-password-2" >Verify the new password</label>
-            <input type="password" class="form-control" id="new-password-2" placeholder="">
         </div>
         <div class="text-right">
             <button type="submit" class="btn btn-primary btn-lg">Submit</button>

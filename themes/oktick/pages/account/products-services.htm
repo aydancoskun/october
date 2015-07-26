@@ -109,7 +109,7 @@ function onProductDelete(){
 
     // EXIT if app in DEVELOPMENT
     if( env("APP_ENV") == "development" OR env("APP_ENV") <> "production" ){
-        return ['status' => 'success','message' => 'Product Deleted in Development mode!','log' => [  'Product ID' => $bp_id,],];
+        return ['status' => 'success','message' => 'Product Deleted in Development mode!','log' => [  'DEV Deleted Product ID' => $bp_id,],];
     }
 
     DB::beginTransaction();
@@ -146,7 +146,7 @@ function onProductDelete(){
 
     DB::commit();
 
-    return ['status' => 'success','message' => 'Product Deleted!','log' => [  'Product ID' => $bp_id,],];
+    return ['status' => 'success','message' => 'Product Deleted!','log' => [  'Deleted Product ID' => $bp_id,],];
 }
 
 function onProductAdd(){
@@ -348,16 +348,134 @@ function onProductAdd(){
 
 <!-- page specific javascript goes here-->
 <script>
-function PageInit(){
-    $("#badge_total").html("{{products_count}}");
-
-    $('#ButtonCreditPlus').request('onCreditPlus', {
-        update: {onCreditChange: '#credit{{product.bp_id}}'}
+$('#btn-add-products-services').click(function(event){
+    event.preventDefault();
+    console.log("add-products-services");
+    bp_name = $('#autocomplete-ajax').val();
+    if ( ! bp_name ) return;
+    BootstrapDialog.show({
+        title: 'Confirmation',
+        message: 'Do you confirm you are a supplier of <strong>'+bp_name+'</strong> and that this is expressly mentioned on your website?<br><br>Our engine will be scheduled to visit your website and confirm the exact url.<br><br>The result will then be manually reviewed by our research team and added to the list below.',
+        type: BootstrapDialog.TYPE_PRIMARY,
+        size: BootstrapDialog.SIZE_SMALL,
+        buttons: [{
+            label: 'Yes',
+            //icon: 'glyphicon glyphicon-remove',
+            cssClass: 'btn-primary',
+            action: function(dialog) {
+                $.request('onProductAdd', {
+                    data: {
+                        bp_name: bp_name,
+                    }
+                })
+                .always(function( data, textStatus, errorThrown ) {
+                    if(data.status=="error"){
+                        console.log(data.log);
+                        dialog.close();
+                        return;
+                    }
+                    if(data.status=="success"){
+                        console.log(data.log);
+                        dialog.close();
+                        location.reload(true);
+                        return;
+                    }
+                    dialog.close();
+                });
+            }
+        }, {
+            label: 'No',
+            action: function(dialog) {
+                dialog.close();
+            }
+        }]
     });
-    $('#ButtonCreditMinus').request('onCreditMinus', {
-        update: {onCreditChange: '#credit{{product.bp_id}}'}
+});
+$('.btn-delete').click(function(event){
+    var types = [BootstrapDialog.TYPE_DEFAULT,
+                     BootstrapDialog.TYPE_INFO,
+                     BootstrapDialog.TYPE_PRIMARY,
+                     BootstrapDialog.TYPE_SUCCESS,
+                     BootstrapDialog.TYPE_WARNING,
+                     BootstrapDialog.TYPE_DANGER];
+    event.preventDefault();
+    bp_id = $(this).attr('data-bp_id');
+    var bp_name = $('#bp'+bp_id).text();
+    BootstrapDialog.show({
+        title: 'WARNING - Product Deletion!',
+        message: 'Are you sure you want to permanently delete "'+bp_name.trim()+'"?',
+        type: BootstrapDialog.TYPE_DANGER,
+        size: BootstrapDialog.SIZE_SMALL,
+        buttons: [{
+            label: 'Yes',
+            //icon: 'glyphicon glyphicon-remove',
+            cssClass: 'btn-danger',
+            action: function(dialog) {
+                $.request('onProductDelete', {
+                    data: {
+                        bp_id: bp_id,
+                    }
+                })
+                .always(function( data, textStatus, errorThrown ) {
+                    if(data.status=="error"){
+                        console.log(data.log);
+                        dialog.close();
+                        return;
+                    }
+                    if(data.status=="success"){
+                        $('#row'+bp_id).hide();
+                        var badge_total = $("#badge_total").html() - 1;
+                        $("#badge_total").html(badge_total);
+                        if(badge_total == 0) {
+                            $( '#badge_total' ).removeClass('badge-primary');
+                            $( '#badge_total' ).removeClass('badge-success');
+                            $( '#badge_total' ).removeClass('badge-danger');
+                            $( '#badge_total' ).removeClass('badge-warning');
+                            $( '#badge_total' ).addClass('badge-default');
+                        }
+                        $("#badge_total").html(badge_total);
+                        console.log(data.log);
+                        dialog.close();
+                        return;
+                    }
+                    dialog.close();
+                });
+            }
+        }, {
+            label: 'No',
+            action: function(dialog) {
+                dialog.close();
+            }
+        }]
     });
-}
+});
+$('.btn-delete-pending').click(function(event){
+    var types = [BootstrapDialog.TYPE_DEFAULT,
+                     BootstrapDialog.TYPE_INFO,
+                     BootstrapDialog.TYPE_PRIMARY,
+                     BootstrapDialog.TYPE_SUCCESS,
+                     BootstrapDialog.TYPE_WARNING,
+                     BootstrapDialog.TYPE_DANGER];
+    event.preventDefault();
+    uid = $(this).attr('data-uid');
+    var bp_name = $('#bp'+uid).text();
+    $.request('onProductPendingDelete', {
+        data: {
+            uid: uid,
+        }
+    })
+    .always(function( data, textStatus, errorThrown ) {
+        if(data.status=="error"){
+            console.log(data.log);
+            return;
+        }
+        if(data.status=="success"){
+            $('#PendingRow'+uid).hide();
+            console.log(data.log);
+            return;
+        }
+    });
+});
 </script>
 
 </div><!--/container -->

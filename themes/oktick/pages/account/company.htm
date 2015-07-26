@@ -7,29 +7,31 @@ hidden = "0"
 {% partial "nav-top" %}
 <div class="container">
 
-<h2 class="text-center">Company Link</h2>
+<h2 class="text-center">Edit Business</h2>
 <div class="row">
 <div class="col-xs-1 col-md-2"></div>
 <div class="col-xs-10 col-md-8">
 {% if not can('Edit Company') %}{% set disabled = 'disabled' %}{% else %}{% set disabled = '' %}{% endif %}
 <form>
-<h3>About your business</h3>
+<h3>Business Details</h3>
 <div class="form-group input-group-lg">
-    <label for="business-website">Business Website</label>
+    <label for="business-website">Business Website<br><small></small></label>
     <input type="text" class="form-control" id="business-website" placeholder="www.example.com">
 </div>
 {% if disabled %}
 <p>All other options are currently disabled because your email address, <{{user.email}}> does not match your company domain name. If you mistyped your domain name you can change it above. If you need to change your email address, e.g.  because you gave your personal instead of your business email, you can do so on your "My Account" page <a href="/account/details">here</a>.</p>
 {% endif %}
 <div class="form-group input-group-lg">
+    <label for="business-description">Business Description<br><small>(This will be shown to searchers when no product specific data is available)</small></label>
+    <input type="text" class="form-control" id="business-description" placeholder="Short description of company 128 letters or less" {{disabled}}>
+</div>
+<br>
+<h3>Invoicing Details</h3>
+<div class="form-group input-group-lg">
     <label for="business-name">Business or organisation name</label>
     <input type="text" class="form-control" id="business-name" placeholder="Name" {{disabled}}>
 </div>
-<div class="form-group input-group-lg">
-    <label for="business-description">Business Description</label>
-    <input type="text" class="form-control" id="business-description" placeholder="Short description of company 128 letters or less" {{disabled}}>
-</div>
-<div class="form-group input-group-lg">
+<!--div class="form-group input-group-lg">
     <label for="business-size">Number of employees</label>
     <select class="form-control" id="business-size" {{disabled}}>
         <option value="">Please Select</option>
@@ -44,7 +46,7 @@ hidden = "0"
         <option value="1000-2999">1000-2999 employees</option>
         <option value="3000+">3000+ employees</option>
     </select>
-</div>
+</div-->
 <div class="form-group input-group-lg">
     <label for="business-country">Country/Region</label>
     <select class="form-control" id="business-country" {{disabled}}>
