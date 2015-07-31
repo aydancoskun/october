@@ -13,12 +13,12 @@ use Config;
 class MyInfo extends ComponentBase
 {
     /**
-     * @var User The ProUser model used for display
-     * of a single ProUser.
+     * @var User The user model used for display
+     * of a single user.
      */
-    public $ProUser;
+    public $user;
     
-    public $ProUserid;
+    public $userid;
     
     public $stateslist;
 
@@ -45,15 +45,11 @@ class MyInfo extends ComponentBase
     }
     
     function init()
-    {        
-        $this->ProUser = Auth::getUser();
-
-        if (!$this->ProUser)
+    {
+        if (!$this->user = $this->user())
             return null;
         
-        $this->ProUserid = intval( $this->ProUser->id );
-        $this->page['ProUser'] = $this->ProUser;
-        //$this->page['ProUser']['avatarThumb'] = $this->ProUser->getAvatarThumb();
+        $this->userid = intval( $this->user->id );
     }
 
     function onRun()
@@ -68,21 +64,32 @@ class MyInfo extends ComponentBase
             State::formSelect(
                 'state',                                        // name
                 $this->property('country'),                     // CountryID
-                $this->ProUser->state['id'],                     // Cur Val
+                $this->user->state['id'],                     // Cur Val
                 array('class' => 'form-control custom-select')  // Input Field Params
                 );
                 
-        if (!$this->ProUserid)
+        if (!$this->userid)
             return null;
+    }
+
+    /**
+     * Returns the logged in user, if available
+     */
+    public function user()
+    {
+        if (!Auth::check())
+            return null;
+
+        return Auth::getUser();
     }
 
 
     protected function onUserUpdate()
     {
-        if (!$this->ProUser)
-            return null;
-            
-        $this->ProUser->save(post());
+        if (!$user = $this->user())
+            return;
+        $user->fill(post());
+        $user->save();
     }
 
 

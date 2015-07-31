@@ -29,13 +29,14 @@ class Subscriber extends Model
     /**
      * @var array Date fields
      */
-    public $dates = ['unsubscribed_at'];
+    public $dates = ['confirmed_at', 'unsubscribed_at'];
 
     /**
      * @var array Relations
      */
     public $belongsToMany = [
         'subscriber_lists' => ['Responsiv\Campaign\Models\SubscriberList', 'table' => 'responsiv_campaign_lists_subscribers', 'otherKey' => 'list_id'],
+        'messages' => ['Responsiv\Campaign\Models\Message', 'table' => 'responsiv_campaign_messages_subscribers', 'otherKey' => 'message_id'],
     ];
 
     /**
@@ -61,14 +62,17 @@ class Subscriber extends Model
         $subscriber = self::firstOrNew(['email' => $email]);
         $subscriber->first_name = array_get($details, 'first_name');
         $subscriber->last_name = array_get($details, 'last_name');
+        $subscriber->created_ip_address = array_get($details, 'created_ip_address');
 
-        // Already subscribed and opted-in
-        if ($isConfirmed || ($subscriber->exists && !$subscriber->unsubscribed_at)) {
+        if ($isConfirmed) {
+            $subscriber->confirmed_ip_address = array_get($details, 'created_ip_address');
+            $subscriber->confirmed_at = $subscriber->freshTimestamp();
             $subscriber->unsubscribed_at = null;
         }
-        // Confirmation required
-        else {
-            $subscriber->unsubscribed_at = $subscriber->freshTimestamp();
+
+        // Already subscribed and opted-in
+        if ($subscriber->exists && !$subscriber->unsubscribed_at) {
+            $subscriber->unsubscribed_at = null;
         }
 
         $subscriber->save();
@@ -92,6 +96,12 @@ class Subscriber extends Model
     {
         $hash = md5($this->id . '!' . $this->email);
         return base64_encode($this->id.'!'.$hash);
+    }
+
+    public function afterDelete()
+    {
+        $this->subscriber_lists()->detach();
+        $this->messages()->detach();
     }
 
 }

@@ -24,3 +24,7 @@
     - Added avatar picture gallery
 1.0.12:
     - Fixed sort in pagination for avatar picture gallery
+1.0.13:
+    - Fix onUpdate user and ext-user for Build 273
+1.0.14:
+    - Fix bug caused by fix in 1.0.13

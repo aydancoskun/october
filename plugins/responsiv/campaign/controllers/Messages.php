@@ -208,6 +208,24 @@ class Messages extends Controller
         return Redirect::refresh();
     }
 
+    public function preview_onArchive($recordId = null)
+    {
+        if ($recordId && ($model = $this->formFindModelObject($recordId))) {
+            CampaignManager::instance()->archiveCampaign($model);
+        }
+
+        return Redirect::refresh();
+    }
+
+    public function preview_onRecreate($recordId = null)
+    {
+        if ($recordId && ($model = $this->formFindModelObject($recordId))) {
+            CampaignManager::instance()->recreateCampaign($model);
+        }
+
+        return Redirect::refresh();
+    }
+
     public function onSend($recordId = null, $context = null)
     {
         $result = $this->asExtension('FormController')->update_onSave($recordId, $context);
@@ -222,6 +240,7 @@ class Messages extends Controller
     public function onRefreshTemplate($recordId = null)
     {
         if ($recordId && ($model = $this->formFindModelObject($recordId))) {
+            $model->rebuildContent();
             $model->save();
         }
 

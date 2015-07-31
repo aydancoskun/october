@@ -6,18 +6,21 @@ use Responsiv\Campaign\Models\Message;
 use Responsiv\Campaign\Models\Subscriber;
 use Responsiv\Campaign\Models\MessageStatus;
 use Carbon\Carbon;
+use ApplicationException;
 
 class CampaignManager
 {
 
     use \October\Rain\Support\Traits\Singleton;
 
-    public function process()
-    {
-        $this->processActive();
-        $this->checkPending();
-    }
+    //
+    // State
+    //
 
+    /**
+     * Sets the status to pending, ready to be picked up by
+     * the worker process.
+     */
     public function confirmReady($campaign)
     {
         if (!$campaign->is_delayed) {
@@ -26,52 +29,19 @@ class CampaignManager
 
         $campaign->status = MessageStatus::getPendingStatus();
         $campaign->save();
-
-        if (!$campaign->is_delayed) {
-            $this->launchCampaign($campaign);
-        }
     }
 
-    public function checkPending()
-    {
-        $now = new Carbon;
-        $pendingId = MessageStatus::getPendingStatus()->id;
-
-        $firstCampaign = Message::where('status_id', $pendingId)
-            ->get()
-            ->filter(function($message) use ($now) { return $message->launch_at <= $now; })
-            ->shift()
-        ;
-
-        if ($firstCampaign) {
-            $this->launchCampaign($firstCampaign);
-        }
-    }
-
-    public function archiveCampaign($campaign)
-    {
-        // Change status to archived
-        $campaign->status = MessageStatus::getArchivedStatus();
-        $campaign->save();
-
-        // Delete all subscriber info @todo
-    }
-
-    public function cancelCampaign($campaign)
-    {
-        // Change status to cancelled
-        $campaign->status = MessageStatus::getCancelledStatus();
-        $campaign->save();
-    }
-
+    /**
+     * Sets the status to active, binds all the subscribers to the message,
+     * recompiles the stats and repeats the campaign.
+     */
     public function launchCampaign($campaign)
     {
+        $campaign->status = MessageStatus::getActiveStatus();
+        $campaign->save();
+
         $this->bindListSubscribers($campaign);
         $this->bindGroupSubscribers($campaign);
-        $this->unbindSubscribers($campaign);
-
-        // Change status to active
-        $campaign->status = MessageStatus::getActiveStatus();
 
         $campaign->rebuildStats();
         $campaign->save();
@@ -79,6 +49,34 @@ class CampaignManager
         if ($campaign->is_repeating) {
             $this->repeatCampaign($campaign);
         }
+    }
+
+    /**
+     * When a campaign has no subscribers
+     */
+    public function recreateCampaign($campaign)
+    {
+        if ($campaign->count_subscriber > 0) {
+            throw new ApplicationException('Sorry, you cannot recreate this campaign because it has subscribers belonging to it.');
+        }
+
+        $campaign->status = MessageStatus::getDraftStatus();
+        $campaign->save();
+    }
+
+    public function archiveCampaign($campaign)
+    {
+        // Delete all subscriber info in the pivot table
+        $campaign->subscribers()->detach();
+
+        $campaign->status = MessageStatus::getArchivedStatus();
+        $campaign->save();
+    }
+
+    public function cancelCampaign($campaign)
+    {
+        $campaign->status = MessageStatus::getCancelledStatus();
+        $campaign->save();
     }
 
     public function repeatCampaign($campaign)
@@ -103,35 +101,9 @@ class CampaignManager
         return $duplicate;
     }
 
-    public function processActive()
-    {
-        $activeId = MessageStatus::getActiveStatus()->id;
-        $campaigns = Message::where('status_id', $activeId)->get();
-
-        foreach ($campaigns as $campaign) {
-            $subscribers = $campaign->subscribers()->whereNull('sent_at');
-
-            if (($staggerCount = $campaign->getStaggerCount()) !== -1) {
-                $subscribers->limit($staggerCount);
-            }
-
-            $subscribers = $subscribers->get();
-
-            foreach ($subscribers as $subscriber) {
-                $this->sendToSubscriber($campaign, $subscriber);
-                $subscriber->pivot->sent_at = $subscriber->freshTimestamp();
-                $subscriber->pivot->save();
-                $campaign->count_sent++;
-            }
-
-            if ($campaign->count_sent >= $campaign->count_subscriber) {
-                $campaign->status = MessageStatus::getSentStatus();
-            }
-
-            $campaign->rebuildStats();
-            $campaign->save();
-        }
-    }
+    //
+    // Sending
+    //
 
     public function sendToSubscriber($campaign, $subscriber)
     {
@@ -154,6 +126,10 @@ class CampaignManager
         return implode(PHP_EOL.PHP_EOL, $lines);
     }
 
+    //
+    // Helpers
+    //
+
     /**
      * Binds all subscribers from the campaign lists to the message.
      */
@@ -174,47 +150,50 @@ class CampaignManager
     /**
      * Binds all subscribers from the campaign groups to the message.
      */
-    protected function bindGroupSubscribers($campaign)
+    public function bindGroupSubscribers($campaign)
     {
         $groups = $campaign->groups;
         if (!is_array($groups)) return;
 
+        /*
+         * Get all group subscriber emails and info
+         */
         $groupSubscribers = [];
 
         foreach ($groups as $groupType) {
             $groupSubscribers = $groupSubscribers + $this->getGroupRecipientsData($groupType);
         }
 
-        $currentSubscribers = Subscriber::lists('id', 'email');
-        $newSubscribers = array_diff_key($groupSubscribers, $currentSubscribers);
-
+        /*
+         * Pair them to existing subscribers, or create them
+         */
+        $allSubscribers = Subscriber::lists('id', 'email');
         $ids = [];
 
-        foreach ($currentSubscribers as $email => $id) {
-            $ids[] = $id;
+        foreach ($groupSubscribers as $email => $info) {
+            /*
+             * New subscriber
+             */
+            if (!isset($allSubscribers[$email])) {
+                $info['email'] = $email;
+                $subscriber = Subscriber::create($info);
+                $ids[] = $subscriber->id;
+            }
+            /*
+             * Existing subscriber
+             */
+            else {
+
+                $ids[] = $allSubscribers[$email];
+            }
         }
 
-        foreach ($newSubscribers as $email => $info) {
-            $info['email'] = $email;
-            $subscriber = Subscriber::create($info);
-            $ids[] = $subscriber->id;
-        }
-
+        /*
+         * Sync to the campaign
+         */
         if (count($ids) > 0) {
             $campaign->subscribers()->sync($ids, false);
         }
-    }
-
-    /**
-     * Removes subscribers that have unsubscribed.
-     */
-    protected function unbindSubscribers($campaign)
-    {
-        $unsubscribed = $campaign->subscribers()
-            ->whereNotNull('unsubscribed_at')
-            ->lists('id');
-
-        $campaign->subscribers()->detach($unsubscribed);
     }
 
     /**

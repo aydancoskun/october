@@ -81,6 +81,7 @@ fields:
         type: radio
         span: left
         cssClass: field-indent
+        context: send
         options:
             time: Send over a set period of time
             count: Send in batches of a fixed amount

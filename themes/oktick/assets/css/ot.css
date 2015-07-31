@@ -1,0 +1,432 @@
+/*
+We highly recommend you use SASS and write your custom styles in sass/_custom.scss.
+However, this file is available if you prefer
+*/
+/*
+.navbar {
+	heigth: 20px;
+}
+*/
+body {
+    font-size: 16px;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+}
+body, h1, h2, h3, h4, h5, h6, p, div {
+    font-family: "Open Sans", "Lucida Sans Unicode", "Lucida Grande", "sans-serif";
+}
+.btn .drawer {
+	margin-bottom: 10px;
+}
+.drawer {
+	text-align: center;
+}
+h1.lead {
+	border-bottom: 1px dotted #ccc;
+	margin-bottom: 30px;
+}
+h4.lead {
+	margin-bottom: 10px;
+}
+.vertical-center{
+    vertical-align: middle;
+}
+.tab-content {
+    -moz-border-bottom-colors: none;
+	-moz-border-left-colors: none;
+	-moz-border-right-colors: none;
+	-moz-border-top-colors: none;
+	border-color: #e5e5e5;
+	border-image: none;
+	border-radius: 0 0 4px 4px;
+	border-style: solid;
+	border-width: 0 1px 1px 1px;
+}
+#container1 {
+    -moz-border-bottom-colors: none;
+	-moz-border-left-colors: none;
+	-moz-border-right-colors: none;
+	-moz-border-top-colors: none;
+	border-color: #e5e5e5;
+	border-image: none;
+	border-radius: 0 0 4px 4px;
+	border-style: solid;
+	border-width: 0 1px 1px 1px;
+	padding-left: 0;
+	padding-right: 0;
+}
+.tab-nav > li > a {
+	color: #3085d6;
+	text-decoration: none;
+}
+a:link.supplier-list {
+	text-decoration: none;
+}
+a:visited.supplier-list {
+	text-decoration: none;
+}
+a:hover.supplier-list {
+	text-decoration: none;
+}
+a:active.supplier-list {
+	text-decoration: none;
+}
+.autocomplete-suggestions {
+	border: 1px solid #999;
+	background: #FFF;
+	cursor: default;
+	overflow: auto;
+	-webkit-box-shadow: 1px 4px 3px rgba(50, 50, 50, 0.64);
+	-moz-box-shadow: 1px 4px 3px rgba(50, 50, 50, 0.64);
+	box-shadow: 1px 4px 3px rgba(50, 50, 50, 0.64);
+	font-weight: normal;
+	/*color: #337AB7;*/
+	color: #61b0ff;
+}
+.autocomplete-suggestion {
+	padding: 2px 5px;
+	white-space: nowrap;
+	overflow: hidden;
+}
+.autocomplete-selected {
+	background: #F0F0F0;
+}
+.autocomplete-suggestions strong {
+	font-weight: normal;
+	/*color: #337AB7;*/
+	color: #61b0ff;
+}
+.no-glow {
+	box-shadow: inset 0 0 0 rgba(0, 0, 0, 0.075), 0 0 0 rgba(255, 0, 0, 0.6) !important;
+	border-color: #cccccc !important;
+}
+#autocomplete-ajax {
+	background: url('../img/searchoff.gif') no-repeat right center;
+	border-radius: 4px 0 0 4px;
+}
+#go-button {
+    border-radius: 0 4px 4px 0;
+}
+#str_status_msg {
+	/*color: #337AB7;*/
+	color: #61b0ff;
+/*	font-size: 14px;*/
+	margin: 20px 0 1px 6px;
+}
+#str_status_msg_right {
+	color: #D04526;
+/*	font-size: 14px;*/
+}
+
+.logohtml {
+	font-size: 16px;
+	font-weight: 400;
+	font-family: Arial, 'Helvetica Neue', Helvetica, sans-serif;
+}
+
+/* Sticky footer styles
+-------------------------------------------------- */
+html {
+    position: relative;
+    min-height: 100%;
+}
+body {
+    /* Margin bottom by footer height */
+    margin-bottom: 60px;
+}
+.footer {
+    position: absolute;
+    bottom: 0;
+    width: 100%;
+    /* Set the fixed height of the footer here */
+    height: 50px;
+    background-color: #ffffff;
+}
+body > .container {
+    padding: 60px 15px 0;
+}
+.container .text-muted {
+    margin: 20px 0;
+}
+/* NAVBAR */
+.footer > .container {
+    padding-right: 15px;
+    padding-left: 15px;
+}
+.navbar-default .navbar-nav>li>a:link {
+    text-decoration: none;
+    background-color: #F8F8F8 !important;
+}
+/* visited link */
+.navbar-default .navbar-nav>li>a:visited {
+    text-decoration: none;
+    background-color: #F8F8F8 !important;
+}
+/* mouse over link */
+.navbar-default .navbar-nav>li>a:hover {
+    text-decoration: none;
+    border-radius:0px;
+    border-bottom-width: 4px;
+    border-bottom-style: solid;
+    border-bottom-color: #337AB7;
+    color: #337AB7 !important;
+    background-color: transparent !important;
+    padding-bottom: 11px;
+}
+/* selected link */
+.navbar-default .navbar-nav>.active>a:active {
+    color: #337AB7;
+    text-decoration: none;
+    background-color: #F8F8F8!important;
+}
+.navbar-default .navbar-nav>.active>a:hover {
+    text-decoration: none;
+    border-radius:0px;
+    border-bottom-width: 4px;
+    border-bottom-style: solid;
+    border-bottom-color: #337AB7;
+    color: #337AB7 !important;
+    background-color: transparent !important;
+    padding-bottom: 11px;
+}
+
+.navbar-default .navbar-nav>.active>a:visited {
+    color: #337AB7;
+    background-color: #F8F8F8!important;
+    text-decoration: none;
+}
+.navbar-default .navbar-nav>li>a>span:link {
+    /* color: #FF0000; */
+    text-decoration: none;
+    background-color: #F8F8F8!important;
+}
+a.navbar-bottom{
+    text-decoration: none;
+    background-color: #ffffff !important;
+}
+#noscript-warning, #top-alert {
+    font-weight: bold;
+    left: 0;
+    padding: 5px 0;
+    position: fixed;
+    text-align: center;
+    top: 50px;
+    width: 100%;
+    z-index: 100;
+}
+
+
+
+
+
+#cookie-law {
+    position: fixed;
+    bottom: 50px;
+    left: 0;
+    right: 0;
+    text-align: center;
+    z-index: 9999;
+}
+#cookie-law > div {
+    background: #fff;
+    opacity: 0.95;
+    width: 75% !important;
+    padding: 20px;
+    max-width: 600px;
+    margin: auto;
+    display: inline-block;
+    border-radius: 5px 5px 0 0;
+    -moz-border-radius: 5px 5px 0 0;
+    -webkit-border-radius: 5px 5px 0 0;
+    -o-border-radius: 5px 5px 0 0;
+    box-shadow: 0px 0px 20px #A1A1A1;
+    -webkit-box-shadow: 0px 0px 20px #A1A1A1;
+    -moz-box-shadow: 0px 0px 20px #A1A1A1;
+    -o-box-shadow: 0px 0px 20px #A1A1A1;
+    position: relative;
+}
+#cookie-law h4 {
+    padding: 0 !important;
+    margin: 0 0 8px !important;
+    font-size: 14px !important;
+}
+#cookie-law p {
+    padding: 0 !important;
+    margin: 0 !important;
+    font-size: 12px !important;
+    line-height: 18px !important;
+}
+a.enlace {
+    padding: 0 !important;
+    margin: 0 !important;
+    font-size: 12px !important;
+    line-height: 18px !important;
+}
+a.close-cookie-banner {
+    position: absolute;
+    top: 0px;
+    right: 0px;
+    margin: 10px;
+    display: block;
+    width: 20px;
+    height: 20px;
+    background: url('/themes/oktick/assets/img/close.png') no-repeat;
+    background-size: 20px !important;
+}
+a.close-cookie-banner span {
+    display: none !important;
+}
+span.badge-primary {
+    background-color: #428bca;
+}
+span.badge-success {
+    background-color: #5cb85c;
+}
+span.badge-info {
+    background-color: #5bc0de;
+}
+span.badge-warning {
+    background-color: #f0ad4e;
+}
+span.badge-danger {
+    background-color: #d9534f;
+}
+
+span.glyphicon-primary {
+    color: #428bca;
+}
+span.glyphicon-success {
+    color: #5cb85c;
+}
+span.glyphicon-info {
+    color: #5bc0de;
+}
+span.glyphicon-warning {
+    color: #f0ad4e;
+}
+span.glyphicon-danger {
+    color: #d9534f;
+}
+/* CSS-for last column blanc    */
+.border_only_right table {
+    border-top-style: none;
+    border-right-style: none;
+    border-bottom-style: none;
+    border-top-width: 0;
+    border-right-width: 0;
+    border-bottom-width: 0;
+}
+
+/* CSS-only ribbon styles    */
+.cnrflash
+{
+    /*Position correctly within container*/
+    position: absolute;
+    top: -9px;
+    right: 4px;
+    z-index: 1; /*Set overflow to hidden, to mask inner square*/
+    overflow: hidden; /*Set size and add subtle rounding  		to soften edges*/
+    width: 100px;
+    height: 100px;
+    border-radius: 3px 5px 3px 0;
+}
+.cnrflash-inner
+{
+    /*Set position, make larger then 			container and rotate 45 degrees*/
+    position: absolute;
+    bottom: 0;
+    right: 0;
+    width: 145px;
+    height: 145px;
+    -ms-transform: rotate(45deg); /* IE 9 */
+    -o-transform: rotate(45deg); /* Opera */
+    -moz-transform: rotate(45deg); /* Firefox */
+    -webkit-transform: rotate(45deg); /* Safari and Chrome */
+    -webkit-transform-origin: 100% 100%; /*Purely decorative effects to add texture and stuff*/ /* Safari and Chrome */
+    -ms-transform-origin: 100% 100%;  /* IE 9 */
+    -o-transform-origin: 100% 100%; /* Opera */
+    -moz-transform-origin: 100% 100%; /* Firefox */
+    background-image: linear-gradient(90deg, transparent 50%, rgba(255,255,255,.1) 50%), linear-gradient(0deg, transparent 0%, rgba(1,1,1,.2) 50%);
+    background-size: 4px,auto, auto,auto;
+    background-color: #ff0000;
+    box-shadow: 0 3px 3px 0 rgba(1,1,1,.5), 0 1px 0 0 rgba(1,1,1,.5), inset 0 -1px 8px 0 rgba(255,255,255,.3), inset 0 -1px 0 0 rgba(255,255,255,.2);
+}
+.cnrflash-inner:before, .cnrflash-inner:after
+{
+    /*Use the border triangle trick to make  				it look like the ribbon wraps round it's 				container*/
+    content: " ";
+    display: block;
+    position: absolute;
+    bottom: -16px;
+    width: 0;
+    height: 0;
+    border: 8px solid #b20000;
+}
+.cnrflash-inner:before
+{
+    left: 1px;
+    border-bottom-color: transparent;
+    border-right-color: transparent;
+}
+.cnrflash-inner:after
+{
+    right: 0;
+    border-bottom-color: transparent;
+    border-left-color: transparent;
+}
+.cnrflash-label
+{
+    /*Make the label look nice*/
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    display: block;
+    width: 100%;
+    padding-bottom: 5px;
+    color: #fff;
+    text-shadow: 0 1px 1px rgba(1,1,1,.8);
+    font-size: 0.95em;
+    font-weight: bold;
+    text-align: center;
+}
+
+/* CSS for Credit Card Payment form */
+.panel-title {display: inline;font-weight: bold;}
+.checkbox.pull-right { margin: 0; }
+.pl-ziro { padding-left: 0px; }
+.form-control.error {
+    border-color: red;
+    outline: 0;
+    box-shadow: inset 0 1px 1px rgba(0,0,0,0.075),0 0 8px rgba(255,0,0,0.6);
+}
+label.error {
+  font-weight: bold;
+  color: red;
+  padding: 2px 8px;
+  margin-top: 2px;
+}
+.payment-errors {
+  font-weight: bold;
+  color: red;
+  padding: 2px 8px;
+  margin-top: 2px;
+}
+.payment_options_div {background: #fff;}
+.payment_options_div:hover {background: #f5f5f5;}
+
+.col-centered{
+    margin: 0 auto;
+    float: none;
+}
+.badge-menu {
+    vertical-align: middle;
+    margin-top:-3px;
+}
+.badge-icon {
+    vertical-align: middle;
+    margin-top:-4px;
+}
+.border-none {
+    border: 0;
+}
+}

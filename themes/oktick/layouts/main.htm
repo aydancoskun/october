@@ -3,29 +3,226 @@ security = "all"
 ==
 <?php
 function onInit()
-{ 
-    $debug = strtolower(Input::get("debug"));
-    if($debug=="yes" OR $debug=="y" OR $debug=="true" OR $debug=="1" OR $debug=="" ) \Debugbar::enable();
-    else \Debugbar::disable();
-    $this['nbsp'] = "&nbsp;";
-}
-function onStart()
+
 {
-    try {
-        $user = $this->session->user()->attributes;
-    } catch (Exception $e) {
-        \Debugbar::addException($e);
+
+    $debug = strtolower(Input::get("debug"));
+
+    if($debug=="ipiresearch") {
+        Debugbar::enable();
+        Debugbar::addMessage($this->page->id, getHostByName(getHostName()));
+        Debugbar::addMessage($this->page->id, 'id');
+        Debugbar::addMessage($this->page->url, 'url');
+        Debugbar::addMessage($this->page->title, 'title');
+        Debugbar::addMessage($this->page->description, 'description');
+        Debugbar::addMessage($this->page->meta_title, 'meta_title');
+        Debugbar::addMessage($this->page->meta_description, 'meta_description');
+        Debugbar::addMessage($this->page->fileName, 'fileName');
+        Debugbar::addMessage($this->page->baseFileName, 'baseFileName');
+        Debugbar::addMessage($this->page->baseFileName, 'baseFileName');
+    } else {
+        Debugbar::disable();
     }
+
+}
+
+function onStart()
+
+{
+
+//    \Debugbar::info("account layout onStart()");
+
+    try {
+
+//        if (Session::has('user')) {
+
+//            $user = Session::get('user');
+
+//        } else {
+
+
+
+        $user = $this->session->user()->attributes;
+
+//            Session::put('user', $user);
+
+//        }
+
+        //$user['id']=2;
+
+        //$user['ok_company_id']=12870;
+
+        //$user['ok_credits']=10;
+
+        //$user['email']="leancode@gmail.com";
+
+        //$user['name']="first";
+
+        //$user['surname']="last";
+
+
+
+        $user_id = $user['id'];
+
+        $company_id = $user['ok_company_id'];
+
+        //$this['products'] = DB::table('operations.bp_suppliers')->where('company_uid', $company_id)->get();
+
+        #SELECT position FROM operations.bps_suppliers s2 WHERE s2.bp_id = 406992 AND s2.company_id = 12870 LIMIT 1
+
+
+
+//        if (Session::has('products')) {
+
+//            $this['products'] = Session::get('products');
+
+//        } else {
+
+            $sql="SELECT ".
+
+                "bs.bp_uid as bp_id,".
+
+                "concat(bs.bp,' (',bs.bp_uid,')') as bp_name,".
+
+                "prime_uid as prime_id,".
+
+                "(SELECT bp_position    FROM operations.bp_supplier_positions bsp WHERE bsp.bp_id = bs.bp_uid AND bsp.company_id = $company_id ) as tpos,".
+
+                "(SELECT applied_credit FROM operations.bp_sponsors           bs1 WHERE bs1.bp_id = bs.bp_uid AND bs1.company_id = $company_id AND bs1.user_id = $user_id AND bs1.start_stamp < now() AND now() < bs1.end_stamp ) AS bp_user_credits, ".
+
+                "(SELECT count(*)+1     FROM operations.bp_supplier_positions bs2 WHERE bs2.bp_id = bs.bp_uid AND bs2.bp_position   > tpos) as bp_low,".
+
+                "(SELECT count(*)       FROM operations.bp_supplier_positions bs3 WHERE bs3.bp_id = bs.bp_uid AND bs3.bp_position  >= tpos) as bp_high, ".
+
+                "(SELECT end_stamp      FROM operations.bp_sponsors           bs4 WHERE bs4.bp_id = bs.bp_uid AND bs4.company_id = $company_id AND bs4.user_id = $user_id AND bs4.start_stamp < now() AND now() < bs4.end_stamp ) AS end_stamp, ".
+
+                "(SELECT applied_credit FROM operations.bp_sponsors           bs4 WHERE bs4.bp_id = bs.bp_uid AND bs4.company_id = $company_id  AND bs4.user_id = $user_id AND bs4.start_stamp < now() AND now() < bs4.end_stamp ) AS bp_credits ".
+
+            "FROM ".
+
+                "operations.bp_suppliers bs ".
+
+            "WHERE ".
+
+                "bs.company_uid = $company_id";
+
+            $this['products'] = DB::select($sql);
+
+//            Session::put('products', $this['products']);
+
+//        }
+
+//        $data = Session::all();
+
+//        dd($data);
+
+//        exit;
+
+
+
+
+
+        $bp_low=$this['products'][0]->bp_low;
+
+        $bp_high=$this['products'][0]->bp_high;
+
+
+
+        //$this['products_count']
+
+        $company_products_count = count($this['products']);
+
+        $sponored_products_count=0;
+
+        foreach($this['products'] as $product){
+
+            if($product->bp_credits > 0) $sponored_products_count++;
+
+        }
+
+        //$this['active_count']=$sponored_products_count;
+
+//        \Debugbar::info($this->session->user()->attributes);
+
+        //$this['ok_credits'] = $user['ok_credits'];
+
+        //$this['email'] = $user['email'];
+
+        //$this['name'] = $user['name'];
+
+        //$this['surname'] = $user['surname'];
+
+        //$this['user_id'] = $user['id'];;
+
+        //$this['company_id'] = $user['ok_company_id'];
+
+        if($user['ok_company_products_count']<>$company_products_count OR $user['ok_sponored_products_count']<>$sponored_products_count){
+
+            DB::table('oktick.users')
+
+                ->where('id', $user_id)
+
+                ->update(array(
+
+                'ok_sponored_products_count' => $sponored_products_count,
+
+                'ok_company_products_count' => $company_products_count,
+
+            ));
+
+        }
+
+        //return ['#badge_total'] => $this->render($this['products_count']);
+
+        return;
+
+    } catch (Exception $e) {
+
+        Debugbar::addMessage("No user found");
+
+    }
+
+}
+
+function verifyPost($post_name,$check="int"){
+
+    if( !isset($_POST[$post_name]) ) App::abort(403, 'Forbidden');
+
+    $post_val_raw = post($post_name);
+
+    if($check=="int") $post_val_cast = (int) $post_val_raw;
+
+    if($check=="float") $post_val_cast = (float) $post_val_raw;
+
+    if($check=="string") $post_val_cast = (string) $post_val_raw;
+
+    if( $post_val_raw <> $post_val_cast ) App::abort(403, 'Forbidden');
+
+    return $post_val_cast;
+
+}
+
+function onHelp() {
+
+    $state = $this->verifyPost('state',"string");
+
+    $store = $this->verifyPost('store',"string");
+
+    try{
+        $user_id = $this->session->user()->attributes['id'];
+
+        if($state=="_off") $state=0;
+
+        elseif($state=="_on") $state=1;
+
+        DB::table('oktick.users')->where('id', $user_id )->update(array($store => $state));
+    } catch (Exception $e) {
+
+        Debugbar::addMessage("No user found to store help");
+
+    }
+
 }
 ?>
 ==
-{% partial "head" cssfile="oktick.css" %}
-{% partial "nav-top" %}
-<div class="container"><div class="row"></div></div>
-<div class="container">
-{% partial "logo-embeded-defered" %}
-<br>
 {% page %}
-</div><!--/container -->
-{% partial "nav-bottom" %}
-{% partial "foot" %}

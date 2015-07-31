@@ -1,3 +1,4 @@
+{% set epsettings = __SELF__.epsettings %}
 {{ form_ajax('onProfileUpdate', { model: profile, update: { 'ExtendedInfo::extended-info': '#extended-info' }  }) }}
 {% for name, prop in epsettings %}    
     <div class="form-group">

@@ -1,6 +1,7 @@
 <?php namespace Responsiv\Campaign\Components;
 
 use Mail;
+use Request;
 use Validator;
 use ValidationException;
 use ApplicationException;
@@ -8,6 +9,7 @@ use Cms\Classes\Page;
 use Cms\Classes\ComponentBase;
 use Responsiv\Campaign\Models\Subscriber;
 use Responsiv\Campaign\Models\SubscriberList;
+use Exception;
 
 class Signup extends ComponentBase
 {
@@ -37,7 +39,7 @@ class Signup extends ComponentBase
             ],
             'templatePage' => [
                 'title'       => 'Confirmation page',
-                'description' => 'If confirmation is required, select any mail template to used for generating the confirmation link.',
+                'description' => 'If confirmation is required, select any mail template used for generating a confirmation URL link.',
                 'type'        => 'dropdown',
                 'showExternalParam' => false
             ],
@@ -59,29 +61,46 @@ class Signup extends ComponentBase
         /*
          * Validate input
          */
-        $data = post();
+        $data = [
+            'email' => post('email'),
+            'first_name' => post('first_name'),
+            'last_name' => post('last_name')
+        ];
 
         $rules = [
             'email' => 'required|email|min:2|max:64',
         ];
 
         $validation = Validator::make($data, $rules);
-        if ($validation->fails())
+        if ($validation->fails()) {
             throw new ValidationException($validation);
+        }
 
         /*
          * Create and add the subscriber
          */
+        $this->page['requireConfirmation'] = $this->property('confirm', false);
+        $this->page['error'] = null;
+
+        try {
+            $this->listSubscribe($data);
+        }
+        catch (Exception $ex) {
+            $this->page['error'] = $ex->getMessage();
+        }
+    }
+
+    protected function listSubscribe(array $data)
+    {
         $listCode = $this->property('list');
         $requireConfirmation = $this->property('confirm', false);
 
         $subscriber = Subscriber::signup([
-            'email' => post('email'),
-            'first_name' => post('first_name'),
-            'last_name' => post('last_name'),
+            'email' => array_get($data, 'email'),
+            'first_name' => array_get($data, 'first_name'),
+            'last_name' => array_get($data, 'last_name'),
+            'created_ip_address' => Request::ip()
         ], $listCode, !$requireConfirmation);
-
-        $this->page['requireConfirmation'] = $requireConfirmation;
 
         /*
          * Send confirmation email

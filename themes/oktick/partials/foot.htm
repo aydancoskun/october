@@ -2,37 +2,43 @@ description = "foot"
 
 [viewBag]
 ==
-<!-- Bootstrap needed fields -->
-<div id="str_status_msg_onSearchStart" style="display:none;">Searching...</div>
-<div id="str_status_msg_onSelect"	   style="display:none;">Searching...</div>
-<div id="str_status_msg_searchSubmit"  style="display:none;">Searching...</div>
-<!-- Bootstrap core JavaScript -->
-<script src="//ajax.googleapis.com/ajax/libs/jquery/1.11.2/jquery.min.js"></script><!--try to use CDN first-->
-<script>window.jQuery || document.write('<script src="/app/ot/assets/jquery/1.11.2/jquery.min.js"><\/script>')</script><!--if CDN file isn't delivered, send a local file-->
-<script src="//maxcdn.bootstrapcdn.com/bootstrap/3.3.4/js/bootstrap.min.js"></script><!--try to use CDN first-->
-<script>$.fn.modal || document.write('<script src="//srv/www/oktick/html/app/ot/assets/bs3/js/bootstrap.min.js"><\/script>')</script><!--if CDN file isn't delivered, send a local file-->
-
-<!-- IE10 viewport hack for Surface/desktop Windows 8 bug -->
-<!--script src="/app/ot/assets/bs3/js/ie10-viewport-bug-workaround.js"></script-->
-<script src="/app/ot/assets/jquery.autocomplete.git/src/jquery.autocomplete.js"></script>
-<!--script src="/app/ot/assets/js/responsive-placeholder-images-custom.js"></script-->
-<!--script src="/app/ot/assets/libs/Readmore.js/readmore.js"></script-->
-<script src="/app/ot/assets/jquery.dotdotdot.git/src/js/jquery.dotdotdot.min.js"></script>
-<script src="/modules/system/assets/js/framework.js"></script>
-<script src="/modules/system/assets/js/framework.extras.js"></script>
-<script src="/app/ot/assets/js/oktick.js"></script>
-<script src="/app/ot/assets/js/redactor.js"></script>
-<script src="/plugins/rainlab/editable/assets/js/editable.js"></script>
-<noscript><div id="noscript-warning" class="alert alert-danger">OKTicK works best with JavaScript enabled</div></noscript>
+<?php
+function onStart(){
+    $this->addJs('/app/ot/assets/js/oktick.js');
+    if (env("APP_ENV") == "development"){
+        $this->addJs('/app/ot/assets/js/edit.js');
+        $this->addJs('/app/ot/assets/js/redact.js');
+    }
+}
+?>
+==
+<!--[if lt IE 10]>
+<script src="/app/ot/assets/js/ie10.js"></script>
+<![endif]-->
+{% scripts %}
+<noscript>
+    {% if user %}
+        <div id="noscript-warning" class="alert alert-danger">
+            The accounts section of OKTicK requires that JavaScript is enabled
+        </div>
+        <div>
+            You <strong>must</strong> <a href="http://www.enable-javascript.com" target="_blank">enable JavaScript</a> in your web browser to continue.
+        </div>"
+    {% else %}
+        <div id="noscript-warning" class="alert alert-danger">
+            OKTicK works best with JavaScript enabled
+        </div>
+    {% endif %}">
+</noscript>
 {% flash %}
-<div id="top-alert" class="alert alert-{{ type == 'error' ? 'danger' : type }}">{{ message }}</div>
+    <div id="top-alert" class="alert alert-{{ type == 'error' ? 'danger' : type }}">{{ message }}</div>
 {% endflash %}
 <div id="cookie-lawe" class="collapse">
     <div>
-    <h4 id="cookie-law-H4">We do use cookies on our site...</h4>
-    <p id="cookie-law-p">We use them to ensure that we give you the best user experience possible. If you continue without changing your browser's settings, we'll assume that you are happy to receive all those yummy cookies.</p>
-    <a class="enlace text-center" href="/privacy-policy">Please see our privacy policy for full details on how we use cookies.</a>
-    <a class="close-cookie-banner" href="javascript:void(0);" onclick="$(this).parent().parent().hide();createCookie(365,false);"><span>Close</span></a>
+        <h4 id="cookie-law-H4">We do use cookies on our site...</h4>
+        <p id="cookie-law-p">We use them to ensure that we give you the best user experience possible. If you continue without changing your browser's settings, we'll assume that you are happy to receive all those yummy cookies.</p>
+        <a class="enlace text-center" href="/privacy-policy">Please see our privacy policy for full details on how we use cookies.</a>
+        <a class="close-cookie-banner" href="javascript:void(0);" onclick="$(this).parent().parent().hide();createCookie(365,false);"><span>Close</span></a>
     </div>
 </div>
 </body>

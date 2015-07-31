@@ -2,6 +2,7 @@
 
 use Event;
 use Config;
+use Request;
 use Response;
 use ApplicationException;
 use Cms\Classes\ComponentBase;
@@ -156,6 +157,8 @@ class Template extends ComponentBase
             throw new ApplicationException('Invalid hash');
         }
 
+        $subscriber->confirmed_ip_address = Request::ip();
+        $subscriber->confirmed_at = $subscriber->freshTimestamp();
         $subscriber->unsubscribed_at = null;
         $subscriber->save();
 

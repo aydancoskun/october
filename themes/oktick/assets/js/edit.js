@@ -1,0 +1,1 @@
+../../../../plugins/rainlab/editable/assets/js/editable.js

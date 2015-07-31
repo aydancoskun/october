@@ -22,7 +22,10 @@ class Message extends Model
      */
     public $table = 'responsiv_campaign_messages';
 
-    public $dates = ['launch_at'];
+    /**
+     * @var array Date fields
+     */
+    public $dates = ['launch_at', 'processed_at'];
 
     /**
      * @var array Guarded fields
@@ -80,11 +83,10 @@ class Message extends Model
         if (empty($this->status_id)) {
             $this->status_id = MessageStatus::getDraftStatus()->id;
         }
-    }
 
-    public function beforeSave()
-    {
-        $this->rebuildContent();
+        if (empty($this->content)) {
+            $this->rebuildContent();
+        }
     }
 
     public function getUniqueCode($subscriber)
@@ -103,7 +105,7 @@ class Message extends Model
     /**
      * Rebuild and sync fields and data
      */
-    protected function rebuildContent()
+    public function rebuildContent()
     {
         $this->content = $this->getPageContent($this->page);
         $this->makeSyntaxFields($this->content);
@@ -151,6 +153,7 @@ class Message extends Model
             'syntax_fields' => $this->syntax_fields,
             'groups'        => $this->groups,
             'page'          => $this->page,
+            'content'       => $this->content,
             'name'          => $this->name,
             'subject'       => $this->subject,
             'is_staggered'  => $this->is_staggered,
@@ -302,6 +305,8 @@ class Message extends Model
 
     public function renderTemplate()
     {
+        if (!$this->content) return null;
+
         $parser = $this->getSyntaxParser($this->content);
         $data = $this->getSyntaxData();
         $template = $parser->render($data);

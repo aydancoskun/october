@@ -45,10 +45,9 @@ class ExtendedInfo extends ComponentBase
 
         if (!$this->user)
             return null;
-        $this->epsettings = $this->page['epsettings'] = $this->loadSettings($this->user);
+        $this->epsettings = $this->loadSettings($this->user);
         $this->userid = intval( $this->user->id );
-        $this->page['user'] = $this->user;
-        $this->page['extprofile'] = $this->extprofile = $this->user->profile;
+        $this->extprofile = $this->user->profile;
     }
 
     public function onRun()
@@ -60,34 +59,19 @@ class ExtendedInfo extends ComponentBase
     {
         return [''=>'- none -'] + Page::sortBy('baseFileName')->lists('baseFileName', 'baseFileName');
     }
-    
-    protected function getProfile()
-    {
-        if (!$this->userid) return null;
-        
-        $this->extprofile = Profile::where('user_id', '=', $this->userid)->first();
-        if (!$this->extprofile)
-        {
-            $this->extprofile = new Profile();
-            $this->extprofile->user_id = $this->userid;
-        }
-        return $this->extprofile;
-    }
-
 
     protected function onProfileForm()
     {
-        if (!$extprofile = $this->getProfile()) return null;
-        $this->extprofile = $this->page['extprofile'] = $extprofile;
+        if (!$this->user) return null;
     }
 
 
     protected function onProfileUpdate()
     {
         
-        if (!$extprofile = $this->getProfile()) return null;
-
-        $extprofile->save(post());
+        if (!$this->user) return null;
+        $this->extprofile->fill(post());
+        $this->extprofile->save();
         
         return Redirect::intended($this->pageUrl($this->property('redirect')));
     }

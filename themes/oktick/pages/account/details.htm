@@ -1,7 +1,7 @@
 title = "Details"
 url = "/account/details"
-layout = "account"
-hidden = "0"
+layout = "main"
+is_hidden = "0"
 ==
 <?php
 function onStart() {
@@ -79,7 +79,7 @@ function onUpdate() {
 }
 ?>
 ==
-{% partial "acc-head" cssfile="oktick.css" %}
+{% partial "head" %}
 {% partial "nav-top" %}
 <div class="container">
 
@@ -238,5 +238,5 @@ $('#invoice').load(function(){
 });
 </script>
 </div><!--/container -->
-{% partial "acc-nav-bottom" %}
-{% partial "acc-foot" %}
+{% partial "nav-bottom" %}
+{% partial "foot" %}

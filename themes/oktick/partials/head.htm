@@ -2,6 +2,16 @@ description = "new head"
 
 [viewBag]
 ==
+<?php
+function onStart(){
+    $this->addCss('/app/ot/assets/css/oktick.css');
+    if (env("APP_ENV") == "development"){
+        $this->addCss('/app/ot/assets/css/edit.css');
+        $this->addCss('/app/ot/assets/css/redact.css');
+    }
+}
+?>
+==
 <!DOCTYPE html>
 <html lang="en" itemscope itemtype="http://schema.org/ProductSearch">
 <head>
@@ -63,15 +73,8 @@ description = "new head"
         document.getElementsByTagName("head")[0].appendChild(local_bootstrap);
     }
 </script>
-<!-- Custom styles for this template -->
 <link rel="stylesheet" href="//fonts.googleapis.com/css?family=Open+Sans:400,300,600,700">
-
-<!--link rel="stylesheet" href="/app/ot/assets/flexbox.git/jquery.flexbox.css" /-->
-<link rel="stylesheet" href="/app/ot/assets/css/responsive-placeholder-images-custom.css" />
-<link rel="stylesheet" href="/modules/system/assets/css/framework.extras.css">
-<link rel="stylesheet" href="/app/ot/assets/css/{{cssfile}}">
-<link rel="stylesheet" href="/app/ot/assets/css/redactor.css">
-<link rel="stylesheet" href="/plugins/rainlab/editable/assets/css/editable.css" />
+{% styles %}
 <noscript>
 <!--link rel="stylesheet" href="/app/ot/assets/css/oktick-noscript.css"-->
 </noscript>
@@ -79,5 +82,10 @@ description = "new head"
 <script src="https://oss.maxcdn.com/html5shiv/3.7.2/html5shiv.min.js"></script>
 <script src="https://oss.maxcdn.com/respond/1.4.2/respond.min.js"></script>
 <![endif]-->
+<!-- Bootstrap core JavaScript -->
+<script src="//ajax.googleapis.com/ajax/libs/jquery/1.11.2/jquery.min.js"></script><!--try to use CDN first-->
+<script>window.jQuery || document.write('<script src="/app/ot/assets/js/jq.js"><\/script>')</script><!--if CDN file isn't delivered, send a local file-->
+<script src="//maxcdn.bootstrapcdn.com/bootstrap/3.3.4/js/bootstrap.min.js"></script><!--try to use CDN first-->
+<script>$.fn.modal || document.write('<script src="/app/ot/assets/js/bs.js"><\/script>')</script><!--if CDN file isn't delivered, send a local file-->
 </head>
 <body id="body">

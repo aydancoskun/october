@@ -15,3 +15,11 @@
 1.0.8:
     - Staggered launch can now be performed for a fixed amount of messages sent every hour.
     - messages_add_stagger_time.php
+1.1.0:
+    - Added subscriber import options. Subscriber IP addresses are now logged.
+    - subscribers_add_ip_address.php
+1.1.1:
+    - Each campaign message will strictly send once per hour even if the worker is called multiple times.
+    - messages_add_processed_time.php
+1.1.2: Fixes a bug where launching against group subscribers will send to everyone.
+1.1.3: Prevent instances of data loss when the source template no longer exists or has changed.

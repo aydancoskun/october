@@ -1,0 +1,41 @@
+# ===================================
+#  List Column Definitions
+# ===================================
+
+columns:
+    email:
+        label: Email Address
+
+    first_name:
+        label: First Name
+        invisible: true
+
+    last_name:
+        label: Last Name
+        invisible: true
+
+    subscriber_lists:
+        label: Lists
+        relation: subscriber_lists
+        select: name
+
+    created_at:
+        label: Opt-in Date
+        type: date
+
+    created_ip_address:
+        label: Opt-in IP Address
+
+    confirmed_at:
+        label: Confirmed Date
+        type: date
+
+    confirmed_ip_address:
+        label: Confirmed IP Address
+
+    updated_at:
+        label: Last Updated Date
+        type: date
+
+    message_type:
+        label: Preferred Message Type

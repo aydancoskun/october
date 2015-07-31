@@ -9,6 +9,7 @@
 
     <?php
         $isLaunched = $formModel->status && $formModel->status != 'draft';
+        $isPending = $formModel->status && $formModel->status == 'pending';
         $isSent = $formModel->status && $formModel->status == 'sent';
     ?>
 
@@ -19,9 +20,9 @@
                 <div class="scoreboard-item control-chart" data-control="chart-pie">
                     <ul>
                         <?php if (!$isSent): ?>
-                            <li data-color="#e5a91a">Queued <span><?= $formModel->count_subscriber - $formModel->count_sent ?></span></li>
+                            <li data-color="#cccccc">Queued <span><?= $formModel->count_subscriber - $formModel->count_sent ?></span></li>
                         <?php endif ?>
-                        <li data-color="#cccccc">Sent <span><?= $formModel->count_sent ?></span></li>
+                        <li data-color="#e5a91a">Sent <span><?= $formModel->count_sent ?></span></li>
                         <li data-color="#95b753">Opened <span><?= $formModel->count_read ?></span></li>
                         <?php if ($isSent): ?>
                             <li data-color="#ff0000">Unsubscribed <span><?= $formModel->count_stop ?></span></li>
@@ -45,7 +46,13 @@
                     <?php elseif ($formModel->status == 'pending'): ?>
                         <p class="description">Awaiting launch...</p>
                     <?php elseif ($formModel->status == 'active'): ?>
-                        <p class="description">In progress...</p>
+                        <p class="description">
+                            <?php if ($formModel->processed_at): ?>
+                                Last processed: <?= $formModel->processed_at->diffForHumans() ?>
+                            <?php else: ?>
+                                In progress...
+                            <?php endif ?>
+                        </p>
                     <?php elseif ($formModel->status == 'cancelled'): ?>
                         <p class="description">Campaign cancelled</p>
                     <?php else: ?>
@@ -56,6 +63,17 @@
 
         </div>
     </div>
+
+    <?php if ($isLaunched && !$isPending && !$formModel->count_subscriber): ?>
+        <!-- Empty campaign -->
+        <?= $this->makeHintPartial('hint_empty_campaign_'.$formModel->id, [
+            'partial' => 'hint_empty_campaign',
+            'title' => 'Campaign has no subscribers',
+            'icon' => 'icon-user-times',
+            'type' => 'danger',
+            'cssClass' => 'padded-container loading-indicator-container indicator-inset'
+        ]) ?>
+    <?php endif ?>
 
     <div class="form-buttons">
         <div class="loading-indicator-container">
@@ -70,7 +88,9 @@
         <ul class="nav nav-tabs">
             <?php if ($isLaunched): ?>
                 <li class="active"><a href="#messageDetails">Details</a></li>
-                <li><a href="#messageSubscribers">Subscribers</a></li>
+                <?php if ($formModel->status != 'archived'): ?>
+                    <li><a href="#messageSubscribers">Subscribers</a></li>
+                <?php endif ?>
                 <li><a href="#messageTemplate">Preview</a></li>
             <?php else: ?>
                 <li class="active"><a href="#messageTemplate">Preview</a></li>
@@ -80,14 +100,18 @@
             <?php if ($isLaunched): ?>
                 <div class="tab-pane active">
                     <div class="padded-container">
-                        <?= $this->formRenderPreview() ?>
+                        <form>
+                            <?= $this->formRenderPreview() ?>
+                        </form>
                     </div>
                 </div>
-                <div class="tab-pane">
-                    <div class="relation-flush">
-                        <?= $this->relationRender('subscribers') ?>
+                <?php if ($formModel->status != 'archived'): ?>
+                    <div class="tab-pane">
+                        <div class="relation-flush">
+                            <?= $this->relationRender('subscribers') ?>
+                        </div>
                     </div>
-                </div>
+                <?php endif ?>
                 <div class="tab-pane">
                     <div class="padded-container">
                         <?= $this->makePartial('message_iframe') ?>

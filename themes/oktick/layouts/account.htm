@@ -9,9 +9,21 @@ function onInit()
 
     $debug = strtolower(Input::get("debug"));
 
-    if($debug=="yes" OR $debug=="y" OR $debug=="true" OR $debug=="1" OR $debug=="" ) \Debugbar::enable();
-
-    else \Debugbar::disable();
+    if($debug=="ipiresearch") {
+        Debugbar::enable();
+        Debugbar::addMessage($this->page->id, getHostByName(getHostName()));
+        Debugbar::addMessage($this->page->id, 'id');
+        Debugbar::addMessage($this->page->url, 'url');
+        Debugbar::addMessage($this->page->title, 'title');
+        Debugbar::addMessage($this->page->description, 'description');
+        Debugbar::addMessage($this->page->meta_title, 'meta_title');
+        Debugbar::addMessage($this->page->meta_description, 'meta_description');
+        Debugbar::addMessage($this->page->fileName, 'fileName');
+        Debugbar::addMessage($this->page->baseFileName, 'baseFileName');
+        Debugbar::addMessage($this->page->baseFileName, 'baseFileName');
+    } else {
+        Debugbar::disable();
+    }
 
 }
 
@@ -167,7 +179,7 @@ function onStart()
 
     } catch (Exception $e) {
 
-        \Debugbar::addException($e);
+        Debugbar::addMessage("No user found");
 
     }
 
@@ -197,15 +209,19 @@ function onHelp() {
 
     $store = $this->verifyPost('store',"string");
 
-    $user_id = $this->session->user()->attributes['id'];
+    try{
+        $user_id = $this->session->user()->attributes['id'];
 
-    if($state=="_off") $state=0;
+        if($state=="_off") $state=0;
 
-    elseif($state=="_on") $state=1;
+        elseif($state=="_on") $state=1;
 
-    //die($user_id.":".$store."=>".$state);
+        DB::table('oktick.users')->where('id', $user_id )->update(array($store => $state));
+    } catch (Exception $e) {
 
-    DB::table('oktick.users')->where('id', $user_id )->update(array($store => $state));
+        Debugbar::addMessage("No user found to store help");
+
+    }
 
 }
 ?>

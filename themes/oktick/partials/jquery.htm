@@ -1,0 +1,9 @@
+description = "Includes jquery"
+
+[viewBag]
+==
+<!-- Bootstrap core JavaScript -->
+<script src="//ajax.googleapis.com/ajax/libs/jquery/1.11.2/jquery.min.js"></script><!--try to use CDN first-->
+<script>window.jQuery || document.write('<script src="/app/ot/assets/js/jq.js"><\/script>')</script><!--if CDN file isn't delivered, send a local file-->
+<script src="//maxcdn.bootstrapcdn.com/bootstrap/3.3.4/js/bootstrap.min.js"></script><!--try to use CDN first-->
+<script>$.fn.modal || document.write('<script src="/app/ot/assets/js/bs.js"><\/script>')</script><!--if CDN file isn't delivered, send a local file-->

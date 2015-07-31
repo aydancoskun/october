@@ -1,3 +1,4 @@
+{% set user = __SELF__.user %}
 {{ form_ajax('onUserUpdate', { model: user, update: { 'MyInfo::userdisplay': '#user-info' }  }) }}
 
     <div class="form-group">

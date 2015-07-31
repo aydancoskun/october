@@ -1,9 +1,10 @@
 [viewBag]
-
-
-[session]
-security = "user"
-redirect = "login"
+==
+<?php
+function onStart(){
+    $this["APP_ENV"]=env("APP_ENV");
+}
+?>
 ==
 <!DOCTYPE html>
 <html lang="en" itemscope itemtype="http://schema.org/ProductSearch">
@@ -66,16 +67,15 @@ redirect = "login"
         document.getElementsByTagName("head")[0].appendChild(local_bootstrap);
     }
 </script>
-<!-- Custom styles for this template -->
 <link rel="stylesheet" href="//fonts.googleapis.com/css?family=Open+Sans:400,300,600,700">
-
-<!--link rel="stylesheet" href="/app/ot/assets/flexbox.git/jquery.flexbox.css" /-->
 <link rel="stylesheet" href="/app/ot/assets/css/responsive-placeholder-images-custom.css" />
 <link rel="stylesheet" href="/modules/system/assets/css/framework.extras.css">
-<link rel="stylesheet" href="/app/ot/assets/css/{{cssfile}}">
-<link rel="stylesheet" href="/app/ot/assets/css/redactor.css">
+<link rel="stylesheet" href="/app/ot/assets/css/oktick.css">
+{% if APP_ENV == "development" %}
 <link rel="stylesheet" href="/plugins/rainlab/editable/assets/css/editable.css" />
+<link rel="stylesheet" href="/app/ot/assets/css/redactor.css">
 <link rel="stylesheet" href="/app/ot/assets/jquery.bs3dialog.git/dist/css/bootstrap-dialog.min.css" />
+{% endif %}
 <noscript>
 <!--link rel="stylesheet" href="/app/ot/assets/css/oktick-noscript.css"-->
 </noscript>
@@ -85,9 +85,9 @@ redirect = "login"
 <![endif]-->
 <!-- Bootstrap core JavaScript -->
 <script src="//ajax.googleapis.com/ajax/libs/jquery/1.11.2/jquery.min.js"></script><!--try to use CDN first-->
-<script>window.jQuery || document.write('<script src="/app/ot/assets/jquery/1.11.2/jquery.min.js"><\/script>')</script><!--if CDN file isn't delivered, send a local file-->
+<script>window.jQuery || document.write('<script src="/app/ot/assets/js/jq.js"><\/script>')</script><!--if CDN file isn't delivered, send a local file-->
 <script src="//maxcdn.bootstrapcdn.com/bootstrap/3.3.4/js/bootstrap.min.js"></script><!--try to use CDN first-->
-<script>$.fn.modal || document.write('<script src="/app/ot/assets/bs3/js/bootstrap.min.js"><\/script>')</script><!--if CDN file isn't delivered, send a local file-->
+<script>$.fn.modal || document.write('<script src="/app/ot/assets/js/bs.js"><\/script>')</script><!--if CDN file isn't delivered, send a local file-->
 <script src="/modules/system/assets/js/framework.js"></script>
 <script src="/modules/system/assets/js/framework.extras.js"></script>
 </head>

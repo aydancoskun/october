@@ -5,14 +5,12 @@ description = "nav-bottom"
 <?php
 function onStart(){
 
-    //dd($_SERVER);
-
     $host = gethostname();
     if(strpos($host, ".") !== false){
         $host = substr(gethostname(),0,strpos(gethostname(),"."));
     }
-   if(env('APP_ENV') == "production"){
-        $this['msg']="Served by".$host.rand(1,20).", ";
+    if(env('APP_ENV') == "production"){
+        $this['msg']="Served by ".$host.rand(1,20).", ";
     }
     elseif(env('APP_ENV') == "development"){
         $time = (round(microtime(true) - $_SERVER['REQUEST_TIME_FLOAT'],2)*1000)." ms";
@@ -30,5 +28,4 @@ function onStart(){
 <li class="{% if this.page.id == "pages-about-us" %}active{% endif %}"><a class="navbar-bottom" href="/about-us"><small><br>About Us</small></a></li>
 </ul>
 </div>
-{% partial "page-data" %}
 </footer>

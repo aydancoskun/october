@@ -1,29 +1,30 @@
+{% set user = __SELF__.user %}
 <table>
 <!--    <tr>
         <td class="kurtjensen-profile-label">DBID : </td><td class="kurtjensen-profile-data"> {{ user.id }}</td>
     </tr> -->
     <tr>
-        <td class="kurtjensen-profile-label">Login : </td><td class="kurtjensen-profile-data"> {{ ProUser.login }}</td>
+        <td class="kurtjensen-profile-label">Login : </td><td class="kurtjensen-profile-data"> {{ user.login }}</td>
     </tr>
     <tr>
-        <td class="kurtjensen-profile-label">Company : </td><td class="kurtjensen-profile-data"> {{ ProUser.company }}</td>
+        <td class="kurtjensen-profile-label">Company : </td><td class="kurtjensen-profile-data"> {{ user.company }}</td>
     </tr>
     <tr>
-        <td class="kurtjensen-profile-label">Street Address : </td><td class="kurtjensen-profile-data"> {{ ProUser.street_addr }}</td>
+        <td class="kurtjensen-profile-label">Street Address : </td><td class="kurtjensen-profile-data"> {{ user.street_addr }}</td>
     </tr>
     <tr>
-        <td class="kurtjensen-profile-label">City : </td><td class="kurtjensen-profile-data"> {{ ProUser.city }}</td>
+        <td class="kurtjensen-profile-label">City : </td><td class="kurtjensen-profile-data"> {{ user.city }}</td>
     </tr>
     <tr>
-        <td class="kurtjensen-profile-label">State : </td><td class="kurtjensen-profile-data"> {{ ProUser.state.name }}</td>
+        <td class="kurtjensen-profile-label">State : </td><td class="kurtjensen-profile-data"> {{ user.state.name }}</td>
     </tr>
     <tr>
-        <td class="kurtjensen-profile-label">Zip : </td><td class="kurtjensen-profile-data"> {{ ProUser.zip }}</td>
+        <td class="kurtjensen-profile-label">Zip : </td><td class="kurtjensen-profile-data"> {{ user.zip }}</td>
     </tr>
     <tr>
-        <td class="kurtjensen-profile-label">Email : </td><td class="kurtjensen-profile-data"> {{ ProUser.email }}</td>
+        <td class="kurtjensen-profile-label">Email : </td><td class="kurtjensen-profile-data"> {{ user.email }}</td>
     </tr>
     <tr>
-        <td> </td><td class="profile-meta"> Updated : {{ ProUser.updated_at }}</td>
+        <td> </td><td class="profile-meta"> Updated : {{ user.updated_at }}</td>
     </tr>
 </table>

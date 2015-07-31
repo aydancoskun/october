@@ -1,0 +1,1 @@
+../jquery.bs3dialog.git/dist/js/bootstrap-dialog.min.js

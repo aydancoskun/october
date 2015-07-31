@@ -3,7 +3,7 @@
 use Event;
 use Backend;
 use System\Classes\PluginBase;
-use Responsiv\Campaign\Classes\CampaignManager;
+use Responsiv\Campaign\Classes\CampaignWorker;
 
 /**
  * Campaign Plugin Information File
@@ -83,10 +83,9 @@ class Plugin extends PluginBase
 
     public function registerSchedule($schedule)
     {
-        // Perform a task every hour
         $schedule->call(function(){
-            CampaignManager::instance()->process();
-        })->hourly();
+            CampaignWorker::instance()->process();
+        })->everyTenMinutes();
     }
 
     public function boot()

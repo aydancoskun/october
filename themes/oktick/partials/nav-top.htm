@@ -25,33 +25,35 @@ function onStart(){
                 {% if user %}
                     <li>
                         <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false">
-                        {% if (user.name) and (user.surname) %}{{user.name}} {{user.surname}}{% else %}{{user.email}}{% endif %}
-                        <span class="caret"></span></a>
+                            {% if (user.name) and (user.surname) %}{{user.name}}{{"&nbsp;"|raw}}{{user.surname}}{% else %}{{user.email}}{% endif %}
+                            <span class="caret"></span>
+                        </a>
                         <ul class="dropdown-menu">
                             <li class="dropdown-header">Administer Account</li>
                             <li>
                                 <a href="/account/details" class="text-left">
-                                    <span class="glyphicon glyphicon-user" aria-hidden="true"</span><span style="text-align:left; !important">
-                                        {% if (user.name) and (user.surname) %}{{user.name}}{{"&nbsp;"|raw}}{{user.surname}}{% else %}{{user.email}}{% endif %}
+                                    <span class="glyphicon glyphicon-user" aria-hidden="true"></span><span style="text-align:left; !important">
+                                        {{"&nbsp;&nbsp;"|raw}}{% if (user.name) and (user.surname) %}{{user.name}}{{"&nbsp;"|raw}}{{user.surname}}{% else %}{{user.email}}{% endif %}
                                     </span>
                                 </a>
                             </li>
-                            <li><a href="/account/password-change">
-                                    <span class="glyphicon glyphicon-lock" aria-hidden="true"</span>
-                                    Change Password</a>
+                            <li>
+                                <a href="/account/password-change">
+                                    <span class="glyphicon glyphicon-lock" aria-hidden="true"></span>
+                                    {{"&nbsp;&nbsp;"|raw}}Change Password</a>
                             </li>
                             <li role="separator" class="divider"></li>
                             <li class="dropdown-header">Business Details</li>
-                            <li><a href="/account/company">
-                                    <span class="glyphicon glyphicon-edit" aria-hidden="true"</span>
-                                    {% if (user.ok_company_name) %}{{user.ok_company_name}}{% else %}{{user.company}}{% endif %}</a>
+                            <li>
+                                <a href="/account/company">
+                                    <span class="glyphicon glyphicon-edit" aria-hidden="true"></span>
+                                    {{"&nbsp;&nbsp;"|raw}}{% if (user.ok_company_name) %}{{user.ok_company_name}}{% else %}{{user.company}}{% endif %}</a>
                             </li>
                             <li role="separator" class="divider"></li>
                             <li class="dropdown-header">Disconnect</li>
                             <li><a href="/logout">
-                                    <span class="glyphicon glyphicon-off" aria-hidden="true" </span>
-                                    <span class="pull-right">
-                                    {{"&nbsp;"|raw}}Logout
+                                    <span class="glyphicon glyphicon-off" aria-hidden="true"></span>
+                                    {{"&nbsp;&nbsp;"|raw}}Logout
                                     </span>
                                 </a>
                             </li>

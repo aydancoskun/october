@@ -1,10 +1,8 @@
-// RESPONSIVE PLACEHOLDER IMAGES JS
 (function() {
 
     // Only load images if the browser 'cuts the mustard' <http://responsivenews.co.uk/post/18948466399/cutting-the-mustard/>
     if ( ! document.addEventListener || ! document.querySelector) {
-        return false;
-        //alert("This page is \"cutting the mustard\" and your browser didn't make it.");
+        return alert("This page is \"cutting the mustard\" and your browser didn't make it.");
     }
 
     var deferImage = function(element) {
@@ -16,14 +14,16 @@
 
         img.onload = function() {
             element.className = element.className.replace('is-loading', 'is-loaded');
-            element.replaceChild(img, placehold);
+            try{
+                element.replaceChild(img, placehold);
+            }
+            catch (err){
+                alert ("an error occurred" + err);
+            }
         };
 
         for (i = 0, len = placehold.attributes.length; i < len; i++) {
             attr = placehold.attributes[i];
-
-
-            console.log(attr.name);
 
             if (attr.name.match(/^data-/)) {
                 img.setAttribute(attr.name.replace('data-', ''), attr.value);
@@ -33,6 +33,7 @@
 
     document.addEventListener('DOMContentLoaded', function() {
         var placeholders = document.querySelectorAll('.defer-image');
+
         for (var i = 0, len = placeholders.length; i < len; i++) {
             deferImage(placeholders[i]);
         }

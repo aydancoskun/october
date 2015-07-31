@@ -3,7 +3,7 @@
 use Illuminate\Console\Command;
 use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Input\InputArgument;
-use Responsiv\Campaign\Classes\CampaignManager;
+use Responsiv\Campaign\Classes\CampaignWorker;
 
 class CampaignRun extends Command
 {
@@ -32,8 +32,8 @@ class CampaignRun extends Command
      */
     public function fire()
     {
-        CampaignManager::instance()->process();
-        $this->output->writeln('Successfully performed campaign processing.');
+        $message = CampaignWorker::instance()->process();
+        $this->output->writeln($message);
     }
 
     /**

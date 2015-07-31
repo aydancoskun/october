@@ -1,20 +1,28 @@
 title = "Main"
 url = "/"
 layout = "main"
-hidden = "0"
+is_hidden = "0"
 ==
-<?php
-function onInit()
-{ 
-    $debug = strtolower(Input::get("debug"));
-    if($debug=="yes" OR $debug=="y" OR $debug=="true" OR $debug=="1" OR $debug=="" ) \Debugbar::enable();
-    else \Debugbar::disable();
-}
-?>
-==
-<div class="container"><div class="row"></div></div>
-{% partial "search-section" datatype="Go!" %}
-<div class="container"><div class="row"></div></div>
-<br>
-<div class="container"><div class="row"></div></div>
-<div id="results-container"></div>
+{% partial "head" %}
+{% partial "nav-top" %}
+<div class="container">
+    <div class="row"></div>
+</div>
+<div class="container">
+    {% partial "logo-embeded-defered" %}
+    <br>
+    <div class="container">
+        <div class="row"></div>
+    </div>
+    {% partial "search-section" datatype="Go!" %}
+    <div class="container">
+        <div class="row"></div>
+    </div>
+    <br>
+    <div class="container">
+        <div class="row"></div>
+    </div>
+    <div id="results-container"></div>
+</div><!--/container -->
+{% partial "nav-bottom" %}
+{% partial "foot" %}

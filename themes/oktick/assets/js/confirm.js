@@ -1,0 +1,1 @@
+../jquery.bs-confirmation.git/bootstrap-confirmation.js

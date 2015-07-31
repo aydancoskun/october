@@ -1,7 +1,7 @@
 title = "Register"
 url = "/register/:activationcode?"
 layout = "main"
-hidden = "0"
+is_hidden = "0"
 
 [account]
 redirect = "register"
@@ -10,7 +10,9 @@ paramCode = "activationcode"
 <?php
 function onStart()
 {
+
     $this['code']=Request::segment(2);
+
 }
 ?>
 ==
