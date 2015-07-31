@@ -1,8 +1,35 @@
 title = "Search Tips"
 url = "/search-tips"
 layout = "main"
-hidden = "0"
+is_hidden = "0"
 
 [editable]
 ==
-{% component 'editable' file="search-tips.htm" %}
+{% partial "head" %}
+{% partial "nav-top" %}
+<div class="container">
+<h2 class="text-center">Search Tips<br>
+
+<span class="text-center" style="font-size:14px;">(Look out for the <span class="glyphicon-primary glyphicon glyphicon-question-sign"></span> symbol for more help)</span>
+</h2>
+<div class="row">
+    <div class="col-xs-0 col-md-2"></div>
+    <div class="col-xs-12 col-md-8">
+        <div>
+            <p>{{"&nbsp;&nbsp;&nbsp;"|raw}}</p>
+            {% component 'editable' file="search-tips.htm" %}
+            <div class="text-center">
+                <button onclick="window.history.back();" class="btn btn-default btn-sm"><span class="glyphicon glyphicon-primary glyphicon-thumbs-up"></span>&nbsp;Got it!</button>
+                <br>
+                <br>
+            </div>
+        </div>
+    </div>
+    <div class="col-xs-0 col-md-2"></div>
+</div>
+<br>
+<br>
+</div>
+
+{% partial "nav-bottom" %}
+{% partial "foot" %}

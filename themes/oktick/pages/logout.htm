@@ -1,45 +1,19 @@
 title = "Logout"
-url = "/logout"
+url = "/logout/:done?"
 layout = "main"
 is_hidden = "0"
 
 [account]
-redirect = "account/overview"
 paramCode = "code"
 ==
 <?php
-function onInit(){
+use Illuminate\Http\RedirectResponse;
+
+function onStart(){
     Auth::logout();
+    Session::flush();
     Flash::warning("You are now logged out");
+    return redirect('/');
 }
 ?>
 ==
-{% partial "head" cssfile="oktick.css" %}
-{% partial "nav-top" %}
-<div class="container"><div class="row"></div></div>
-<div class="container">
-{% partial "logo-embeded-defered" %}
-<br>
-<h2 class="text-center">Logout Success!<br><small>To log back in, please provide your credentials below:</small></h2>
-<br>
-<div class="row">
-    <div class="col-xs-1 col-md-4"></div>
-    <div class="col-xs-10 col-md-4">
-        <form data-request="onSignin">
-            <div class="form-group input-group-lg">
-                <label for="userSigninLogin">Email</label>
-                <input name="login" type="text" class="form-control" id="userSigninLogin" placeholder="Enter your email address">
-            </div>
-            <div class="form-group input-group-lg">
-                <label for="userSigninPassword">Password</label>
-                <input name="password" type="password" class="form-control" id="userSigninPassword" placeholder="Enter your password">
-            </div>
-            <button type="submit" class="btn btn-primary btn-lg">Sign in</button>
-        </form>
-    </div>
-    <div class="col-xs-1 col-md-4"></div>
-</div>
-<h4 class="text-center"><small>If you have forgotten your password, click here.</small></h4>
-</div><!--/container -->
-{% partial "nav-bottom" %}
-{% partial "foot" %}

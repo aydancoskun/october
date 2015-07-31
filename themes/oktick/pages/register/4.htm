@@ -1,7 +1,7 @@
 title = "4"
 url = "/register/4"
-layout = "blank"
-hidden = "0"
+layout = "main"
+is_hidden = "0"
 
 [RainLab\User\Components\Account account]
 paramCode = "code"
@@ -19,6 +19,10 @@ function onStart() {
 }
 ?>
 ==
+{% partial "head" %}
+{% partial "nav-top" %}
+<div class="container">
+<br>
 <h2 class="text-center">Personal Details<br><small>Ready to finalise your registration.</small></h2>
 <br>
 <div class="row">
@@ -77,3 +81,7 @@ function onStart() {
 </div>
 </form>
 <div class="col-xs-1 col-md-2"></div>
+</div>
+
+{% partial "nav-bottom" %}
+{% partial "foot" %}

@@ -4,6 +4,7 @@ layout = "main"
 is_hidden = "0"
 
 [editable]
+file = "about-us.htm"
 ==
 <?php
 use Illuminate\Http\Response;
@@ -214,11 +215,11 @@ function onProductAdd(){
     <div class="col-xs-10 col-md-12">
         <div id="ok_help_productservices" {% if user.ok_help_productservices==0 %}class="collapse"{% endif %} >
             <p>{{"&nbsp;&nbsp;&nbsp;"|raw}}</p>
-                {% component 'editable' file="account-product-services-1.htm" %}
+                {% component 'editable' file="account-products-services-1.htm" %}
                 {% if user.ok_purchase_number < 2 %}
-                {% component 'editable' file="account-product-services-2.htm" %}
+                    {% component 'editable' file="account-products-services-2.htm" %}
                 {% endif %}
-                {% component 'editable' file="account-product-services-3.htm" %}
+                {% component 'editable' file="account-products-services-3.htm" %}
             <div class="text-center">
                 <button id="ok_help_productservices_off" class="btn btn-default btn-sm help"><span class="glyphicon glyphicon-primary glyphicon-thumbs-up"></span>&nbsp;Got it!</button>
                 <br>

@@ -1,10 +1,10 @@
 title = "1"
 url = "/register/1/:activationcode?"
 layout = "main"
-hidden = "0"
+is_hidden = "0"
 
 [account]
-redirect = "register-2"
+redirect = "register/2"
 paramCode = "activationcode"
 ==
 <?php
@@ -22,11 +22,29 @@ function onRegister(){
 function onEnd() {
     if($this->account->user()) return redirect('register/3/');
 }
-function onLogout(){
-    
+function onStart(){
+     if(env('APP_ENV') == "production"){
+        $this['first']='';
+        $this['last']="";
+        $this['website']="";
+        $this['email']="";
+        $this['password']="";
+    }
+    elseif(env('APP_ENV') == "development"){
+        $this['first']='TEST_Peter';
+        $this['last']="TEST_Pan";
+        $this['website']="gmail.com";
+        $this['email']="leancode+test@gmail.com";
+        $this['password']="Dartagnan!";
+    }
+   
 }
 ?>
 ==
+{% partial "head" %}
+{% partial "nav-top" %}
+<div class="container">
+<br>
 <h2 class="text-center">Registration
 {% if not user %}
 <br><small>To begin, just fill out the form below.</small>
@@ -44,32 +62,32 @@ function onLogout(){
 
             <div class="form-group input-group-lg">
                 <label for="registerName">First Name</label>
-                <input name="name" type="text" class="form-control" id="registerName" placeholder="Enter your first name">
+                <input name="name" type="text" class="form-control" id="registerName" placeholder="Enter your first name" value="{{ first }}">
             </div>
 
             <div class="form-group input-group-lg">
                 <label for="registerSurname">Last Name</label>
-                <input name="surname" type="text" class="form-control" id="registerSurname" placeholder="Enter your last name">
+                <input name="surname" type="text" class="form-control" id="registerSurname" placeholder="Enter your last name" value="{{ last }}">
             </div>
 
             <div class="form-group input-group-lg">
-                <label for="registerCompany">Company URL<br><small>(Domain only is sufficient, don't worry about the "http://www" part)</small></label>
-                <input name="company" type="text" class="form-control" id="registerCompany" placeholder="Enter your company name">
+                <label for="registerCompany">Company Website<br><small>(Domain only is sufficient, don't worry about the "http://www" part)</small></label>
+                <input name="company" type="text" class="form-control" id="registerCompany" placeholder="Enter your company website" value="{{ website }}">
             </div>
 
             <div class="form-group input-group-lg">
-                <label for="registerEmail">Your Business Email Address<br><small>(In order to avoid further verification, this should be an email address using your business domain above.)</small></label>
-                <input name="email" type="email" class="form-control" id="registerEmail" placeholder="Enter your business email address">
+                <label for="registerEmail">Your Business Email Address<br><small>(Ideally, this should be an email address using your business website above in order to avoid further verification. But whatever your business email address is, enter it here.)</small></label>
+                <input name="email" type="email" class="form-control" id="registerEmail" placeholder="Enter your business email address" value="{{ email }}">
             </div>
 
             <div class="form-group input-group-lg">
-                <label for="registerPassword">Password<br><small>(Good passwords are easy to remember but hard to guess and should be unique to this website)</small></label>
-                <input name="password" type="password" class="form-control" id="registerPassword" placeholder="Choose a password">
+                <label for="registerPassword">Password<br><small>(Good passwords are easy to remember but hard to guess and should be unique to this website, i.e. not a password you use on other websites.)</small></label>
+                <input name="password" type="password" class="form-control" id="registerPassword" placeholder="Choose a password" value="{{ password }}">
             </div>
 
             <div class="form-group input-group-lg">
                 <label for="password_confirmation">Confirm Password</label>
-                <input name="password_confirmation" type="password" class="form-control" id="password_confirmation" placeholder="Choose a password">
+                <input name="password_confirmation" type="password" class="form-control" id="password_confirmation" placeholder="Choose a password" value="{{ password }}">
             </div>
 
             <button type="submit" class="btn btn-primary btn-lg center-block">Register</button>
@@ -77,3 +95,6 @@ function onLogout(){
     </div>
     <div class="col-xs-1 col-md-3"></div>
 </div>
+</div>
+{% partial "nav-bottom" %}
+{% partial "foot" %}

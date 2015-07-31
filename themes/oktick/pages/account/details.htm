@@ -89,19 +89,13 @@ function onUpdate() {
 <div class="col-xs-10 col-md-8">
     <form id="update_account_form" data-request="onUpdate">
         <h3>About you</h3>
-        <div class="form-group form-inline row">
-            <div class="col-lg-6">
-                <label for="name" >First name</label>
-                <div class="input-group-lg">
-                    <input type="text" class="form-control wide" id="name" placeholder="First name" value="{{user.name}}">
-                </div>
-            </div>
-            <div class="col-lg-6">
-                <label for="surname">Last name</label>
-                <div class="input-group-lg">
-                    <input type="text" class="form-control" id="surname" placeholder="Last name" value="{{user.surname}}">
-                </div>
-            </div>
+        <div class="form-group input-group-lg">
+            <label for="name">First name</label>
+            <input type="text" class="form-control wide" id="name" placeholder="First name" value="{{user.name}}">
+        </div>
+        <div class="form-group input-group-lg">
+            <label for="surname">Last name</label>
+            <input type="text" class="form-control" id="surname" placeholder="Last name" value="{{user.surname}}">
         </div>
         <div class="form-group input-group-lg">
             <label for="business-email" >Current email address you use at work</label>

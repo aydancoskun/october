@@ -16,6 +16,9 @@ function onStart()
 }
 ?>
 ==
+{% partial "head" %}
+{% partial "nav-top" %}
+<div class="container">
 {% if not user %}
     <h2 class="text-center">Registration<br><small>To start just fill out the form below.</small></h2>
     <br>
@@ -61,6 +64,7 @@ function onStart()
 {% elseif user.is_activated %}
     <h2 class="text-center">Account Activation<br><small>Email account confirmed!</small></h2>
     <br>
+    
     <div class="row">
         <div class="col-xs-1 col-md-4"></div>
         <div class="col-xs-10 col-md-4">
@@ -79,3 +83,6 @@ function onStart()
         <div class="col-xs-1 col-md-4"></div>
     </div>
 {% endif %}
+</div>
+{% partial "nav-bottom" %}
+{% partial "foot" %}

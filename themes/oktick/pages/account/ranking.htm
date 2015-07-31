@@ -440,7 +440,7 @@ function onCreditConfirm(){
 ?>
 ==
 {% partial "head" %}
-{% partial "nav-top"%}
+{% partial "nav-top" %}
 <div class="container">
 <h2 class="text-center">My Rankings<br>
 <span class="text-center" style="font-size:14px;">(Click here <span id="ok_help_ranking_on" class="help glyphicon-primary glyphicon glyphicon-question-sign"></span> for help)</span>
@@ -451,7 +451,7 @@ function onCreditConfirm(){
     <div class="col-xs-10 col-md-12">
         <div id="ok_help_ranking" {% if user.ok_help_ranking==0 %}class="collapse"{% endif %} >
             <p>{{"&nbsp;&nbsp;&nbsp;"|raw}}</p>
-                {% component 'editable' file="account-ranking.htm" %}
+            {% component 'editable' file="account-ranking.htm" %}
             <div class="text-center">
                 <button id="ok_help_ranking_off" class="btn btn-default btn-sm help"><span class="glyphicon glyphicon-primary glyphicon-thumbs-up"></span>&nbsp;Got it!</button>
                 <br>

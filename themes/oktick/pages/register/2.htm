@@ -1,19 +1,22 @@
 title = "2"
 url = "/register/2/:activationcode?"
-layout = "blank"
-hidden = "0"
+layout = "main"
+is_hidden = "0"
 
 [account]
-redirect = "register-3"
 paramCode = "activationcode"
 ==
 <?php
 function onStart() {
-    $this['email'] = session::get('email');
-    if($this->account->user()) return redirect('register/3/');
+    //$this['email'] = session::get('email');
+    //if($this->account->user()) return redirect('register/3/');
 }
 ?>
 ==
+{% partial "head" %}
+{% partial "nav-top" %}
+<div class="container">
+<br>
 <h2 class="text-center">Account Activation<br><small>Please confirm your email!</small></h2>
 <br>
 <div class="row">
@@ -33,3 +36,7 @@ function onStart() {
     
     <div class="col-xs-1 col-md-3"></div>
 </div>
+</div>
+
+{% partial "nav-bottom" %}
+{% partial "foot" %}

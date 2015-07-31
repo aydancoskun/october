@@ -1,7 +1,7 @@
 title = "3"
 url = "/register/3/:activationcode?"
-layout = "blank"
-hidden = "0"
+layout = "main"
+is_hidden = "0"
 
 [account]
 paramCode = "activationcode"
@@ -77,12 +77,16 @@ function getUrl($url){
 }
 ?>
 ==
+{% partial "head" %}
+{% partial "nav-top" %}
+<div class="container">
+<br>
 <h2 class="text-center">Company Details<br><small>So we can put your best cheek forward.</small></h2>
 <br>
 <div class="row">
     <div class="col-xs-1 col-md-3"></div>
     <div class="col-xs-10 col-md-6">
-        <p>In order to present your company correctly to searchers, the folloing info is required. It can be edited later on if need be.</p>
+        <p>In order to present your company correctly to searchers, the folloing information is required. It can be amended later on should the need arrise.</p>
         <br>
         <form method="post" action="/register/4/">
             <div class="form-group input-group-lg">
@@ -90,7 +94,7 @@ function getUrl($url){
                 <input name="company" type="txt" class="form-control" id="company" value="{{ company }}" placeholder="Enter your company name">
             </div>
             <div class="form-group input-group-lg">
-                <label for="business-description">Business Description<br><small>(This is what searchers will see when they find you)</small></label>
+                <label for="business-description">Business Description<br><small>(This is what searchers will see when they find your company)</small></label>
                 <textarea class="form-control" rows="2" id="business-description" placeholder="Short description of company 128 letters or less"></textarea>
             </div>
 
@@ -99,3 +103,7 @@ function getUrl($url){
     </div>
     <div class="col-xs-1 col-md-3"></div>
 </div>
+</div>
+
+{% partial "nav-bottom" %}
+{% partial "foot" %}
