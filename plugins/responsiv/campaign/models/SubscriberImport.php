@@ -46,11 +46,19 @@ class SubscriberImport extends ImportModel
                     continue;
                 }
 
+                /*
+                 * Find or create
+                 */
                 $subscriber = Subscriber::firstOrNew(['email' => $email]);
                 $subscriberExists = $subscriber->exists;
 
-                foreach ($data as $attribute => $value) {
-                    $subscriber->{$attribute} = $value;
+                /*
+                 * Set attributes
+                 */
+                $except = ['lists'];
+
+                foreach (array_except($data, $except) as $attribute => $value) {
+                    $subscriber->{$attribute} = $value ?: null;
                 }
 
                 $subscriber->forceSave();
@@ -59,6 +67,9 @@ class SubscriberImport extends ImportModel
                     $subscriber->subscriber_lists()->sync($listIds, false);
                 }
 
+                /*
+                 * Log results
+                 */
                 if ($subscriberExists) {
                     $this->logUpdated();
                 }
@@ -78,7 +89,7 @@ class SubscriberImport extends ImportModel
         $ids = [];
 
         if ($this->auto_create_lists) {
-            $listNames = explode('|', array_get($data, 'lists'));
+            $listNames = $this->decodeArrayValue(array_get($data, 'lists'));
 
             foreach ($listNames as $name) {
                 if (!$name = trim($name)) continue;

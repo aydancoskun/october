@@ -185,6 +185,7 @@ class Template extends ComponentBase
         $this->campaign->count_stop++;
         $this->campaign->save();
 
+        $this->subscriber->confirmed_at = null;
         $this->subscriber->unsubscribed_at = $this->subscriber->freshTimestamp();
         $this->subscriber->save();
 

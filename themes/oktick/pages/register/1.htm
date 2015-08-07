@@ -8,20 +8,6 @@ redirect = "register/2"
 paramCode = "activationcode"
 ==
 <?php
-function onRegister(){
-//    $data = post();
-//    echo "<pre>";
-//    var_dump( $data );
-//    exit;
-// can include password_confirmation field
-    Session::put('email', post('email'));
-    Session::put('password', post('password'));
-    Session::put('name', post('name'));
-    return $this->account->onRegister();
-}
-function onEnd() {
-    if($this->account->user()) return redirect('register/3/');
-}
 function onStart(){
      if(env('APP_ENV') == "production"){
         $this['first']='';
@@ -37,7 +23,20 @@ function onStart(){
         $this['email']="leancode+test@gmail.com";
         $this['password']="Dartagnan!";
     }
-   
+}
+function onEnd() {
+    if($this->account->user()) return redirect('register/3/');
+}
+function onRegister(){
+//    $data = post();
+//    echo "<pre>";
+//    var_dump( $data );
+//    exit;
+// can include password_confirmation field
+    Session::put('email', post('email'));
+    Session::put('password', post('password'));
+    Session::put('name', post('name'));
+    return $this->account->onRegister();
 }
 ?>
 ==
@@ -69,9 +68,9 @@ function onStart(){
                 <label for="registerSurname">Last Name</label>
                 <input name="surname" type="text" class="form-control" id="registerSurname" placeholder="Enter your last name" value="{{ last }}">
             </div>
-
+ 
             <div class="form-group input-group-lg">
-                <label for="registerCompany">Company Website<br><small>(Domain only is sufficient, don't worry about the "http://www" part)</small></label>
+                <label for="registerCompany">Company Website<br><small>(Put in the exact address, e.g. http://www.company.co.uk)</small></label>
                 <input name="company" type="text" class="form-control" id="registerCompany" placeholder="Enter your company website" value="{{ website }}">
             </div>
 

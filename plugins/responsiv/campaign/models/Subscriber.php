@@ -1,6 +1,7 @@
 <?php namespace Responsiv\Campaign\Models;
 
 use Model;
+use Carbon\Carbon;
 use ApplicationException;
 
 /**
@@ -102,6 +103,27 @@ class Subscriber extends Model
     {
         $this->subscriber_lists()->detach();
         $this->messages()->detach();
+    }
+
+    /**
+     * Returns true if IP address is throttled and cannot subscribe
+     * again. Maximum 3 subscription every 15 minutes.
+     * @return bool
+     */
+    public static function checkThrottle($ip)
+    {
+        if (!$ip) {
+            return false;
+        }
+
+        $timeLimit = Carbon::now()->subMinutes(15);
+        $count = static::make()
+            ->where('created_ip_address', $ip)
+            ->where('created_at', '>', $timeLimit)
+            ->count()
+        ;
+
+        return $count > 2;
     }
 
 }

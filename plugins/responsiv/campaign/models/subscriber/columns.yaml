@@ -22,10 +22,16 @@ columns:
         relation: subscriber_lists
         select: name
 
+    confirmed_at:
+        label: Confirmed
+        type: date
+
     created_at:
         label: Subscribed
         type: date
+        invisible: true
 
     unsubscribed_at:
         label: Unsubscribed
         type: date
+        invisible: true

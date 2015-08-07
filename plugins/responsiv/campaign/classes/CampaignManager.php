@@ -176,7 +176,10 @@ class CampaignManager
              */
             if (!isset($allSubscribers[$email])) {
                 $info['email'] = $email;
-                $subscriber = Subscriber::create($info);
+                $subscriber = new Subscriber;
+                $subscriber->fill($info);
+                $subscriber->confirmed_at = Carbon::now();
+                $subscriber->save();
                 $ids[] = $subscriber->id;
             }
             /*

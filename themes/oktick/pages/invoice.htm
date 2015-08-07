@@ -1,113 +1,40 @@
 title = "invoice"
 url = "/account/invoice/:invoice_id?0"
-hidden = "0"
+layout = "main"
+is_hidden = "0"
 ==
 <?php
-function onInit(){
-    \Debugbar::disable();
-}
 function onStart() {
+    try{
+        $user = $this->session->user();
+    }
+    catch (Exception $e){
+        return redirect('/');
+    }
+
     $invoice_id = $this->param('invoice_id');
-    $this['invoices'] = DB::select(
-        "SELECT ".
-        "user_id, ".
-        "concat((user_id*10),(id*10)) as invoice_number, ".
-        "SUBSTRING(last4, -3)  as last3, ".
-        "brand, ".
-        "exp_month, ".
-        "exp_year, ".
-        "transaction_date, ".
-        "credits_purchased, ".
-        "price_paid, ".
-        "transaction_currency, ".
-        "salestax ".
-        "FROM ok_payments ".
-        "WHERE ".
-        "download_code = '$invoice_id' " .
-        "ORDER BY transaction_date DESC ".
-        "LIMIT 1"
-    );
-    $this['details'] = DB::select(
-        "SELECT ".
-        "company, ".
-        "concat(name,' ',surname) as fullname, ".
-        "street_addr, ".
-        "city, ".
-        "zip ".
-        "FROM users ".
-        "WHERE ".
-        "id = ".$this['invoices'][0]->user_id. " " .
-        "LIMIT 1"
-    );
+    if( ! $invoice_id ) App::abort(403, 'Forbidden');
+    $invoice_id_cast = (string) $invoice_id;
+    if( $invoice_id_cast <> $invoice_id ) App::abort(403, 'Forbidden');
+
+    $ok_company_id = $user->attributes['ok_company_id'];
+    $user_id = $user->attributes['id'];
+    $this['invoices'] = DB::table('ok_payments')->where('download_code', $invoice_id)->where('user_id', $user_id)->first();
+    $this['details'] = DB::table('users')->where('id',$user_id)->first();
     $this['qr'] = \DNS2D::getBarcodeHTML("http://www.oktick.com/account/invoice/$invoice_id", "QRCODE", 3, 3);
+}
+function verifyPost($post_name,$check="int"){
+    if( !isset($_POST[$post_name]) ) App::abort(403, 'Forbidden');
+    $post_val_raw = post($post_name);
+    if($check=="int") $post_val_cast = (int) $post_val_raw;
+    if($check=="float") $post_val_cast = (float) $post_val_raw;
+    if($check=="string") $post_val_cast = (string) $post_val_raw;
+    if( $post_val_raw <> $post_val_cast ) App::abort(403, 'Forbidden');
+    return $post_val_cast;
 }
 ?>
 ==
-<!DOCTYPE html>
-<html lang="en" itemscope itemtype="http://schema.org/ProductSearch">
-<head>
-<meta charset="utf-8">
-<meta http-equiv="X-UA-Compatible" content="IE=edge">
-<meta name="viewport" content="width=device-width, initial-scale=1">
-<!-- The above 3 meta tags *must* come first in the head; any other head content must come *after* these tags -->
-<base href="/" />
-<title>OKTicK Invoice</title>
-<meta name="description" content="OKTick Invoice {{ invoices.0.invoice_number }}" />
-<meta name="keywords" content="" />
-<meta name="msapplication-TileColor" content="#da532c">
-<meta name="msapplication-TileImage" content="http://www.oktick.com/mstile-144x144.png">
-<meta name="theme-color" content="#ffffff">
-<link rel="apple-touch-icon" sizes="57x57" href="http://www.oktick.com/apple-touch-icon-57x57.png">
-<link rel="apple-touch-icon" sizes="60x60" href="http://www.oktick.com/apple-touch-icon-60x60.png">
-<link rel="apple-touch-icon" sizes="72x72" href="http://www.oktick.com/apple-touch-icon-72x72.png">
-<link rel="apple-touch-icon" sizes="76x76" href="http://www.oktick.com/apple-touch-icon-76x76.png">
-<link rel="apple-touch-icon" sizes="114x114" href="http://www.oktick.com/apple-touch-icon-114x114.png">
-<link rel="apple-touch-icon" sizes="120x120" href="http://www.oktick.com/apple-touch-icon-120x120.png">
-<link rel="apple-touch-icon" sizes="144x144" href="http://www.oktick.com/apple-touch-icon-144x144.png">
-<link rel="apple-touch-icon" sizes="152x152" href="http://www.oktick.com/apple-touch-icon-152x152.png">
-<link rel="apple-touch-icon" sizes="180x180" href="http://www.oktick.com/apple-touch-icon-180x180.png">
-<link rel="icon" type="image/png" href="http://www.oktick.com/favicon-32x32.png" sizes="32x32">
-<link rel="icon" type="image/png" href="http://www.oktick.com/android-chrome-192x192.png" sizes="192x192">
-<link rel="icon" type="image/png" href="http://www.oktick.com/favicon-96x96.png" sizes="96x96">
-<link rel="icon" type="image/png" href="http://www.oktick.com/favicon-16x16.png" sizes="16x16">
-<link rel="manifest" href="http://www.oktick.com/manifest.json">
-<!-- Bootstrap core CSS -->
-<link href="//maxcdn.bootstrapcdn.com/bootstrap/3.3.4/css/bootstrap.min.css" rel="stylesheet">
-<script>
-    function cssLoaded(href) {
-        var cssFound = false;
-        for (var i = 0; i < document.styleSheets.length; i++) {
-            var sheet = document.styleSheets[i];
-            if (
-            sheet['href'] == "http://maxcdn.bootstrapcdn.com/bootstrap/3.3.4/css/bootstrap.min.css" ||
-            sheet['href'] == "https://maxcdn.bootstrapcdn.com/bootstrap/3.3.4/css/bootstrap.min.css") {
-                cssFound = true;
-            }
-        };
-        return cssFound;
-    }
-    if (!cssLoaded('bootstrap.min.css')) {
-        local_bootstrap = new CustomEvent('link');
-        local_bootstrap.setAttribute("rel", "stylesheet");
-        local_bootstrap.setAttribute("href", "http://www.oktick.com/app/ot/assets/bs3/css/bootstrap.min.css");
-        document.getElementsByTagName("head")[0].appendChild(local_bootstrap);
-    }
-</script>
-<!-- Custom styles for this template -->
-<link rel="stylesheet" href="//fonts.googleapis.com/css?family=Open+Sans:400,300,600,700">
-<link rel="stylesheet" href="http://www.oktick.com/app/ot/assets/css/oktick.css">
-<script src="//ajax.googleapis.com/ajax/libs/jquery/1.11.2/jquery.min.js"></script><!--try to use CDN first-->
-<script>window.jQuery || document.write('<script src="http://www.oktick.com/app/ot/assets/jquery/1.11.2/jquery.min.js"><\/script>')</script><!--if CDN file isn't delivered, send a local file-->
-<script src="//maxcdn.bootstrapcdn.com/bootstrap/3.3.4/js/bootstrap.min.js"></script><!--try to use CDN first-->
-<script>$.fn.modal || document.write('<script src="http://www.oktick.com/app/ot/assets/bs3/js/bootstrap.min.js"><\/script>')</script><!--if CDN file isn't delivered, send a local file-->
-<!-- IE10 viewport hack for Surface/desktop Windows 8 bug -->
-<!--script src="/app/ot/assets/bs3/js/ie10-viewport-bug-workaround.js"></script-->
-<!--[if lt IE 9]>
-<script src="https://oss.maxcdn.com/html5shiv/3.7.2/html5shiv.min.js"></script>
-<script src="https://oss.maxcdn.com/respond/1.4.2/respond.min.js"></script>
-<![endif]-->
-</head>
-<body id="body">
+{% partial "head" %}
 <div class="container">
     <div class="row">
         <div class="center-block">
@@ -119,7 +46,7 @@ function onStart() {
         <div class="col-xs-12">
             <div class="text-center">
                 <i class="fa fa-search-plus pull-left icon"></i>
-                <h2>Invoice for purchase #{{invoices.0.invoice_number}}</h2>
+                <h2>Invoice for purchase #{{invoices.invoice_number}}</h2>
             </div>
             <hr>
             
@@ -128,11 +55,11 @@ function onStart() {
                     <div class="panel panel-default height">
                         <div class="panel-heading">Billing Details</div>
                         <div class="panel-body">
-                            <strong>{{details.0.company}}</strong><br>
-                            {{details.0.fullname}}<br>
-                            {{details.0.street_addr}}<br>
-                            {{details.0.city}}<br>
-                            {{details.0.zip}}<br>
+                            <strong>{{details.ok_invoice_name}}</strong><br>
+                            {{details.ok_invoice_address_1}}<br>
+                            {{details.ok_invoice_address_2}}<br>
+                            {{details.ok_invoice_city}}{% if details.ok_invoice_city and details.ok_invoice_state %},&nbsp;{% endif %}{{details.ok_invoice_state}}<br>
+                            {{details.ok_invoice_country}}{% if details.ok_invoice_country and details.ok_invoice_zip %}&nbsp;-&nbsp;{% endif %}{{details.ok_invoice_zip}}<br>
                         </div>
                     </div>
                 </div>
@@ -140,9 +67,9 @@ function onStart() {
                     <div class="panel panel-default height">
                         <div class="panel-heading">Payment Information</div>
                         <div class="panel-body">
-                            <strong>Card Name:</strong> {{invoices.0.brand}}<br>
-                            <strong>Card Number:</strong> ***** {{invoices.0.last3}}<br>
-                            <strong>Exp Date:</strong> {{invoices.0.exp_month}}/{{invoices.0.exp_year}}<br>
+                            <strong>Card Name:</strong> {{invoices.brand}}<br>
+                            <strong>Card Number:</strong> ***** {{invoices.last3}}<br>
+                            <strong>Exp Date:</strong> {{invoices.exp_month}}/{{invoices.exp_year}}<br>
                         </div>
                     </div>
                 </div>
@@ -181,10 +108,10 @@ function onStart() {
                             <tbody>
                                 <tr>
                                     <td class="text-left">Credit Purchase</td>
-                                    <td class="text-center">{{ ((invoices.0.price_paid)/100)|number_format(2, '.', ',') }}</td>
-                                    <td class="text-center">{{invoices.0.transaction_currency}}</td>
-                                    <td class="text-center">{{invoices.0.credits_purchased}}</td>
-                                    <td class="text-right">{{ ((invoices.0.price_paid)/100)|number_format(2, '.', ',') }}</td>
+                                    <td class="text-center">{{ ((invoices.price_paid)/100)|number_format(2, '.', ',') }}</td>
+                                    <td class="text-center">{{invoices.transaction_currency}}</td>
+                                    <td class="text-center">{{invoices.credits_purchased}}</td>
+                                    <td class="text-right">{{ ((invoices.price_paid)/100)|number_format(2, '.', ',') }}</td>
                                 </tr>
                                 <tr>
                                     <!--td class="emptyrow">{{qr|raw}}</td-->
@@ -192,16 +119,16 @@ function onStart() {
                                     <td class="emptyrow"></td>
                                     <td class="emptyrow"></td>
                                     <td class="emptyrow"></td>
-                                    <td class="emptyrow text-right"><strong>Total </strong>{{ ((invoices.0.price_paid)/100)|number_format(2, '.', ',') }}</td>
+                                    <td class="emptyrow text-right"><strong>Total </strong>{{ ((invoices.price_paid)/100)|number_format(2, '.', ',') }}</td>
                                 </tr>
-{%if invoices.0.salestax %}
+{%if invoices.salestax %}
                                 <tr>
                                     <td class="emptyrow"></td>
                                     <td class="emptyrow"></td>
                                     <td class="emptyrow"></td>
                                     <td class="emptyrow"></td>
-                                    <td class="emptyrow text-right">Sales Tax at {{invoices.0.salestax}}% (included in total) 
-                                    {{ ((invoices.0.price_paid)/10000*invoices.0.salestax)|number_format(2, '.', ',') }}</td>
+                                    <td class="emptyrow text-right">Sales Tax at {{invoices.salestax}}% (included in total) 
+                                    {{ ((invoices.price_paid)/10000*invoices.salestax)|number_format(2, '.', ',') }}</td>
                                 </tr>
 {% endif %}
                                 <tr>

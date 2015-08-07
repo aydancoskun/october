@@ -60,8 +60,8 @@ function onStart(){
                         </ul>
                     </li>
                 {% else %}
-                    <li class="{% if this.page.id == "register-1" %}active{% endif %}">
-                        <a href="/register/1/">
+                    <li class="{% if this.page.id == "register" %}active{% endif %}">
+                        <a href="/register/">
                             <!--span class="glyphicon glyphicon-cog" aria-hidden="true"></span-->&nbsp;Register
                         </a>
                     </li>
@@ -107,7 +107,7 @@ function onStart(){
                             data-toggle="tooltip"
                             data-trigger="hover"
                             data-placement="bottom"
-                            title="Number of sponored Products and Services">
+                            title="Number of sponsored Products and Services">
                         {% if user.ok_sponored_products_count %}{{user.ok_sponored_products_count}}{%else%}0{% endif %}
                             </span>
                         </a>

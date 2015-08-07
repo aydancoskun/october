@@ -119,7 +119,9 @@
 
 <?php else: ?>
 
-    <p class="flash-message static error"><?= e($this->fatalError) ?></p>
-    <p><a href="<?= Backend::url('responsiv/campaign/messages') ?>" class="btn btn-default">Return to messages list</a></p>
+    <div class="padded-container">
+        <p class="flash-message static error"><?= e($this->fatalError) ?></p>
+        <p><a href="<?= Backend::url('responsiv/campaign/messages') ?>" class="btn btn-default">Return to messages list</a></p>
+    </div>
 
 <?php endif ?>

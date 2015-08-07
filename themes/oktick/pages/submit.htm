@@ -81,7 +81,8 @@ function submit(){
         "SELECT ".
         "s.company_website_url AS website_url, ".
 	    "c.company_name_edited AS name_edited, ".
-	    "concat(c.vendor_data_edited,'(',s.bp_position,')') AS description_edited ".
+//	    "concat(c.vendor_data_edited,'(',s.bp_position,')') AS description_edited ".
+	    "c.vendor_data_edited AS description_edited ".
         "FROM operations.bp_supplier_positions s ".
         "INNER JOIN ".
         "operations.companies_details_edited c ON c.id = s.company_id ".
@@ -225,18 +226,20 @@ function show_result($suggestions, $onSearchComplete=" ", $debug=""){
                                 <a style='color:#D04526;font-size:15px;' href='{{ company.website_url }}' target='_blank'>
                                     <strong>
                                         {% if company.name_edited %}
-                                            {% if company.name_edited starts with 'www' %}
-                                                {{ company.name_edited|replace({ "www":"www."}) }}
+                                            {% if company.name_edited starts with 'www.' %}
+                                                {{ company.name_edited|trim }}
+                                            {% elseif company.name_edited starts with 'www' %}
+                                                {{ company.name_edited|replace({ "www":"www."})|trim }}
                                             {% else %}
-                                                {{ company.name_edited }}
+                                                {{ company.name_edited|trim }}
                                             {% endif %}
                                         {% else %}
-                                            {{ company.website_url }}
+                                            {{ company.website_url|trim }}
                                         {% endif %}
                                     </strong>
                                 </a>
                                 <span style='color:#D04526;font-size:15px;'>
-                                    {{ company.description_edited }}
+                                    &nbsp; - &nbsp;{{ company.description_edited|trim }}
                                 </span>
                             </div>
                         </td>

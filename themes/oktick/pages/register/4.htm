@@ -8,11 +8,30 @@ paramCode = "code"
 ==
 <?php
 function onStart() {
-    $this['www']=post('www');
-    $this['company']=post('company');
+    $this['company_name']=post('company_name');
+    $this['company_description']=post('company_description');
     if( $user = $this->account->user() ) {
-        $this['email'] = $user->attributes['email'];
-        $this['name'] = $user->attributes['name'];
+        $ok_company_id = $user->attributes['ok_company_id'];
+        $user_id = $user->attributes['id'];
+        DB::table('operations.companies')->
+            where('uid', $ok_company_id)->
+            update(
+                array(
+                'company_name' => $this['company_name'],
+                'vendor_data_edited' => $this['company_description'],
+                )
+            );
+        DB::table('oktick.users')->
+            where('id', $user_id)->
+            update(
+                array(
+                'ok_company_name' => $this['company_name'],
+                'ok_vendor_data' => $this['company_description'],
+                )
+            );
+            
+        Flash::success('Great, you are done! Have a look around and get familiar.');
+        return redirect('account/products-services/');
     } else {
         return redirect('register/1/');
     }

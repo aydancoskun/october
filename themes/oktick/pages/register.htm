@@ -2,10 +2,6 @@ title = "Register"
 url = "/register/:activationcode?"
 layout = "main"
 is_hidden = "0"
-
-[account]
-redirect = "register"
-paramCode = "activationcode"
 ==
 <?php
 function onStart()
@@ -14,75 +10,80 @@ function onStart()
     $this['code']=Request::segment(2);
 
 }
+function onRegister()
+{
+    // Collect input
+    $website = post('website');
+    $name = post('name');
+    $email = post('email');
+
+    // Form Validation
+    $validator = Validator::make(
+        [
+            'website' => $website,
+            'name' => $name,
+            'email' => $email,
+        ],
+        [
+            'website' => 'required',
+            'name' => 'required',
+            'email' => 'required|email',
+        ]
+    );
+
+    if ($validator->fails())
+    {
+        $messages = $validator->messages();
+        throw new ApplicationException($messages->first());
+    }
+
+    DB::table('operations.invitation_requests')->insert(
+                            array(
+                                'name' => $name,
+                                'website' => $website,
+                                'email' => $email,
+                                )
+    );
+    Session::flush();
+    Flash::success("We have recieved your request for invitation. We will send you one as soon as we can. Thank you for your interest.");
+    return redirect('/');
+//    $to = System\Models\MailSettings::get('sender_email');
+//    $params = compact('website','name','email');
+//    Mail::sendTo($to, 'yourappname.website::mail.contactform', $params);
+}
 ?>
 ==
 {% partial "head" %}
 {% partial "nav-top" %}
 <div class="container">
-{% if not user %}
-    <h2 class="text-center">Registration<br><small>To start just fill out the form below.</small></h2>
-    <br>
-    <div class="row">
-        <div class="col-xs-1 col-md-4"></div>
-        <div class="col-xs-10 col-md-4">
-            <form data-request="onRegister">
+<div class="row">
+    <div class="col-xs-0 col-md-3"></div>
+    <div class="col-xs-12 col-md-6">
+        <h2 class="text-center">Registration</h2>
+        <br> 
+        <p class="text-justify">Due to the large volume of signups and to maintain our quality and review standards, registrations are currently by invitation only.</p>
+        <p class="text-justify">If you have received an invitation by email, please follow the invitation link from the email which will lead you through the steps to accept the invitation.</p>
+        <p class="text-justify">If your company would like to be listed with us and you think it should be considered for invitation please fill out the form below.</p>
+        <br> 
+         <form data-request="onRegister">
+            <div class="form-group input-group-lg">
+                <label for="registerWebsite">Your Company Website<br><small>(Put in the exact address, e.g. http://www.company.co.uk)</small></label>
+                <input name="website" type="text" class="form-control" id="registerWebsite" placeholder="Enter your company website" value="{{ website }}">
+            </div>
+            <div class="form-group input-group-lg">
+                <label for="registerName">Your Name</label>
+                <input name="name" type="text" class="form-control" id="registerName" placeholder="Enter your full name">
+            </div>
+            <div class="form-group input-group-lg">
+                <label for="registerEmail">Your Business Email Address<br><small>(Ideally, this should be an email address using your business website above in order to avoid further verification. But whatever your business email address is, enter it here.)</small></label>
+                <input name="email" type="email" class="form-control" id="registerEmail" placeholder="Enter your business email address" value="{{ email }}">
+            </div>
 
-                <div class="form-group input-group-lg">
-                    <label for="registerName">Full Name</label>
-                    <input name="name" type="text" class="form-control" id="registerName" placeholder="Enter your full name">
-                </div>
-
-                <div class="form-group input-group-lg">
-                    <label for="registerEmail">Email</label>
-                    <input name="email" type="email" class="form-control" id="registerEmail" placeholder="Enter your email">
-                </div>
-
-                <div class="form-group input-group-lg">
-                    <label for="registerPassword">Password</label>
-                    <input name="password" type="password" class="form-control" id="registerPassword" placeholder="Choose a password">
-                </div>
-
-                <button type="submit" class="btn btn-primary btn-lg">Register</button>
-
-            </form>
-        </div>
-        <div class="col-xs-1 col-md-4"></div>
+            <button type="submit" class="btn btn-primary btn-lg center-block">Submit</button>
+        </form>
     </div>
-{% elseif not user.is_activated %}
-    <h2 class="text-center">Account Activation<br><small>Please confirm your email!</small></h2>
-    <br>
-    <div class="row">
-        <div class="col-xs-1 col-md-4"></div>
-        <div class="col-xs-10 col-md-4">
-            <p>We have send you an email with a link to confirm. Please the link to continue. If you have not received the mail in the next few minutes, then check your spam folder to make sure the mail did not land there.</p>
-            <br>
-            <p>We have send you an email with a link to confirm. Please the link to continue. If you have not received the mail in the next few minutes, then check your spam folder to make sure the mail did not land there.</p>
-            <br>
-        </div>
-        <div class="col-xs-1 col-md-4"></div>
-    </div>
-{% elseif user.is_activated %}
-    <h2 class="text-center">Account Activation<br><small>Email account confirmed!</small></h2>
-    <br>
-    
-    <div class="row">
-        <div class="col-xs-1 col-md-4"></div>
-        <div class="col-xs-10 col-md-4">
-            <p>The next step is to link you to the company you are representing.</p>
-            <br>
-            <form data-request="onClaim">
-                <div class="input-group">
-                    <label class="sr-only" for="registerCompany">Company website address</label>
-                    <input class="form-control" name="name" type="text" id="registerCompany" placeholder="Enter your company website address">
-                    <span class="input-group-btn">
-                        <button id="go-button" class="btn btn-primary btn" type="submit">Link</button>
-                    </span>
-                </div>
-            </form>
-        </div>
-        <div class="col-xs-1 col-md-4"></div>
-    </div>
-{% endif %}
+    <div class="col-xs-0 col-md-3"></div>
+</div>
 </div>
 {% partial "nav-bottom" %}
 {% partial "foot" %}

@@ -85,7 +85,7 @@ class CampaignWorker
     public function processActiveMessages()
     {
         $hourAgo = new Carbon;
-        $hourAgo = $hourAgo->subHours(1);
+        $hourAgo = $hourAgo->subMinutes(15);
 
         $activeId = MessageStatus::getActiveStatus()->id;
 
@@ -110,6 +110,7 @@ class CampaignWorker
             $countSent = 0;
             foreach ($subscribers as $subscriber) {
                 if (!$subscriber->confirmed_at || $subscriber->unsubscribed_at) {
+                    $campaign->subscribers()->remove($subscriber);
                     continue;
                 }
 

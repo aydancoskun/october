@@ -3,7 +3,7 @@
 use Backend\Classes\FormWidgetBase;
 
 /**
- * TemplateSelector Form Widget
+ * Template Selector Form Widget
  */
 class TemplateSelector extends FormWidgetBase
 {
@@ -43,7 +43,7 @@ class TemplateSelector extends FormWidgetBase
     /**
      * {@inheritDoc}
      */
-    public function loadAssets()
+    protected function loadAssets()
     {
         $this->addCss('css/templateselector.css', 'Responsiv.Campaign');
         $this->addJs('js/templateselector.js', 'Responsiv.Campaign');

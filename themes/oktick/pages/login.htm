@@ -16,15 +16,15 @@ function onStart(){
 ==
 {% partial "head" cssfile="oktick.css" %}
 {% partial "nav-top" %}
-<div class="container"><div class="row"></div></div>
 <div class="container">
-{% partial "logo-embeded-defered" %}
-<br>
-<h2 class="text-center">Login<br><small>Please provide your credentials below.</small></h2>
-<br>
 <div class="row">
-    <div class="col-xs-1 col-md-4"></div>
-    <div class="col-xs-10 col-md-4">
+    <div class="col-xs-0 col-md-3"></div>
+    <div class="col-xs-12 col-md-6">
+        <h2 class="text-center">Login</h2>
+        <br>
+        <p class="text-justify">Please provide your credentials below.</p>
+        
+        
         <form data-request="onSignin">
             <div class="form-group input-group-lg">
                 <label for="userSigninLogin">Email</label>
@@ -34,10 +34,10 @@ function onStart(){
                 <label for="userSigninPassword">Password</label>
                 <input name="password" type="password" class="form-control" id="userSigninPassword" placeholder="Enter your password">
             </div>
-            <button type="submit" class="btn btn-primary btn-lg">Sign in</button>
+            <button type="submit" class="btn btn-primary center-block btn-lg">Sign in</button>
         </form>
-    </div>
-    <div class="col-xs-1 col-md-4"></div>
+    </div> 
+    <div class="col-xs-0 col-md-3"></div>
 </div>
 <h4 class="text-center"><small>If you have forgotten your password, click here.</small></h4>
 </div><!--/container -->

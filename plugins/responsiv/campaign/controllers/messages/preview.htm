@@ -17,6 +17,9 @@
         <div data-control="toolbar">
 
             <?php if ($isLaunched): ?>
+                <?php
+                    $stats = $formModel->getExtendedStats();
+                ?>
                 <div class="scoreboard-item control-chart" data-control="chart-pie">
                     <ul>
                         <?php if (!$isSent): ?>
@@ -28,6 +31,16 @@
                             <li data-color="#ff0000">Unsubscribed <span><?= $formModel->count_stop ?></span></li>
                         <?php endif ?>
                     </ul>
+                </div>
+                <div class="scoreboard-item title-value" data-control="goal-meter" data-value="<?= $stats->open_rate ?>">
+                    <h4>Open rate</h4>
+                    <p><?= $stats->open_rate ?>%</p>
+                    <p class="description"><?= $stats->count_unread ?> unread</p>
+                </div>
+                <div class="scoreboard-item title-value goal-meter-inverse" data-control="goal-meter" data-value="<?= $stats->stop_rate ?>">
+                    <h4>Unsubscribe rate</h4>
+                    <p><?= $stats->stop_rate ?>%</p>
+                    <p class="description"><?= $stats->count_happy ?> still happy</p>
                 </div>
             <?php endif ?>
 

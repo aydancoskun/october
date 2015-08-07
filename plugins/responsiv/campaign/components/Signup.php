@@ -34,7 +34,7 @@ class Signup extends ComponentBase
                 'title'       => 'Require confirmation',
                 'description' => 'Subscribers must confirm their email address.',
                 'type'        => 'checkbox',
-                'default'     => 1,
+                'default'     => 0,
                 'showExternalParam' => false
             ],
             'templatePage' => [
@@ -76,14 +76,26 @@ class Signup extends ComponentBase
             throw new ValidationException($validation);
         }
 
-        /*
-         * Create and add the subscriber
-         */
-        $this->page['requireConfirmation'] = $this->property('confirm', false);
-        $this->page['error'] = null;
 
         try {
-            $this->listSubscribe($data);
+
+            /*
+             * Create and add the subscriber
+             */
+            $isThrottled = $this->checkThrottle();
+
+            if (!$isThrottled) {
+                $subscriber = $this->listSubscribe($data);
+                $requireConfirmation = !$subscriber->confirmed_at;
+            }
+            else {
+                $requireConfirmation = null;
+            }
+
+            $this->page['error'] = null;
+            $this->page['isThrottled'] = $isThrottled;
+            $this->page['requireConfirmation'] = $requireConfirmation;
+
         }
         catch (Exception $ex) {
             $this->page['error'] = $ex->getMessage();
@@ -105,13 +117,15 @@ class Signup extends ComponentBase
         /*
          * Send confirmation email
          */
-        if ($requireConfirmation) {
+        if (!$subscriber->confirmed_at) {
             $params = [
                 'confirmUrl' => $this->getConfirmationUrl($subscriber)
             ];
 
             Mail::sendTo($subscriber->email, 'responsiv.campaign::mail.confirm_subscriber', $params);
         }
+
+        return $subscriber;
     }
 
     protected function getConfirmationUrl($subscriber)
@@ -120,4 +134,11 @@ class Signup extends ComponentBase
         return Page::url($pageName, ['code' => $subscriber->getUniqueCode()]) . '?verify=1';
     }
 
+    /**
+     * Returns true if user is throttled.
+     */
+    protected function checkThrottle()
+    {
+        return Subscriber::checkThrottle(Request::ip());
+    }
 }

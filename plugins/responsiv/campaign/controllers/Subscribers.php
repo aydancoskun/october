@@ -1,7 +1,10 @@
 <?php namespace Responsiv\Campaign\Controllers;
 
+use Lang;
+use Flash;
 use BackendMenu;
 use Backend\Classes\Controller;
+use Responsiv\Campaign\Models\Subscriber;
 
 /**
  * Subscribers Back-end Controller
@@ -23,5 +26,23 @@ class Subscribers extends Controller
         parent::__construct();
 
         BackendMenu::setContext('Responsiv.Campaign', 'campaign', 'subscribers');
+    }
+
+    public function index_onDelete()
+    {
+        if (($checkedIds = post('checked')) && is_array($checkedIds) && count($checkedIds)) {
+
+            foreach ($checkedIds as $recordId) {
+                if (!$record = Subscriber::find($recordId)) continue;
+                $record->delete();
+            }
+
+            Flash::success(Lang::get('backend::lang.list.delete_selected_success'));
+        }
+        else {
+            Flash::error(Lang::get('backend::lang.list.delete_selected_empty'));
+        }
+
+        return $this->listRefresh();
     }
 }

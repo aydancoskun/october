@@ -33,6 +33,7 @@ function onStart(){
 {% flash %}
     <div id="top-alert" class="alert alert-{{ type == 'error' ? 'danger' : type }}">{{ message }}</div>
 {% endflash %}
+<script>$("#top-alert").delay(20000).slideUp(300);</script>
 <div id="cookie-lawe" class="collapse">
     <div>
         <h4 id="cookie-law-H4">We do use cookies on our site...</h4>

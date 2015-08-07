@@ -7,28 +7,30 @@ is_hidden = "0"
 paramCode = "activationcode"
 ==
 <?php
-// if (gethostbyname("leancode.duckdns.org") == $_SERVER['REMOTE_ADDR']) define('DEBUG', true);
-function onInit(){
-    Config::set('app.debug', true);
-}
 function onStart() {
     if( $user = $this->account->user() ) {
 //        Flash::success(Lang::get('rainlab.user::lang.account.success_activation'));
-        $this['email'] = $user->attributes['email'];
+        $mail=$this['email'] = $user->attributes['email'];
         $this['user_id'] = $user->attributes['id'];
-        $calc = substr($this['email'],strpos($this['email'],"@")+1);
+        $calc = substr($mail,strpos($mail,"@")+1);
         $url = $user->attributes['company'];
-        $url = $this->getUrl($url);
-        if (!$url) {
-            // we can't get a 200 on the url they supplied
-            return redirect('register/nowebsite');
-        }
-        $user->attributes['company']=$url;
-        $calculated = substr($this['email'],strpos($this['email'],"@")+1);
-        if($url==substr($calculated,-(strlen($url)))) {
-            $role = "Domain Authenticated Subscriber";
+        $ok_company_id = $user->attributes['ok_company_id'];
+        $ok_preauthenticated = $user->attributes['ok_preauthenticated'];
+        $this['company_name'] = $company_name = DB::table('operations.companies')->where('uid', $ok_company_id)->pluck('company_name');
+        $this['company_description'] = $company_name = DB::table('operations.companies')->where('uid', $ok_company_id)->pluck('vendor_data');
+        $stripUrl = $this->stripUrl($url);
+        if( $stripUrl == substr($mail,strpos($mail,"@")+1) ) $url_email_match=true;else $url_email_match=false;
+        $url_responded = $this->checkUrl($url);
+        if ($url_responded || $ok_preauthenticated) {
+            if($url_email_match || $ok_preauthenticated) {
+                $role = "Domain Authenticated Subscriber";
+            } else {
+                $role = "Unauthenticated Subscriber";
+            }
         } else {
             $role = "Unauthenticated Subscriber";
+            // we can't get a 200 on the url they supplied
+            // return redirect('register/nowebsite');
         }
         $role_id = DB::table('shahiemseymor_roles')->where('name', $role)->pluck('id');
         DB::table('shahiemseymor_assigned_roles')->where('user_id', $user->attributes['id'])->update(array('role_id' => $role_id));
@@ -59,7 +61,12 @@ function stripUrl($url){
     $url = str_replace("https://","",$url);
     return $url;
 }
-function getUrl($url){
+
+function checkUrl($url){
+    if($this->myCurl($url)) return $url;
+    return false;
+}
+/*
     $url = $this->stripUrl($url);
     
     $realurl =   $this->myCurl('http://www.'.$url);
@@ -75,27 +82,28 @@ function getUrl($url){
     if($realurl) return $this->stripUrl($realurl);
     return false;
 }
+*/
 ?>
 ==
 {% partial "head" %}
 {% partial "nav-top" %}
 <div class="container">
 <br>
-<h2 class="text-center">Company Details<br><small>So we can put your best cheek forward.</small></h2>
+<h2 class="text-center">Company Details<br><small>So we can present your business in its best light.</small></h2>
 <br>
 <div class="row">
     <div class="col-xs-1 col-md-3"></div>
     <div class="col-xs-10 col-md-6">
-        <p>In order to present your company correctly to searchers, the folloing information is required. It can be amended later on should the need arrise.</p>
+        <p>In order to present your company correctly to searchers, the folloing information is required and needs to be correct. It can be amended later, should the need arrise.</p>
         <br>
-        <form method="post" action="/register/4/">
+        <form method="post" action="/register/4/"> 
             <div class="form-group input-group-lg">
-                <label for="company">Company name<br><small>(This is how your company name will appear)</small></label>
-                <input name="company" type="txt" class="form-control" id="company" value="{{ company }}" placeholder="Enter your company name">
+                <label for="company">Company name<br><small>(Enter or amend as needed)</small></label>
+                <input name="company_name" type="txt" class="form-control" id="company" placeholder="Enter your company name" value="{{ company_name }}">
             </div>
             <div class="form-group input-group-lg">
-                <label for="business-description">Business Description<br><small>(This is what searchers will see when they find your company)</small></label>
-                <textarea class="form-control" rows="2" id="business-description" placeholder="Short description of company 128 letters or less"></textarea>
+                <label for="company-description">Business Description<br><small>(Searchers will be shown this when they find your business and they want to know what you specialise in)</small></label>
+                <textarea name="company_description"class="form-control" rows="2" id="company-description" placeholder="Short description of company 128 letters or less">{{ company_description }}</textarea>
             </div>
 
             <button type="submit" class="btn btn-primary btn-lg center-block">Link!</button>

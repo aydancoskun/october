@@ -4,27 +4,23 @@
 
 subscribers:
     label: subscriber
-    # list: ~/plugins/responsiv/campaign/models/subscriber/columns.yaml
-
     list:
         columns:
             email:
                 label: Email
+                searchable: true
 
-            pivot_sent_at:
+            pivot[sent_at]:
                 width: 15%
                 label: Sent
-                valueFrom: pivot[sent_at]
 
-            pivot_read_at:
+            pivot[read_at]:
                 width: 15%
                 label: Read
-                valueFrom: pivot[read_at]
 
-            pivot_stop_at:
+            pivot[stop_at]:
                 width: 15%
                 label: Stop
-                valueFrom: pivot[stop_at]
 
     form: ~/plugins/responsiv/campaign/models/subscriber/fields.yaml
 

@@ -12,7 +12,7 @@ use Illuminate\Http\RedirectResponse;
 function onStart(){
     Auth::logout();
     Session::flush();
-    Flash::warning("You are now logged out");
+    Flash::success("You are now logged out");
     return redirect('/');
 }
 ?>

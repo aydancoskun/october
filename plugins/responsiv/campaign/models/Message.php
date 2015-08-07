@@ -89,6 +89,17 @@ class Message extends Model
         }
     }
 
+    public function beforeSave()
+    {
+        $this->content_html = $this->renderTemplate();
+    }
+
+    public function afterDelete()
+    {
+        $this->subscriber_lists()->detach();
+        $this->subscribers()->detach();
+    }
+
     public function getUniqueCode($subscriber)
     {
         $value = $this->id.'!'.$subscriber->id;
@@ -123,6 +134,16 @@ class Message extends Model
         $this->count_read = $this->subscribers()->whereNotNull('read_at')->count();
         $this->count_stop = $this->subscribers()->whereNotNull('stop_at')->count();
         return $this;
+    }
+
+    public function getExtendedStats()
+    {
+        return (object) [
+            'open_rate' => $this->count_read && $this->count_sent ? round(($this->count_read / $this->count_sent) * 100) : 0,
+            'stop_rate' => $this->count_stop && $this->count_sent ? round(($this->count_stop / $this->count_sent) * 100) : 0,
+            'count_unread' => $this->count_sent - $this->count_read,
+            'count_happy' => $this->count_sent - $this->count_stop
+        ];
     }
 
     /**
@@ -316,9 +337,8 @@ class Message extends Model
     public function renderForSubscriber($subscriber)
     {
         $parser = new TextParser;
-        $template = $this->renderTemplate();
         $data = $this->buildTagData($subscriber);
-        $result = $parser->parseString($template, $data);
+        $result = $parser->parseString($this->content_html, $data);
 
         // Inject tracking pixel
         $result = str_replace(

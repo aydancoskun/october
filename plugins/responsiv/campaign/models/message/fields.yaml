@@ -105,7 +105,7 @@ fields:
             condition: value[time]
 
     stagger_count:
-        comment: Maximum number of messages to send every hour.
+        comment: Maximum number of messages to send every 15 minutes.
         span: right
         type: number
         context: send

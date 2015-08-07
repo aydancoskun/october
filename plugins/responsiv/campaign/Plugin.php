@@ -85,7 +85,7 @@ class Plugin extends PluginBase
     {
         $schedule->call(function(){
             CampaignWorker::instance()->process();
-        })->everyTenMinutes();
+        })->everyFiveMinutes();
     }
 
     public function boot()
