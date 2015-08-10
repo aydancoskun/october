@@ -8,7 +8,7 @@ is_hidden = "0"
 
 
 
-use Illuminate\Http\Response;
+use Illuflaminate\Http\Response;
 
 
 
@@ -474,6 +474,7 @@ function onStart()
     };
 </script>
 <div class="container">
+<br>
 <h2 class="text-center">Credits and Offers<br>
 <span class="text-center" style="font-size:14px;">(Click here <span id="ok_help_credit_on" class="help glyphicon-primary glyphicon glyphicon-question-sign"></span> for help)</span>
 </h2>
@@ -483,19 +484,17 @@ function onStart()
         <div class="col-xs-10">
             <div id="ok_help_credit" {% if user.ok_help_credit==0 %}class="collapse"{% endif %} >
                 <p>{{"&nbsp;&nbsp;&nbsp;"|raw}}</p>
-        {%if ok_purchase_number == 0 %}
-                <p>Welcome! Below you find our introductory offers. Introductory offers are only valid the first time you add Credits. Subsequently our standard plans will be available to you.</p>
-                <p>We recommend the Platinum Plan specifically for high volume first timers and it is positively the very best deal available because we DOUBLE the amount of Credits on any of our standard plans for the first purchase only. So if you are going for this you are getting an extra 5000 credits. The price per credit is only £0.10 for first time buyers.</p>
-                <p>Our gold plan is the most popular with our returning customers because the price per credit is the same as for our platinum offer.</p>
-                <p>For first timers we also offer our Ultralight package for free.</p>
-        {% else %}
-                <p>Welcome! Below you find our packages.</p>
-                <p>Our gold plan is the most popular with our returning customers because the price per credit is the same as for our platinum package at £0.20 per credit. The platinum offer is most attractive for high volume users who don't want to have to reload their credits too frequently. If you require higher volumes or prefer to purchase by purchase order, please get in touch with our sales team.</p>
-        {% endif %}
-                <p>All other plans speak for themselves.</p>
-                <p>With Credits you elevate the listing position of your products and services. With one Credit/week per product, getting to the top or close to the top of the lists of providers of specific products and services is extremely economical.</p>
-                <p>We are processing all payments using the ultra secure stripe payment gateway (<a href="https://stripe.com/gb/features#seamless-security" target="_blank">https://stripe.com</a>). Your data is transfered using the highest standard TLS https encryption. We never store your credit card information, in fact it never even touches our servers. We promise you can shop in confidence.</p>
-                <p>If you don't need help, click below. You can always re-enable it later by clicking the <span class="glyphicon-primary glyphicon glyphicon-question-sign"></span> sign above.</p>
+                <p>We offer several different packages to purchase OKTicK credits. If you bear in mind that 1 credit lasts a whole week and you may hold the same position on the search results with it throughout the week (depending on the actions of other suppliers of those same items) and yet pay NO more that week. Unlike some systems you are NOT charged each time a visitor clicks through to your website from OKTicK.</p>
+{%if ok_purchase_number == 0 %}
+                <p>The very first time you select a Plan from us we offer you credits at half the normal rate. Therefore you should consider which one you choose carefully. Introductory offers are only valid the very first time you add Credits. Subsequently our standard plans will be available to you.</p>
+                <p>The Gold Plan for example gives credits at only 20 pence sterling each normally, which is cheap anyway, but cost only 10p each if selected the very first time.</p>
+{% endif %}
+                <p>A single credit could elevate you on the results listing for that product or service to the top or close to it (depending only on demand from other suppliers at the same time). We feel advertising cannot be bought more cheaply.</p>
+                <p>You will see below the details of all the OKTicK Plans. Select the one you feel will work best for you.</p>
+                <p>If you require higher volumes please get in touch with our corporate sales team (corporate-sales@oktick.com).</p>
+                <p>Using the credits you purchase you will find elevating yourself up the various listings of your products and services is extremely easy. You do this from your Rankings page. In some cases applying a single credit can get you to the top or close to the top for the whole week.</p>
+                <p>We process all payments using the secure Stripe payment gateway (<a href="https://stripe.com/gb/features#seamless-security" target="_blank">https://stripe.com</a>). Your data is transfered using the highest standard TLS https encryption. We never store your credit card information, in fact your data never even touches our system. We promise that you can shop in total confidence at OKTicK.</p>
+                <p>If you don't need this notice any further, click below. You can always re-enable it later by clicking the <span class="glyphicon-primary glyphicon glyphicon-question-sign"></span> sign above.</p>
                 <div class="text-center">
                     <button id="ok_help_credit_off" class="btn btn-default btn-sm help"><span class="glyphicon glyphicon-primary glyphicon-thumbs-up"></span>&nbsp;Got it!</button>
                    <br>

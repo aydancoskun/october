@@ -5,79 +5,187 @@ is_hidden = "0"
 ==
 <?php
 function onDelete() {
-
     \Debugbar::info("Details page onDelete()");
-
     $data = Input::all();
-
     $rules = ['email' => 'required|email'];
-
     $msgs = ['required' => 'Please fill in your email','email' => 'Please enter a valid email address'];
-
     $v = Validator::make($data, $rules, $msgs);
-
-
-
-if ($v->fails())
-
-{
-
-    $this['result'] = $v->messages()->first();
-
-}else{
-
-    Mail::queue('email.newsletter', $data, function($message)
-
-    {
-
-        $message->from(post('email'));
-
-
-
-        $message->to('simon@skwebproject.com')->subject('New newsletter registration');
-
-
-
-    });
-
-
-
+    if ($v->fails()) {
+        $this['result'] = $v->messages()->first();
+    }else{
+        Mail::queue('email.newsletter', $data, function($message){
+            $message->from(post('email'));
+            $message->to('simon@skwebproject.com')->subject('New newsletter registration');
+        });
         $this['result'] = 'Success!';
-
     }
-
 }
 
+function onStart() {
+    \Debugbar::enable();
+    $retval=false;
+    //dd($_POST);
+    if( isset($_POST['lastname']) AND isset($_POST['firstname']) AND isset($_POST['email']) AND isset($_POST['timezone']) ) $retval=$this->onUpdate();
+    if( isset($_POST['password']) ) $retval = $this->onDelete();
+    $this->makeTimezone();
+    return $retval;
+}
 
+function makeTimezone() {
+    $user = $this->session->user()->attributes;
+    $ok_timezone = $user['ok_timezone'];
+
+    $regions = array(
+        'Africa' => DateTimeZone::AFRICA,
+        'America' => DateTimeZone::AMERICA,
+        'Antarctica' => DateTimeZone::ANTARCTICA,
+        'Aisa' => DateTimeZone::ASIA,
+        'Atlantic' => DateTimeZone::ATLANTIC,
+        'Europe' => DateTimeZone::EUROPE,
+        'Indian' => DateTimeZone::INDIAN,
+        'Pacific' => DateTimeZone::PACIFIC
+    );
+    $timezones = array();
+    foreach ($regions as $name => $mask) {
+        $zones = DateTimeZone::listIdentifiers($mask);
+        foreach($zones as $timezone) {
+            // Lets sample the time there right now
+            $time = new DateTime(NULL, new DateTimeZone($timezone));
+            // Us dumb Americans can't handle millitary time
+            $ampm = $time->format('H') > 12 ? ' ('. $time->format('g:i a'). ')' : '';
+            // Remove region name and add a sample time
+            $timezones[$name][$timezone] = substr($timezone, strlen($name) + 1) . ' - ' . $time->format('H:i') . $ampm;
+	    }
+    }
+    // View
+    
+    $print = '<label>Select Your Timezone</label><select class="form-control" id="timezone" name="timezone" >';
+    foreach($timezones as $region => $list) {
+        $print .= '<optgroup label="' . $region . '">' . "\n";
+        foreach($list as $timezone => $name) {
+            if($timezone==$ok_timezone)
+                $print .= '<option value="' . $timezone . '" selected="selected">' . $name . '</option>' . "\n";
+            else
+                $print .= '<option value="' . $timezone . '">' . $name . '</option>' . "\n";
+	    }
+	    $print .= '<optgroup>' . "\n";
+    }
+    $print .= '</select>';
+    $this['tzselect']=$print;
+}
 
 function onUpdate() {
+    $lastname = $this->verifyPost('lastname',"string");
+    $firstname = $this->verifyPost('firstname',"string");
+    $email = $this->verifyPost('email',"email");
+    $timezone = $this->verifyPost('timezone',"string");
+    if(!$firstname){
+        Flash::error('Please provide your first name');
+        return;
+    }
+    if(!$lastname){
+        Flash::error('Please provide your last name');
+        return;
+    }
+    if(!$email){
+        Flash::error('Please provide a valid business email address');
+        return;
+    }
+    if(!$timezone){
+        Flash::error('Please provide a valid timezone');
+        return;
+    }
+    try{
+        $user = $this->session->user()->attributes;
+        $user_id = $user['id'];
+        DB::table('oktick.users')
+            ->where('id', $user_id)
+            ->update(array(
+                'name' => $firstname,
+                'email' => $email,
+                'username' => $email,
+                'surname' => $lastname,
+                'ok_timezone' => $timezone,
+        ));
+        $this->session->user()->attributes['name'] = $firstname;
+        $this->session->user()->attributes['surname'] = $lastname;
+        $this->session->user()->attributes['email'] = $email;
+        $this->session->user()->attributes['username'] = $email;
+        $this->session->user()->attributes['ok_timezone'] = $timezone;
+    }
+    catch(Exception $e) {
+        Flash::error('Something went wrong ('.$e->getMessage().'). Try again.');
+        return;
+    }
+    Flash::success('You successfully updated your account!');
+    return;
+}
 
-    \Debugbar::info("Details page onUpdate()");
-
+function verifyPost($post_name,$check="int"){
+    if( !isset($_POST[$post_name]) ) return false;
+    $post_val_raw = post($post_name);
+    if($check=="int") $post_val_cast = (int) $post_val_raw;
+    if($check=="float") $post_val_cast = (float) $post_val_raw;
+    if($check=="string") $post_val_cast = substr((string) $post_val_raw,0,255);
+    if($check=="email" AND filter_var($post_val_raw, FILTER_VALIDATE_EMAIL)) $post_val_cast = (string) $post_val_raw;
+    if( $post_val_raw <> $post_val_cast ) return false;
+    return $post_val_cast;
+}
+function isValidTimezoneId2($tzid){
+    $valid = array();
+    $tza = timezone_abbreviations_list();
+    foreach ($tza as $zone)
+        foreach ($zone as $item)
+          $valid[$item['timezone_id']] = true;
+    unset($valid['']);
+    return !!$valid[$tzid];
 }
 ?>
 ==
 {% partial "head" %}
 {% partial "nav-top" %}
-<div class="container">
 
-<h2 class="text-center">Administer Account</h2>
+<div class="container">
+<br>
+<h2 class="text-center">Administer Account<br>
+<span class="text-center" style="font-size:14px;">(Click here <span id="ok_help_details_on" class="help glyphicon-primary glyphicon glyphicon-question-sign"></span> for help)</span>
+</h2>
+
+<div class="row">
+    <div class="col-xs-0 col-md-2"></div>
+    <div class="col-xs-12 col-md-8">
+        <div id="ok_help_details" {% if user.ok_help_details==0 %}class="collapse"{% endif %} >
+            <p>{{"&nbsp;&nbsp;&nbsp;"|raw}}</p>
+                <p>On this page you can amend your personal details and set your timezone.</p>
+            <div class="text-center">
+                <button id="ok_help_details_off" class="btn btn-default btn-sm help"><span class="glyphicon glyphicon-primary glyphicon-thumbs-up"></span>&nbsp;Got it!</button>
+                <br>
+                <br>
+            </div>
+        </div>
+    </div>
+    <div class="col-xs-0 col-md-2"></div>
+</div>
+
 <div class="row">
 <div class="col-xs-1 col-md-2"></div>
 <div class="col-xs-10 col-md-8">
-    <form id="update_account_form" data-request="onUpdate">
+    <form id="update_account_form" method="post" action="">
         <h3>About you</h3>
         <div class="form-group input-group-lg">
-            <label for="name">First name</label>
-            <input type="text" class="form-control wide" id="name" placeholder="First name" value="{{user.name}}">
+            <label for="firstname">First name</label>
+            <input type="text" class="form-control wide" id="firstname" name="firstname" placeholder="First name" value="{{user.name}}">
         </div>
         <div class="form-group input-group-lg">
-            <label for="surname">Last name</label>
-            <input type="text" class="form-control" id="surname" placeholder="Last name" value="{{user.surname}}">
+            <label for="lastname">Last name</label>
+            <input type="text" class="form-control" id="lastname" name="lastname" placeholder="Last name" value="{{user.surname}}">
         </div>
         <div class="form-group input-group-lg">
-            <label for="business-email" >Current email address you use at work</label>
-            <input type="text" class="form-control" id="business-email" placeholder="you@emailaddress.com" value="{{user.email}}">
+            <label for="email" >Current email address you use at work</label>
+            <input type="text" class="form-control" id="email" name="email" placeholder="you@emailaddress.com" value="{{user.email}}">
+        </div>
+        <div class="form-group input-group-lg">
+            {{ tzselect|raw }}
         </div>
         <div class="text-right">
             <button type="submit" class="btn btn-primary btn-lg">Submit</button>
@@ -96,7 +204,7 @@ function onUpdate() {
     <br>
     <br>
     <br>
-    <form id="delete_account_form" data-request="onDelete">
+    <!--form id="delete_account_form" method="post" action="">
         <div class="form-group input-group-lg">
             <table class="table">
                 <tr class="danger" style="border:none;">
@@ -118,7 +226,7 @@ function onUpdate() {
                 <tr>
                     <td style="border:none;">
                         <label for="business-password" >Password<br><small>You must enter your password to confirm account deletion</small></label>
-                        <input type="password" class="form-control" id="business-password" placeholder="">
+                        <input type="password" class="form-control" id="password" name="password" placeholder="">
                     </td>
                 </tr>
                 <tr>
@@ -128,7 +236,7 @@ function onUpdate() {
                 </tr>
             </table>
         </div>
-    </form>
+    </form-->
 </div>
 
 <div class="col-xs-1 col-md-2"></div>

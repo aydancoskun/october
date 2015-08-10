@@ -69,7 +69,9 @@ function onSave() {
 
     if ($validator->fails()) {
         $messages = $validator->messages();
-        throw new ApplicationException($messages->first());
+        Flash::error($messages->first());
+        return redirect('/account/company/'.time());
+//        throw new ApplicationException($messages->first());
     }
 
     DB::table('oktick.users')->where('id',$user_id)->update(
@@ -97,7 +99,7 @@ function onSave() {
 {% partial "nav-top" %}
 
 <div class="container">
-
+<br>
 <h2 class="text-center">Business Details<br>
 <span class="text-center" style="font-size:14px;">(Click here <span id="ok_help_company_on" class="help glyphicon-primary glyphicon glyphicon-question-sign"></span> for help)</span>
 </h2>
@@ -122,78 +124,75 @@ function onSave() {
 <br>
 
 <div class="row">
-<div class="col-xs-0 col-md-2"></div>
-<div class="col-xs-12 col-md-8">
-{% if not can('Edit Company') %}{% set disabled = 'disabled' %}{% else %}{% set disabled = '' %}{% endif %}
-<form data-request="onSave">
-<div class="form-group input-group-lg">
-    <label for="Business_Name">Business Name<br><small></small></label>
-    <input type="text" class="form-control" id="Business_Name" placeholder="www.example.com" value="{{ user.ok_company_name }}" name="Business_Name">
-</div>
-{% if disabled %}
-<p>All other options are currently disabled because your email address, <{{user.email}}> does not match your company domain name. If you mistyped your domain name you can change it above. If you need to change your email address, e.g.  because you gave your personal instead of your business email, you can do so on your "My Account" page <a href="/account/details">here</a>.</p>
-{% endif %}
-<div class="form-group input-group-lg">
-    <label for="business-description">Business Description<br><small>(Searchers will be shown this when they find your business and they want to know what you specialise in)</small></label>
-    <input type="text" class="form-control" id="business-description" placeholder="Short description of company 128 letters or less" {{disabled}} value="{{ user.ok_vendor_data }}" name="ok_vendor_data">
-</div>
-
-
-
-
-<br>
+    <div class="col-xs-0 col-md-2"></div>
+    <div class="col-xs-12 col-md-8">
+        {% if not can('Edit Company') %}{% set disabled = 'disabled' %}{% else %}{% set disabled = '' %}{% endif %}
+        <form data-request="onSave">
+            <div class="form-group input-group-lg">
+                <label for="Business_Name">Business Name<br><small></small></label>
+                <input type="text" class="form-control" id="Business_Name" placeholder="www.example.com" value="{{ user.ok_company_name }}" name="Business_Name">
+            </div>
+            {% if disabled %}
+                <!--p>All other options are currently disabled because your email address, <{{user.email}}> does not match your company domain name. If you mistyped your domain name you can change it above. If you need to change your email address, e.g.  because you gave your personal instead of your business email, you can do so on your "My Account" page <a href="/account/details">here</a>.</p-->
+            {% endif %}
+            <div class="form-group input-group-lg">
+                <label for="business-description">Business Description<br><small>(Searchers will be shown this when they find your business and they want to know what you specialise in)</small></label>
+                <input type="text" class="form-control" id="business-description" placeholder="Short description of company 128 letters or less" {{disabled}} value="{{ user.ok_vendor_data }}" name="ok_vendor_data">
+            </div>
+            <br>
 {%if invoices %}
-<h3>Invoicing Details</h3>
-<div class="form-group input-group-lg">
-    <label for="business-name">Business or organisation name</label>
-    <input type="text" class="form-control" id="business-name" placeholder="Name" {{disabled}} name="ok_invoice_name" value="{{ user.ok_invoice_name }}">
-</div>
-<!--div class="form-group input-group-lg">
-    <label for="business-size">Number of employees</label>
-    <select class="form-control" id="business-size" {{disabled}}>
-        <option value="">Please Select</option>
-        <option value="1">1 employee</option>
-        <option value="2-9">2-9 employees</option>
-        <option value="10-19">10-19 employees</option>
-        <option value="20-49">20-49 employees</option>
-        <option value="50-99">50-99 employees</option>
-        <option value="100-199">100-199 employees</option>
-        <option value="200-349">200-349 employees</option>
-        <option value="350-999">350-999 employees</option>
-        <option value="1000-2999">1000-2999 employees</option>
-        <option value="3000+">3000+ employees</option>
-    </select>
-</div-->
-<div class="form-group input-group-lg">
-    <label for="business-country">Country/Region</label>
-    <select class="form-control" id="business-country" {{disabled}} name="ok_invoice_country">
-        {% partial "country-selector" country=user.ok_invoice_country %}
-    </select>
-</div>
-<div class="form-group input-group-lg">
-    <label for="business-address-line-1">Business address</label>
-    <input type="text" class="form-control" id="business-address-line-1" placeholder="Line 1" {{disabled}} value="{{ user.ok_invoice_address_1 }}" name="ok_invoice_address_1">
-    <label for="business-address-line-2" class="sr-only">Business Address Line 2</label>
-    <input type="text" class="form-control" id="business-address-line-2" placeholder="Line 2" {{disabled}} value="{{ user.ok_invoice_address_2 }}" name="ok_invoice_address_2">
-</div>
-<div class="form-group input-group-lg">
-    <label for="business-city">City/Town</label>
-    <input type="text" class="form-control" id="business-city" placeholder="City" {{disabled}} value="{{ user.ok_invoice_city }}" name="ok_invoice_city">
-</div>
-<div class="form-group input-group-lg">
-    <label for="business-state">County/State</label>
-    <input type="text" class="form-control" id="business-state" placeholder="West Sussex / Florida" {{disabled}} value="{{ user.ok_invoice_state }}" name="ok_invoice_state">
-</div>
-<div class="form-group input-group-lg">
-    <label for="business-postcode">Postcode/ZIP code</label>
-    <input type="text" class="form-control" id="business-postcode" placeholder="RH19 4JY / 33756" {{disabled}} value="{{ user.ok_invoice_zip }}" name="ok_invoice_zip">
-</div>
+            <h3>Invoicing Details</h3>
+            <div class="form-group input-group-lg">
+                <label for="business-name">Business or organisation name</label>
+                <input type="text" class="form-control" id="business-name" placeholder="Name" {{disabled}} name="ok_invoice_name" value="{{ user.ok_invoice_name }}">
+            </div>
+            <!--div class="form-group input-group-lg">
+                <label for="business-size">Number of employees</label>
+                <select class="form-control" id="business-size" {{disabled}}>
+                    <option value="">Please Select</option>
+                    <option value="1">1 employee</option>
+                    <option value="2-9">2-9 employees</option>
+                    <option value="10-19">10-19 employees</option>
+                    <option value="20-49">20-49 employees</option>
+                    <option value="50-99">50-99 employees</option>
+                    <option value="100-199">100-199 employees</option>
+                    <option value="200-349">200-349 employees</option>
+                    <option value="350-999">350-999 employees</option>
+                    <option value="1000-2999">1000-2999 employees</option>
+                    <option value="3000+">3000+ employees</option>
+                </select>
+            </div-->
+            <div class="form-group input-group-lg">
+                <label for="business-country">Country/Region</label>
+                <select class="form-control" id="business-country" {{disabled}} name="ok_invoice_country">
+                {% partial "country-selector" country=user.ok_invoice_country %}
+                </select>
+            </div>
+            <div class="form-group input-group-lg">
+                <label for="business-address-line-1">Business address</label>
+                <input type="text" class="form-control" id="business-address-line-1" placeholder="Line 1" {{disabled}} value="{{ user.ok_invoice_address_1 }}" name="ok_invoice_address_1">
+                <label for="business-address-line-2" class="sr-only">Business Address Line 2</label>
+                <input type="text" class="form-control" id="business-address-line-2" placeholder="Line 2" {{disabled}} value="{{ user.ok_invoice_address_2 }}" name="ok_invoice_address_2">
+            </div>
+            <div class="form-group input-group-lg">
+                <label for="business-city">City/Town</label>
+                <input type="text" class="form-control" id="business-city" placeholder="City" {{disabled}} value="{{ user.ok_invoice_city }}" name="ok_invoice_city">
+            </div>
+            <div class="form-group input-group-lg">
+                <label for="business-state">County/State</label>
+                <input type="text" class="form-control" id="business-state" placeholder="West Sussex / Florida" {{disabled}} value="{{ user.ok_invoice_state }}" name="ok_invoice_state">
+            </div>
+            <div class="form-group input-group-lg">
+                <label for="business-postcode">Postcode/ZIP code</label>
+                <input type="text" class="form-control" id="business-postcode" placeholder="RH19 4JY / 33756" {{disabled}} value="{{ user.ok_invoice_zip }}" name="ok_invoice_zip">
+            </div>
 {% endif %}
-<div class="text-right">
-    <button type="submit" class="btn btn-primary btn-lg">Submit</button>
-</div>
-</form>
-<div class="col-xs-0 col-md-2"></div>
+            <div class="text-right">
+                <button type="submit" class="btn btn-primary btn-lg">Submit</button>
+            </div>
+        </form>
+    </div>
+    <div class="col-xs-0 col-md-2"></div>
 </div>
 {%if invoices and user.ok_invoice_name and user.ok_invoice_country and user.ok_invoice_address_1 and user.ok_invoice_city %}
 <div class="row">
@@ -216,7 +215,8 @@ function onSave() {
                     <!--th class="text-center">Payment<br>Method</th-->
                     <th class="text-center">Amount<br>Paid</th>
                     <th class="text-center">Transaction<br>Currency</th>
-                    <th class="text-center">Print<br>Invoice</th>
+                    <th class="text-center">Display<br>Invoice</th>
+                    <!--th class="text-center">Download<br>Invoice</th-->
                 </tr>
                 {% for invoice in invoices %}
                     <tr class="">
@@ -237,11 +237,19 @@ function onSave() {
                         </td>
                         <td class="text-center" style="vertical-align: middle">
                             <a class="btn btn-primary"
+                               href="/account/invoice/{{ invoice.download_code}}"
+                               role="button" target="_blank">
+                                <span style="vertical-align: middle" class="glyphicon glyphicon-print" aria-hidden="true"></span>
+                            </a>
+                        </td>
+                        <!--javascript:window.print()-->
+                        <!--td class="text-center" style="vertical-align: middle">
+                            <a class="btn btn-primary"
                                href="javascript:download('{{ invoice.download_code}}')"
                                role="button">
                                 <span style="vertical-align: middle" class="glyphicon glyphicon-print" aria-hidden="true"></span>
                             </a>
-                        </td>
+                        </td-->
                     </tr>
                 {% endfor %}
             </table>
@@ -261,6 +269,12 @@ function download(download_code)
     $.oc.stripeLoadIndicator.show();
     var ifrm = document.getElementById('invoice');
     ifrm.src = 'https://www.oktick.com/account/pdf_invoice/'+download_code;
+}
+function printme(download_code)
+{
+    $.oc.stripeLoadIndicator.show();
+    //var ifrm = document.getElementById('invoice');
+    //ifrm.src = 'https://www.oktick.com/account/pdf_invoice/'+download_code;
 }
 $('#invoice').load(function(){
     $.oc.stripeLoadIndicator.hide();

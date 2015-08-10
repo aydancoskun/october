@@ -2,9 +2,6 @@ title = "Products & Services"
 url = "/account/products-services"
 layout = "main"
 is_hidden = "0"
-
-[editable]
-file = "about-us.htm"
 ==
 <?php
 use Illuminate\Http\Response;
@@ -23,21 +20,13 @@ function onStart(){
 }
 
 function verifyPost($post_name,$check="int"){
-
     if( !isset($_POST[$post_name]) ) App::abort(403, 'Forbidden');
-
     $post_val_raw = post($post_name);
-
     if($check=="int") $post_val_cast = (int) $post_val_raw;
-
     if($check=="float") $post_val_cast = (float) $post_val_raw;
-
     if($check=="string") $post_val_cast = (string) $post_val_raw;
-
     if( $post_val_raw <> $post_val_cast ) App::abort(403, 'Forbidden');
-
     return $post_val_cast;
-
 }
 
 function onProductPendingDelete(){
@@ -65,6 +54,12 @@ function onProductPendingDelete(){
     }
 
     DB::table('operations.bp_suppliers_added')->where('uid',$uid)->delete();
+
+    $this['pending_products'] = DB::table('operations.bp_suppliers_added')
+                    ->where('user_id', $user_id)
+                    ->where('company_uid', $company_id)
+                    ->orderBy('created_stamp', 'desc')
+                    ->get();
 
     return ['status' => 'success','message' => 'Pending product deleted!','log' => [  'Pending Product Deleted' => $uid,],];
 
@@ -205,7 +200,7 @@ function onProductAdd(){
 {% partial "nav-top"%}
 
 <div class="container">
-
+<br>
 <h2 class="text-center">Products & Services Management<br>
 <span class="text-center" style="font-size:14px;">(Click here <span id="ok_help_productservices_on" class="help glyphicon-primary glyphicon glyphicon-question-sign"></span> for help)</span>
 </h2>
@@ -215,11 +210,11 @@ function onProductAdd(){
     <div class="col-xs-10 col-md-12">
         <div id="ok_help_productservices" {% if user.ok_help_productservices==0 %}class="collapse"{% endif %} >
             <p>{{"&nbsp;&nbsp;&nbsp;"|raw}}</p>
-                {% component 'editable' file="account-products-services-1.htm" %}
-                {% if user.ok_purchase_number < 2 %}
-                    {% component 'editable' file="account-products-services-2.htm" %}
-                {% endif %}
-                {% component 'editable' file="account-products-services-3.htm" %}
+            <p>From this page you can see what products or services we have in our records for your business.
+            <p>{% if user.ok_purchase_number < 2 %}Because these were collected by our semi-automatic system there may be occassional errors. {% endif %}If any are incorrect you can delete them using the delete <button type="button" class="btn btn-delete btn-danger btn-xs"><span class="glyphicon glyphicon-trash"></span></button> button and confirming your choice.</p>
+            <p>If you find products or services you provide are missing from your list, you can add them using the first row below. Just enter your item, as you would normally in a search on OKTicK, select your choice from the list and click the <button class="btn btn-success btn-xs"><span class="glyphicon glyphicon-ok"></span></button> button. If you cannot find it on the standard list add it anyway writing it as you normally would.</p>
+            <p>Each products and/or services you propose to add will be shown below your current products in a "Products & Services pending approval" section which appears when you have products pending approval. If you made an error you can delete any pending item. The reason items are not immediately awailable is because they have to be verified by the OKTicK Team which will be done as quickly as possible depending upon volume of traffic.</p>
+            <p>If you don't need this notice any further, click below. You can always re-enable it later by clicking the <span class="glyphicon-primary glyphicon glyphicon-question-sign"></span> sign above.</p>
             <div class="text-center">
                 <button id="ok_help_productservices_off" class="btn btn-default btn-sm help"><span class="glyphicon glyphicon-primary glyphicon-thumbs-up"></span>&nbsp;Got it!</button>
                 <br>
@@ -236,8 +231,8 @@ function onProductAdd(){
     <div class="col-xs-10 col-md-12">
         <table class="table table-bordered">
             <tr class="">
-                <th class="">Products & Services</th>
-                <th class="text-center">Add/Delete</th>
+                <th class="">Add Products & Services</th>
+                <th class="col-xs-1 col-md-1 text-center">Add</th>
             </tr>
             <tr>
                 <td class="text-center">
@@ -257,6 +252,20 @@ function onProductAdd(){
                         <span class="glyphicon glyphicon-ok"></span>
                     </button>
                 </td>
+            </tr>
+        </table>
+    </div>
+    <div class="col-xs-1 col-md-0"></div>
+</div>
+            
+{% if products %}
+<div class="row">
+    <div class="col-xs-1 col-md-0"></div>
+    <div class="col-xs-10 col-md-12">
+        <table class="table table-bordered">
+            <tr class="">
+                <th class="">Existing Products & Services</th>
+                <th class="col-xs-1 col-md-1 text-center">Delete</th>
             </tr>
             {% for product in products %}
                 <tr class="{% if product.bp_user_credits %}success{%endif%}" id="row{{product.bp_id}}">
@@ -305,6 +314,7 @@ function onProductAdd(){
     </div>
     <div class="col-xs-1 col-md-0"></div>
 </div>
+{% endif %}
 {% if pending_products %}
 <div class="row">
     <div class="col-xs-1 col-md-0"></div>
@@ -312,12 +322,20 @@ function onProductAdd(){
         {% if products %}
         <table class="table table-bordered">
             <tr class="">
-                <th class="text-center">Delete</th>
-                <th class="">Products & Services pending approval</th>
-                <th class="text-center">Status</th>
+                <th>Products & Services pending approval</th>
+                <!--th class="text-center">Status</th-->
+                <th class="col-xs-1 col-md-1 text-center">Delete</th>
             </tr>
             {% for pending_product in pending_products %}
                 <tr id="PendingRow{{pending_product.uid}}">
+                    <td class=""
+                        id="pending-bp{{ pending_product.uid }}"
+                        data-uid="{{ pending_product.uid }}">
+                        {{ pending_product.bp_name }}
+                    </td>
+                    <!--td>
+                        {{ pending_product.status }}
+                    </td-->
                     <td class="text-center">
                         <button id="pending-go-button{{pending_product.uid}}"
                                 type="button"
@@ -325,14 +343,6 @@ function onProductAdd(){
                                 data-uid="{{pending_product.uid}}">
                             <span class="glyphicon glyphicon-trash"></span>
                         </button>
-                    </td>
-                    <td class=""
-                        id="pending-bp{{ pending_product.uid }}"
-                        data-uid="{{ pending_product.uid }}">
-                        {{ pending_product.bp_name }}
-                    </td>
-                    <td>
-                        {{ pending_product.status }}
                     </td>
                 </tr>
             {% endfor %}

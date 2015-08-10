@@ -20,8 +20,8 @@ function onStart() {
     $ok_company_id = $user->attributes['ok_company_id'];
     $user_id = $user->attributes['id'];
     $this['invoices'] = DB::table('ok_payments')->where('download_code', $invoice_id)->where('user_id', $user_id)->first();
-    $this['details'] = DB::table('users')->where('id',$user_id)->first();
-    $this['qr'] = \DNS2D::getBarcodeHTML("http://www.oktick.com/account/invoice/$invoice_id", "QRCODE", 3, 3);
+    //$this['details'] = DB::table('users')->where('id',$user_id)->first();
+    $this['qr'] = \DNS2D::getBarcodeHTML("https://www.oktick.com/account/invoice/$invoice_id", "QRCODE", 3, 3);
 }
 function verifyPost($post_name,$check="int"){
     if( !isset($_POST[$post_name]) ) App::abort(403, 'Forbidden');
@@ -39,7 +39,7 @@ function verifyPost($post_name,$check="int"){
     <div class="row">
         <div class="center-block">
             <img style="height: 140px; max-height:140px; width:300px; max-width:300px;background-color:#ffffff" 
-                 src="http://www.oktick.com/app/ot/assets/img/oktick_Invoice.png"/>
+                 src="/app/ot/assets/img/oktick_Invoice.png"/>
         </div>
     </div>
     <div class="row">
@@ -55,11 +55,11 @@ function verifyPost($post_name,$check="int"){
                     <div class="panel panel-default height">
                         <div class="panel-heading">Billing Details</div>
                         <div class="panel-body">
-                            <strong>{{details.ok_invoice_name}}</strong><br>
-                            {{details.ok_invoice_address_1}}<br>
-                            {{details.ok_invoice_address_2}}<br>
-                            {{details.ok_invoice_city}}{% if details.ok_invoice_city and details.ok_invoice_state %},&nbsp;{% endif %}{{details.ok_invoice_state}}<br>
-                            {{details.ok_invoice_country}}{% if details.ok_invoice_country and details.ok_invoice_zip %}&nbsp;-&nbsp;{% endif %}{{details.ok_invoice_zip}}<br>
+                            <strong>{{user.ok_invoice_name}}</strong><br>
+                            {{user.ok_invoice_address_1}}<br>
+                            {{user.ok_invoice_address_2}}<br>
+                            {{user.ok_invoice_city}}{% if user.ok_invoice_city and user.ok_invoice_state %},&nbsp;{% endif %}{{user.ok_invoice_state}}<br>
+                            {{user.ok_invoice_country}}{% if user.ok_invoice_country and user.ok_invoice_zip %}&nbsp;-&nbsp;{% endif %}{{user.ok_invoice_zip}}<br>
                         </div>
                     </div>
                 </div>
