@@ -91,7 +91,12 @@ abstract class ImportModel extends Model
             'firstRowTitles' => true
         ], $options));
 
-        $reader = CsvReader::createFromPath($filePath);
+        $reader = CsvReader::createFromPath($filePath, 'r');
+
+        // Filter out empty rows
+        $reader->addFilter(function(array $row) {
+            return count($row) > 1 || reset($row) !== null;
+        });
 
         if ($firstRowTitles) {
             $reader->setOffset(1);
@@ -122,6 +127,24 @@ abstract class ImportModel extends Model
         }
 
         return $newRow;
+    }
+
+    /**
+     * Explodes a string using pipes (|) to a single dimension array
+     * @return array
+     */
+    protected function decodeArrayValue($value, $delimeter = '|')
+    {
+        if (strpos($value, $delimeter) === false) return [$value];
+
+        $data = preg_split('~(?<!\\\)' . preg_quote($delimeter, '~') . '~', $value);
+        $newData = [];
+
+        foreach ($data as $_value) {
+            $newData[] = str_replace('\\'.$delimeter, $delimeter, $_value);
+        }
+
+        return $newData;
     }
 
     /**
