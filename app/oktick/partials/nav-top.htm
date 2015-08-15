@@ -1,0 +1,162 @@
+description = "nav-top"
+
+[viewBag]
+==
+<?php
+function onStart(){
+
+    if ( Request::segment(1) == "logout"){
+
+        $this['logout'] = true;
+
+    } else {
+
+        $this['logout'] = false;
+
+    }
+
+}
+?>
+==
+<nav class="navbar navbar-default navbar-fixed-top" role="navigation">
+    <div class="container">
+        <div class="navbar-header pull-right">
+        <ul class="nav navbar-nav pull-left">
+                {% if user %}
+                    <li>
+                        <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false">
+                            {% if (user.name) and (user.surname) %}{{user.name}}{{"&nbsp;"|raw}}{{user.surname}}{% else %}{{user.email}}{% endif %}
+                            <span class="caret"></span>
+                        </a>
+                        <ul class="dropdown-menu">
+                            <li class="dropdown-header">Administer Account</li>
+                            <li>
+                                <a href="/account/details" class="text-left">
+                                    <span class="glyphicon glyphicon-user" aria-hidden="true"></span><span style="text-align:left; !important">
+                                        {{"&nbsp;&nbsp;"|raw}}{% if (user.name) and (user.surname) %}{{user.name}}{{"&nbsp;"|raw}}{{user.surname}}{% else %}{{user.email}}{% endif %}
+                                    </span>
+                                </a>
+                            </li>
+                            <li>
+                                <a href="/account/password-change">
+                                    <span class="glyphicon glyphicon-lock" aria-hidden="true"></span>
+                                    {{"&nbsp;&nbsp;"|raw}}Change Password</a>
+                            </li>
+                            <li role="separator" class="divider"></li>
+                            <li class="dropdown-header">Business Details</li>
+                            <li>
+                                <a href="/account/company">
+                                    <span class="glyphicon glyphicon-edit" aria-hidden="true"></span>
+                                    {{"&nbsp;&nbsp;"|raw}}{% if (user.ok_company_name) %}{{user.ok_company_name}}{% else %}{{user.company}}{% endif %}</a>
+                            </li>
+                            <li role="separator" class="divider"></li>
+                            <li><a href="/logout">
+                                    <span class="glyphicon glyphicon-off" aria-hidden="true"></span>
+                                    {{"&nbsp;&nbsp;"|raw}}Logout
+                                    </span>
+                                </a>
+                            </li>
+                        </ul>
+                    </li>
+                {% else %}
+                    <li class="{% if this.page.id == "register" %}active{% endif %}">
+                        <a href="/register/">
+                            <!--span class="glyphicon glyphicon-cog" aria-hidden="true"></span-->&nbsp;Register
+                        </a>
+                    </li>
+                    <li class="{% if this.page.id == "login" %}active{% endif %}">
+                        <a href="/login" style="text-decoration:none;">
+                            <span class="glyphicon glyphicon-user" aria-hidden="true"></span>&nbsp;Login
+                        </a>
+                    </li>
+                {% endif %}
+            </ul>
+
+            <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#navbar" aria-expanded="false" aria-controls="navbar">
+                <span class="sr-only">Toggle navigation</span>
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+            </button>
+        </div>
+        <div id="navbar" class="navbar-collapse collapse">
+            <ul class="nav navbar-nav">
+                <li class="active">
+                    <a href="/" style="height:50px;"
+                            {% if this.page.id != "main" %}
+                            data-toggle="tooltip"
+                            data-trigger="hover"
+                            data-placement="left"
+                            title="Click to Search"
+                            {% endif %}>
+                            {% if this.page.id != "main" %}
+                            <span class="glyphicon glyphicon-search" aria-hidden="true"></span>
+                            {% else %}
+                            <span class="glyphicon glyphicon-home" aria-hidden="true"></span>
+                            {% endif %}
+                        <img
+                            src="/app/ot/assets/img/oktick-nav.png"
+                            alt="OKTicK"
+                            height="14px"
+                            style="margin:0 0 3px 0;padding: 0 0 0 5px">
+
+                            <!--span style="color:#e83442;letter-spacing: -0.45rem;" class="logohtml LO1">O</span>
+                            <span style="color:#3469aa;letter-spacing: -0.6rem;"  class="logohtml LK2">K</span>
+                            <span style="color:#ffffff;letter-spacing: -0.6rem;"  class="logohtml LNBSP3"> </span>
+                            <span style="color:#f4ac52;letter-spacing: -0.3rem;"  class="logohtml LT4">T</span>
+                            <span style="color:#82b75d;letter-spacing: -0.3rem;"  class="logohtml LI5">i</span>
+                            <span style="color:#e83442;letter-spacing: -0.3rem;"  class="logohtml LC6">c</span>
+                            <span style="color:#3469aa;letter-spacing: -0.4rem;"  class="logohtml LK7">K</span-->
+                            <!--span style="color:#7b7b7b;font-size:0.6rem;font-weight:100;letter-spacing: 0rem;position: relative;bottom: 2rem;" class="logohtml LTM"><sup> TM</sup></span-->
+                    </a>
+                </li>
+                {% if user %}
+                    <li class="{% if this.page.id == "account-ranking" %}active{% endif %}">
+                        <a href="/account/ranking">Rankings <span
+                            id="badge_active"
+                            class="badge {% if user.ok_sponored_products_count %}badge-success{%else%}badge-primary{% endif %} badge-menu"
+                            data-toggle="tooltip"
+                            data-trigger="hover"
+                            data-placement="bottom"
+                            title="Number of sponsored Products and Services">
+                        {% if user.ok_sponored_products_count %}{{user.ok_sponored_products_count}}{%else%}0{% endif %}
+                            </span>
+                        </a>
+                    </li>
+                    <li class="{% if this.page.id == "account-products-services" %}active{% endif %}">
+                        <a href="/account/products-services">Products & Services <span
+                            id="badge_total"
+                            class="badge {% if user.ok_company_products_count %}badge-success{%else%}badge-primary{% endif %} badge-menu"
+                            data-toggle="tooltip"
+                            data-trigger="hover"
+                            data-placement="bottom"
+                            title="Total number of products and services on the system"
+                            data-content="Total Number of products on system">
+                        {% if user.ok_company_products_count %}{{user.ok_company_products_count}}{%else%}0{% endif %}
+                            </span>
+                        </a>
+                    </li>
+                    <li class="{% if this.page.id == "account-credit" %}active{% endif %}">
+                        <a href="/account/credit">Credits <span
+                            id="ok_credits"
+                            class="badge {% if user.ok_credits|round(2, 'common') > 0 %}badge-success{%else%}badge-primary{% endif %} badge-menu"
+                            data-toggle="tooltip"
+                            data-trigger="hover"
+                            data-placement="bottom"
+                            title="Number of credits"
+                            data-content="This shows the number of credits you have on account and available to place on products and services"
+                            data-value="{% if user.ok_credits %}{{user.ok_credits}}{%else%}0{% endif %}">{% if user.ok_credits and user.ok_credits > 0 %}{{ user.ok_credits|round(2, 'common') }}{%else%}0{% endif %}</span>
+                        </a>
+                    </li>
+                {% else %}
+                    <!--
+                     li class="{% if this.page.id == "pages-news" %}active{% endif %}"><a href="/news">News</a></li
+                     -->
+                    <li class="{% if this.page.id == "pages-search-tips" %}active{% endif %}"><a href="/search-tips">Search Tips</a></li>
+                    <li class="{% if this.page.id == "pages-why-register" %}active{% endif %}"><a href="/why-register">Why Register?</a></li>
+                    <li class="{% if this.page.id == "pages-faq" %}active{% endif %}"><a href="/faq">FAQ</a></li>
+                {% endif %}
+            </ul>
+        </div>
+    </div>
+</nav>

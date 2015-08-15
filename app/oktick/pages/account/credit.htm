@@ -1,0 +1,682 @@
+title = "Credit"
+url = "/account/credit/:status?0"
+layout = "main"
+is_hidden = "0"
+==
+<?php
+//use \Stripe\Stripe;
+
+
+
+use Illuflaminate\Http\Response;
+
+
+
+function onInit(){
+
+    header("Access-Control-Allow-Origin: *");
+    //header("Access-Control-Allow-Origin: https://js.stripe.com:443 https://api.stripe.com:443 https://api.stripe.com https://js.stripe.com");
+
+}
+
+function onStart()
+
+{
+    \Debugbar::info("Credit Page onStart()");
+
+    $d=false;
+    if(env('APP_ENV') == "production"){
+        $this['StripePublishableKey']='pk_live_nsHDHCb4OJwHNtEcla3BYlEz';
+        $this_stripe_secret_key ='sk_live_C4dkHoob5l3P48BVT4G6gtOA';
+        $this['c_card']="";
+        $this['c_year']="";
+        $this['c_month']="";
+        $this['c_cvc']="";
+        $d=false;
+    }
+    elseif(env('APP_ENV') == "development"){
+        $this['StripePublishableKey']='pk_test_i0BnSwZKTGm1TSrTxyiJWFt6';
+        $this_stripe_secret_key ='sk_test_5CyATtLZuofD31bgwGQHIHCX';
+        $this['c_card']="4242424242424242";
+        $this['c_year']="16";
+        $this['c_month']="12";
+        $this['c_cvc']="123";
+        $d=true;
+    }
+    else {
+        $error = "Sorry, something went wrong! We'll try to fix this as soon as possible. Sorry for the inconvinience.";
+        $err = "555";
+        return (new Response('"'.$error.$err.'"', "402"))->header('Content-Type', "text/html; charset=UTF-8");
+    }
+
+    try {
+
+        $user = $this->session->user()->attributes;
+
+        $user_name = $user['name'];
+
+        $user_surname = $user['surname'];
+
+        $user_email = $user['email'];
+
+        $user_company = $user['company'];
+
+        $user_id = $user['id'];
+
+        $amt1=50;$amt2=100;$amt3=250;$amt4=500;$amt5=5000;
+
+        $pri1=15;$pri2=25 ;$pri3=55 ;$pri4=100;$pri5=1000;
+
+        $this['list_price']=array(1=>$pri1,2=>$pri2,3=>$pri3,4=>$pri4,5=>$pri5);
+
+        $this['list_amount']=array(1=>$amt1,2=>$amt2,3=>$amt3,4=>$amt4,5=>$amt5);
+
+        if( $user['ok_purchase_number'] == 0 ) {
+
+            $amt1=50;$amt2=200;$amt3=500;$amt4=1000;$amt5=10000;
+
+            $pri1=0;$pri2=25 ;$pri3=55 ;$pri4=100;$pri5=1000;
+
+        }
+
+        $this['ok_purchase_number']=$user['ok_purchase_number'];
+
+        $this['price']=array(1=>$pri1,2=>$pri2,3=>$pri3,4=>$pri4,5=>$pri5);
+
+        $this['amount']=array(1=>$amt1,2=>$amt2,3=>$amt3,4=>$amt4,5=>$amt5);
+
+    }
+
+    catch(Exception $e) {
+
+        return Redirect::to("/login", 302);
+
+    }
+
+
+
+    $credit[$pri1 * 100]=$amt1;
+
+    $credit[$pri2 * 100]=$amt2;
+
+    $credit[$pri3 * 100]=$amt3;
+
+    $credit[$pri4 * 100]=$amt4;
+
+    $credit[$pri5 * 100]=$amt5;
+
+    $error = "Sorry, something went wrong. Please refresh the page and start again.";
+
+    $err = $charge_id = "";
+
+    $last4 = "N/A";
+
+    $brand = "N/A (BONUS)";
+
+    $exp_month = "N";
+
+    $exp_year = "A";
+
+    $transaction_currency = 'gbp';
+
+    $chargeCreatedTime = time();
+
+    \Debugbar::info($_POST);
+
+    if ( ! Request::isMethod('post')) return;
+
+    if( (! post('stripePrice') AND post('stripePrice') <> "0" ) OR ! post('stripeToken') OR ! post('stripeAmount') ){
+
+        if($d) $err=" (err 1)";
+
+        return (new Response('"'.$error.$err.'"', "402"))->header('Content-Type', "text/html; charset=UTF-8");
+
+    }
+
+    $stripeAmount =  post('stripeAmount');
+
+    $stripePrice = post('stripePrice') * 100;
+
+    if( ! isset($credit[$stripePrice]) OR $credit[$stripePrice]<>$stripeAmount){
+
+        if($d) $err=" (err 2)";
+
+        return (new Response('"'.$error.$err.'"', "402"))->header('Content-Type', "text/html; charset=UTF-8");
+
+    }
+
+    $stripeToken = post('stripeToken');
+
+
+
+    \Debugbar::info(post(),"info:65");
+
+    \Debugbar::info("stripeToken = $stripeToken","info:66");
+
+    \Debugbar::info("stripeAmount = $stripeAmount");
+
+    \Debugbar::info("stripePrice = $stripePrice");
+
+
+
+    // Set your secret key: remember to change this to your live secret key in production
+
+    // See your keys here https://dashboard.stripe.com/account/apikey
+
+
+
+    if($stripePrice<>"0"):
+
+    // Create the charge on Stripe's servers - this will charge the user's card
+
+    try {
+
+        \Stripe\Stripe::setApiKey($this_stripe_secret_key);
+
+        $charge = \Stripe\Charge::create(array(
+
+            "amount" => $stripePrice, // amount in cents, again
+
+            "currency" => "gbp",
+
+            "source" => $stripeToken,
+
+            "metadata" => array(
+
+                "user_company" => $user_company,
+
+                "user_name" => $user_name,
+
+                "user_surname" => $user_surname,
+
+                "user_mail" => $user_email,
+
+                "user_id" => $user_id,
+
+            ),
+
+            "description" => "Purchase of $stripeAmount OKTicK Advertising Credits")
+
+        );
+
+
+
+    }
+
+    catch(\Stripe\Error\Api $e) {
+
+        \Debugbar::info("Api = ".$e->getMessage());
+
+        if($d) $err=" (err 3)";
+
+        return (new Response('"'.$error.$err.'"', "402"))->header('Content-Type', "text/html; charset=UTF-8");
+
+    }
+
+    catch (\Stripe\Error\ApiConnection $e) {
+
+        // Network communication with Stripe failed
+
+        \Debugbar::info("ApiConnection = ".$e->getMessage());
+
+        if($d) $err=" (err 4)";
+
+        return (new Response('"'.$error.$err.'"', "402"))->header('Content-Type', "text/html; charset=UTF-8");
+
+    }
+
+    catch (\Stripe\Error\Authentication $e) {
+
+        // Authentication with Stripe's API failed
+
+        \Debugbar::info("Authentication = ".$e->getMessage());
+
+        if($d) $err=" (err 5)";
+
+        return (new Response('"'.$error.$err.'"', "402"))->header('Content-Type', "text/html; charset=UTF-8");
+
+    }
+
+    catch (\Stripe\Error\InvalidRequest $e) {
+
+        // Display a very generic error to the user, and maybe send yourself an email
+
+        \Debugbar::info("InvalidRequest = ".$e->getMessage());
+
+        if($d) $err=" (err 6)";
+
+        return (new Response('"'.$error.$err.'"', "402"))->header('Content-Type', "text/html; charset=UTF-8");
+
+    }
+
+    catch (\Stripe\Error\RateLimit $e) {
+
+        \Debugbar::info("RateLimit = ".$e->getMessage());
+
+        if($d) $err=" (err 7)";
+
+        return (new Response('"'.$error.$err.'"', "402"))->header('Content-Type', "text/html; charset=UTF-8");
+
+    }
+
+    catch (\Stripe\Error\Card $e) {
+
+      // The card has been declined
+
+        \Debugbar::info("Card = ".$e->getMessage());
+
+        $error = "Sorry, your card was declined. Please refresh the page and start again, using another card";
+
+        if($d) $err=" (err 8)";
+
+        return (new Response('"'.$error.$err.'"', "402"))->header('Content-Type', "text/html; charset=UTF-8");
+
+    }
+
+    if ($charge->paid <> true
+
+//        OR $charge->livemode <> true
+
+//        OR $charge->currency <> 'gbp' OR
+
+//        $charge->amount <> $stripePrice
+
+    ) {
+
+        $error = "Sorry, your card was declined. Please refresh the page and start again, using another card";
+
+        if($d) $err=" (err 9)";
+
+        return (new Response('"'.$error.$err.'"', "402"))->header('Content-Type', "text/html; charset=UTF-8");
+
+    } else {
+
+        $charge_id = $charge->id;
+
+        $chargeCreatedTime = $charge->created;
+
+        $transaction_currency = $charge->currency;
+
+        $last4 = $charge->source->last4;
+
+        $brand = $charge->source->brand;
+
+        $exp_month = $charge->source->exp_month;
+
+        $exp_year = $charge->source->exp_year;
+
+    }
+
+    endif;
+
+    DB::beginTransaction();
+
+    \Debugbar::info($stripeAmount,"credits","info:116");
+
+    $ok_credits = $user['ok_credits'] + $stripeAmount;
+
+    DB::table('ok_payments')->insert(
+
+                            array(
+
+                                'company' => $user_company,
+
+                                'user_id' => $user_id,
+
+                                'transaction_date' => date( 'Y-m-d H:i:s', $chargeCreatedTime ),
+
+                                'transaction_currency' => $transaction_currency,
+
+                                'credits_purchased' => $stripeAmount,
+
+                                'credits_total' => $ok_credits,
+
+                                'price_paid' => $stripePrice,
+
+                                'charge_id' => $charge_id,
+
+                                'last4' => $last4,
+
+                                'brand' => $brand,
+
+                                'exp_month' => $exp_month,
+
+                                'exp_year' => $exp_year,
+
+                                'download_code' => Hash('sha512',$charge_id),
+
+                                'created_at' => date( 'Y-m-d H:i:s', $chargeCreatedTime ),
+
+                                'updated_at' => date( 'Y-m-d H:i:s', $chargeCreatedTime ),
+
+                                )
+
+    );
+
+    $this['ok_purchase_number'] = $user['ok_purchase_number'] = $user['ok_purchase_number'] + 1;
+
+    DB::table('oktick.users')
+
+    ->where('id', $user_id)
+
+    ->update(array(
+
+        'ok_credits' => $ok_credits,
+
+        'ok_purchase_number' => $user['ok_purchase_number'],
+
+    ));
+
+    DB::commit();
+
+
+
+    $Message = "Success! $stripeAmount Credits added. ";
+
+    return (new Response('"'.$Message.'" %'.$ok_credits.'%', "200"))->header('Content-Type', "text/html; charset=UTF-8");
+
+}
+?>
+==
+{% partial "acc-head" cssfile="oktick.css" %}
+{% partial "nav-top" %}
+<script type="text/javascript" src="https://js.stripe.com/v2/"></script>
+<script type="text/javascript">
+    function has_selected(option,e){
+        e.preventDefault();
+        var  amount = ["{{amount[1]}}", "{{amount[1]}}","{{amount[2]}}", "{{amount[3]}}","{{amount[4]}}","{{amount[5]}}"];
+        var  price = ["FREE", "{{price[1]}}","{{price[2]}}", "{{price[3]}}","{{price[4]}}","{{price[5]}}"];
+        var selected_amount=amount[option];
+        var selected_price=price[option];
+        if(isNumeric(selected_price) && selected_price != 0 ){
+            $('#pay_button').html('Buy '+ (selected_amount) + ' Credits for £' + selected_price).prop('disabled', false).show();
+            $('.notfree').show();
+            $('#payment-errors').html("").hide();
+        } else {
+            $('#pay_button').html('Get '+ (selected_amount) + ' Credits for FREE!').show();
+            $('.notfree').hide();
+            $('#payment-errors').html("<p>Are you sure you want to use your introductory bonus to get just 50 Credits?</p><p>Remember, you can get up to 5000 Credits free if you select one of the other options.</p><p>Afterwards you will not be able to take advantage of any of the other bonuses.</p>").show();
+        }
+        $('#stripePrice').val(selected_price);
+        $('#stripeAmount').val(selected_amount);
+        $('.select-product').hide();
+        $('.cc_form').show();
+        return false;
+    }
+    jQuery(function($) {
+      $('#payment-form').submit(function(e) {
+        msg = $('#pay_button').html();
+        // Disable the submit button to prevent repeated clicks
+        $('#pay_button').prop('disabled', true).show();
+        $('#pay_button').html('Validating <i class="fa fa-spinner fa-pulse"></i>');
+        var $form = $(this);
+        Stripe.setPublishableKey('{{StripePublishableKey}}');
+        var stripePrice = $("#stripePrice").val();
+        if(stripePrice != 0){
+            Stripe.card.createToken($form, stripeResponseHandler);
+            // Prevent the form from submitting with the default action
+            return false;
+        }
+        $.post('', {
+            stripeToken: "FREE",
+            stripeAmount:  $('#stripeAmount').val(),
+            stripePrice: $('#stripePrice').val(),
+            dataType: "json",
+        })
+        .always(function(jqXHR, textStatus, errorThrown) {
+            location.reload(true);
+            return false;
+        });
+        return false;
+      });
+    });
+
+    var stripeResponseHandler = function(status, response) {
+        var $form = $('#payment-form');
+        if (response.error) {
+            // Show the errors on the form
+            $('#payment-errors').html(response.error.message).show();
+            $('#pay_button').html(msg).prop('disabled', false).show();
+//        alert(response.error.message);
+        } else {
+            /* Hide Stripe errors on the form */
+            $('#payment-errors').html("").hide();
+            $('#pay_button').html('Processing <i class="fa fa-spinner fa-pulse"></i>');
+
+            // token contains id, last4, and card type
+            var token = response.id;
+            $.post('', {
+                stripeToken: token,
+                stripeAmount:  $('#stripeAmount').val(),
+                stripePrice: $('#stripePrice').val(),
+                dataType: "json",
+            })
+            .done(function(data, textStatus, jqXHR) {// Assign handlers immediately after making the request,
+//                alert(jqXHR.responseText);
+                var tmp = jqXHR.responseText.split('"');
+                var msg = tmp[1];
+                var tmp = jqXHR.responseText.split('%');
+                $('#pay_button').html(msg + '<i class="fa fa-check"></i>').prop('disabled', true).show();
+                var total_credits = parseFloat(tmp[1]);
+                if(total_credits < 0) total_credits = 0;
+                $('#ok_credits').text(total_credits.toFixed(2));
+                $('#credits_page_ok_credits').text(total_credits.toFixed(2));
+                location.reload();
+            })
+            .fail(function(jqXHR, textStatus, errorThrown) {
+                /* Show Stripe errors on the form */
+                var tmp = jqXHR.responseText.split('"');
+                var msg = tmp[1];
+                $('#payment-errors').html(msg).show();
+                $('#pay_button').hide('Error');
+            });
+        }
+    };
+</script>
+<div class="container">
+<br>
+<h2 class="text-center select-product">Credits and Offers<br>
+<span class="text-center select-product" style="font-size:14px;">(Click here <span id="ok_help_credit_on" class="help glyphicon-primary glyphicon glyphicon-question-sign"></span> for help)</span>
+</h2>
+<h2 class="text-center cc_form collapse">Credits Checkout<br>
+<span class="text-center" style="font-size:14px;">(Click here <span onclick="$('.select-product').show(); $('.cc_form').hide();" class="glyphicon-danger glyphicon glyphicon-remove-sign"></span> to cancel)</span>
+</h2>
+
+<div class="row select-product">
+    <!--div class="col-xs-1"></div>
+        <div class="col-xs-10"-->
+            <div id="ok_help_credit" {% if user.ok_help_credit==0 %}class="collapse"{% endif %} >
+                <p>{{"&nbsp;&nbsp;&nbsp;"|raw}}</p>
+                <p>We offer several different packages to purchase OKTicK credits. If you bear in mind that 1 credit lasts a whole week and you may hold the same position on the search results with it throughout the week (depending on the actions of other suppliers of those same items) and yet pay NO more that week. Unlike some systems you are NOT charged each time a visitor clicks through to your website from OKTicK.</p>
+{%if ok_purchase_number == 0 %}
+                <p>The very first time you select a Plan from us we offer you credits at half the normal rate. Therefore you should consider which one you choose carefully. Introductory offers are only valid the very first time you add Credits. Subsequently our standard plans will be available to you.</p>
+                <p>The Gold Plan for example gives credits at only 20 pence sterling each normally, which is cheap anyway, but cost only 10p each if selected the very first time.</p>
+{% endif %}
+                <p>A single credit could elevate you on the results listing for that product or service to the top or close to it (depending only on demand from other suppliers at the same time). We feel advertising cannot be bought more cheaply.</p>
+                <p>You will see below the details of all the OKTicK Plans. Select the one you feel will work best for you.</p>
+                <!--p>If you require higher volumes please get in touch with our corporate sales team (corporate-sales@oktick.com).</p-->
+                <p>Using the credits you purchase you will find elevating yourself up the various listings of your products and services is extremely easy. You do this from your Rankings page. In some cases applying a single credit can get you to the top or close to the top for the whole week.</p>
+                <p>We process all payments using the secure Stripe payment gateway (<a href="https://stripe.com/gb/features#seamless-security" target="_blank">https://stripe.com</a>). Your data is transfered using the highest standard TLS https encryption. We never store your credit card information, in fact your data never even touches our system. We promise that you can shop in total confidence at OKTicK.</p>
+                <p>If you don't need this notice any further, click below. You can always re-enable it later by clicking the <span class="glyphicon-primary glyphicon glyphicon-question-sign"></span> sign above.</p>
+                <div class="text-center">
+                    <button id="ok_help_credit_off" class="btn btn-default btn-sm help"><span class="glyphicon glyphicon-primary glyphicon-thumbs-up"></span>&nbsp;Got it!</button>
+                   <br>
+                   <br>
+                </div>
+            </div>
+        <!--/div>
+    <div class="col-xs-1"></div-->
+</div>
+<div class="row select-product">
+    <!--div class="col-12"--> 
+        <h3 class="text-center">You currently have <span id="credits_page_ok_credits">{% if user.ok_credits and user.ok_credits > 0 %}{{ user.ok_credits|round(2, 'common') }}{%else%}0{% endif %}</span> credits</h3><br>
+    <!--/div-->
+</div>
+<div class="row cc_form collapse">
+        <h3 class="text-center">To finish, complete the form below</h3><br>
+</div>
+<div class="row select-product">
+    <div class="col-md-1"></div>
+    <div class="col-md-2">
+        <div class="thumbnail payment_options_div" onclick="has_selected(1,event);">
+            <img src="/app/ot/assets/img/50-1x200.png" alt="...">
+            <div class="caption">
+                <h3 class="text-center">Ultralight</h3>
+                <!--span class="label label-success">POPULAR</span-->
+                <p class="lead text-center">{{amount[1]}}<br>Credits<br>{%if ok_purchase_number == 0 %}FREE{% else %}£{{price[1]}}</p>{% endif %}
+                <p class="text-center">
+                    <a href="" class="btn btn-primary" onclick="has_selected(1,event);">Select</a>
+                </p>
+            </div>
+        </div>
+        {%if ok_purchase_number == 0 %}<p class="text-center">Free package<br>first time you<br>add credits.<br>Normally<br>{{list_amount[1]}} Credits<br>£{{list_price[1]}}.</p>{% endif %}
+    </div>
+    <div class="col-md-2">
+        <div class="thumbnail payment_options_div" onclick="has_selected(2,event);">
+            <img src="/app/ot/assets/img/100-1x200.png" alt="...">
+                <div class="caption">
+                <h3 class="text-center">Bronze</h3>
+                <p class="lead text-center">{{amount[2]}}<br>Credits<br>£{{price[2]}}</p>
+                <p class="text-center">
+                    <a href="" class="btn btn-primary" onclick="has_selected(2,event);">Select</a>
+                </p>
+            </div>
+        </div>
+        {%if ok_purchase_number == 0 %}<p class="text-center">Double value<br>first time you<br>add credits.<br>Normally<br>{{list_amount[2]}} Credits<br>£{{list_price[2]}}.</p>{% endif %}
+    </div>
+    <div class="col-md-2">
+        <div class="thumbnail payment_options_div" onclick="has_selected(3,event);">
+            <img src="/app/ot/assets/img/250-1x200.png" alt="...">
+            <div class="caption">
+                <h3 class="text-center">Silver</h3>
+                <p class="lead text-center">{{amount[3]}}<br>Credits<br>£{{price[3]}}</p>
+                <p class="text-center">
+                    <a href="" class="btn btn-primary" onclick="has_selected(3,event);">Select</a>
+                </p>
+            </div>
+        </div>
+        {%if ok_purchase_number == 0 %}<p class="text-center">Double value<br>first time you<br>add credits.<br>Normally<br>{{list_amount[3]}} Credits<br>£{{list_price[3]}}.</p>{% endif %}
+    </div>
+    <div class="col-md-2">
+        <div class="thumbnail payment_options_div" onclick="has_selected(4,event);">
+            <img src="/app/ot/assets/img/500-1x200.png" alt="...">
+                <div class="cnrflash">
+                    <div class="cnrflash-inner">
+                        <span class="cnrflash-label">Most<br>Popular</span>
+                    </div>
+                </div>
+            <div class="caption">
+                <h3 class="text-center">Gold</h3>
+                <p class="lead text-center">{{amount[4]}}<br>Credits<br>£{{price[4]}}</p>
+                <p class="text-center">
+                    <a href="" class="btn btn-primary" onclick="has_selected(4,event);">Select</a>
+                </p>
+            </div>
+        </div>
+        {%if ok_purchase_number == 0 %}<p class="text-center">Double value<br>first time you<br>add credits.<br>Normally<br>{{list_amount[4]}} Credits<br>£{{list_price[4]}}.</p>{% endif %}
+    </div>
+    <div class="col-md-2">
+        <div class="thumbnail payment_options_div" onclick="has_selected(5,event);">
+            <img src="/app/ot/assets/img/5000-1x200.png" alt="...">
+            <div class="caption">
+                <h3 class="text-center">Platinum</h3>
+                <p class="lead text-center">{{amount[5]}}<br>Credits<br>£{{price[5]}}</p>
+                <p class="text-center">
+                    <a href="" class="btn btn-primary" onclick="has_selected(3,event);">Select</a>
+                </p>
+            </div>
+        </div>
+        {%if ok_purchase_number == 0 %}<p class="text-center">Double value<br>first time you<br>add credits.<br>Normally<br>{{list_amount[5]}} Credits<br>£{{list_price[5]}}.</p>{% endif %}
+    </div>
+    <div class="col-md-1"></div>
+</div>
+
+<!-- Credit card form -->
+<div class="row collapse cc_form">
+    <div class="col-xs-0 col-md-2"></div>
+    <div class="col-xs-12 col-md-8">
+        <div class="row">
+            <div class="col-xs-0 col-md-2"></div>
+            <div class="col-xs-12 col-md-8">
+                <div class="panel panel-default">
+                    <div class="panel-heading notfree" style="border:0">
+                        <h3 class="panel-title"><img alt="" class="pull-right" src="/app/ot/assets/img/accepted_cc.png">Payment<br>Details</h3>
+                    </div>
+                    <div class="panel-heading" style="border:0">
+                        <form action="" method="POST" id="payment-form">
+                            <div class="row notfree">
+                                <div class="col-xs-12 col-sm-4">
+                                    <div class="form-group">
+                                        <label for="cardType">CARD TYPE</label>
+                                        <div class="input-group">
+                                            <select class="form-control">
+                                                <option>Visa Card</option>
+                                                <option>Master Card</option>
+                                                <option>Discover Card</option>
+                                                <option>American Express</option>
+                                            </select>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="col-xs-12 col-sm-8">
+                                    <div class="form-group">
+                                        <label for="cardNumber">CARD NUMBER</label>
+                                        <div class="input-group">
+                                            <input type="text" class="form-control" placeholder="Valid Card Number" size="20" data-stripe="number" value="{{c_card}}"/>
+                                            <span class="input-group-addon"><i class="fa fa-credit-card"></i></span>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="row notfree">
+                                <div class="col-xs-7 col-md-7 pull-left">
+                                    <div class="form-group">
+                                        <label for="expMonth">EXPIRATION DATE</label>
+                                        <div class="col-xs-6 col-lg-6 pl-ziro">
+                                            <input type="text" class="form-control" placeholder="MM" size="2" data-stripe="exp_month" value="{{c_month}}"/>
+                                        </div>
+                                        <div class="col-xs-6 col-lg-6 pl-ziro">
+                                            <input type="text" class="form-control" placeholder="YY" size="2" data-stripe="exp_year" value="{{c_year}}"/>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="col-xs-5 col-md-5 pull-right">
+                                    <div class="form-group">
+                                        <label for="cvCode">CV CODE</label>
+                                        <input type="txt" class="form-control" placeholder="CV" size="4" data-stripe="cvc" value="{{c_cvc}}"/>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="row">
+                                <div class="col-xs-12">
+                                    <p class="payment-errors text-center collapse" id="payment-errors"></p>
+                                </div>
+                            </div>
+                            <div class="row">
+                                <div class="col-xs-12">
+                                    <button class="btn btn-success btn-lg btn-block" id="pay_button" type="submit">Pay</button>
+                                </div>
+                            </div>
+                            <input id="stripeAmount" type="hidden" name="stripeAmount" value=""/>
+                            <input id="stripePrice" type="hidden" name="stripePrice" value=""/>
+                            <input id="stripeToken" type="hidden" name="stripeToken" value=""/>
+                        </form>
+                    </div>
+                    <div class="panel-heading notfree" style="border:0">
+                        <h3 class="panel-title">
+                            <img alt="" class="pull-left" src="/app/ot/assets/img/lock.png">
+                            <img alt="" class="pull-right" src="/app/ot/assets/img/RapidSSL_SEAL.gif">
+                            &nbsp;Secure credit card payment<br><small>&nbsp;This is a secure 256-bit SSL encrypted payment.</small>
+                        </h3>
+                    </div>
+                </div>
+            </div>
+            <div class="col-xs-0 col-md-2"></div>
+        </div>
+    </div>
+    <div class="col-xs-0 col-md-2"></div>
+</div>
+
+</div><!--/container -->
+{% partial "nav-bottom" %}
+{% partial "foot" %}

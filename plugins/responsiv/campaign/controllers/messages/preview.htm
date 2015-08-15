@@ -99,19 +99,23 @@
 
     <div class="control-tabs content-tabs tabs-offset" data-control="tab">
         <ul class="nav nav-tabs">
+            <li class="active"><a href="#messageTemplate">Preview</a></li>
             <?php if ($isLaunched): ?>
-                <li class="active"><a href="#messageDetails">Details</a></li>
+                <li><a href="#messageDetails">Details</a></li>
                 <?php if ($formModel->status != 'archived'): ?>
                     <li><a href="#messageSubscribers">Subscribers</a></li>
                 <?php endif ?>
-                <li><a href="#messageTemplate">Preview</a></li>
-            <?php else: ?>
-                <li class="active"><a href="#messageTemplate">Preview</a></li>
             <?php endif ?>
         </ul>
         <div class="tab-content">
+            <div class="tab-pane active">
+                <div class="padded-container">
+                    <?= $this->makeHintPartial(null, 'hint_subject', ['model' => $formModel]) ?>
+                </div>
+                <?= $this->makePartial('message_iframe') ?>
+            </div>
             <?php if ($isLaunched): ?>
-                <div class="tab-pane active">
+                <div class="tab-pane">
                     <div class="padded-container">
                         <form>
                             <?= $this->formRenderPreview() ?>
@@ -125,18 +129,6 @@
                         </div>
                     </div>
                 <?php endif ?>
-                <div class="tab-pane">
-                    <div class="padded-container">
-                        <?= $this->makePartial('message_iframe') ?>
-                    </div>
-                </div>
-            <?php else: ?>
-                <div class="tab-pane active">
-                    <div class="padded-container">
-                        <?= $this->makeHintPartial(null, 'hint_subject', ['model' => $formModel]) ?>
-                    </div>
-                    <?= $this->makePartial('message_iframe') ?>
-                </div>
             <?php endif ?>
         </div>
     </div>

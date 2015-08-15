@@ -22,14 +22,6 @@
         class="btn btn-default oc-icon-refresh">
         Refresh template
     </button>
-    <button
-        type="button"
-        data-request="onTest"
-        data-load-indicator="Sending test message..."
-        data-request-confirm="A test message will be sent to <?= e(BackendAuth::getUser()->email) ?>. Continue?"
-        class="btn btn-default oc-icon-paper-plane-o">
-        Send test message
-    </button>
 <?php else: ?>
     <a
         href="javascript:;"
@@ -43,26 +35,36 @@
         class="btn btn-info oc-icon-files-o">
         Duplicate campaign
     </a>
-    <?php if (!$isCancelled && !$isArchived): ?>
-        <?php if ($isSent): ?>
-            <a
-                href="javascript:;"
-                data-request="onArchive"
-                data-load-indicator="Archiving Campaign..."
-                data-request-confirm="Do you really want to archive this campaign? It will remove all the subscriber statistics."
-                class="btn btn-default oc-icon-archive">
-                Archive campaign
-            </a>
-        <?php else: ?>
-            <a
-                href="javascript:;"
-                data-request="onCancel"
-                data-load-indicator="Cancelling Campaign..."
-                data-request-confirm="Do you really want to cancel this campaign?"
-                class="btn btn-default oc-icon-ban">
-                Cancel campaign
-            </a>
-        <?php endif ?>
+<?php endif ?>
+
+<button
+    type="button"
+    data-request="onTest"
+    data-load-indicator="Sending test message..."
+    data-request-confirm="A test message will be sent to <?= e(BackendAuth::getUser()->email) ?>. Continue?"
+    class="btn btn-default oc-icon-paper-plane-o">
+    Send test message
+</button>
+
+<?php if ($isLaunched && !$isCancelled && !$isArchived): ?>
+    <?php if ($isSent): ?>
+        <a
+            href="javascript:;"
+            data-request="onArchive"
+            data-load-indicator="Archiving Campaign..."
+            data-request-confirm="Do you really want to archive this campaign? It will remove all the subscriber statistics."
+            class="btn btn-default oc-icon-archive">
+            Archive campaign
+        </a>
+    <?php else: ?>
+        <a
+            href="javascript:;"
+            data-request="onCancel"
+            data-load-indicator="Cancelling Campaign..."
+            data-request-confirm="Do you really want to cancel this campaign?"
+            class="btn btn-default oc-icon-ban">
+            Cancel campaign
+        </a>
     <?php endif ?>
 <?php endif ?>
 

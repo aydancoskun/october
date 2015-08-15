@@ -1,0 +1,827 @@
+title = "Ranking"
+url = "/account/ranking"
+layout = "main"
+is_hidden = "0"
+==
+<?php
+use Illuminate\Http\Response;
+
+
+
+function onStart() {
+
+//    \Debugbar::info("productservices page onStart()");
+
+}
+
+function verifyPost($post_name,$check="int"){
+
+    if( !isset($_POST[$post_name]) ) App::abort(403, "Forbidden");
+
+    $post_val_raw = post($post_name);
+
+    if($check=="int") $post_val_cast = (int) $post_val_raw;
+
+    if($check=="float") $post_val_cast = (float) $post_val_raw;
+
+    if($check=="string") $post_val_cast = (string) $post_val_raw;
+
+    if( $post_val_raw <> $post_val_cast ) App::abort(403, 'Forbidden');
+
+    return $post_val_cast;
+
+}
+
+function onGetEstimatedPosition(){
+
+    $credits_estimated = $this->verifyPost('credits_estimated',"int");
+
+    $bp_id = $this->verifyPost('bp_id',"int");
+
+    $user = $this->session->user()->attributes;
+
+    $company_id = $user['ok_company_id'];
+
+    $user_id = $user['id'];
+
+
+
+    $sql="SELECT bp_position FROM operations.bp_supplier_positions WHERE bp_id = $bp_id AND company_id = $company_id";
+
+    $dbr = DB::select($sql);
+
+    $bp_position = (isset($dbr[0])  ? $dbr[0]->bp_position : 0);
+
+
+
+    $sql="SELECT applied_credit as bp_user_credits FROM operations.bp_sponsors WHERE ".
+
+         "bp_id = $bp_id AND company_id = $company_id AND user_id = $user_id AND ".
+
+         "start_stamp < now() AND now() < end_stamp";
+
+    $dbr = DB::select($sql);
+
+    $bp_user_credits = (isset($dbr[0])  ? $dbr[0]->bp_user_credits : 0);
+
+
+
+    $position_new = ($bp_position - $bp_user_credits *10) + $credits_estimated * 10;
+
+
+
+    try {
+
+        $sql=   "SELECT count(*)+1 as bp_low FROM operations.bp_supplier_positions ".
+
+                "WHERE ".
+
+                "bp_id = $bp_id AND ".
+
+                "bp_position   > $position_new AND ".
+
+                "company_id <> $company_id";
+
+        $dbr = DB::select($sql);
+
+        $bp_low = (isset($dbr[0])  ? $dbr[0]->bp_low : 0);
+
+//        return ['estimatedPosition' => "$bp_low:".__LINE__];
+
+
+
+        $sql=   "SELECT count(*)+1 as bp_high  FROM operations.bp_supplier_positions ".
+
+                "WHERE ".
+
+                "bp_id = $bp_id AND ".
+
+                "bp_position  >= $position_new AND ".
+
+                "company_id <> $company_id";
+
+        $dbr = DB::select($sql);
+
+        $bp_high = (isset($dbr[0])  ? $dbr[0]->bp_high : 0);
+
+        if ($bp_high > 50) return ['estimatedPosition' => "None"];
+
+        if ($bp_high > 25) return ['estimatedPosition' => "Top 50"];
+
+        if ($bp_high > 20) return ['estimatedPosition' => "Top 25"];
+
+        if ($bp_high > 15) return ['estimatedPosition' => "Top 20"];
+
+        if ($bp_high > 10) return ['estimatedPosition' => "Top 15"];
+
+        if ($bp_high >  5) return ['estimatedPosition' => "Top 10"];
+
+        if ($bp_high >  3) return ['estimatedPosition' => "Top 5"];
+
+        if ($bp_high >  0) return ['estimatedPosition' => "Top 3"];
+
+        return ['estimatedPosition' => "-----------"];
+
+        if($bp_low==$bp_high) return ['estimatedPosition' => $bp_low];
+
+        return ['estimatedPosition' => "$bp_low to $bp_high"];
+
+    }
+
+    catch(Exception $e) {
+
+        \Debugbar::addException($e);
+
+        return ['error' => "Something went wrong"];
+
+        return (new Response(['error' => "Something went wrong"], "500"))->header('Content-Type', "text/html; charset=UTF-8");
+
+    }
+
+    // value="{% if product.bp_low==product.bp_high %}{{product.bp_low}}{%else%}{{product.bp_low}} to {{ product.bp_high }}{%endif%}">
+
+}
+
+
+
+
+
+function onCreditConfirm(){
+
+    $now = time();
+
+    $credits_confirmed = $this->verifyPost('credits_confirmed',"int");
+
+    $bp_id = $this->verifyPost('bp_id',"int");
+
+    $bp_name = urldecode($this->verifyPost('bp_name',"string"));
+
+    $user = $this->session->user()->attributes;
+
+    $total_credits = $user['ok_credits'];
+
+    $company_id = $user['ok_company_id'];
+
+    $user_id = $user['id'];
+
+
+
+    $sql=   "SELECT bp_position FROM operations.bp_supplier_positions ".
+
+            "WHERE ".
+
+            "bp_id = $bp_id AND ".
+
+            "company_id = $company_id";
+
+    $dbr = DB::select($sql);
+
+    $bp_position = (isset($dbr[0])  ? $dbr[0]->bp_position : 0);
+
+    $applied_credit = 0;
+
+    $bp_was_active = false;
+
+    $bp_is_active = false;
+
+    $one_week = 604800;
+
+    $end_stamp = $now + $one_week;
+
+    $end_stamp_displayed = "None Assigned";
+
+    $refund=false;
+
+    $pre_refund_total_credits = $total_credits;
+
+    $message = "";
+
+    DB::beginTransaction();
+
+    $sql=   "SELECT ".
+
+            "id, ".
+
+            "applied_credit, ".
+
+            "UNIX_TIMESTAMP(start_stamp) as start_stamp, ".
+
+            "UNIX_TIMESTAMP(end_stamp) as end_stamp ".
+
+            "FROM operations.bp_sponsors ".
+
+            "WHERE ".
+
+            "bp_id = $bp_id AND ".
+
+            "company_id = $company_id AND ".
+
+            "user_id = $user_id AND ".
+
+            "UNIX_TIMESTAMP(start_stamp) < $now < UNIX_TIMESTAMP(end_stamp)";
+
+    $dbr = DB::select($sql);
+
+
+
+
+
+    // If there is a current transaction
+
+    if( isset($dbr[0]) ){
+
+        $bp_was_active=true;
+
+        $applied_credit = $dbr[0]->applied_credit;
+
+        $start_stamp = $dbr[0]->start_stamp;
+
+        $end_stamp = $dbr[0]->end_stamp;
+
+        $original_duration = $end_stamp - $start_stamp;
+
+        $new_duration = $now - $start_stamp;
+
+        $original_cost = $applied_credit / $one_week * $original_duration;
+
+        $cost = $applied_credit / $original_duration * $new_duration;
+
+        $refund = $original_cost - $cost;
+
+        $total_credits = $total_credits + $refund;
+
+
+
+        DB::table('operations.bp_sponsor_transactions_completed')
+
+        ->insert(array(
+
+            'id' => $dbr[0]->id,
+
+            'company_id' => $company_id,
+
+            'bp_id' => $bp_id,
+
+            'user_id' => $user_id,
+
+            'applied_credit' => $applied_credit,
+
+            'cost' => $cost,
+
+            'refund' => $refund,
+
+            'start_stamp' => $dbr[0]->start_stamp,
+
+            'end_stamp' => date( 'Y-m-d H:i:s', $now),
+
+        ));
+
+        DB::table('operations.bp_sponsors')->where('id',$dbr[0]->id)->delete();
+
+    }
+
+    $credits_confirmed_value = $credits_confirmed / $one_week * ($end_stamp - $now);
+
+    $total_credits = $total_credits - $credits_confirmed_value;
+
+    $transaction_cost = $credits_confirmed_value - $refund;
+
+    if($total_credits < -0.01 ) {
+
+            return [
+
+                'status' => 'error',
+
+                'message' => 'Sorry, insufficient credits. Please consider purchasing credits.',
+
+                'log' => "total_credits=$total_credits < -0.01 AND no refund",
+
+            ];
+
+    }
+
+
+
+    $position_new = $bp_position - $applied_credit*10 + $credits_confirmed*10;
+
+    if($credits_confirmed > 0){
+
+        $bp_is_active=true;
+
+        $end_stamp_displayed = date( 'j M y, g:i a', $end_stamp );// j M y, g:i a
+
+        DB::table('operations.bp_sponsors')
+
+        ->insert(array(
+
+            'company_id' => $company_id,
+
+            'bp_id' => $bp_id,
+
+            'user_id' => $user_id,
+
+            'applied_credit' => $credits_confirmed,
+
+            'start_stamp' => date( 'Y-m-d H:i:s', $now),
+
+            'end_stamp' => date( 'Y-m-d H:i:s', $end_stamp ),
+
+        ));
+
+    }
+
+
+
+    DB::table('operations.bp_supplier_positions')
+
+    ->where('bp_id', $bp_id)
+
+    ->where('company_id', $company_id)
+
+    ->update(array(
+
+        'bp_position' => $position_new,
+
+    ));
+
+    DB::table('oktick.users')
+
+    ->where('id', $user_id)
+
+    ->update(array(
+
+        'ok_credits' => $total_credits,
+
+    ));
+
+    $badge_active=0;
+
+    if ($bp_was_active == false AND $bp_is_active) $badge_active=1;
+
+    if ($bp_was_active AND $bp_is_active == false) $badge_active=-1;
+
+//        if ($bp_was_active == false AND $bp_is_active == false) $badge_active=0;
+
+//        if ($bp_was_active AND $bp_is_active) $badge_active=0;
+
+//    Flash::success($applied_credit.' credits successfully applied!');
+
+
+// he's gone down but not zero
+    if( $applied_credit > $credits_confirmed AND $credits_confirmed > 0  ) {
+        $tc = round(abs($transaction_cost),2);
+        $s = $tc==1 ? "" : "s";
+        $help="";
+        if( $tc <> round($tc) ) $help = " (See help to see how refunds are calculated)";
+        $message = "Your weekly credits were adjusted to $credits_confirmed. We refunded you ".round(abs($transaction_cost),2)." credit$s".$help.".";
+    }
+
+// he's gone down to zero
+    elseif( $applied_credit > $credits_confirmed AND $credits_confirmed == 0  ) {
+        $tc = round(abs($transaction_cost),2);
+        $s = $tc==1 ? "" : "s";
+        $help="";
+        if( $tc <> round($tc) ) $help = " (See help to see how refunds are calculated)";
+        $message = "Your weekly credits were set to zero. There will be no weekly charge. Sponsoring is now suspended. We refunded you " . round(abs($transaction_cost),2) . " credit$s".$help.".";
+        $user['ok_sponored_products_count']=$user['ok_sponored_products_count']-1;
+        DB::table('oktick.users')
+           ->where('id', $user_id)
+                ->update(array(
+                'ok_sponored_products_count' => $user['ok_sponored_products_count'],
+            ));
+    }
+
+// he's gone up from something
+    elseif( $applied_credit < $credits_confirmed AND $applied_credit > 0 ) {
+        $s = round(abs($credits_confirmed-$applied_credit),2)==1 ? "" : "s";
+        $help="";
+        $were = round(abs($credits_confirmed-$applied_credit),2)==1 ? "was" : "were";
+        $message = ($credits_confirmed-$applied_credit) . " credit$s $were added to your weekly amount which now sits at $credits_confirmed. ";
+        $tc = round(abs($transaction_cost),2);
+        $s = $tc==1 ? "" : "s";
+        if( $tc <> round($tc) ) $help = " (See help to see how costs are calculated)";
+        $message .= "This transaction costs ".round(abs($transaction_cost),2)." credit$s".$help.".";
+
+    }
+
+// he's gone up from nothing
+    elseif( $applied_credit < $credits_confirmed AND ! $applied_credit ) {
+        $message = "Your weekly credits were set to $credits_confirmed.";
+        $user['ok_sponored_products_count']=$user['ok_sponored_products_count']+1;
+        DB::table('oktick.users')
+           ->where('id', $user_id)
+                ->update(array(
+                'ok_sponored_products_count' => $user['ok_sponored_products_count'],
+            ));
+    }
+
+    DB::commit();
+
+    return ['ok_credits' => $total_credits,
+            'badge_active' => $badge_active,
+            'end_stamp' => $end_stamp_displayed,
+            'status' => 'success',
+            'log' => '',
+            'title' => $bp_name,
+            'message' => $message,
+            ];
+
+//        return (new Response('"'.$Message.'" %'.$ok_credits.'%', "200"))->header('Content-Type', "text/html; charset=UTF-8");
+
+//    return true;
+
+    return (new Response('"here is the error"', "402"))->header('Content-Type', "text/html; charset=UTF-8");
+
+//    return (new Response('"'.$Message.'" %'.$ok_credits.'%', "200"))->header('Content-Type', "text/html; charset=UTF-8");
+
+}
+?>
+==
+{% partial "head" %}
+{% partial "nav-top" %}
+<div class="container">
+<br>
+<h2 class="text-center">Your Rankings<br>
+<span class="text-center" style="font-size:14px;">(Click here <span id="ok_help_ranking_on" class="help glyphicon-primary glyphicon glyphicon-question-sign"></span> for help)</span>
+</h2>
+
+<div class="row">
+    <!--div class="col-xs-1 col-md-1"></div>
+    <div class="col-12"-->
+        <div id="ok_help_ranking" {% if user.ok_help_ranking==0 %}class="collapse"{% endif %} >
+            <p>{{"&nbsp;&nbsp;&nbsp;"|raw}}</p>
+            <p>You can elevate the listing of your products and services from this page. To do this you first must purchase some credits <a href="/account/credit">here</a>.
+            <p>Elevation is easy to do using the <button class="btn btn-default btn-xs"><span class="glyphicon glyphicon-plus"></span></button> and <button class="btn btn-default btn-xs"><span class="glyphicon glyphicon-minus"></span></button> buttons on the right of each product and service. When you are satisfied click the <button class="btn btn-success btn-xs"><span class="glyphicon glyphicon-ok"></span></button> button which will have appeared. Please try it out, you will see how easily it works. The more credits applied the higher the potential position your business may come on the list. You will notice as you adjust the credits a new 'estimated position' reflects this. Credits once confirmed are applied immediately. The time this happens is accurately noted on the system.</p>
+            <p>Credits once applied last for precisely one week. Unless you remove them entirely, credits are renewed at the same time each nominal week. Each week we will send you an email to let you know where we estimate your business stands in the lists of products and services at that moment. You can easily check this by doing a search yourself on the product or service (bear in mind it can change in minutes through the actions of other suppliers). <!--We will advise you if your credits available are running low and need topping up or have run out. -->You can lose positions if you inadvertently run out of credits.</p>
+            <p>When you adjust credits in the middle of week the applied balance is accurately calculated to be as fair as possible. For example if exactly half way through this nominal week you add 4 more credits you are only charged 2 credits. When the new week arrives the full extra 4 credits are then charged. If you were to reduce from 6 credits to 3 exactly half way though the week you be refunded 1.5 credits.</p>
+            <p>If you don't need this notice any further, click below. You can always re-enable it later by clicking the <span class="glyphicon-primary glyphicon glyphicon-question-sign"></span> sign above.</p>
+            <div class="text-center">
+                <button id="ok_help_ranking_off" class="btn btn-default btn-sm help"><span class="glyphicon glyphicon-primary glyphicon-thumbs-up"></span>&nbsp;Got it!</button>
+                <br>
+                <br>
+            </div>
+        </div>
+    <!--/div>
+    <div class="col-xs-1 col-md-1"></div-->
+</div>
+<br>
+<br>
+<div class="row">
+    <!--div class="col-xs-1 col-md-1"></div>
+    <div class="col-xs-10 col-md-10"-->
+        <!--h3>Your Products and Services{{"&nbsp;"|raw}}<span style="font-size:18px;" onclick="$('#product-services-info1-plus').hide();$('#product-services-info1').show();$.request('onInfo1On');" id="product-services-info1-plus" class="glyphicon glyphicon-sm glyphicon glyphicon-info-sign {% if user.ok_help_ranking==1 %}collapse{%endif%}"></span></h3-->
+        {% if products %}
+        <table class="table table-bordered">
+            <tr class="">
+                <th class="">Products & Services</th>
+                <!--th class="text-center">Start<br>Dates</th-->
+                <th class="text-center">Current<br>Position</th>
+                <th class="text-center">Estimated<br>Position</th>
+                <th class="text-center">Renewal<br>Date</th>
+                <th class="text-center">Weekly<br>Amount</th>
+                <!--th class="text-center"></th-->
+
+                <!--th class="text-center border_only_right"></th-->
+            </tr>
+            {% for product in products %}
+                <tr class="{% if product.bp_user_credits %}success{%endif%}" id="row{{product.bp_id}}">
+                    <td class=""
+                        style="vertical-align: middle;"
+                        id="bp{{ product.bp_id }}"
+                        data-bp_id="{{ product.bp_id }}"
+                        data-bp_user_credits="{% if product.bp_user_credits %}{{product.bp_user_credits}}{%else%}0{%endif%}">
+                        {{ product.bp_name }}
+                    </td>
+                    <td class="text-center"><!-- Current Position -->
+                        <div class="form-group input-group col-centered">
+                            <label for="current-position{{ product.bp_id }}" class="sr-only" ></label>
+                            <input
+                            type="text"
+                            class="form-control input text-center"
+                            disabled
+                            id="current-position{{ product.bp_id }}"
+                            placeholder="--------"
+                            value= "{% if product.bp_high > 50 %}None{%elseif product.bp_high > 25%}Top 50{%elseif product.bp_high > 20%}Top 25{%elseif product.bp_high > 15%}Top 20{%elseif product.bp_high > 10%}Top 15{%elseif product.bp_high > 5%}Top 10{%elseif product.bp_high > 3%}Top 5{%elseif product.bp_high > 0%}Top 3{%endif%}"
+                             size="6">
+                        </div>
+                    </td>
+                    <td class="text-center"><!-- Estimated Position -->
+                        <div class="form-group input-group col-centered">
+                            <label for="estimated-position{{ product.bp_id }}" class="sr-only" ></label>
+                            <input
+                            type="text"
+                            class="form-control input text-center"
+                            disabled
+                            id="estimated-position{{ product.bp_id }}"
+                            placeholder=""
+                            value="--------"
+                            size="6">
+                        </div>
+                    </td>
+                    <td class="text-center"><!-- Expiration  -->
+                        <div class="form-group input-group col-centered">
+                            <label for="end_stamp{{ product.bp_id }}" class="sr-only" ></label>
+                            <input type="text" class="form-control input text-center" disabled id="end_stamp{{ product.bp_id }}" placeholder="None Assigned" value="{% if product.end_stamp %}{{ product.end_stamp|date("j M y, g:i a", user.ok_timezone) }}{%else%}None Assigned{%endif%}" size="18">
+                        </div>
+                    </td>
+                    <td class="text-center form-inline">
+                        <div class="input-group" id="ButtonGroupConfirm{{product.bp_id}}">
+                            <span class="collapse"></span>
+                            <!---MINUS  -->
+                            <span class="input-group-btn">
+                                <button id="btn-credit-minus{{product.bp_id}}"
+                                        type="button"
+                                        class="btn btn-default btn-credit"
+                                        {% if not product.bp_user_credits %}disabled="disabled"{%endif%}
+                                        data-type="minus"
+                                        data-bp_id="{{product.bp_id}}">
+                                    <span id="glyphicon-minus{{product.bp_id}}" class="glyphicon glyphicon-minus"></span>
+                                </button>
+                            </span>
+                            <!---CREDITS -->
+                            <span class="input-group-btn">
+                                <input  type="text"
+                                    id="credit{{product.bp_id}}"
+                                    name="credit{{product.bp_id}}"
+                                    class="form-control input input-number text-center"
+                                    value="{% if product.bp_user_credits %}{{product.bp_user_credits}}{%else%}0{%endif%}"
+                                    data-max-minus="0"
+                                    data-max-plus="99"
+                                    size="2"
+                                    style="width:41px;min-width:41px;"
+                                    disabled >
+                            </span>
+                            <!---PLUS -->
+                            <span class="input-group-btn">
+                                <button id="btn-credit-plus{{product.bp_id}}"
+                                        type="button"
+                                        class="btn btn-default btn-credit"
+                                        {% if user.ok_credits < 0.995 %}disabled="disabled"{%endif%}
+                                        data-type="plus"
+                                        data-bp_id="{{product.bp_id}}">
+                                    <span id="glyphicon-plus{{product.bp_id}}" class="glyphicon glyphicon-plus"></span>
+                                </button>
+                            </span>
+                        </div>
+                    </td>
+                    <td class="text-center"><!-- Expiration  -->
+                        <!---CONFIRM -->
+                        <button id="btn-confirm{{product.bp_id}}"
+                                style="visibility:hidden;"
+                                type="button"
+                                class="btn btn-confirm btn-success btn-sm"
+                                data-bp_name="{{ product.bp_name }}"
+                                data-bp_id="{{product.bp_id}}">
+                            <span id="glyphicon-confirm{{product.bp_id}}" class="glyphicon glyphicon-ok"></span>
+                        </button>
+                        <script>if(typeof previous == "undefined"){var previous = {};previous.bp_id=false;}</script>
+                    </td>
+                </tr>
+            {% endfor %}
+        </table>
+        {% endif %}
+    <!--/div>
+    <div class="col-xs-1 col-md-1"></div-->
+</div>
+
+<!-- page specific javascript goes here-->
+<script>
+$('.btn-confirm').click(function(event){
+    event.preventDefault();
+    bp_id = $(this).attr('data-bp_id');
+    bp_name = encodeURI($(this).attr('data-bp_name'));
+    $( '#btn-confirm' + bp_id ).attr('disabled', true);
+    $( '#btn-credit-plus'  + bp_id).attr('disabled', true);
+    $( '#btn-credit-minus' + bp_id).attr('disabled', true);
+    $( '#glyphicon-confirm' + bp_id ).removeClass('glyphicon-ok');
+    $( '#glyphicon-confirm' + bp_id ).addClass('glyphicon-refresh');
+
+    var credits_confirmed = $('#credit' + bp_id).val();
+    if(!credits_confirmed) credits_confirmed="0";
+    $.request('onCreditConfirm', {
+        data: {
+            bp_id: bp_id,
+            bp_name: bp_name,
+            credits_confirmed: credits_confirmed,
+        }
+    })
+    .always(function( data, textStatus, errorThrown ) {
+            if(data.status=="error"){
+                console.log(data.log);
+//                alert(data.message);
+                $( '#btn-confirm' + bp_id ).removeAttr('disabled');
+                $( '#btn-credit-plus'  + bp_id).removeAttr('disabled');
+                $( '#btn-credit-minus' + bp_id).removeAttr('disabled');
+                $( '#glyphicon-confirm' + bp_id ).removeClass('glyphicon-refresh');
+                $( '#glyphicon-confirm' + bp_id ).addClass('glyphicon-ok');
+                return
+            }
+        //success: function(data) {
+            console.log(textStatus);
+            //console.log('Setting $("#ok_credits").text('+data.ok_credits+')');
+            BootstrapDialog.show({
+                title: data.title,
+                message: data.message,
+                type: BootstrapDialog.TYPE_SUCCESS,
+                size: BootstrapDialog.SIZE_SMALL,
+                buttons: [{
+                    label: 'OK',
+                    //icon: 'glyphicon glyphicon-remove',
+                    cssClass: 'btn-default',
+                    action: function(dialog) {dialog.close();},
+                }]
+            });
+
+            var total_credits=data.ok_credits;
+            if(total_credits < 0) total_credits = 0;
+            $('#ok_credits').text(total_credits.toFixed(2));
+            if (data.badge_active == 1){
+                var badge_active = Math.round($("#badge_active").text())+1;
+                $( '#row' + bp_id ).addClass('success');
+                $( '#badge_active').text(badge_active);
+                    $( '#badge_active' ).removeClass('badge-danger');
+                    $( '#badge_active' ).removeClass('badge-warning');
+                    $( '#badge_active' ).removeClass('badge-default');
+                    $( '#badge_active' ).removeClass('badge-primary');
+                    $( '#badge_active' ).addClass('badge-success');
+            }
+            else if(data.badge_active == -1){
+                var badge_active = Math.round($("#badge_active").text())-1;
+                $('#badge_active').text(badge_active);
+                $( '#row' + bp_id ).removeClass('success');
+                if(badge_active == 0) {
+                    $( '#badge_active' ).removeClass('badge-success');
+                    $( '#badge_active' ).removeClass('badge-danger');
+                    $( '#badge_active' ).removeClass('badge-warning');
+                    $( '#badge_active' ).removeClass('badge-default');
+                    $( '#badge_active' ).addClass('badge-primary');
+                }
+            }
+
+            $('#current-position' + bp_id).val($( '#estimated-position'+bp_id ).val());
+            $( '#estimated-position' + bp_id ).val("--------");
+            $( '#bp' + bp_id).attr('data-bp_user_credits', credits_confirmed);
+            $( '#end_stamp' + bp_id ).val(data.end_stamp);
+
+//            var badge_total = Math.round($("#badge_total").text()) + data.badge_total;
+//            console.log('Setting $("#badge_total").text('+badge_total+')');
+//            $('#badge_total').text(badge_total);
+
+            $( '#btn-confirm' + previous.bp_id).css( "visibility","hidden" );
+            $( '#btn-confirm' + bp_id ).removeAttr('disabled');
+            $( '#glyphicon-confirm' + bp_id ).removeClass('glyphicon-refresh');
+            $( '#glyphicon-confirm' + bp_id ).addClass('glyphicon-ok');
+            $( '#btn-credit-plus'  + bp_id).removeAttr('disabled');
+            if(credits_confirmed > 0) $( '#btn-credit-minus' + bp_id).removeAttr('disabled');
+            else $( '#btn-credit-minus' + bp_id).attr('disabled', true);
+//        },
+/*        error: function(data) {// Assign handlers immediately after making the request,
+            console.log('error');
+            var tmp = data.responseText.split('"');
+            var msg = tmp[1];
+            alert(msg);
+//            $( '#credit' + bp_id).removeAttr('disabled');
+            $( '#btn-confirm' + bp_id ).removeAttr('disabled');
+            $( '#btn-credit-plus'  + bp_id).removeAttr('disabled');
+            $( '#btn-credit-minus' + bp_id).removeAttr('disabled');
+            $( '#glyphicon-confirm' + bp_id ).removeClass('glyphicon-refresh');
+            $( '#glyphicon-confirm' + bp_id ).addClass('glyphicon-ok');
+        }
+*/
+    });
+});
+
+$('.btn-credit').click(function(event){
+    event.preventDefault();
+    bp_id = $(this).attr('data-bp_id');
+    type = $(this).attr('data-type'); //plus or minus
+
+    // REMOVING OLD BUTTONS IF JUMPED LINE
+    if(previous.bp_id != false && previous.bp_id != bp_id){
+        console.log("Restore previous buttons");
+        var previous_bp_user_credits = $('#bp' + previous.bp_id).attr('data-bp_user_credits');
+        $( '#estimated-position'+previous.bp_id ).val("--------");
+        $( '#btn-confirm' + previous.bp_id).css( "visibility","hidden" );
+        $( '#btn-confirm' + previous.bp_id ).removeAttr('disabled');
+        $( '#glyphicon-minus' + previous.bp_id ).removeClass('glyphicon-refresh');
+        $( '#glyphicon-minus'  + previous.bp_id ).addClass('glyphicon-minus');
+        $( '#glyphicon-plus' + previous.bp_id ).removeClass('glyphicon-refresh');
+        $( '#glyphicon-plus'  + previous.bp_id ).addClass('glyphicon-plus');
+        $( '#btn-credit-plus' + previous.bp_id).removeClass('btn-warning');
+        $( '#btn-credit-minus' + previous.bp_id).removeClass('btn-warning');
+        $( '#btn-credit-plus' + previous.bp_id).addClass('btn-default');
+        $( '#btn-credit-minus' + previous.bp_id).addClass('btn-default');
+        $( '#btn-credit-plus' + previous.bp_id).removeAttr('disabled');
+        if( previous_bp_user_credits =="" || previous_bp_user_credits ==0) {
+            $('#credit' + previous.bp_id).val( "0" );
+            $('#btn-credit-minus' + previous.bp_id).attr('disabled', true);
+        } else {
+            $('#credit' + previous.bp_id).val( previous_bp_user_credits );
+            $( '#btn-credit-minus' + previous.bp_id).removeAttr('disabled');
+        }
+    }
+    previous.bp_id = bp_id;
+
+    var credit_field = $('#credit'+bp_id);
+    var bp_user_credits = $('#bp'+bp_id).attr('data-bp_user_credits');
+    var current_credits = parseInt(credit_field.val());
+    var estimated_position = $('#estimated-position'+bp_id).val();
+    var current_position = $('#current-position'+bp_id).val();
+
+    if (isNaN(current_credits)) {
+        credit_field.val(0);
+        return;
+    }
+
+    var minValue =  credit_field.attr('data-max-minus');
+    var maxValue =  credit_field.attr('data-max-plus');
+    if(type == 'minus') {
+        if(current_credits > minValue) {
+            current_credits = current_credits -1;
+            set_attributes(type,current_credits)
+            if(current_credits == bp_user_credits) {
+                getOriginalPosition(current_credits,type,minValue,current_position);
+            } else {
+                getEstimatedPosition(current_credits,type,minValue,estimated_position);
+            }
+        }
+    } else if(type == 'plus') {
+        if(current_credits < maxValue) {
+            current_credits = current_credits +1;
+            set_attributes(type,current_credits)
+            if(current_credits == bp_user_credits) {
+                getOriginalPosition(current_credits,type,minValue,current_position);
+            } else {
+                getEstimatedPosition(current_credits,type,maxValue,estimated_position);
+            }
+        }
+    }
+});
+function getEstimatedPosition(credits_estimated,type,boundaryValue,estimated_position){
+    if(credits_estimated >= parseInt($('#ok_credits').attr('data-value')) && type=="plus"){
+        boundaryValue=credits_estimated;
+    };
+    if(estimated_position=="1" && type=="plus"){
+        $( '#estimated-position'+bp_id ).val("1");
+        setTimeout(function(){
+            $( '#btn-confirm' + bp_id).css( "visibility","visible" );
+            reset_attributes(credits_estimated,type,boundaryValue);
+        }, 100);
+        return;
+    } else {
+        $.request('onGetEstimatedPosition', {
+            data: {
+                bp_id: bp_id,
+                credits_estimated: credits_estimated,
+            },
+            success: function(data) {
+                console.log('getEstimatedPosition success '+type+'=' + data.estimatedPosition);
+                $( '#estimated-position'+bp_id ).val(data.estimatedPosition);
+                $( '#btn-confirm' + bp_id).css( "visibility","visible" );
+                reset_attributes(credits_estimated,type,boundaryValue);
+            },
+            error: function(data) {// Assign handlers immediately after making the request,
+                var tmp = data.responseText.split('"');
+                var msg = tmp[1];
+                alert(msg);
+                $( '#estimated-position' + bp_id ).val("--------");
+                $( '#btn-confirm' + bp_id).css( "visibility","visible" );
+                reset_attributes(credits_estimated,type,boundaryValue);
+            }
+        });
+    }
+}
+function getOriginalPosition(current_credits,type,boundaryValue,current_position){
+    $( '#btn-confirm'+bp_id ).css( "visibility","hidden" );
+//    $( '#estimated-position'+bp_id ).val(current_position);
+    $( '#estimated-position'+bp_id ).val("--------");
+    $( '#btn-confirm' + bp_id).css( "visibility","hidden" );
+    reset_attributes(current_credits,type,boundaryValue);
+    return;
+}
+function set_attributes(type,current_credits) {
+    $( '#btn-credit-' + type + bp_id ).removeClass('btn-default');
+    $( '#btn-credit-' + type + bp_id ).addClass('btn-warning');
+    $( '#glyphicon-'  + type + bp_id ).removeClass('glyphicon-'+type);
+    $( '#glyphicon-'  + type + bp_id ).addClass('glyphicon-refresh');
+    $( '#btn-confirm' + bp_id ).attr('disabled', true);
+    $( '#btn-confirm' + bp_id).css( "visibility","visible" );
+    $( '#btn-credit-plus' + bp_id).attr('disabled', true);
+    $( '#btn-credit-minus' + bp_id).attr('disabled', true);
+    $('#credit'+bp_id).val(current_credits);
+}
+function reset_attributes(current_credits,type,boundaryValue) {
+    $( '#btn-credit-' + type + bp_id ).removeClass('btn-warning');
+    $( '#btn-credit-' + type + bp_id ).addClass('btn-default');
+    $( '#glyphicon-'  + type + bp_id ).removeClass('glyphicon-refresh');
+    $( '#glyphicon-'  + type + bp_id ).addClass('glyphicon-'+type);
+    $( '#btn-confirm' + bp_id ).removeAttr('disabled');
+    $( '#btn-credit-plus' + bp_id).removeAttr('disabled');
+    $( '#btn-credit-minus' + bp_id).removeAttr('disabled');
+    if( current_credits == boundaryValue ) $( '#btn-credit-' + type + bp_id).attr('disabled', true);
+}
+
+</script>
+</div><!--/container -->
+{% partial "nav-bottom" %}
+{% partial "foot" %}

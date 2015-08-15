@@ -334,6 +334,32 @@ class Message extends Model
         return $template;
     }
 
+    public function renderForPreview()
+    {
+        $content = $this->content_html ?: $this->renderTemplate();
+        $parser = new TextParser;
+
+        $data = [];
+        $data['first_name'] = 'Test';
+        $data['last_name'] = 'Person';
+        $data['email'] = 'test@email.tld';
+        $data['unsubscribe_url'] = 'javascript:;';
+        $data['browser_url'] = 'javascript:;';
+        $data['tracking_pixel'] = '';
+        $data['tracking_url'] = 'javascript:;';
+
+        $result = $parser->parseString($content, $data);
+
+        // Inject base target
+        $result = str_replace(
+            '</head>',
+            '<base target="_blank" />' . PHP_EOL . '</head>',
+            $result
+        );
+
+        return $result;
+    }
+
     public function renderForSubscriber($subscriber)
     {
         $parser = new TextParser;

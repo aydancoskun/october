@@ -177,7 +177,7 @@ class CampaignManager
             if (!isset($allSubscribers[$email])) {
                 $info['email'] = $email;
                 $subscriber = new Subscriber;
-                $subscriber->fill($info);
+                $subscriber->forceFill($info);
                 $subscriber->confirmed_at = Carbon::now();
                 $subscriber->save();
                 $ids[] = $subscriber->id;
@@ -186,7 +186,6 @@ class CampaignManager
              * Existing subscriber
              */
             else {
-
                 $ids[] = $allSubscribers[$email];
             }
         }
