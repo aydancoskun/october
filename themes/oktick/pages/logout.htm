@@ -13,7 +13,7 @@ function onStart(){
     Auth::logout();
     Session::flush();
     Flash::success("You are now logged out");
-    return redirect('/');
+    return redirect(env('APP_URL').'/');
 }
 ?>
 ==
