@@ -222,6 +222,6 @@ return array(
     |
     */
 
-    'linkPolicy' => 'force',
+    'linkPolicy' => 'secure',
 
 );
