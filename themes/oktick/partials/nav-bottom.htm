@@ -14,7 +14,7 @@ function onStart(){
     }
     elseif(env('APP_ENV') == "development"){
         $time = (round(microtime(true) - $_SERVER['REQUEST_TIME_FLOAT'],2)*1000)." ms";
-        $this['msg']=strtoupper($host)." - DEVELOPMENT in $time<br>";
+        $this['msg']=strtoupper($host)." - DEV in $time<br>";
     }
 }
 ?>
