@@ -18,7 +18,8 @@ return array(
     */
 
 //    'debug' => (gethostbyname("leancode.duckdns.org") == (isset($_SERVER['REMOTE_ADDR']) ? $_SERVER['REMOTE_ADDR'] : false) ? true : false),
-    'debug' => env('APP_DEBUG'),
+//    'debug' => env('APP_DEBUG'),
+	'debug' => true,
     /*
     |--------------------------------------------------------------------------
     | Application URL
