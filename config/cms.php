@@ -71,7 +71,7 @@ return array(
     |
     */
 
-    'backendUri' => 'ipiresearch',
+    'backendUri' => 'backend',
 
     /*
     |--------------------------------------------------------------------------
