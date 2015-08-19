@@ -73,9 +73,9 @@ function onStart()
 
         if( $user['ok_purchase_number'] == 0 ) {
 
-            $amt1=50;$amt2=200;$amt3=500;$amt4=1000;$amt5=10000;
+            $amt1=100;$amt2=200;$amt3=500;$amt4=1000;$amt5=10000;
 
-            $pri1=0;$pri2=25 ;$pri3=55 ;$pri4=100;$pri5=1000;
+            $pri1=15;$pri2=25 ;$pri3=55 ;$pri4=100;$pri5=1000;
 
         }
 
@@ -487,15 +487,15 @@ function onStart()
         <div class="col-xs-10"-->
             <div id="ok_help_credit" {% if user.ok_help_credit==0 %}class="collapse"{% endif %} >
                 <p>{{"&nbsp;&nbsp;&nbsp;"|raw}}</p>
-                <p>We offer several different packages to purchase OKTicK credits. If you bear in mind that 1 credit lasts a whole week and you may hold the same position on the search results with it throughout the week (depending on the actions of other suppliers of those same items) and yet pay NO more that week. Unlike some systems you are NOT charged each time a visitor clicks through to your website from OKTicK.</p>
+                <p>We offer several different packages to purchase OKTicK credits. If you bear in mind that 1 credit lasts a whole week and you may hold the same position on the search results with it throughout the week (depending on investment actions of other suppliers of those same items obviously) and yet pay NO more that week. Unlike some systems you are NOT charged each time a visitor clicks through to your website from OKTicK.</p>
 {%if ok_purchase_number == 0 %}
-                <p>The very first time you select a Plan from us we offer you credits at half the normal rate. Therefore you should consider which one you choose carefully. Introductory offers are only valid the very first time you add Credits. Subsequently our standard plans will be available to you.</p>
-                <p>The Gold Plan for example gives credits at only 20 pence sterling each normally, which is cheap anyway, but cost only 10p each if selected the very first time.</p>
+                <p>The very first time you select a Plan from us we offer you double the normal quantity of credits for that plan. Therefore the first Credits Plan you choose is important. This introductory offers are only valid the very first time you add Credits.</p>
+                <p>On the Gold Plan for example credits cost only 10 pence sterling each if the Gold Plan is the first one selected (20p sterling after that).</p>
 {% endif %}
                 <p>A single credit could elevate you on the results listing for that product or service to the top or close to it (depending only on demand from other suppliers at the same time). We feel advertising cannot be bought more cheaply.</p>
                 <p>You will see below the details of all the OKTicK Plans. Select the one you feel will work best for you.</p>
                 <!--p>If you require higher volumes please get in touch with our corporate sales team (corporate-sales@oktick.com).</p-->
-                <p>Using the credits you purchase you will find elevating yourself up the various listings of your products and services is extremely easy. You do this from your Rankings page. In some cases applying a single credit can get you to the top or close to the top for the whole week.</p>
+                <p>As you will have done with the free credits given after you registered you can use you new credits to elevate yourself up the various listings of your products and services. As before You do this from your Rankings page. In some cases applying a single credit can get you to the top or close to the top for the whole week.</p>
                 <p>We process all payments using the secure Stripe payment gateway (<a href="https://stripe.com/gb/features#seamless-security" target="_blank">https://stripe.com</a>). Your data is transfered using the highest standard TLS https encryption. We never store your credit card information, in fact your data never even touches our system. We promise that you can shop in total confidence at OKTicK.</p>
                 <p>If you don't need this notice any further, click below. You can always re-enable it later by clicking the <span class="glyphicon-primary glyphicon glyphicon-question-sign"></span> sign above.</p>
                 <div class="text-center">

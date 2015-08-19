@@ -14,18 +14,22 @@ function onStart(){
     }
     elseif(env('APP_ENV') == "development"){
         $time = (round(microtime(true) - $_SERVER['REQUEST_TIME_FLOAT'],2)*1000)." ms";
-        $this['msg']=strtoupper($host)." - DEV in $time<br>";
+        $this['msg']=strtoupper($host)." - DEV $time - ";
     }
 }
 ?>
 ==
-<footer class="footer navbar-default">
-<div class="container"><small class="navbar-text">{{msg|raw}}All content &copy; 2002-{{ "now"|date("Y") }} Clive H. Whittaker</small>
-<ul class="nav navbar-nav navbar-right">
-<li class="{% if this.page.id == "pages-terms-and-conditions" %}active{% endif %}"><a class="navbar-bottom" href="/terms-and-conditions"><small><br>Terms and Conditions</small></a></li>
-<li class="{% if this.page.id == "pages-privacy-policy" %}active{% endif %}"><a class="navbar-bottom" href="/privacy-policy"><small><br>Privacy Policy</small></a></li>
-<li class="{% if this.page.id == "pages-disclaimer" %}active{% endif %}"><a class="navbar-bottom" href="/disclaimer"><small><br>Disclaimer</small></a></li>
-<li class="{% if this.page.id == "pages-about-us" %}active{% endif %}"><a class="navbar-bottom" href="/about-us"><small><br>About Us</small></a></li>
-</ul>
+<footer class="footer navbar-default nav-bottom">
+<div class="container">
+    <ul class="nav navbar-nav nav-bottom">
+        <li><a class="navbar-bottom disabled" href="/" style="text-decoration: none;border-radius:0px;border-bottom-width: 4px;border-bottom-style: solid;border-bottom-color: transparent;cursor: default;color: #646464 !important;background-color: transparent !important;padding-bottom: 11px;"><small>{{msg|raw}}All content &copy; 2002-{{ "now"|date("Y") }} Clive H. Whittaker</small></a></li>
+    </ul>
+    <!--small class="nav navbar-nav navbar-left navbar-text"></small-->
+    <ul class="nav navbar-nav navbar-right nav-bottom">
+        <li class="{% if this.page.id == "pages-terms-and-conditions" %}active{% endif %}"><a class="navbar-bottom" href="/terms-and-conditions"><small>Terms and Conditions</small></a></li>
+        <li class="{% if this.page.id == "pages-privacy-policy" %}active{% endif %}"><a class="navbar-bottom" href="/privacy-policy"><small>Privacy Policy</small></a></li>
+        <li class="{% if this.page.id == "pages-disclaimer" %}active{% endif %}"><a class="navbar-bottom" href="/disclaimer"><small>Disclaimer</small></a></li>
+        <li class="{% if this.page.id == "pages-about-us" %}active{% endif %}"><a class="navbar-bottom" href="/about-us"><small>About Us</small></a></li>
+    </ul>
 </div>
 </footer>

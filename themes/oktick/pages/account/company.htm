@@ -136,8 +136,8 @@ function onSave() {
                 <!--p>All other options are currently disabled because your email address, <{{user.email}}> does not match your company domain name. If you mistyped your domain name you can change it above. If you need to change your email address, e.g.  because you gave your personal instead of your business email, you can do so on your "My Account" page <a href="/account/details">here</a>.</p-->
             {% endif %}
             <div class="form-group input-group-lg">
-                <label for="business-description">Business Description<br><small>Searchers see this for your business and they want to know what you specialise in (max 128 letters)</small></label>
-                <input type="text" class="form-control" id="business-description" placeholder="E.g. Centrifugal pumps for the food industry" {{disabled}} value="{{ user.ok_vendor_data }}" name="ok_vendor_data">
+                <label for="business-description">Business Description<br><small>When you are listed out in a search, apart from your business name this will be what potential customers will see. Therefore you should tell them what goods you sell and services you provide (max 128 letters)</small></label>
+                <input type="text" class="form-control" id="business-description" placeholder="E.g. &quot;stainless steel & exotic alloy valves&quot; or &quot;oak & pinewood furniture&quot;" {{disabled}} value="{{ user.ok_vendor_data }}" name="ok_vendor_data">
             </div>
             <br>
 {%if invoices %}
