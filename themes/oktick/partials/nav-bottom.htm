@@ -10,11 +10,11 @@ function onStart(){
         $host = substr(gethostname(),0,strpos(gethostname(),"."));
     }
     if(env('APP_ENV') == "production"){
-        $this['msg']="Served by ".$host.rand(1,20).", ";
+        $this['msg']=" served by ".$host.rand(1,20).", ";
     }
     elseif(env('APP_ENV') == "development"){
         $time = (round(microtime(true) - $_SERVER['REQUEST_TIME_FLOAT'],2)*1000)." ms";
-        $this['msg']=strtoupper($host)." - DEV $time - ";
+        $this['msg']=" " . strtoupper($host)." - DEV ".$time;
     }
 }
 ?>
@@ -22,7 +22,7 @@ function onStart(){
 <footer class="footer navbar-default nav-bottom">
 <div class="container">
     <ul class="nav navbar-nav nav-bottom">
-        <li><a class="navbar-bottom disabled" href="/" style="text-decoration: none;border-radius:0px;border-bottom-width: 4px;border-bottom-style: solid;border-bottom-color: transparent;cursor: default;color: #646464 !important;background-color: transparent !important;padding-bottom: 11px;"><small>{{msg|raw}}All content &copy; 2002-{{ "now"|date("Y") }} Clive H. Whittaker</small></a></li>
+        <li><a class="navbar-bottom disabled" href="/" style="text-decoration: none;border-radius:0px;border-bottom-width: 4px;border-bottom-style: solid;border-bottom-color: transparent;cursor: default;color: #646464 !important;background-color: transparent !important;padding-bottom: 11px;"><small>All content &copy; 2002-{{ "now"|date("Y") }} Clive H. Whittaker{{msg|raw}}</small></a></li>
     </ul>
     <!--small class="nav navbar-nav navbar-left navbar-text"></small-->
     <ul class="nav navbar-nav navbar-right nav-bottom">
