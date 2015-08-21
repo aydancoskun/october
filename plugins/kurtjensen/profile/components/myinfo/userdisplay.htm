@@ -1,3 +1,4 @@
+{% set showCountry = __SELF__.showCountry %}
 {% set user = __SELF__.user %}
 <table>
 <!--    <tr>
@@ -21,6 +22,11 @@
     <tr>
         <td class="kurtjensen-profile-label">Zip : </td><td class="kurtjensen-profile-data"> {{ user.zip }}</td>
     </tr>
+{% if showCountry %}   
+    <tr>
+        <td class="kurtjensen-profile-label">Country : </td><td class="kurtjensen-profile-data"> {{ user.country.name }}</td>
+    </tr>
+{% endif %}
     <tr>
         <td class="kurtjensen-profile-label">Email : </td><td class="kurtjensen-profile-data"> {{ user.email }}</td>
     </tr>

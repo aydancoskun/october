@@ -23,6 +23,7 @@ class UserList extends ComponentBase
     
     public $userGroups = [];
     
+    public $showCountry;
     
     public $testform = '';
     
@@ -48,12 +49,21 @@ class UserList extends ComponentBase
                 'type'        => 'dropdown',
                 'default'     => '{{ :slug }}'
             ],
+            'showCountry' => [
+                'title'       => 'Show Country Field',
+                'description' => 'Country field for allowing users to choose a country.',
+                'type'        => 'dropdown',
+                'default'     => 0,
+                'group'       => 'Country',
+                'options'     => [0=>'No',1=>'Yes']
+            ],
         ];
     }
 
     public function init()
     {
         $this->getPrimaryUsergroups();
+        $this->showCountry = $this->property('showCountry');
     }
 
     public function onRun()

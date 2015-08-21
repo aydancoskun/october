@@ -20,6 +20,8 @@ function onStart() {
     $ok_company_id = $user->attributes['ok_company_id'];
     $user_id = $user->attributes['id'];
     $this['invoices'] = DB::table('ok_payments')->where('download_code', $invoice_id)->where('user_id', $user_id)->first();
+    //"SELECT *, concat((user_id*10),(id*10)) as invoice_number ".
+
     //$this['details'] = DB::table('users')->where('id',$user_id)->first();
     $this['qr'] = \DNS2D::getBarcodeHTML("https://www.oktick.com/account/invoice/$invoice_id", "QRCODE", 3, 3);
 }
@@ -46,7 +48,7 @@ function verifyPost($post_name,$check="int"){
         <div class="col-xs-12">
             <div class="text-center">
                 <i class="fa fa-search-plus pull-left icon"></i>
-                <h2>Invoice for purchase #{{invoices.invoice_number}}</h2>
+                <h2>Invoice for purchase #{{ invoices.user_id * 10 }}{{ invoices.id * 10 }}</h2>
             </div>
             <hr>
             
@@ -55,11 +57,11 @@ function verifyPost($post_name,$check="int"){
                     <div class="panel panel-default height">
                         <div class="panel-heading">Billing Details</div>
                         <div class="panel-body">
-                            <strong>{{user.ok_invoice_name}}</strong><br>
-                            {{user.ok_invoice_address_1}}<br>
-                            {{user.ok_invoice_address_2}}<br>
-                            {{user.ok_invoice_city}}{% if user.ok_invoice_city and user.ok_invoice_state %},&nbsp;{% endif %}{{user.ok_invoice_state}}<br>
-                            {{user.ok_invoice_country}}{% if user.ok_invoice_country and user.ok_invoice_zip %}&nbsp;-&nbsp;{% endif %}{{user.ok_invoice_zip}}<br>
+                            {% if user.ok_invoice_name %}<strong>{{user.ok_invoice_name}}</strong><br>{% endif %}
+                            {% if user.ok_invoice_address_1 %}{{user.ok_invoice_address_1}}<br>{% endif %}
+                            {% if user.ok_invoice_address_2 %}{{user.ok_invoice_address_2}}<br>{% endif %}
+                            {% if user.ok_invoice_city %}{{user.ok_invoice_city}}{% if user.ok_invoice_city and user.ok_invoice_state %},&nbsp;{% endif %}{{user.ok_invoice_state}}<br>{% endif %}
+                            {% if user.ok_invoice_country %}{{user.ok_invoice_country}}{% if user.ok_invoice_country and user.ok_invoice_zip %}&nbsp;-&nbsp;{% endif %}{{user.ok_invoice_zip}}<br>{% endif %}
                         </div>
                     </div>
                 </div>

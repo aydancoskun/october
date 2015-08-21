@@ -28,6 +28,8 @@ class Messages extends Controller
     public $listConfig = 'config_list.yaml';
     public $relationConfig = 'config_relation.yaml';
 
+    public $requiredPermissions = ['responsiv.campaign.manage_messages'];
+
     public function __construct()
     {
         parent::__construct();

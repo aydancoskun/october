@@ -32,8 +32,8 @@ function onSave() {
     $user_id = $user->attributes['id'];
 
     // Collect input
-    $ok_company_name      = post('Business_Name');
-    $ok_vendor_data       = post('ok_vendor_data');
+    $Business_Name        = post('Business_Name');
+    $Business_Description = post('Business_Description');
     $ok_invoice_name      = post('ok_invoice_name');
     $ok_invoice_country   = post('ok_invoice_country');
     $ok_invoice_address_1 = post('ok_invoice_address_1');
@@ -45,8 +45,8 @@ function onSave() {
     // Form Validation
     $validator = Validator::make(
         [
-            'Business_Name' => $ok_company_name,
-            'ok_vendor_data' => $ok_vendor_data,
+            'Business_Name' => $Business_Name,
+            'Business_Description' => $Business_Description,
             'ok_invoice_name' => $ok_invoice_name,
             'ok_invoice_country' => $ok_invoice_country,
             'ok_invoice_address_1' => $ok_invoice_address_1,
@@ -57,7 +57,7 @@ function onSave() {
         ],
         [
             'Business_Name' => 'required|max:255',
-            'ok_vendor_data' => 'required|max:255',
+            'Business_Description' => 'required|max:255',
             'ok_invoice_name' => 'max:255',
             'ok_invoice_country' => 'max:4',
             'ok_invoice_address_1' => 'max:255',
@@ -76,8 +76,8 @@ function onSave() {
 
     DB::table('oktick.users')->where('id',$user_id)->update(
                         array(
-                            'ok_company_name' => $ok_company_name,
-                            'ok_vendor_data' => $ok_vendor_data,
+                            'ok_company_name' => $Business_Name,
+                            'ok_vendor_data' => $Business_Description,
                             'ok_invoice_name' => $ok_invoice_name,
                             'ok_invoice_country' => $ok_invoice_country,
                             'ok_invoice_address_1' => $ok_invoice_address_1,
@@ -109,7 +109,7 @@ function onSave() {
         <div id="ok_help_company" {% if user.ok_help_company==0 %}class="collapse"{% endif %} >
             <p>{{"&nbsp;&nbsp;&nbsp;"|raw}}</p>
                 <p>On this page you can amend your business details.</p>
-                <p>Once you purchased credits this page will give you the possibility to edit your invoice details</p>
+                <p>Once you purchased credits this page will give you the possibility to edit your invoice details.</p>
                 <p>Once you have provided your invoice details you can generate invoices for any credit purchases.</p>
             <div class="text-center">
                 <button id="ok_help_company_off" class="btn btn-default btn-sm help"><span class="glyphicon glyphicon-primary glyphicon-thumbs-up"></span>&nbsp;Got it!</button>
@@ -129,26 +129,23 @@ function onSave() {
         {% if not can('Edit Company') %}{% set disabled = 'disabled' %}{% else %}{% set disabled = '' %}{% endif %}
         <form data-request="onSave">
             <div class="form-group input-group-lg">
-                <label for="Business_Name">Business Name<br><small></small></label>
+                <label for="Business_Name">Business Display Name<br><small></small></label>
                 <input type="text" class="form-control" id="Business_Name" placeholder="www.example.com" value="{{ user.ok_company_name }}" name="Business_Name">
             </div>
-            {% if disabled %}
-                <!--p>All other options are currently disabled because your email address, <{{user.email}}> does not match your company domain name. If you mistyped your domain name you can change it above. If you need to change your email address, e.g.  because you gave your personal instead of your business email, you can do so on your "My Account" page <a href="/account/details">here</a>.</p-->
-            {% endif %}
             <div class="form-group input-group-lg">
-                <label for="business-description">Business Description<br><small>When you are listed out in a search, apart from your business name this will be what potential customers will see. Therefore you should tell them what goods you sell and services you provide (max 128 letters)</small></label>
-                <input type="text" class="form-control" id="business-description" placeholder="E.g. &quot;stainless steel & exotic alloy valves&quot; or &quot;oak & pinewood furniture&quot;" {{disabled}} value="{{ user.ok_vendor_data }}" name="ok_vendor_data">
+                <label for="Business_Description">Business Description<br><small>When you are listed out in a search, apart from your business name this will be what potential customers will see. Therefore you should tell them what goods you sell and services you provide (max 128 letters)</small></label>
+                <input type="text" class="form-control" id="Business_Description" placeholder="E.g. &quot;stainless steel & exotic alloy valves&quot; or &quot;oak & pinewood furniture&quot;" value="{{ user.ok_vendor_data }}" name="Business_Description">
             </div>
             <br>
 {%if invoices %}
             <h3>Invoicing Details</h3>
             <div class="form-group input-group-lg">
-                <label for="business-name">Business or organisation name</label>
-                <input type="text" class="form-control" id="business-name" placeholder="Name" {{disabled}} name="ok_invoice_name" value="{{ user.ok_invoice_name }}">
+                <label for="business-name">Business Invoicing Name</label>
+                <input type="text" class="form-control" id="business-name" placeholder="Name" name="ok_invoice_name" value="{{ user.ok_invoice_name }}">
             </div>
             <!--div class="form-group input-group-lg">
                 <label for="business-size">Number of employees</label>
-                <select class="form-control" id="business-size" {{disabled}}>
+                <select class="form-control" id="business-size">
                     <option value="">Please Select</option>
                     <option value="1">1 employee</option>
                     <option value="2-9">2-9 employees</option>
@@ -164,27 +161,27 @@ function onSave() {
             </div-->
             <div class="form-group input-group-lg">
                 <label for="business-country">Country/Region</label>
-                <select class="form-control" id="business-country" {{disabled}} name="ok_invoice_country">
+                <select class="form-control" id="business-country" name="ok_invoice_country">
                 {% partial "country-selector" country=user.ok_invoice_country %}
                 </select>
             </div>
             <div class="form-group input-group-lg">
                 <label for="business-address-line-1">Business address</label>
-                <input type="text" class="form-control" id="business-address-line-1" placeholder="Line 1" {{disabled}} value="{{ user.ok_invoice_address_1 }}" name="ok_invoice_address_1">
+                <input type="text" class="form-control" id="business-address-line-1" placeholder="Line 1" value="{{ user.ok_invoice_address_1 }}" name="ok_invoice_address_1">
                 <label for="business-address-line-2" class="sr-only">Business Address Line 2</label>
-                <input type="text" class="form-control" id="business-address-line-2" placeholder="Line 2" {{disabled}} value="{{ user.ok_invoice_address_2 }}" name="ok_invoice_address_2">
+                <input type="text" class="form-control" id="business-address-line-2" placeholder="Line 2" value="{{ user.ok_invoice_address_2 }}" name="ok_invoice_address_2">
             </div>
             <div class="form-group input-group-lg">
                 <label for="business-city">City/Town</label>
-                <input type="text" class="form-control" id="business-city" placeholder="City" {{disabled}} value="{{ user.ok_invoice_city }}" name="ok_invoice_city">
+                <input type="text" class="form-control" id="business-city" placeholder="City" value="{{ user.ok_invoice_city }}" name="ok_invoice_city">
             </div>
             <div class="form-group input-group-lg">
                 <label for="business-state">County/State</label>
-                <input type="text" class="form-control" id="business-state" placeholder="West Sussex / Florida" {{disabled}} value="{{ user.ok_invoice_state }}" name="ok_invoice_state">
+                <input type="text" class="form-control" id="business-state" placeholder="West Sussex / Florida" value="{{ user.ok_invoice_state }}" name="ok_invoice_state">
             </div>
             <div class="form-group input-group-lg">
                 <label for="business-postcode">Postcode/ZIP code</label>
-                <input type="text" class="form-control" id="business-postcode" placeholder="RH19 4JY / 33756" {{disabled}} value="{{ user.ok_invoice_zip }}" name="ok_invoice_zip">
+                <input type="text" class="form-control" id="business-postcode" placeholder="RH19 4JY / 33756" value="{{ user.ok_invoice_zip }}" name="ok_invoice_zip">
             </div>
 {% endif %}
             <div class="text-right">

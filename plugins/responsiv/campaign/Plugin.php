@@ -46,7 +46,7 @@ class Plugin extends PluginBase
                 'label'       => 'Mailing List',
                 'url'         => Backend::url('responsiv/campaign/messages'),
                 'icon'        => 'icon-envelope',
-                'permissions' => ['campaign.*'],
+                'permissions' => ['responsiv.campaign.*'],
                 'order'       => 500,
 
                 'sideMenu' => [
@@ -54,23 +54,31 @@ class Plugin extends PluginBase
                         'label'       => 'Campaigns',
                         'icon'        => 'icon-newspaper-o',
                         'url'         => Backend::url('responsiv/campaign/messages'),
-                        'permissions' => ['campaign.access_campaigns'],
+                        'permissions' => ['responsiv.campaign.manage_messages'],
                     ],
                     'lists' => [
                         'label'       => 'Lists',
                         'icon'        => 'icon-list',
                         'url'         => Backend::url('responsiv/campaign/lists'),
-                        'permissions' => ['campaign.access_subscribers'],
+                        'permissions' => ['responsiv.campaign.manage_subscribers'],
                     ],
                     'subscribers' => [
                         'label'       => 'Subscribers',
                         'icon'        => 'icon-user-plus',
                         'url'         => Backend::url('responsiv/campaign/subscribers'),
-                        'permissions' => ['campaign.access_subscribers'],
+                        'permissions' => ['responsiv.campaign.manage_subscribers'],
                     ],
                 ]
 
             ]
+        ];
+    }
+
+    public function registerPermissions()
+    {
+        return [
+            'responsiv.campaign.manage_messages' => ['tab' => 'Mailing List', 'label' => 'Manage campaigns'],
+            'responsiv.campaign.manage_subscribers' => ['tab' => 'Mailing List', 'label' => 'Manage subscribers']
         ];
     }
 

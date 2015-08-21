@@ -1,3 +1,4 @@
+{% set showCountry = __SELF__.showCountry %}
 <div style="border-radius: 5px;
 width:100%;
 overflow: hidden;
@@ -24,6 +25,9 @@ class="row">
                 <td class="kurtjensen-profile-data bot-bord"> 
                     {{ person.street_addr }}<br />
                     {{ person.city }}, {{ person.state.name }} {{ person.zip }}
+{% if showCountry %}<br />
+                    {{ person.country.name }}
+{% endif %}
 {% if (person.city) and (person.state.name) and (person.zip) %}
                     <a target="map" 
                        style="font-size: small;" 

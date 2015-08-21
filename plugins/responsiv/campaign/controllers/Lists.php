@@ -18,6 +18,8 @@ class Lists extends Controller
     public $listConfig = 'config_list.yaml';
     public $relationConfig = 'config_relation.yaml';
 
+    public $requiredPermissions = ['responsiv.campaign.manage_subscribers'];
+
     public function __construct()
     {
         parent::__construct();

@@ -28,3 +28,5 @@
     - Fix onUpdate user and ext-user for Build 273
 1.0.14:
     - Fix bug caused by fix in 1.0.13
+1.0.15:
+    - Added Counrty field option to MyInfo component and UserList Component

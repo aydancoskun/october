@@ -20,7 +20,14 @@ class MyInfo extends ComponentBase
     
     public $userid;
     
-    public $stateslist;
+    public $statelist;
+    
+    public $countrylist;
+    
+    public $showCountry;
+    
+    public $defaultCountry;
+    
 
     public function componentDetails()
     {
@@ -33,14 +40,22 @@ class MyInfo extends ComponentBase
     public function defineProperties()
     {
         return [
+            'showCountry' => [
+                'title'       => 'Show Country Field',
+                'description' => 'Country field for allowing users to choose a country.',
+                'type'        => 'dropdown',
+                'default'     => 0,
+                'group'       => 'Country',
+                'options'     => [0=>'No',1=>'Yes']
+            ],
             'country' => [
-                'title'       => 'Primary Country',
-                'description' => 'Country for editing address.',
+                'title'       => 'Default Country',
+                'description' => 'Default country for editing address. If not showing country field then this will set user country on form save.',
                 'type'        => 'dropdown',
                 'default'     => '1',
                 'group'       => 'Country',
                 'options'     => Country::getNameList(),
-            ],
+            ]
         ];
     }
     
@@ -50,6 +65,8 @@ class MyInfo extends ComponentBase
             return null;
         
         $this->userid = intval( $this->user->id );
+        $this->defaultCountry = $this->property('country');
+        $this->showCountry = $this->property('showCountry');
     }
 
     function onRun()
@@ -60,14 +77,11 @@ class MyInfo extends ComponentBase
 
     protected function onUserForm()
     {
-        $this->stateslist = $this->page['stateslist'] = 
-            State::formSelect(
-                'state',                                        // name
-                $this->property('country'),                     // CountryID
-                $this->user->state['id'],                     // Cur Val
-                array('class' => 'form-control custom-select')  // Input Field Params
-                );
-                
+        $country = $this->user->country['id']>0?$this->user->country['id']:$this->defaultCountry;
+        
+        $this->countryInput($country);
+        $this->stateInput($country,$this->user->state['id']);
+        
         if (!$this->userid)
             return null;
     }
@@ -92,5 +106,38 @@ class MyInfo extends ComponentBase
         $user->save();
     }
 
+
+    protected function onCountryChange()
+    {
+        return $this->stateInput(post('country'));
+    }
+
+
+    protected function countryInput($country)
+    {
+        $this->countrylist =
+            Country::formSelect(
+                'country',                                      // name
+                $country,                                       // Cur Val
+                array('class' => 'form-control custom-select',
+                      'data-request' => 'onCountryChange',
+                      'data-request-update' => '\'MyInfo::_state\' : \'#state_div\'')  // Input Field Params
+                );
+        return $this->countrylist;
+    }
+
+
+    protected function stateInput($country,$state = null)
+    {
+        $this->statelist =
+            State::formSelect(
+                'state',                                        // name
+                $country,                                       // CountryID
+                $state,                                         // Cur Val
+                array('class' => 'form-control custom-select')  // Input Field Params
+                );
+        return $this->statelist;
+    }
+    
 
 }

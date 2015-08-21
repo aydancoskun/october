@@ -1,4 +1,6 @@
 {% set user = __SELF__.user %}
+{% set countrylist = __SELF__.countrylist %}
+{% set showCountry = __SELF__.showCountry %}
 {{ form_ajax('onUserUpdate', { model: user, update: { 'MyInfo::userdisplay': '#user-info' }  }) }}
 
     <div class="form-group">
@@ -26,16 +28,23 @@
         <input name="city" type="text" class="form-control" id="accountCity" value="{{ form_value('city') }}">
     </div>
 
-    <div class="form-group">
-        <label for="accountCity">State</label>
-        {{ stateslist|raw  }}
+    <div class="form-group" id="state_div">
+        {% partial __SELF__~'::_state' %}
     </div>
     
     <div class="form-group">
         <label for="accountZip">Zip</label>
         <input name="zip" type="text" class="form-control" id="accountZip" value="{{ form_value('zip') }}">
     </div>
-
+{% if showCountry %}    
+    <div class="form-group">
+        <label for="accountCountry">Country</label>
+        {{ countrylist|raw  }}
+    </div>
+{% else %}
+{% set defaultCountry = __SELF__.defaultCountry %}
+    <input type="hidden" name="country" value="{{ defaultCountry }}"
+{% endif %}
     <div class="form-group">
         <label for="accountPassword">New Password</label>
         <input name="password" type="password" class="form-control" id="accountPassword">

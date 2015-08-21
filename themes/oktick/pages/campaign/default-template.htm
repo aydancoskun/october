@@ -5,13 +5,19 @@ is_hidden = "0"
 
 [campaignTemplate]
 ==
+<?php
+function onStart(){
+    $this['accept_invite'] = "test";
+}
+?>
+==
 <!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN"
    "http://www.w3.org/TR/html4/loose.dtd">
 
 <html lang="en">
 <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
-    <title>Newsletter</title>
+    <title>OKTicK</title>
     <style>
         a
         {
@@ -35,7 +41,7 @@ is_hidden = "0"
         <!-- Container -->
         <table cellspacing="0" cellpadding="0" border="0" align="center">
             <tr>
-                <td width="700" height="43" bgcolor="#ffffff">
+                <td width="700" height="43" bgcolor="#eee">
                     <table cellspacing="0" cellpadding="0" border="0" align="center" width="660" style="width:660px;">
                         <tr>
                             <td>
@@ -46,8 +52,8 @@ is_hidden = "0"
                             </td>
                             <td align="right">
                                 <div style="font-family:Arial, Helvetica, sans-serif;font-size:12px;color:#7a7a7a;text-align:right">
-                                    Not interested anymore?
-                                    <a href="{unsubscribe_url}">Unsubscribe here</a>.
+                                    Not interested?
+                                    <a href="{unsubscribe_url}">Immediately unsubscribe here</a>.
                                 </div>
                             </td>
                         </tr>
@@ -59,23 +65,23 @@ is_hidden = "0"
                     <!-- Header -->
                     <table cellspacing="0" cellpadding="0" border="0" align="center" width="660" style="width:660px;">
                         <tr>
-                            <td width="660" height="85" valign="bottom" bgcolor="#2B3E50" align="center">
-                                <table cellspacing="0" cellpadding="8" border="0">
+                            <td width="660" height="118" valign="bottom" bgcolor="#FFFFFF" align="center">
+                                <table cellspacing="0" cellpadding="0" border="0">
                                     <tr>
                                         <td>
-                                            <div style="padding-bottom: 30px; padding-top: 30px">
+                                            <div style="padding-bottom: 0; padding-top: 30px">
                                                 <img
-                                                    src="{{ 'plugins/responsiv/campaign/assets/images/sample-logo.png'|app }}"
+                                                    src="https://www.oktick.com/app/ot/assets/img/oktick_trans.gif"
                                                     alt="OctoberCMS"
-                                                    width="360"
-                                                    height="85" />
+                                                    width="324"
+                                                    height="118" />
                                             </div>
                                         </td>
                                     </tr>
                                 </table>
                             </td>
                         </tr>
-                        <tr>
+                        <!--tr>
                             <td>
                                 <br />
                                 <img
@@ -84,7 +90,7 @@ is_hidden = "0"
                                     width="660"
                                     height="180" />
                             </td>
-                        </tr>
+                        </tr-->
                     </table>
 
                     <br />
@@ -95,28 +101,28 @@ is_hidden = "0"
                             <td>
                                 <div style="font-size:12px;color:#333333;font-family:Helvetica, Arial, sans-serif;">
 
-                                    <div style="padding-top:30px">
+                                    <div style="padding-top:10px">
                                         <h2 style="font-size:40px;color:#555555;padding:0;margin:0;letter-spacing:-1px">
                                             {text name="intro" label="Introductory message"}Hello there, {first_name}!{/text}
                                         </h2>
                                     </div>
 
-                                    <p style="font-size:16px;line-height:150%">{textarea name="intro_content" label="Opening statement" size="small"}{/textarea}</p>
+                                    <p style="font-size:16px;line-height:150%;font-weight:bold;color:#555555;padding-top:15px;margin:5px">{textarea name="intro_content" label="Opening statement" size="small"}{/textarea}</p>
 
-                                    {repeater name="content_sections" prompt="Add another content section"}
-                                        <div style="padding-top: 15px">
-                                            <h3 style="font-size:21px;font-weight:normal;color:#ce4240;padding:0;margin:0">
-                                                {text name="content_header" label="Content section" placeholder="Type in a heading and enter some content for it below"}{/text}
-                                            </h3>
-                                            <div style="line-height:150%; font-size:14px">
-                                                {richeditor name="content_body" size="large"}{/richeditor}
-                                            </div>
-                                        </div>
-                                    {/repeater}
+                                    <div style="font-size:16px;line-height:150%;font-weight:normal;color:#555555;padding-top:15px;margin:5px">
+                                                {richeditor label="Before Button Message" name="content_body_before_button" size="large"}{/richeditor}
+                                    </div>
+
+<table align="center" style="border-collapse: separate ! important;border: 2px solid #F2F2F2;border-radius: 4px;background-color: #2A62AF;table-layout: fixed;mso-table-lspace: 0pt;mso-table-rspace: 0pt;-ms-text-size-adjust: 100%;-webkit-text-size-adjust: 100%;" border="0" cellpadding="0" cellspacing="0"><tbody><tr><td style="font-family: Arial;font-size: 16px;padding: 20px;mso-table-lspace: 0pt;mso-table-rspace: 0pt;-ms-text-size-adjust: 100%;-webkit-text-size-adjust: 100%;" align="center" valign="middle"><a class="mcnButton " title="Accept the Invitation!" href="{{accept_invite}}" target="_blank" style="font-weight: bold;letter-spacing: normal;line-height: 100%;text-align: center;text-decoration: none;color: #FFFFFF;word-wrap: break-word;-ms-text-size-adjust: 100%;-webkit-text-size-adjust: 100%;display: block;">
+Accept the Invitation!
+</a></td></tr></tbody></table>
+
+                                    <div style="font-size:16px;line-height:150%;font-weight:normal;color:#555555;padding-top:15px;margin:5px">
+                                                {richeditor label="After Button Message" name="content_body_after_button" size="large"}{/richeditor}
+                                    </div>
 
                                     <div style="padding-top: 5px">
-                                        <p style="font-size:16px">{text name="salutation" label="Salutation"}Good afternoon, good evening and good night!{/text}</p>
-                                        <p style="font-size:16px"><em>&mdash; Your friends at OctoberCMS</em></p>
+                                        <p style="font-size:16px">{text name="salutation" label="Salutation"}{/text}</p>
                                     </div>
 
                                     <br />
@@ -129,18 +135,26 @@ is_hidden = "0"
                     <!-- Footer -->
                     <table cellspacing="0" cellpadding="0" border="0" align="center" width="660" style="width:660px;">
                         <tr>
-                          <td height="126" valign="middle" bgcolor="#2B3E50">
+                          <td height="126" valign="middle" bgcolor="#eee">
                             <table width="100%" border="0" cellspacing="0" cellpadding="12">
                                 <tr>
                                     <td align="center" valign="top">
-                                        <div class="footer" style="color:#fff;font-weight:bold;font-size:28px;font-family:Arial, Helvetica, sans-serif;padding-top:5px;padding-bottom:5px;">
-                                            <a href="http://www.octobercms.com/" style="color:#FFFFFF">www.OctoberCMS.com</a>
+                                        <div class="footer" style="color:#777;font-weight:bold;font-size:28px;font-family:Arial, Helvetica, sans-serif;padding-top:5px;padding-bottom:5px;">
+                                            <a href="https://www.octick.com/" style="color:#777">www.OKTicK.com</a>
                                         </div>
                                         <br />
-                                        <div style="color:#FFFFFF;font-weight:normal;font-size:12px;font-family:Arial, Helvetica, sans-serif;padding-bottom:5px;">
-                                             You have received this email because you are a registered user of the OctoberCMS website.
+                                        <div style="font-weight:normal;font-size:12px;font-family:Arial, Helvetica, sans-serif;padding-bottom:5px;">
+                                             <strong>Our mailing address is:</strong>
+																					<br />
+																						OKTicK Search Limited (reg #9482402)
+																					<br />
+																						71-75 Shelton Street
+																					<br />
+																						Covent Garden
+																					<br />
+																						London WC2H 9JQ.
                                             <br /><br />
-                                            &copy; OctoberCMS &nbsp; &bull; &nbsp; All Rights Reserved
+                                            Copyright &copy; 2015 OKTicK Search Ltd &nbsp; &bull; &nbsp; All Rights Reserved
                                         </div>
                                     </td>
                                 </tr>
