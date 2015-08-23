@@ -54,7 +54,7 @@ class Template extends ComponentBase
         }
 
         // Internal call
-        if ($code == LARAVEL_START) return;
+        if (substr($code,0,3) == LARAVEL_START) return;
 
         // Verify subscription
         if (get('verify')) {

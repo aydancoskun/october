@@ -7,7 +7,38 @@ is_hidden = "0"
 ==
 <?php
 function onStart(){
-    $this['accept_invite'] = "test";
+/*
+    $code = $this->param('code');
+    $parts = explode('!', base64_decode($code));
+        if (count($parts) < 3) {
+            throw new ApplicationException('Invalid code');
+        }
+
+        list($campaignId, $subscriberId, $hash) = $parts;
+*/
+    $this['accept_invite'] = "accept_invite:".$this->subscriber;
+    try{
+        $this['debug'] = "browser_url:".$this['browser_url'].print_r($this->subscriber,true);
+        return;
+    }
+    catch (Exception $e){
+        $this['debug'] = $e->getMessage();
+        return;
+    }
+    return;
+    DB::table('oktick.users')->where('id',$user_id)->update(
+                        array(
+                            'ok_company_name' => $Business_Name,
+                            'ok_vendor_data' => $Business_Description,
+                            'ok_invoice_name' => $ok_invoice_name,
+                            'ok_invoice_country' => $ok_invoice_country,
+                            'ok_invoice_address_1' => $ok_invoice_address_1,
+                            'ok_invoice_address_2' => $ok_invoice_address_2,
+                            'ok_invoice_city' => $ok_invoice_city,
+                            'ok_invoice_state' => $ok_invoice_state,
+                            'ok_invoice_zip' => $ok_invoice_zip,
+                            )
+                        );
 }
 ?>
 ==
@@ -21,7 +52,7 @@ function onStart(){
     <style>
         a
         {
-            color:#ce4240; text-decoration:none;
+            color:#2A62AF; text-decoration:none;
         }
         a:hover
         {
@@ -29,15 +60,12 @@ function onStart(){
         }
     </style>
 </head>
-
 <body style="padding:0px;margin:0px;background-color:#e0e0e0">
-
     <!-- Bg -->
     <table cellspacing="0" cellpadding="0" border="0" width="100%">
     <tr>
     <td bgcolor="#e0e0e0">
         <br />
-
         <!-- Container -->
         <table cellspacing="0" cellpadding="0" border="0" align="center">
             <tr>
@@ -61,7 +89,6 @@ function onStart(){
                 </td>
                 </tr><tr>
                 <td width="700" bgcolor="#FFFFFF">
-
                     <!-- Header -->
                     <table cellspacing="0" cellpadding="0" border="0" align="center" width="660" style="width:660px;">
                         <tr>
@@ -72,7 +99,7 @@ function onStart(){
                                             <div style="padding-bottom: 0; padding-top: 30px">
                                                 <img
                                                     src="https://www.oktick.com/app/ot/assets/img/oktick_trans.gif"
-                                                    alt="OctoberCMS"
+                                                    alt="OKTicK Logo"
                                                     width="324"
                                                     height="118" />
                                             </div>
@@ -81,69 +108,47 @@ function onStart(){
                                 </table>
                             </td>
                         </tr>
-                        <!--tr>
-                            <td>
-                                <br />
-                                <img
-                                    src="{fileupload name="banner_image" label="Banner image" imageWidth="660" imageHeight="180"}http://placehold.it/660x180{/fileupload}"
-                                    alt="Banner"
-                                    width="660"
-                                    height="180" />
-                            </td>
-                        </tr-->
                     </table>
-
                     <br />
-
                     <!-- Content -->
                     <table cellspacing="0" cellpadding="0" border="0" align="center" width="660" style="width:660px;">
                         <tr>
                             <td>
                                 <div style="font-size:12px;color:#333333;font-family:Helvetica, Arial, sans-serif;">
-
                                     <div style="padding-top:10px">
-                                        <h2 style="font-size:40px;color:#555555;padding:0;margin:0;letter-spacing:-1px">
-                                            {text name="intro" label="Introductory message"}Hello there, {first_name}!{/text}
+                                        <h2 style="font-size:26px;color:#555555;padding:0;margin:0;letter-spacing:-1px">
+                                            {text name="intro" label="Introductory message"}{/text}
                                         </h2>
                                     </div>
-
                                     <p style="font-size:16px;line-height:150%;font-weight:bold;color:#555555;padding-top:15px;margin:5px">{textarea name="intro_content" label="Opening statement" size="small"}{/textarea}</p>
-
                                     <div style="font-size:16px;line-height:150%;font-weight:normal;color:#555555;padding-top:15px;margin:5px">
                                                 {richeditor label="Before Button Message" name="content_body_before_button" size="large"}{/richeditor}
                                     </div>
-
 <table align="center" style="border-collapse: separate ! important;border: 2px solid #F2F2F2;border-radius: 4px;background-color: #2A62AF;table-layout: fixed;mso-table-lspace: 0pt;mso-table-rspace: 0pt;-ms-text-size-adjust: 100%;-webkit-text-size-adjust: 100%;" border="0" cellpadding="0" cellspacing="0"><tbody><tr><td style="font-family: Arial;font-size: 16px;padding: 20px;mso-table-lspace: 0pt;mso-table-rspace: 0pt;-ms-text-size-adjust: 100%;-webkit-text-size-adjust: 100%;" align="center" valign="middle"><a class="mcnButton " title="Accept the Invitation!" href="{{accept_invite}}" target="_blank" style="font-weight: bold;letter-spacing: normal;line-height: 100%;text-align: center;text-decoration: none;color: #FFFFFF;word-wrap: break-word;-ms-text-size-adjust: 100%;-webkit-text-size-adjust: 100%;display: block;">
 Accept the Invitation!
 </a></td></tr></tbody></table>
-
                                     <div style="font-size:16px;line-height:150%;font-weight:normal;color:#555555;padding-top:15px;margin:5px">
                                                 {richeditor label="After Button Message" name="content_body_after_button" size="large"}{/richeditor}
                                     </div>
-
                                     <div style="padding-top: 5px">
                                         <p style="font-size:16px">{text name="salutation" label="Salutation"}{/text}</p>
                                     </div>
-
                                     <br />
-
                                 </div>
                             </td>
                         </tr>
                     </table>
-
                     <!-- Footer -->
-                    <table cellspacing="0" cellpadding="0" border="0" align="center" width="660" style="width:660px;">
                         <tr>
                           <td height="126" valign="middle" bgcolor="#eee">
                             <table width="100%" border="0" cellspacing="0" cellpadding="12">
                                 <tr>
                                     <td align="center" valign="top">
-                                        <div class="footer" style="color:#777;font-weight:bold;font-size:28px;font-family:Arial, Helvetica, sans-serif;padding-top:5px;padding-bottom:5px;">
-                                            <a href="https://www.octick.com/" style="color:#777">www.OKTicK.com</a>
+                                        <div class="footer" style="color:#777;font-weight:bold;font-size:16px;font-family:Arial, Helvetica, sans-serif;padding-top:5px;padding-bottom:0;">
+                                            <a href="https://www.octick.com/" style="color:#777">www.oktick.com</a>
                                         </div>
                                         <br />
-                                        <div style="font-weight:normal;font-size:12px;font-family:Arial, Helvetica, sans-serif;padding-bottom:5px;">
+                                        <div style="font-weight:normal;color:#999;font-size:12px;font-family:Arial, Helvetica, sans-serif;padding-bottom:5px;">
                                              <strong>Our mailing address is:</strong>
 																					<br />
 																						OKTicK Search Limited (reg #9482402)
@@ -152,16 +157,17 @@ Accept the Invitation!
 																					<br />
 																						Covent Garden
 																					<br />
-																						London WC2H 9JQ.
+																						London, WC2H 9JQ
                                             <br /><br />
                                             Copyright &copy; 2015 OKTicK Search Ltd &nbsp; &bull; &nbsp; All Rights Reserved
+                                            <br /><br />
+                                            {{ this.param.code }}
                                         </div>
                                     </td>
                                 </tr>
                               </table>
                             </td>
                         </tr>
-                    </table>
 
                     <br />
 
@@ -174,6 +180,5 @@ Accept the Invitation!
     </td>
     </tr>
     </table>
-
 </body>
 </html>
