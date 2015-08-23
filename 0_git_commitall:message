@@ -3,5 +3,6 @@ rm -rf storage/cms/cache/*
 rm -rf storage/cms/twig/*
 rm -rf storage/framework/cache/*
 rm -rf storage/temp/*
+rm -rf storage/debugbar/*
 
 git add -A && git commit -a -m "$1" && git push origin master
