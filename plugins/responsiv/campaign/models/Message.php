@@ -392,11 +392,15 @@ class Message extends Model
         );
 
 
-//// start of my modifications
-
+/******************************************
+/ start of my modifications
+/*****************************************/
         // Inject company_name
         $data = DB::table('users')->where('id', $subscriber->id)->first();
         $result = str_replace('[[company_name]]',$data->company,$result);
+
+        // Inject accept_invite_link
+        $result = str_replace('[[accept_invite_code]]',$data->activation_code,$result,$result);
 
         // Inject sample_products
         $products = DB::table('operations.bp_suppliers')

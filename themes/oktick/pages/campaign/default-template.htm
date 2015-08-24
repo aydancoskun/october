@@ -5,43 +5,6 @@ is_hidden = "0"
 
 [campaignTemplate]
 ==
-<?php
-function onStart(){
-/*
-    $code = $this->param('code');
-    $parts = explode('!', base64_decode($code));
-        if (count($parts) < 3) {
-            throw new ApplicationException('Invalid code');
-        }
-
-        list($campaignId, $subscriberId, $hash) = $parts;
-*/
-    $this['accept_invite'] = "accept_invite:".$this->subscriber;
-    try{
-        $this['debug'] = "browser_url:".$this['browser_url'].print_r($this->subscriber,true);
-        return;
-    }
-    catch (Exception $e){
-        $this['debug'] = $e->getMessage();
-        return;
-    }
-    return;
-    DB::table('oktick.users')->where('id',$user_id)->update(
-                        array(
-                            'ok_company_name' => $Business_Name,
-                            'ok_vendor_data' => $Business_Description,
-                            'ok_invoice_name' => $ok_invoice_name,
-                            'ok_invoice_country' => $ok_invoice_country,
-                            'ok_invoice_address_1' => $ok_invoice_address_1,
-                            'ok_invoice_address_2' => $ok_invoice_address_2,
-                            'ok_invoice_city' => $ok_invoice_city,
-                            'ok_invoice_state' => $ok_invoice_state,
-                            'ok_invoice_zip' => $ok_invoice_zip,
-                            )
-                        );
-}
-?>
-==
 <!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN"
    "http://www.w3.org/TR/html4/loose.dtd">
 
@@ -110,25 +73,27 @@ function onStart(){
                         </tr>
                     </table>
                     <br />
+                    
                     <!-- Content -->
                     <table cellspacing="0" cellpadding="0" border="0" align="center" width="660" style="width:660px;">
                         <tr>
                             <td>
                                 <div style="font-size:12px;color:#333333;font-family:Helvetica, Arial, sans-serif;">
                                     <div style="padding-top:10px">
-                                        <h2 style="font-size:26px;color:#555555;padding:0;margin:0;letter-spacing:-1px">
-                                            {text name="intro" label="Introductory message"}{/text}
-                                        </h2>
+                                        <h2 style="font-size:26px;color:#555555;padding:0;margin:0;letter-spacing:-1px">[[company_name]]</h2>
                                     </div>
-                                    <p style="font-size:16px;line-height:150%;font-weight:bold;color:#555555;padding-top:15px;margin:5px">{textarea name="intro_content" label="Opening statement" size="small"}{/textarea}</p>
+                                    <p style="font-size:16px;line-height:150%;font-weight:bold;color:#555555;padding-top:15px;margin:5px">OKTicK - the first Direct Search Engine. It is the next generation approach to easily making your presence, products and services known on the internet.</p>
                                     <div style="font-size:16px;line-height:150%;font-weight:normal;color:#555555;padding-top:15px;margin:5px">
-                                                {richeditor label="Before Button Message" name="content_body_before_button" size="large"}{/richeditor}
+                                                Our semi-automated system has determined that the list below are some of the goods and/or services you are supplying:<br /><br />
+                                                [[sample_products]]<br /><br />
+                                                We found a total of [[number_products_found]] products or services for your company.<br /><br />
+                                                OKTicK is free to be on for all legitimate suppliers. Please check it out today. Just by accepting this invitation alone you will improve the listing of your products & services in search results.<br />
                                     </div>
-<table align="center" style="border-collapse: separate ! important;border: 2px solid #F2F2F2;border-radius: 4px;background-color: #2A62AF;table-layout: fixed;mso-table-lspace: 0pt;mso-table-rspace: 0pt;-ms-text-size-adjust: 100%;-webkit-text-size-adjust: 100%;" border="0" cellpadding="0" cellspacing="0"><tbody><tr><td style="font-family: Arial;font-size: 16px;padding: 20px;mso-table-lspace: 0pt;mso-table-rspace: 0pt;-ms-text-size-adjust: 100%;-webkit-text-size-adjust: 100%;" align="center" valign="middle"><a class="mcnButton " title="Accept the Invitation!" href="{{accept_invite}}" target="_blank" style="font-weight: bold;letter-spacing: normal;line-height: 100%;text-align: center;text-decoration: none;color: #FFFFFF;word-wrap: break-word;-ms-text-size-adjust: 100%;-webkit-text-size-adjust: 100%;display: block;">
+<table align="center" style="border-collapse: separate ! important;border: 2px solid #F2F2F2;border-radius: 4px;background-color: #2A62AF;table-layout: fixed;mso-table-lspace: 0pt;mso-table-rspace: 0pt;-ms-text-size-adjust: 100%;-webkit-text-size-adjust: 100%;" border="0" cellpadding="0" cellspacing="0"><tbody><tr><td style="font-family: Arial;font-size: 16px;padding: 20px;mso-table-lspace: 0pt;mso-table-rspace: 0pt;-ms-text-size-adjust: 100%;-webkit-text-size-adjust: 100%;" align="center" valign="middle"><a class="mcnButton " title="Accept the Invitation!" href="https://www.oktick.com/activation/[[accept_invite_code]]" target="_blank" style="font-weight: bold;letter-spacing: normal;line-height: 100%;text-align: center;text-decoration: none;color: #FFFFFF;word-wrap: break-word;-ms-text-size-adjust: 100%;-webkit-text-size-adjust: 100%;display: block;">
 Accept the Invitation!
 </a></td></tr></tbody></table>
                                     <div style="font-size:16px;line-height:150%;font-weight:normal;color:#555555;padding-top:15px;margin:5px">
-                                                {richeditor label="After Button Message" name="content_body_after_button" size="large"}{/richeditor}
+                                        Once you accept the invitation you will be able to view, edit and add to the entire list of the products and services we have found for your company and to represent your companies products to 1000s of customers.
                                     </div>
                                     <div style="padding-top: 5px">
                                         <p style="font-size:16px">{text name="salutation" label="Salutation"}{/text}</p>
@@ -161,7 +126,6 @@ Accept the Invitation!
                                             <br /><br />
                                             Copyright &copy; 2015 OKTicK Search Ltd &nbsp; &bull; &nbsp; All Rights Reserved
                                             <br /><br />
-                                            {{ this.param.code }}
                                         </div>
                                     </td>
                                 </tr>
