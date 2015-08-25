@@ -135,7 +135,7 @@ return array(
 
         // 'Str' => 'Illuminate\Support\Str', // Example
 	// 'Yaml' => 'symfony\yaml\Symfony\Component\Yaml',
-//	'PDF' => 'Barryvdh\DomPDF\Facade',
+        // 'PDF' => 'Barryvdh\DomPDF\Facade',
 	'DNS1D' => 'Dinesh\Barcode\Facades\DNS1DFacade',
 	'DNS2D' => 'Dinesh\Barcode\Facades\DNS2DFacade',
     )),
