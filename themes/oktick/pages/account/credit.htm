@@ -67,7 +67,7 @@ function onStart(){
 
             $amt1=100;$amt2=200;$amt3=500;$amt4=1000;$amt5=10000;
 
-            $pri1=15;$pri2=25 ;$pri3=55 ;$pri4=100;$pri5=1000;
+            //$pri1=15;$pri2=25 ;$pri3=55 ;$pri4=100;$pri5=1000;
 
         }
 
@@ -376,8 +376,8 @@ function onStart(){
 <script type="text/javascript">
     function has_selected(option,e){
         e.preventDefault();
-        var  amount = ["{{amount[1]}}", "{{amount[1]}}","{{amount[2]}}", "{{amount[3]}}","{{amount[4]}}","{{amount[5]}}"];
-        var  price = ["FREE", "{{price[1]}}","{{price[2]}}", "{{price[3]}}","{{price[4]}}","{{price[5]}}"];
+        var  amount = ["ERROR", "{{amount[1]}}","{{amount[2]}}", "{{amount[3]}}","{{amount[4]}}","{{amount[5]}}"];
+        var  price = ["ERROR" , "{{price[1]}}","{{price[2]}}", "{{price[3]}}","{{price[4]}}","{{price[5]}}"];
         var selected_amount=amount[option];
         var selected_price=price[option];
         if(isNumeric(selected_price) && selected_price != 0 ){
@@ -521,7 +521,7 @@ function onStart(){
                 </p>
             </div>
         </div>
-        {%if ok_purchase_number == 0 %}<p class="text-center">Free package<br>first time you<br>add credits.<br>Normally<br>{{list_amount[1]}} Credits<br>£{{list_price[1]}}.</p>{% endif %}
+        {%if ok_purchase_number == 0 %}<p class="text-center">Double value<br>first time you<br>add credits.<br>Normally<br>{{list_amount[1]}} Credits<br>£{{list_price[1]}}.</p>{% endif %}
     </div>
     <div class="col-md-2">
         <div class="thumbnail payment_options_div" onclick="has_selected(2,event);">
@@ -574,7 +574,7 @@ function onStart(){
                 <h3 class="text-center">Platinum</h3>
                 <p class="lead text-center">{{amount[5]}}<br>Credits<br>£{{price[5]}}</p>
                 <p class="text-center">
-                    <a href="" class="btn btn-primary" onclick="has_selected(3,event);">Select</a>
+                    <a href="" class="btn btn-primary" onclick="has_selected(5,event);">Select</a>
                 </p>
             </div>
         </div>
