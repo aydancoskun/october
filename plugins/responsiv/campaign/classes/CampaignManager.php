@@ -108,7 +108,11 @@ class CampaignManager
     public function sendToSubscriber($campaign, $subscriber)
     {
         $html = $campaign->renderForSubscriber($subscriber);
-        $text = $this->getTextMessage($campaign->getBrowserUrl($subscriber));
+        // to strip all tags and wrap italics with underscore
+//        $text = strip_tags(str_replace(array("<i>", "</i>"), array("_", "_"), $html));
+        // to preserve anchors...
+        $text = str_replace("|a", "<a", strip_tags(str_replace("<a", "|a", $html)));
+//        $text = $this->getTextMessage($campaign->getBrowserUrl($subscriber));
         Mail::rawTo($subscriber, ['html' => $html, 'text' => $text], function($message) use ($campaign) {
             $message->subject($campaign->subject);
         });
