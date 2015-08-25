@@ -33,7 +33,8 @@
 	"stripe/stripe-php": "2.*",
 	"dompdf/dompdf" : "0.6.*",
 	"barryvdh/laravel-dompdf": "0.5.*",
-	"dinesh/barcode": "5.0.*@dev"
+	"dinesh/barcode": "5.0.*@dev",
+	"soundasleep/html2text": "~0.2"
     },
     "autoload-dev": {
         "classmap": [

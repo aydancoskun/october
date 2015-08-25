@@ -397,10 +397,10 @@ class Message extends Model
 /*****************************************/
         // Inject company_name
         $data = DB::table('users')->where('id', $subscriber->id)->first();
-        $result = str_replace('[[company_name]]',$data->ok_company_name,$result);
+        $result = str_replace('__company__',$data->ok_company_name,$result);
 
         // Inject accept_invite_link
-        $result = str_replace('[[accept_invite_code]]',$data->activation_code,$result,$result);
+        $result = str_replace('__accept_invite_code__',$data->activation_code,$result,$result);
 
         // Inject sample_products
         $products = DB::table('operations.bp_suppliers')
@@ -412,10 +412,10 @@ class Message extends Model
             $sample_products .= $sample_products_counter.". $product<br \>\n";
             if ($sample_products_counter++ > 10) break;
         }
-        $result = str_replace('[[sample_products]]',$sample_products,$result);
+        $result = str_replace('__sample_products__',$sample_products,$result);
 
         // Inject number_products_found
-        $result = str_replace('[[number_products_found]]',count($products),$result);
+        $result = str_replace('__number_products_found__',count($products),$result);
 
         return $result;
     }
