@@ -397,7 +397,7 @@ class Message extends Model
 /*****************************************/
         // Inject company_name
         $data = DB::table('users')->where('id', $subscriber->id)->first();
-        $result = str_replace('[[company_name]]',$data->company,$result);
+        $result = str_replace('[[company_name]]',$data->ok_company_name,$result);
 
         // Inject accept_invite_link
         $result = str_replace('[[accept_invite_code]]',$data->activation_code,$result,$result);
