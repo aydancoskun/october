@@ -4,6 +4,12 @@ layout = "main"
 is_hidden = "0"
 ==
 <?php
+function onInit(){
+    $time = Request::segment(3);
+    if($time=="details") $this['activation']=true;
+    else $this['activation']=false;
+}
+
 function onStart() {
     try{
         $this['invoices']= DB::select(
@@ -87,8 +93,13 @@ function onSave() {
                             'ok_invoice_zip' => $ok_invoice_zip,
                             )
     );
-    Flash::success("Settings Saved.");
-    return redirect('/account/company/'.time());
+    if($this['activation']){
+        Flash::success("Thank you. You are now ready to go.");
+        return redirect('/account/products-services');
+    } else {
+        Flash::success("Settings Saved.");
+        return redirect('/account/company/'.time());
+    }
 //    $to = System\Models\MailSettings::get('sender_email');
 //    $params = compact('website','name','email');
 //    Mail::sendTo($to, 'yourappname.website::mail.contactform', $params);
@@ -108,9 +119,17 @@ function onSave() {
     <div class="col-xs-12 col-md-8">
         <div id="ok_help_company" {% if user.ok_help_company==0 %}class="collapse"{% endif %} >
             <p>{{"&nbsp;&nbsp;&nbsp;"|raw}}</p>
-                <p>On this page you can amend your business details.</p>
-                <p>Once you purchased credits this page will give you the possibility to edit your invoice details.</p>
-                <p>Once you have provided your invoice details you can generate invoices for any credit purchases.</p>
+{% if activation %}
+            <p>Welcome to OKTicK!</p>
+            <p>On this page you should amend your business details so they show up correctly when searchers find you.</p>
+{% else %}    
+    {% if not invoices %}
+            <p>On this page you should amend your business details so they show up correctly when searchers find you.</p>
+    {% else %}    
+            <p>On this page you can amend your business details so they show up correctly when searchers find you.</p>
+            <p>You should also ensure your invoicing details are correct so you can generate correct invoices for credit purchases.</p>
+    {% endif %}    
+{% endif %}    
             <div class="text-center">
                 <button id="ok_help_company_off" class="btn btn-default btn-sm help"><span class="glyphicon glyphicon-primary glyphicon-thumbs-up"></span>&nbsp;Got it!</button>
                 <br>
@@ -130,10 +149,10 @@ function onSave() {
         <form data-request="onSave">
             <div class="form-group input-group-lg">
                 <label for="Business_Name">Business Display Name<br><small></small></label>
-                <input type="text" class="form-control" id="Business_Name" placeholder="www.example.com" value="{{ user.ok_company_name }}" name="Business_Name">
+                <input type="text" class="form-control" id="Business_Name" placeholder='E.g. "Tim Taylor Tinker Ltd"' value="{{ user.ok_company_name }}" name="Business_Name">
             </div>
             <div class="form-group input-group-lg">
-                <label for="Business_Description">Business Description<br><small>When you are listed out in a search, apart from your business name this will be what potential customers will see. Therefore you should tell them what goods you sell and services you provide (max 128 letters)</small></label>
+                <label for="Business_Description">Business Description<br><small>When you are listed in a search result, apart from your business name this will be what potential customers will see. Therefore you should tell them what goods you sell and services you provide (max 128 letters)</small></label>
                 <input type="text" class="form-control" id="Business_Description" placeholder="E.g. &quot;stainless steel & exotic alloy valves&quot; or &quot;oak & pinewood furniture&quot;" value="{{ user.ok_vendor_data }}" name="Business_Description">
             </div>
             <br>
