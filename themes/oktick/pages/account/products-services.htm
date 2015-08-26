@@ -212,13 +212,14 @@ function onProductAdd(){
             <p>{{"&nbsp;&nbsp;&nbsp;"|raw}}</p>
             <p>Welcome to OKTicK!</p>
             <p>On this page you can see the list of all products or services we have on record for your business.</p>
-            <p>{% if user.ok_purchase_number < 1 %}Because these were collected by our semi-automatic system there may be occassional errors. We suggest you don't worry about this to begin with, but rest assured that you can add and delete any items at any time.</p>
+{% if user.ok_purchase_number < 1 %}
+            <p>Because these were automatically collected by our system there may be occassional errors. We suggest you don't worry about this to begin with, but rest assured that you can add and delete any items at any time.</p>
             <p>You can elevate your standing on the OKTicK search results by clicking on the "Rankings" page above. For this purpose we have have given you 2 free credits.</p>
-            {% else %}
-            If any are incorrect you can delete them using the delete <button type="button" class="btn btn-delete btn-danger btn-xs"><span class="glyphicon glyphicon-trash"></span></button> button and confirming your choice.</p>
+{% else %}
+            <p>If any are incorrect you can delete them using the delete <button type="button" class="btn btn-delete btn-danger btn-xs"><span class="glyphicon glyphicon-trash"></span></button> button and confirming your choice.</p>
             <p>If you find products or services your business provides are missing from this list, you can add them using the first row. Just enter your item, select your choice from the list and click the <button class="btn btn-success btn-xs"><span class="glyphicon glyphicon-ok"></span></button> button. If you cannot find it on the standard list add it anyway writing it as you normally would. Please note we only accept generic or general designations; trade and service marks are not permitted. Ideally products and services should not be more than three to four words.</p>
             <p>Each products and/or services you propose to add will be shown below your current products in a "Products & Services pending approval" section which appears when you have products pending approval. If you made an error you can delete any pending item. The reason items are not immediately available is because they have to be verified by the OKTicK Team which will be done as quickly as possible depending upon volume of traffic.</p>
-            {% endif %}
+{% endif %}
             <p>If you don't need this notice any further, click below. You can always re-enable it later by clicking the <span class="glyphicon-primary glyphicon glyphicon-question-sign"></span> sign above.</p>
             <div class="text-center">
                 <button id="ok_help_productservices_off" class="btn btn-default btn-sm help"><span class="glyphicon glyphicon-primary glyphicon-thumbs-up"></span>&nbsp;Got it!</button>

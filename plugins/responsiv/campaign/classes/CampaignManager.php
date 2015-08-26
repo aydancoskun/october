@@ -7,7 +7,7 @@ use Responsiv\Campaign\Models\Subscriber;
 use Responsiv\Campaign\Models\MessageStatus;
 use Carbon\Carbon;
 use ApplicationException;
-use Html2Text;
+use Html2Text\Html2Text;
 
 class CampaignManager
 {
@@ -109,7 +109,7 @@ class CampaignManager
     public function sendToSubscriber($campaign, $subscriber)
     {
         $html = $campaign->renderForSubscriber($subscriber);
-        $text = Html2Text\Html2Text::convert(str_replace(array("\r", "\n"), "", $html));
+        $text = Html2Text::convert(str_replace(array("\r", "\n"), "", $html));
 //        $text = $this->getTextMessage($campaign->getBrowserUrl($subscriber));
         Mail::rawTo($subscriber, ['html' => $html, 'text' => $text], function($message) use ($campaign) {
         $message->subject($campaign->subject);
