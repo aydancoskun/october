@@ -175,7 +175,7 @@ class Template extends ComponentBase
         }
 
         $pivot = $this->subscriber->pivot;
-        if (! $pivot->stop_at) {
+        if ($pivot->stop_at) {
             $already="done";
 //            return 'You are already unsubscribed from our mailing list!';
         }
