@@ -173,7 +173,7 @@ class Template extends ComponentBase
         }
 
         $pivot = $this->subscriber->pivot;
-        if ($pivot->stop_at) {
+        if (! $pivot->stop_at) {
             return 'You are already unsubscribed from our mailing list!';
         }
 
@@ -190,7 +190,7 @@ class Template extends ComponentBase
         $this->subscriber->save();
 
         // @todo Template + Language
-        return redirect('unsubscribe');
+        return redirect('https://ipi.oktick.com/unsubscribe/'.$this->subscriber->id);
         return '<html><head><title>Unsubscribe successful</title></head><body><h1>Unsubscribe successful</h1><p>Your email has been successfully unsubscribed from this list!</p></body></html>';
     }
 
