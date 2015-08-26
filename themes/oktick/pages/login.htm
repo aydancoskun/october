@@ -7,13 +7,6 @@ is_hidden = "0"
 redirect = "account/ranking"
 paramCode = "code"
 ==
-<?php
-function onStart(){
-    //\Debugbar::disable();
-    $this['nbsp'] = " ";
-}
-?>
-==
 {% partial "head" cssfile="oktick.css" %}
 {% partial "nav-top" %}
 <div class="container">
@@ -23,8 +16,6 @@ function onStart(){
         <h2 class="text-center">Login</h2>
         <br>
         <p class="text-justify">Please provide your credentials below.</p>
-        
-        
         <form data-request="onSignin">
             <div class="form-group input-group-lg">
                 <label for="userSigninLogin">Email</label>

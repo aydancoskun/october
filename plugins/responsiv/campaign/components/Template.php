@@ -168,14 +168,17 @@ class Template extends ComponentBase
 
     protected function handleUnsubscribe()
     {
+        $already="";
         if (!isset($this->subscriber->pivot)) {
+            $already="done";
 //            return 'You are already unsubscribed from our mailing list!';
         }
 
         $pivot = $this->subscriber->pivot;
         if (! $pivot->stop_at) {
+            $already="done";
 //            return 'You are already unsubscribed from our mailing list!';
-        } else {
+        }
 
         $pivot->stop_at = $this->campaign->freshTimestamp();
         $pivot->read_at = $this->campaign->freshTimestamp();
@@ -188,9 +191,11 @@ class Template extends ComponentBase
         $this->subscriber->confirmed_at = null;
         $this->subscriber->unsubscribed_at = $this->subscriber->freshTimestamp();
         $this->subscriber->save();
-        }
+
+        $hash = base64_encode($this->subscriber->id.'!' . md5($this->subscriber->id . '!' . $this->subscriber->email));
+
         // @todo Template + Language
-        return redirect('https://ipi.oktick.com/unsubscribe/'.$this->param('code'));
+        return redirect('/unsubscribe/'.$hash.$already);
         return '<html><head><title>Unsubscribe successful</title></head><body><h1>Unsubscribe successful</h1><p>Your email has been successfully unsubscribed from this list!</p></body></html>';
     }
 

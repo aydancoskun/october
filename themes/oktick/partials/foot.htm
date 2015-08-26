@@ -31,13 +31,13 @@ function onStart(){
     {% endif %}">
 </noscript>
 {% flash %}
-    <div id="top-alert" class="alert alert-{{ type == 'error' ? 'danger' : type }}">{{ message }}</div>
+    <div id="top-alert" class="slideup alert alert-{{ type == 'error' ? 'danger' : type }}">{{ message }}</div>
 {% endflash %}
-<script>$("#top-alert").delay(20000).slideUp(300);</script>
+<script>$(".slideup").delay(20000).slideUp(300);</script>
 <div id="cookie-lawe" class="collapse">
     <div>
         <h4 id="cookie-law-H4">We do use cookies on our site...</h4>
-        <p id="cookie-law-p">We use them to ensure that we give you the best user experience possible. If you continue without changing your browser's settings, we'll assume that you are happy to receive all those yummy cookies.</p>
+        <p id="cookie-law-p">We use them to ensure that we give you the best user experience possible. If you continue without changing your browser's settings, we'll assume that you are happy to receive them.</p>
         <a class="enlace text-center" href="/privacy-policy">Please see our privacy policy for full details on how we use cookies.</a>
         <a class="close-cookie-banner" href="javascript:void(0);" onclick="$(this).parent().parent().hide();createCookie(365,false);"><span>Close</span></a>
     </div>
