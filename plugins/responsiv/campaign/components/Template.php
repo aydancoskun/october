@@ -190,7 +190,7 @@ class Template extends ComponentBase
         $this->subscriber->save();
         }
         // @todo Template + Language
-        return redirect('https://ipi.oktick.com/unsubscribe/'.$this->subscriber->id);
+        return redirect('https://ipi.oktick.com/unsubscribe/'.$this->param('code'));
         return '<html><head><title>Unsubscribe successful</title></head><body><h1>Unsubscribe successful</h1><p>Your email has been successfully unsubscribed from this list!</p></body></html>';
     }
 
