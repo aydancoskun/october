@@ -73,7 +73,7 @@ function onStart(){
 
 function submit(){
     if(env("APP_ENV")=="production"){
-        $oktick_filter="AND c.uid <> 0 ";
+        $oktick_filter="AND c.id <> 0 ";
     } else {
         $oktick_filter="";
     }
