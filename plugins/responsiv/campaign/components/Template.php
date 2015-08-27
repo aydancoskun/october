@@ -178,19 +178,16 @@ class Template extends ComponentBase
                 $already="done";
                 // return 'You are already unsubscribed from our mailing list!';
             }
+            $pivot->stop_at = $this->campaign->freshTimestamp();
+            $pivot->read_at = $this->campaign->freshTimestamp();
+            $pivot->save();
+            $this->campaign->count_read++;
+            $this->campaign->count_stop++;
+            $this->campaign->save();
+            $this->subscriber->confirmed_at = null;
+            $this->subscriber->unsubscribed_at = $this->subscriber->freshTimestamp();
+            $this->subscriber->save();
         }
-
-        $pivot->stop_at = $this->campaign->freshTimestamp();
-        $pivot->read_at = $this->campaign->freshTimestamp();
-        $pivot->save();
-
-        $this->campaign->count_read++;
-        $this->campaign->count_stop++;
-        $this->campaign->save();
-
-        $this->subscriber->confirmed_at = null;
-        $this->subscriber->unsubscribed_at = $this->subscriber->freshTimestamp();
-        $this->subscriber->save();
 
         $hash = base64_encode($this->subscriber->id.'!' . md5($this->subscriber->id . '!' . $this->subscriber->email));
 
