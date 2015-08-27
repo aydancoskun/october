@@ -168,16 +168,8 @@ class Template extends ComponentBase
 
     protected function handleUnsubscribe()
     {
-        $already="";
-        if (!isset($this->subscriber->pivot)) {
-            $already="done";
-//            return 'You are already unsubscribed from our mailing list!';
-        } else {
+        if ( isset($this->subscriber->pivot) AND ! $this->subscriber->pivot->stop_at) {
             $pivot = $this->subscriber->pivot;
-            if ($pivot->stop_at) {
-                $already="done";
-                // return 'You are already unsubscribed from our mailing list!';
-            }
             $pivot->stop_at = $this->campaign->freshTimestamp();
             $pivot->read_at = $this->campaign->freshTimestamp();
             $pivot->save();
@@ -187,6 +179,9 @@ class Template extends ComponentBase
             $this->subscriber->confirmed_at = null;
             $this->subscriber->unsubscribed_at = $this->subscriber->freshTimestamp();
             $this->subscriber->save();
+            $already="";
+        } else {
+            $already="done";
         }
 
         $hash = base64_encode($this->subscriber->id.'!' . md5($this->subscriber->id . '!' . $this->subscriber->email));
