@@ -118,11 +118,11 @@ function onSave() {
     <div class="col-xs-0 col-md-2"></div>
     <div class="col-xs-12 col-md-8">
         <div id="ok_help_company" {% if user.ok_help_company==0 %}class="collapse"{% endif %} >
-            <p>{{"&nbsp;&nbsp;&nbsp;"|raw}}</p>
 {% if activation %}
-            <p>Welcome to OKTicK!</p>
+            <h4 class="text-center"><strong>Welcome to OKTicK!</strong></h4>
             <p>On this page you should amend your business details so they show up correctly when searchers find you.</p>
 {% else %}    
+            <p>{{"&nbsp;&nbsp;&nbsp;"|raw}}</p>
     {% if not invoices %}
             <p>On this page you should amend your business details so they show up correctly when searchers find you.</p>
     {% else %}    

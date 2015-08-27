@@ -1,7 +1,10 @@
-        <form data-request="{{ __SELF__ }}::onRestorePassword" data-request-update="'{{ __SELF__ }}::reset': '#partialUserResetForm'">
-            <div class="form-group input-group-lg">
-                <label for="userRestoreEmail">Email</label>
-                <input name="email" type="email" class="form-control" id="userRestoreEmail" placeholder="Enter your email address">
-            </div>
-            <button type="submit" class="btn btn-primary center-block btn-lg">Start Reset</button>
-        </form>
+[viewBag]
+==
+<p class="text-justifiedd">If you forgotten your password, enter your email address to start the password reset process. We will then send you an email with a reset link/code which you can use to reset your password.</p>
+<form data-request="{{ __SELF__ }}::onRestorePassword" data-request-update="'{{ __SELF__ }}::reset': '#partialUserResetForm'">
+    <div class="form-group input-group-lg">
+        <label for="userRestoreEmail">Email</label>
+        <input name="email" type="email" class="form-control" id="userRestoreEmail" placeholder="Enter your email address">
+    </div>
+    <button type="submit" class="btn btn-primary center-block btn-lg">Start Reset</button>
+</form>
