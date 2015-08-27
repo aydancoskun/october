@@ -209,13 +209,40 @@ function onProductAdd(){
     <!--div class="col-xs-1 col-md-1"></div>
     <div class="col-xs-10 col-md-10"-->
         <div id="ok_help_productservices" {% if user.ok_help_productservices==0 %}class="collapse"{% endif %} >
-            <p>{{"&nbsp;&nbsp;&nbsp;"|raw}}</p>
 {% if user.ok_purchase_number < 1 %}
-            <p>Welcome to OKTicK!</p>
+            <h4 class="text-center"><strong>Welcome to OKTicK!</strong></h4>
             <p>On this page you can see the list of all products or services we have on record for your business.</p>
             <p>Because these were automatically collected by our system there may be occassional errors. We suggest you don't worry about this to begin with, but rest assured that you can add and delete any items at any time.</p>
-            <p>You can elevate your standing on the OKTicK search results by clicking on the "Rankings" page above. For this purpose we have have given you 2 free credits.</p>
+            <p>You can elevate your standing on the OKTicK search results by clicking on the "Rankings" menu item above. For this purpose we have have given you free credits to work with. You can see at any time how many you have remaining by looking at the badge <span
+                            id="ok_credits"
+                            class="badge {% if user.ok_credits|round(2, 'common') > 0 %}badge-success{%else%}badge-primary{% endif %} badge-menu"
+                            data-toggle="tooltip"
+                            data-trigger="hover"
+                            data-placement="bottom"
+                            title="Number of credits"
+                            data-content="This shows the number of credits you have on account and available to place on products and services"
+                            data-value="{% if user.ok_credits %}{{user.ok_credits}}{%else%}0{% endif %}">{% if user.ok_credits and user.ok_credits > 0 %}{{ user.ok_credits|round(2, 'common') }}{%else%}0{% endif %}</span> next to "Credits" menu item.</p>
+            <p>You can see how many items we hold for your business by looking at the badge <span
+                            id="badge_total"
+                            class="badge {% if user.ok_company_products_count %}badge-success{%else%}badge-primary{% endif %} badge-menu"
+                            data-toggle="tooltip"
+                            data-trigger="hover"
+                            data-placement="bottom"
+                            title="Total number of products and services on the system"
+                            data-content="Total Number of products on system">
+                        {% if user.ok_company_products_count %}{{user.ok_company_products_count}}{%else%}0{% endif %}
+                            </span> next to the "Products &amp; Services" menu item.</p>
+            <p>You can see how many items you are elevating (by applying credit) by looking at the badge <span
+                            id="badge_active"
+                            class="badge {% if user.ok_sponored_products_count %}badge-success{%else%}badge-primary{% endif %} badge-menu"
+                            data-toggle="tooltip"
+                            data-trigger="hover"
+                            data-placement="bottom"
+                            title="Number of elevated Products and Services">
+                        {% if user.ok_sponored_products_count %}{{user.ok_sponored_products_count}}{%else%}0{% endif %}
+                            </span> next to the "Rankings" menu item.</p>
 {% else %}
+            <p>{{"&nbsp;&nbsp;&nbsp;"|raw}}</p>
             <p>On this page you can see the list of all products or services we have on record for your business.</p>
             <p>If any are incorrect you can delete them using the delete <button type="button" class="btn btn-delete btn-danger btn-xs"><span class="glyphicon glyphicon-trash"></span></button> button and confirming your choice.</p>
             <p>If you find products or services your business provides are missing from this list, you can add them using the first row. Just enter your item, select your choice from the list and click the <button class="btn btn-success btn-xs"><span class="glyphicon glyphicon-ok"></span></button> button. If you cannot find it on the standard list add it anyway writing it as you normally would. Please note we only accept generic or general designations; trade and service marks are not permitted. Ideally products and services should not be more than three to four words.</p>
