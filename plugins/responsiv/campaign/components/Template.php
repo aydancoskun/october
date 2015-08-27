@@ -172,12 +172,12 @@ class Template extends ComponentBase
         if (!isset($this->subscriber->pivot)) {
             $already="done";
 //            return 'You are already unsubscribed from our mailing list!';
-        }
-
-        $pivot = $this->subscriber->pivot;
-        if ($pivot->stop_at) {
-            $already="done";
-//            return 'You are already unsubscribed from our mailing list!';
+        } else {
+            $pivot = $this->subscriber->pivot;
+            if ($pivot->stop_at) {
+                $already="done";
+                // return 'You are already unsubscribed from our mailing list!';
+            }
         }
 
         $pivot->stop_at = $this->campaign->freshTimestamp();
