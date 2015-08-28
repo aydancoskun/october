@@ -34,8 +34,14 @@
 	"dompdf/dompdf" : "0.6.*",
 	"barryvdh/laravel-dompdf": "0.5.*",
 	"dinesh/barcode": "5.0.*@dev",
-	"soundasleep/html2text": "~0.2"
+	"leancode/html2text": "*"
     },
+    "repositories":[
+        {
+        "url": "https://github.com/leancode/html2text.git",
+        "type": "git"
+        }
+    ],
     "autoload-dev": {
         "classmap": [
             "tests/TestCase.php",
