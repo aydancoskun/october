@@ -1,5 +1,5 @@
-<?php namespace Responsiv\Campaign\Classes;
-
+<?php
+namespace Responsiv\Campaign\Classes;
 use Mail;
 use Event;
 use Responsiv\Campaign\Models\Message;
@@ -7,7 +7,7 @@ use Responsiv\Campaign\Models\Subscriber;
 use Responsiv\Campaign\Models\MessageStatus;
 use Carbon\Carbon;
 use ApplicationException;
-use Html2Text\Html2Text;
+use soundasleep\Html2Text;
 
 class CampaignManager
 {
