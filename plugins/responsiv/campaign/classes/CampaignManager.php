@@ -7,7 +7,7 @@ use Responsiv\Campaign\Models\Subscriber;
 use Responsiv\Campaign\Models\MessageStatus;
 use Carbon\Carbon;
 use ApplicationException;
-use soundasleep\Html2Text;
+use Html2Text\Html2Text;
 
 class CampaignManager
 {
