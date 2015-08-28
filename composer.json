@@ -34,7 +34,7 @@
 	"dompdf/dompdf" : "0.6.*",
 	"barryvdh/laravel-dompdf": "0.5.*",
 	"dinesh/barcode": "5.0.*@dev",
-	"leancode/html2text": "*"
+	"leancode/html2text": "dev-master"
     },
     "repositories":[
         {
