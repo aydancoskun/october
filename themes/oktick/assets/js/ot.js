@@ -349,6 +349,8 @@ $('.help').click(function(event){
         console.log("Help off called");
         console.log("Hidding:'"+id+"'");
         $("#"+id).hide();
+        console.log("Hidding:'"+id+"_sign'");
+        $("#"+id+"_sign").show();
 //        console.log("Showing:'"+id+"_on'");
 //        $("#"+id+"_on").show();
     }
@@ -356,6 +358,7 @@ $('.help').click(function(event){
         console.log("Help on called");
         console.log("Showing:'"+id+"'");
         $("#"+id).show();
+        $("#"+id+"_sign").hide();
 //        console.log("Hiding:'"+id+"_on'");
 //        $("#"+id+"_on").hide();
     }

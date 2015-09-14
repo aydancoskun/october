@@ -3,18 +3,18 @@ description = "nav-top"
 [viewBag]
 ==
 <?php
+function onInit(){
+    $this['activationcode'] = $this->param('activationcode');
+//    if (! Auth::check()) return;
+//    $this['user'] = $user=Auth::getUser();
+}
+
 function onStart(){
-
     if ( Request::segment(1) == "logout"){
-
         $this['logout'] = true;
-
     } else {
-
         $this['logout'] = false;
-
     }
-
 }
 ?>
 ==
@@ -29,15 +29,16 @@ function onStart(){
                 <span class="icon-bar"></span>
             </button>
 {% if this.page.id != "main" %}
-            <a class="navbar-brand"
-                href="/" style="height:50px;"
+            <a class="navbar-brand {% if (this.page.id == "account-ranking-todo") and (activationcode) %}addspeech{% endif %} "
+                href="/{{activationcode}}" style="height:50px;"
                 data-toggle="tooltip"
                 data-trigger="hover"
                 data-placement="bottom"
-                title="Click to Search">
+                title="Click to Search"
+                rel="navbarbrand">
                 <span class="glyphicon glyphicon-primary glyphicon-search" aria-hidden="true">
 {% else %}
-            <a  class="navbar-brand" href="/" style="height:50px;">
+            <a  class="navbar-brand " href="/{{activationcode}}" style="height:50px;" rel="navbarbrand">
                 <span class="glyphicon glyphicon-primary glyphicon-home" aria-hidden="true">
 {% endif %}
                 <img
@@ -52,8 +53,8 @@ function onStart(){
         <div class="collapse navbar-collapse" id="oktick-top-navbar">
             <ul class="nav navbar-nav nav-top">
                 {% if user %}
-                    <li class="{% if this.page.id == "account-ranking" %}active{% endif %}">
-                        <a href="/account/ranking">Rankings <span
+                    <li class="{% if (this.page.id == "main") and (activationcode) and (user.ok_credits == 0) %}addspeech{% endif %} {% if this.page.id == "account-ranking" %}active{% endif %}" rel="navbarrankings">
+                        <a href="/account/ranking/{{activationcode}}">Rankings <span
                             id="badge_active"
                             class="badge {% if user.ok_sponored_products_count %}badge-success{%else%}badge-primary{% endif %} badge-menu"
                             data-toggle="tooltip"
@@ -64,8 +65,20 @@ function onStart(){
                             </span>
                         </a>
                     </li>
-                    <li class="{% if this.page.id == "account-products-services" %}active{% endif %}">
-                        <a href="/account/products-services">Products & Services <span
+                   <li class="{% if (this.page.id == "account-ranking-todo") and (activationcode) and (user.ok_credits == 0)%}addspeech{% endif %}  {% if this.page.id == "account-credit" %}active{% endif %}" rel="navbarcredits">
+                        <a href="/account/credit/{{activationcode}}">Credits <span
+                            id="ok_credits"
+                            class="badge {% if user.ok_credits|round(2, 'common') > 0 %}badge-success{%else%}badge-primary{% endif %} badge-menu"
+                            data-toggle="tooltip"
+                            data-trigger="hover"
+                            data-placement="bottom"
+                            title="Number of credits"
+                            data-content="This shows the number of credits you have on account and available to place on products and services"
+                            data-value="{% if user.ok_credits %}{{user.ok_credits}}{%else%}0{% endif %}">{% if user.ok_credits and user.ok_credits > 0 %}{{ user.ok_credits|round(2, 'common') }}{%else%}0{% endif %}</span>
+                        </a>
+                    </li>
+                    <li class="{% if (this.page.id == "account-credit-todo") and (activationcode) and (user.ok_credits == 0)%}addspeech{% endif %} {% if this.page.id == "account-products-services" %}active{% endif %}" rel="navbarps">
+                        <a href="/account/products-services/{{activationcode}}">Products &amp; Services <span
                             id="badge_total"
                             class="badge {% if user.ok_company_products_count %}badge-success{%else%}badge-primary{% endif %} badge-menu"
                             data-toggle="tooltip"
@@ -77,27 +90,15 @@ function onStart(){
                             </span>
                         </a>
                     </li>
-                    <li class="{% if this.page.id == "account-credit" %}active{% endif %}">
-                        <a href="/account/credit">Credits <span
-                            id="ok_credits"
-                            class="badge {% if user.ok_credits|round(2, 'common') > 0 %}badge-success{%else%}badge-primary{% endif %} badge-menu"
-                            data-toggle="tooltip"
-                            data-trigger="hover"
-                            data-placement="bottom"
-                            title="Number of credits"
-                            data-content="This shows the number of credits you have on account and available to place on products and services"
-                            data-value="{% if user.ok_credits %}{{user.ok_credits}}{%else%}0{% endif %}">{% if user.ok_credits and user.ok_credits > 0 %}{{ user.ok_credits|round(2, 'common') }}{%else%}0{% endif %}</span>
-                        </a>
-                    </li>
                 {% else %}
-                    <li class="{% if this.page.id == "pages-search-tips" %}active{% endif %}"><a href="/search-tips">Search Tips</a></li>
-                    <li class="{% if this.page.id == "pages-why-register" %}active{% endif %}"><a href="/why-register">Why Register?</a></li>
-                    <li class="{% if this.page.id == "pages-faq" %}active{% endif %}"><a href="/faq">FAQ</a></li>
+                    <li class="{% if this.page.id == "pages-search-tips" %}active{% endif %}"><a href="/search-tips/{{activationcode}}">Search Tips</a></li>
+                    <li class="{% if this.page.id == "pages-why-register" %}active{% endif %}"><a href="/why-register/{{activationcode}}">Why Register?</a></li>
+                    <li class="{% if this.page.id == "pages-faq" %}active{% endif %}"><a href="/faq/{{activationcode}}">FAQ</a></li>
                 {% endif %}
             </ul>
             <ul class="nav navbar-nav navbar-right nav-top">
                 {% if user %}
-                    <li>
+                    <li class="" rel="navbaraccount">
                         <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false">
                             {% if (user.name) and (user.surname) %}{{user.name}}{{"&nbsp;"|raw}}{{user.surname}}{% else %}{{user.email}}{% endif %}
                             <span class="caret"></span>
@@ -105,28 +106,28 @@ function onStart(){
                         <ul class="dropdown-menu">
                             <li class="dropdown-header">Administer Account</li>
                             <li>
-                                <a href="/account/details" class="text-left">
+                                <a href="/account/details/{{activationcode}}" class="text-left">
                                     <span class="glyphicon glyphicon-user" aria-hidden="true"></span><span style="text-align:left; !important">
                                         {{"&nbsp;&nbsp;"|raw}}{% if (user.name) and (user.surname) %}{{user.name}}{{"&nbsp;"|raw}}{{user.surname}}{% else %}{{user.email}}{% endif %}
                                     </span>
                                 </a>
                             </li>
                             <li>
-                                <a href="/account/password-change">
+                                <a href="/account/password-change/{{activationcode}}">
                                     <span class="glyphicon glyphicon-lock" aria-hidden="true"></span>
                                     {{"&nbsp;&nbsp;"|raw}}Change Password</a>
                             </li>
                             <li role="separator" class="divider"></li>
                             <li class="dropdown-header">Business Details</li>
                             <li>
-                                <a href="/account/company">
+                                <a href="/account/company/{{activationcode}}">
                                     <span class="glyphicon glyphicon-edit" aria-hidden="true"></span>
                                     {{"&nbsp;&nbsp;"|raw}}{% if (user.ok_company_name) %}{{user.ok_company_name}}{% else %}{{user.company}}{% endif %}</a>
                             </li>
                             <li role="separator" class="divider"></li>
-                            <li><a href="/logout">
+                            <li><a href="/logout/{{activationcode}}">
                                     <span class="glyphicon glyphicon-off" aria-hidden="true"></span>
-                                    {{"&nbsp;&nbsp;"|raw}}Logout
+                                    {{"&nbsp;&nbsp;"|raw}}Sign Out
                                     </span>
                                 </a>
                             </li>
@@ -134,13 +135,13 @@ function onStart(){
                     </li>
                 {% else %}
                     <li class="{% if this.page.id == "register" %}active{% endif %}">
-                        <a href="/register/">
-                            <!--span class="glyphicon glyphicon-cog" aria-hidden="true"></span-->&nbsp;Register
+                        <a href="/register/{{activationcode}}">
+                            <!--span class="glyphicon glyphicon-cog" aria-hidden="true"></span-->&nbsp;Get Started
                         </a>
                     </li>
                     <li class="{% if this.page.id == "login" %}active{% endif %}">
-                        <a href="/login" style="text-decoration:none;">
-                            <span class="glyphicon glyphicon-user" aria-hidden="true"></span>&nbsp;Login
+                        <a href="/login/{{activationcode}}" style="text-decoration:none;">
+                            <span class="glyphicon glyphicon-user" aria-hidden="true"></span>&nbsp;Sign In
                         </a>
                     </li>
                 {% endif %}

@@ -1,8 +1,17 @@
 title = "News"
-url = "/news"
+url = "/news/:activationcode?"
 layout = "main"
-hidden = "0"
+is_hidden = "0"
 
 [editable]
+==
+<?php
+function onInit(){
+    /*
+/:activationcode?
+    */
+    $this['activationcode']=$this->param('activationcode');
+}
+?>
 ==
 {% component 'editable' file="news.htm" %}

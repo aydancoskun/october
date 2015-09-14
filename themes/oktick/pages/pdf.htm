@@ -1,15 +1,20 @@
 title = "pdf_invoice"
-url = "/account/pdf_invoice/:invoice_id?0"
+url = "/account/pdf_invoice/:invoice_id?0/:activationcode?"
 is_hidden = "0"
 ==
 <?php
+function onInit(){
+    /*
+/:activationcode?
+    */
+    $this['activationcode']=$this->param('activationcode');
+}
+
 function onStart() {
-    try{
-        $user = $this->session->user();
-    }
-    catch (Exception $e){
-        return redirect('/');
-    }
+    $invoice_id = $this->param('invoice_id');
+    if( ! $invoice_id ) return redirect('/');
+    $invoice_id_cast = (string) $invoice_id;
+    if( $invoice_id_cast <> $invoice_id ) return redirect('/');
 
     $html = file_get_contents("http://www.oktick.com/account/invoice/$invoice_id");
     //$html = file_get_contents("https://www.google.com");

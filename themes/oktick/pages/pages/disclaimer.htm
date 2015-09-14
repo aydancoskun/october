@@ -1,10 +1,19 @@
 title = "Disclaimer"
-url = "/disclaimer"
+url = "/disclaimer/:activationcode?"
 layout = "main"
 is_hidden = "0"
 
 [editable]
 file = "disclaimer.htm"
+==
+<?php
+function onInit(){
+    /*
+/:activationcode?
+    */
+    $this['activationcode']=$this->param('activationcode');
+}
+?>
 ==
 {% partial "head" %}
 {% partial "nav-top" %}

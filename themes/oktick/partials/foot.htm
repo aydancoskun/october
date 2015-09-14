@@ -5,6 +5,7 @@ description = "foot"
 <?php
 function onStart(){
     $this->addJs('/app/ot/assets/js/oktick.js');
+    $this->addJs('/app/ot/assets/js/bubble.js');
     if (env("APP_ENV") == "development"){
         $this->addJs('/app/ot/assets/js/edit.js');
         $this->addJs('/app/ot/assets/js/redact.js');
@@ -16,6 +17,11 @@ function onStart(){
 <script src="/app/ot/assets/js/ie10.js"></script>
 <![endif]-->
 {% scripts %}
+<script>
+jQuery(function($){ //on document.ready
+    $('.addspeech').speechbubble({url:'https://ipi.oktick.com/app/ot/assets/bubble.txt'});
+})
+</script>
 <noscript>
     {% if user %}
         <div id="noscript-warning" class="alert alert-danger">

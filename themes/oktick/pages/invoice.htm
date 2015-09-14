@@ -1,25 +1,22 @@
 title = "Invoice"
-url = "/account/invoice/:invoice_id?0"
+url = "/account/invoice/:invoice_id?0/:activationcode?"
 layout = "main"
 is_hidden = "0"
 ==
 <?php
+function onInit(){
+    /*
+/:activationcode?
+    */
+    $this['activationcode']=$this->param('activationcode');
+}
 function onStart() {
-    try{
-        $user = $this->session->user();
-    }
-    catch (Exception $e){
-        return redirect('/');
-    }
-
     $invoice_id = $this->param('invoice_id');
-    if( ! $invoice_id ) App::abort(403, 'Forbidden');
+    if( ! $invoice_id ) return redirect('/');
     $invoice_id_cast = (string) $invoice_id;
-    if( $invoice_id_cast <> $invoice_id ) App::abort(403, 'Forbidden');
+    if( $invoice_id_cast <> $invoice_id ) return redirect('/');
 
-    $ok_company_id = $user->attributes['ok_company_id'];
-    $user_id = $user->attributes['id'];
-    $this['invoices'] = DB::table('ok_payments')->where('download_code', $invoice_id)->where('user_id', $user_id)->first();
+    $this['invoices'] = DB::table('ok_payments')->where('download_code', $invoice_id)->first();
     //"SELECT *, concat((user_id*10),(id*10)) as invoice_number ".
 
     //$this['details'] = DB::table('users')->where('id',$user_id)->first();

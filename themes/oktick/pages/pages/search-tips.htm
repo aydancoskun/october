@@ -1,9 +1,18 @@
 title = "Search Tips"
-url = "/search-tips"
+url = "/search-tips/:activationcode?"
 layout = "main"
 is_hidden = "0"
 
 [editable]
+==
+<?php
+function onInit(){
+    /*
+/:activationcode?
+    */
+    $this['activationcode']=$this->param('activationcode');
+}
+?>
 ==
 {% partial "head" %}
 {% partial "nav-top" %}

@@ -1,42 +1,30 @@
 title = "Company"
-url = "/account/company/:time?"
+url = "/account/company/:activationcode?"
 layout = "main"
 is_hidden = "0"
 ==
 <?php
 function onInit(){
-    $time = Request::segment(3);
-    if($time=="details") $this['activation']=true;
-    else $this['activation']=false;
+    $this['activationcode'] = $this->param('activationcode');
 }
 
 function onStart() {
-    try{
-        $this['invoices']= DB::select(
-            "SELECT download_code, transaction_date, credits_purchased, price_paid, transaction_currency, concat((user_id*10),(id*10)) as invoice_number ".
-            "FROM ok_payments ".
-            "WHERE ".
-            "user_id = ". $this->session->user()->attributes['id'] . " " .
-            "ORDER BY transaction_date DESC"
+    if (! Auth::check()) {
+        return redirect("/".$this['activationcode']);
+    }
+    $this['invoices']= DB::select(
+        "SELECT download_code, transaction_date, credits_purchased, price_paid, transaction_currency, concat((user_id*10),(id*10)) as invoice_number ".
+        "FROM ok_payments ".
+        "WHERE ".
+        "user_id = ". Auth::getUser()->id . " " .
+        "ORDER BY transaction_date DESC"
         );
-    }
-    catch (Exception $e){
-        return redirect('/');
-    }
 }
 
 function onSave() {
-    //dd($_POST);
-    try{
-        $user = $this->session->user();
+    if (! Auth::check()) {
+        return redirect("/".$this['activationcode']);
     }
-    catch (Exception $e){
-        return redirect('/');
-    }
-
-    $ok_company_id = $user->attributes['ok_company_id'];
-    $user_id = $user->attributes['id'];
-
     // Collect input
     $Business_Name        = post('Business_Name');
     $Business_Description = post('Business_Description');
@@ -76,11 +64,10 @@ function onSave() {
     if ($validator->fails()) {
         $messages = $validator->messages();
         Flash::error($messages->first());
-        return redirect('/account/company/'.time());
+        return redirect('/account/company/'.$this['activationcode']);
 //        throw new ApplicationException($messages->first());
     }
-
-    DB::table('oktick.users')->where('id',$user_id)->update(
+    DB::table('oktick.users')->where('id',Auth::getUser()->id)->update(
                         array(
                             'ok_company_name' => $Business_Name,
                             'ok_vendor_data' => $Business_Description,
@@ -93,13 +80,8 @@ function onSave() {
                             'ok_invoice_zip' => $ok_invoice_zip,
                             )
     );
-    if($this['activation']){
-        Flash::success("Thank you. You are now ready to go.");
-        return redirect('/account/products-services');
-    } else {
-        Flash::success("Settings Saved.");
-        return redirect('/account/company/'.time());
-    }
+    Flash::success("Settings Saved.");
+    return redirect('/account/company/'.$this['activationcode']);
 //    $to = System\Models\MailSettings::get('sender_email');
 //    $params = compact('website','name','email');
 //    Mail::sendTo($to, 'yourappname.website::mail.contactform', $params);
@@ -112,36 +94,26 @@ function onSave() {
 <div class="container">
 <br>
 <h2 class="text-center">Business Details<br>
-<span class="text-center" style="font-size:14px;">(Click here <span id="ok_help_company_on" class="help glyphicon-primary glyphicon glyphicon-question-sign"></span> for help)</span>
+<span class="text-center {% if user.ok_help_company %}collapse{% endif %}" id="ok_help_company_sign" style="font-size:14px;">(Click here <span id="ok_help_company_on" class="help glyphicon-primary glyphicon glyphicon-question-sign"></span> for help)</span>
 </h2>
-<div class="row">
+<div class="row {% if user.ok_help_company==0 %}class="collapse"{% endif %}">
     <div class="col-xs-0 col-md-2"></div>
     <div class="col-xs-12 col-md-8">
-        <div id="ok_help_company" {% if user.ok_help_company==0 %}class="collapse"{% endif %} >
-{% if activation %}
-            <h4 class="text-center"><strong>Welcome to OKTicK!</strong></h4>
+        <div id="ok_help_company"><br>
+{% if not invoices %}
             <p>On this page you should amend your business details so they show up correctly when searchers find you.</p>
 {% else %}    
-            <p>{{"&nbsp;&nbsp;&nbsp;"|raw}}</p>
-    {% if not invoices %}
-            <p>On this page you should amend your business details so they show up correctly when searchers find you.</p>
-    {% else %}    
             <p>On this page you can amend your business details so they show up correctly when searchers find you.</p>
             <p>You should also ensure your invoicing details are correct so you can generate correct invoices for credit purchases.</p>
-    {% endif %}    
 {% endif %}    
             <div class="text-center">
-                <button id="ok_help_company_off" class="btn btn-default btn-sm help"><span class="glyphicon glyphicon-primary glyphicon-thumbs-up"></span>&nbsp;Got it!</button>
-                <br>
-                <br>
+                <button id="ok_help_company_off" class="btn btn-default btn-sm help"><span class="glyphicon glyphicon-primary glyphicon-thumbs-up"></span>&nbsp;Got it!</button> 
             </div>
         </div>
     </div>
     <div class="col-xs-0 col-md-2"></div>
 </div>
 <br>
-<br>
-
 <div class="row">
     <div class="col-xs-0 col-md-2"></div>
     <div class="col-xs-12 col-md-8">

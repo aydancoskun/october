@@ -1,0 +1,31 @@
+<div>
+
+<div id="navbarbrand" class="speechbubbles">
+Return to search page at any time.
+</div>
+
+<div id="navbarrankings" class="speechbubbles">
+1. Your stuff listed &amp; ranked here.
+</div>
+
+<div id="claimcredits" class="speechbubbles">
+2. Next, claim your free Credit.
+</div>
+
+<div id="navbarcredits" class="speechbubbles">
+At any time get more credits here.
+</div>
+
+<div id="navbarps" class="speechbubbles">
+3. Add and delete your stuff here.
+</div>
+
+<div id="navbaraccount" class="speechbubbles">
+Set your password to something easier to remember, edit company name shown to customers, etc.
+</div>
+
+<div id="search" class="speechbubbles">
+Enter what you are looking for here.
+</div>
+
+</div>

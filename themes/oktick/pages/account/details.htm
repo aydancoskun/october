@@ -1,11 +1,17 @@
 title = "Details"
-url = "/account/details"
+url = "/account/details/:activationcode?"
 layout = "main"
 is_hidden = "0"
 ==
 <?php
+function onInit() {
+    $this['activationcode'] = $this->param('activationcode');
+}
+
 function onDelete() {
-    \Debugbar::info("Details page onDelete()");
+    if (! Auth::check()) {
+        return redirect("/".$this['activationcode']);
+    }
     $data = Input::all();
     $rules = ['email' => 'required|email'];
     $msgs = ['required' => 'Please fill in your email','email' => 'Please enter a valid email address'];
@@ -13,16 +19,18 @@ function onDelete() {
     if ($v->fails()) {
         $this['result'] = $v->messages()->first();
     }else{
-        Mail::queue('email.newsletter', $data, function($message){
-            $message->from(post('email'));
-            $message->to('simon@skwebproject.com')->subject('New newsletter registration');
-        });
+        //Mail::queue('email.newsletter', $data, function($message){
+            //$message->from(post('email'));
+            //$message->to('simon@skwebproject.com')->subject('New newsletter registration');
+//        });
         $this['result'] = 'Success!';
     }
 }
 
 function onStart() {
-    \Debugbar::enable();
+    if (! Auth::check()) {
+        return redirect("/".$this['activationcode']);
+    }
     $retval=false;
     //dd($_POST);
     if( isset($_POST['lastname']) AND isset($_POST['firstname']) AND isset($_POST['email']) AND isset($_POST['timezone']) ) $retval=$this->onUpdate();
@@ -32,9 +40,10 @@ function onStart() {
 }
 
 function makeTimezone() {
-    $user = $this->session->user()->attributes;
-    $ok_timezone = $user['ok_timezone'];
-
+    if (! Auth::check()) {
+        return redirect("/".$this['activationcode']);
+    }
+    $user = Auth::getUser();
     $regions = array(
         'Africa' => DateTimeZone::AFRICA,
         'America' => DateTimeZone::AMERICA,
@@ -63,7 +72,7 @@ function makeTimezone() {
     foreach($timezones as $region => $list) {
         $print .= '<optgroup label="' . $region . '">' . "\n";
         foreach($list as $timezone => $name) {
-            if($timezone==$ok_timezone)
+            if($timezone == $user->ok_timezone)
                 $print .= '<option value="' . $timezone . '" selected="selected">' . $name . '</option>' . "\n";
             else
                 $print .= '<option value="' . $timezone . '">' . $name . '</option>' . "\n";
@@ -75,6 +84,9 @@ function makeTimezone() {
 }
 
 function onUpdate() {
+    if (! Auth::check()) {
+        return redirect("/".$this['activationcode']);
+    }
     $lastname = $this->verifyPost('lastname',"string");
     $firstname = $this->verifyPost('firstname',"string");
     $email = $this->verifyPost('email',"email");
@@ -95,28 +107,13 @@ function onUpdate() {
         Flash::error('Please provide a valid timezone');
         return;
     }
-    try{
-        $user = $this->session->user()->attributes;
-        $user_id = $user['id'];
-        DB::table('oktick.users')
-            ->where('id', $user_id)
-            ->update(array(
-                'name' => $firstname,
-                'email' => $email,
-                'username' => $email,
-                'surname' => $lastname,
-                'ok_timezone' => $timezone,
-        ));
-        $this->session->user()->attributes['name'] = $firstname;
-        $this->session->user()->attributes['surname'] = $lastname;
-        $this->session->user()->attributes['email'] = $email;
-        $this->session->user()->attributes['username'] = $email;
-        $this->session->user()->attributes['ok_timezone'] = $timezone;
-    }
-    catch(Exception $e) {
-        Flash::error('Something went wrong ('.$e->getMessage().'). Try again.');
-        return;
-    }
+    $user = Auth::getUser();
+    $user->name = $firstname;
+    $user->email = $email;
+    $user->username = $email;
+    $user->surname = $lastname;
+    $user->ok_timezone = $timezone;
+    $user->save();
     Flash::success('You successfully updated your account!');
     return;
 }

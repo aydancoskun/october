@@ -1,372 +1,212 @@
 title = "Ranking"
-url = "/account/ranking"
+url = "/account/ranking/:activationcode?"
 layout = "main"
 is_hidden = "0"
 ==
 <?php
 use Illuminate\Http\Response;
 
-
+function onInit(){
+    $this['activationcode']=$this->param('activationcode');
+}
 
 function onStart() {
-
-//    \Debugbar::info("productservices page onStart()");
-
+    if (! Auth::check()) {
+        return redirect("/".$this['activationcode']);
+    }
+    $user=Auth::getUser();
+    if($user->ok_company_products_count < 4){
+        $this['offer'] = 5;
+    }
+    elseif($user->ok_company_products_count < 10){
+        $this['offer'] = 10;
+    }
+    elseif($user->ok_company_products_count > 9){
+        $this['offer'] = 20;
+    }
 }
 
 function verifyPost($post_name,$check="int"){
-
-    if( !isset($_POST[$post_name]) ) App::abort(403, "Forbidden");
-
+    if( !isset($_POST[$post_name]) ) return Redirect::to("/login", 302);
     $post_val_raw = post($post_name);
-
     if($check=="int") $post_val_cast = (int) $post_val_raw;
-
     if($check=="float") $post_val_cast = (float) $post_val_raw;
-
     if($check=="string") $post_val_cast = (string) $post_val_raw;
-
-    if( $post_val_raw <> $post_val_cast ) App::abort(403, 'Forbidden');
-
+    if( $post_val_raw <> $post_val_cast ) return Redirect::to("/login", 302);
     return $post_val_cast;
-
 }
 
 function onGetEstimatedPosition(){
-
+    if (! Auth::check()) {
+        return redirect("/".$this['activationcode']);
+    }
+    $user = Auth::getUser();
     $credits_estimated = $this->verifyPost('credits_estimated',"int");
-
     $bp_id = $this->verifyPost('bp_id',"int");
-
-    $user = $this->session->user()->attributes;
-
-    $company_id = $user['ok_company_id'];
-
-    $user_id = $user['id'];
-
-
-
-    $sql="SELECT bp_position FROM operations.bp_supplier_positions WHERE bp_id = $bp_id AND company_id = $company_id";
-
+    $sql="SELECT bp_position FROM operations.bp_supplier_positions WHERE bp_id = $bp_id AND company_id = $user->ok_company_id";
     $dbr = DB::select($sql);
-
+    
     $bp_position = (isset($dbr[0])  ? $dbr[0]->bp_position : 0);
 
-
-
     $sql="SELECT applied_credit as bp_user_credits FROM operations.bp_sponsors WHERE ".
-
-         "bp_id = $bp_id AND company_id = $company_id AND user_id = $user_id AND ".
-
+         "bp_id = $bp_id AND company_id = $user->ok_company_id AND user_id = $user->id AND ".
          "start_stamp < now() AND now() < end_stamp";
-
     $dbr = DB::select($sql);
 
     $bp_user_credits = (isset($dbr[0])  ? $dbr[0]->bp_user_credits : 0);
 
-
-
     $position_new = ($bp_position - $bp_user_credits *10) + $credits_estimated * 10;
 
-
-
     try {
-
         $sql=   "SELECT count(*)+1 as bp_low FROM operations.bp_supplier_positions ".
-
                 "WHERE ".
-
                 "bp_id = $bp_id AND ".
-
                 "bp_position   > $position_new AND ".
-
-                "company_id <> $company_id";
-
+                "company_id <> $user->ok_company_id";
         $dbr = DB::select($sql);
 
         $bp_low = (isset($dbr[0])  ? $dbr[0]->bp_low : 0);
-
 //        return ['estimatedPosition' => "$bp_low:".__LINE__];
-
-
-
         $sql=   "SELECT count(*)+1 as bp_high  FROM operations.bp_supplier_positions ".
-
                 "WHERE ".
-
                 "bp_id = $bp_id AND ".
-
                 "bp_position  >= $position_new AND ".
-
-                "company_id <> $company_id";
-
+                "company_id <> $user->ok_company_id";
         $dbr = DB::select($sql);
 
         $bp_high = (isset($dbr[0])  ? $dbr[0]->bp_high : 0);
-
         if ($bp_high > 50) return ['estimatedPosition' => "None"];
-
         if ($bp_high > 25) return ['estimatedPosition' => "Top 50"];
-
         if ($bp_high > 20) return ['estimatedPosition' => "Top 25"];
-
         if ($bp_high > 15) return ['estimatedPosition' => "Top 20"];
-
         if ($bp_high > 10) return ['estimatedPosition' => "Top 15"];
-
         if ($bp_high >  5) return ['estimatedPosition' => "Top 10"];
-
         if ($bp_high >  3) return ['estimatedPosition' => "Top 5"];
-
         if ($bp_high >  0) return ['estimatedPosition' => "Top 3"];
-
         return ['estimatedPosition' => "-----------"];
-
         if($bp_low==$bp_high) return ['estimatedPosition' => $bp_low];
-
         return ['estimatedPosition' => "$bp_low to $bp_high"];
-
     }
-
     catch(Exception $e) {
-
         \Debugbar::addException($e);
-
         return ['error' => "Something went wrong"];
-
         return (new Response(['error' => "Something went wrong"], "500"))->header('Content-Type', "text/html; charset=UTF-8");
-
     }
-
     // value="{% if product.bp_low==product.bp_high %}{{product.bp_low}}{%else%}{{product.bp_low}} to {{ product.bp_high }}{%endif%}">
-
 }
 
-
-
-
-
 function onCreditConfirm(){
-
+    if (! Auth::check()) {
+        return redirect("/".$this['activationcode']);
+    }
+    $user = Auth::getUser();
     $now = time();
-
     $credits_confirmed = $this->verifyPost('credits_confirmed',"int");
-
     $bp_id = $this->verifyPost('bp_id',"int");
-
     $bp_name = urldecode($this->verifyPost('bp_name',"string"));
-
-    $user = $this->session->user()->attributes;
-
-    $total_credits = $user['ok_credits'];
-
-    $company_id = $user['ok_company_id'];
-
-    $user_id = $user['id'];
-
-
+    $total_credits = $user->ok_credits;
 
     $sql=   "SELECT bp_position FROM operations.bp_supplier_positions ".
-
             "WHERE ".
-
             "bp_id = $bp_id AND ".
-
-            "company_id = $company_id";
-
+            "company_id = $user->ok_company_id";
     $dbr = DB::select($sql);
 
     $bp_position = (isset($dbr[0])  ? $dbr[0]->bp_position : 0);
-
     $applied_credit = 0;
-
     $bp_was_active = false;
-
     $bp_is_active = false;
-
     $one_week = 604800;
-
     $end_stamp = $now + $one_week;
-
     $end_stamp_displayed = "None Assigned";
-
     $refund=false;
-
     $pre_refund_total_credits = $total_credits;
-
     $message = "";
 
     DB::beginTransaction();
-
     $sql=   "SELECT ".
-
             "id, ".
-
             "applied_credit, ".
-
             "UNIX_TIMESTAMP(start_stamp) as start_stamp, ".
-
             "UNIX_TIMESTAMP(end_stamp) as end_stamp ".
-
             "FROM operations.bp_sponsors ".
-
             "WHERE ".
-
             "bp_id = $bp_id AND ".
-
-            "company_id = $company_id AND ".
-
-            "user_id = $user_id AND ".
-
+            "company_id = $user->ok_company_id AND ".
+            "user_id = $user->id AND ".
             "UNIX_TIMESTAMP(start_stamp) < $now < UNIX_TIMESTAMP(end_stamp)";
-
     $dbr = DB::select($sql);
-
-
-
-
-
     // If there is a current transaction
 
     if( isset($dbr[0]) ){
-
         $bp_was_active=true;
-
         $applied_credit = $dbr[0]->applied_credit;
-
         $start_stamp = $dbr[0]->start_stamp;
-
         $end_stamp = $dbr[0]->end_stamp;
-
         $original_duration = $end_stamp - $start_stamp;
-
         $new_duration = $now - $start_stamp;
-
         $original_cost = $applied_credit / $one_week * $original_duration;
-
         $cost = $applied_credit / $original_duration * $new_duration;
-
         $refund = $original_cost - $cost;
-
         $total_credits = $total_credits + $refund;
 
-
-
         DB::table('operations.bp_sponsor_transactions_completed')
-
         ->insert(array(
-
             'id' => $dbr[0]->id,
-
-            'company_id' => $company_id,
-
+            'company_id' => $user->ok_company_id,
             'bp_id' => $bp_id,
-
-            'user_id' => $user_id,
-
+            'user_id' => $user->id,
             'applied_credit' => $applied_credit,
-
             'cost' => $cost,
-
             'refund' => $refund,
-
             'start_stamp' => $dbr[0]->start_stamp,
-
             'end_stamp' => date( 'Y-m-d H:i:s', $now),
-
         ));
-
         DB::table('operations.bp_sponsors')->where('id',$dbr[0]->id)->delete();
-
     }
 
     $credits_confirmed_value = $credits_confirmed / $one_week * ($end_stamp - $now);
-
     $total_credits = $total_credits - $credits_confirmed_value;
-
     $transaction_cost = $credits_confirmed_value - $refund;
-
     if($total_credits < -0.01 ) {
-
             return [
-
                 'status' => 'error',
-
                 'message' => 'Sorry, insufficient credits. Please consider purchasing credits.',
-
                 'log' => "total_credits=$total_credits < -0.01 AND no refund",
-
             ];
-
     }
-
-
 
     $position_new = $bp_position - $applied_credit*10 + $credits_confirmed*10;
-
     if($credits_confirmed > 0){
-
         $bp_is_active=true;
-
         $end_stamp_displayed = date( 'j M y, g:i a', $end_stamp );// j M y, g:i a
-
         DB::table('operations.bp_sponsors')
-
         ->insert(array(
-
-            'company_id' => $company_id,
-
+            'company_id' => $user->ok_company_id,
             'bp_id' => $bp_id,
-
-            'user_id' => $user_id,
-
+            'user_id' => $user->id,
             'applied_credit' => $credits_confirmed,
-
             'start_stamp' => date( 'Y-m-d H:i:s', $now),
-
             'end_stamp' => date( 'Y-m-d H:i:s', $end_stamp ),
-
         ));
-
     }
 
-
-
     DB::table('operations.bp_supplier_positions')
-
     ->where('bp_id', $bp_id)
-
-    ->where('company_id', $company_id)
-
+    ->where('company_id', $user->ok_company_id)
     ->update(array(
-
         'bp_position' => $position_new,
-
     ));
 
-    DB::table('oktick.users')
-
-    ->where('id', $user_id)
-
-    ->update(array(
-
-        'ok_credits' => $total_credits,
-
-    ));
+    $user->ok_credits = $total_credits;
+    $user->save();
 
     $badge_active=0;
-
     if ($bp_was_active == false AND $bp_is_active) $badge_active=1;
-
     if ($bp_was_active AND $bp_is_active == false) $badge_active=-1;
-
 //        if ($bp_was_active == false AND $bp_is_active == false) $badge_active=0;
-
 //        if ($bp_was_active AND $bp_is_active) $badge_active=0;
-
 //    Flash::success($applied_credit.' credits successfully applied!');
-
-
 // he's gone down but not zero
     if( $applied_credit > $credits_confirmed AND $credits_confirmed > 0  ) {
         $tc = round(abs($transaction_cost),2);
@@ -383,12 +223,8 @@ function onCreditConfirm(){
         $help="";
         if( $tc <> round($tc) ) $help = " (See help to see how refunds are calculated)";
         $message = "Your weekly credits were set to zero. There will be no weekly charge. Sponsoring is now suspended. We refunded you " . round(abs($transaction_cost),2) . " credit$s".$help.".";
-        $user['ok_sponored_products_count']=$user['ok_sponored_products_count']-1;
-        DB::table('oktick.users')
-           ->where('id', $user_id)
-                ->update(array(
-                'ok_sponored_products_count' => $user['ok_sponored_products_count'],
-            ));
+        $user->ok_sponored_products_count =  $user->ok_sponored_products_count - 1;
+        $user->save();
     }
 
 // he's gone up from something
@@ -407,12 +243,8 @@ function onCreditConfirm(){
 // he's gone up from nothing
     elseif( $applied_credit < $credits_confirmed AND ! $applied_credit ) {
         $message = "Your weekly credits were set to $credits_confirmed.";
-        $user['ok_sponored_products_count']=$user['ok_sponored_products_count']+1;
-        DB::table('oktick.users')
-           ->where('id', $user_id)
-                ->update(array(
-                'ok_sponored_products_count' => $user['ok_sponored_products_count'],
-            ));
+        $user->ok_sponored_products_count =  $user->ok_sponored_products_count + 1;
+        $user->save();
     }
 
     DB::commit();
@@ -442,148 +274,171 @@ function onCreditConfirm(){
 <div class="container">
 <br>
 <h2 class="text-center">Your Rankings<br>
-<span class="text-center" style="font-size:14px;">(Click here <span id="ok_help_ranking_on" class="help glyphicon-primary glyphicon glyphicon-question-sign"></span> for help)</span>
+<span class="text-center {% if user.ok_help_ranking %}collapse{% endif %}" id="ok_help_ranking_sign" style="font-size:14px;">(Click here <span id="ok_help_ranking_on" class="help glyphicon-primary glyphicon glyphicon-question-sign"></span> for help)</span>
 </h2>
-
 <div class="row">
-    <!--div class="col-xs-1 col-md-1"></div>
-    <div class="col-12"-->
-        <div id="ok_help_ranking" {% if user.ok_help_ranking==0 %}class="collapse"{% endif %} >
-            <p>{{"&nbsp;&nbsp;&nbsp;"|raw}}</p>
-            <p>You can elevate the listing of your products and services from this page. You can always acquire <a href="/account/credit">more credits here</a>.
+    <div id="ok_help_ranking" {% if user.ok_help_ranking==0 %}class="collapse"{% endif %}>
+        <br>
+        <p>On this page you can see all products or services we have on record for your business and can elevate their standings on the OKTicK results pages.</p>
+{% if (activationcode) and (user.ok_credits == 0) %}
+        <p>You can elevate the rankings in the results pages with the <button class="btn btn-default btn-xs"><span class="glyphicon glyphicon-plus"></span></button> and <button class="btn btn-default btn-xs"><span class="glyphicon glyphicon-minus"></span></button> buttons using free credits by clicking here: <a role="button" class="btn btn-success addspeech" rel="claimcredits" href="/account/offer/{{activationcode}}">Give me my FREE Credits NOW!</a></p>
+{% elseif (activationcode) %}
+            <p>You can use your free credits to elevate products. You can see at any time how many credits you have remaining by looking at the badge <span
+                            id="ok_credits"
+                            class="badge {% if user.ok_credits|round(2, 'common') > 0 %}badge-success{%else%}badge-primary{% endif %} badge-menu"
+                            data-toggle="tooltip"
+                            data-trigger="hover"
+                            data-placement="bottom"
+                            title="Number of credits"
+                            data-content="This shows the number of credits you have on account and available to place on products and services"
+                            data-value="{% if user.ok_credits %}{{user.ok_credits}}{%else%}0{% endif %}">{% if user.ok_credits and user.ok_credits > 0 %}{{ user.ok_credits|round(2, 'common') }}{%else%}0{% endif %}</span> next to "Credits" menu item.</p>
+            <p>You can see how many items we hold for your business in total by looking at the badge <span
+                            id="badge_total"
+                            class="badge {% if user.ok_company_products_count %}badge-success{%else%}badge-primary{% endif %} badge-menu"
+                            data-toggle="tooltip"
+                            data-trigger="hover"
+                            data-placement="bottom"
+                            title="Total number of products and services on the system"
+                            data-content="Total Number of products on system">
+                        {% if user.ok_company_products_count %}{{user.ok_company_products_count}}{%else%}0{% endif %}
+                            </span> next to the "Products &amp; Services" menu item.</p>
+            <p>You can see how many items you are elevating (applying credit to) by looking at the badge <span
+                            id="badge_active"
+                            class="badge {% if user.ok_sponored_products_count %}badge-success{%else%}badge-primary{% endif %} badge-menu"
+                            data-toggle="tooltip"
+                            data-trigger="hover"
+                            data-placement="bottom"
+                            title="Number of elevated Products and Services">
+                        {% if user.ok_sponored_products_count %}{{user.ok_sponored_products_count}}{%else%}0{% endif %}
+                            </span> next to the "Rankings" menu item.</p>
             <p>Elevation is easy to do using the <button class="btn btn-default btn-xs"><span class="glyphicon glyphicon-plus"></span></button> and <button class="btn btn-default btn-xs"><span class="glyphicon glyphicon-minus"></span></button> buttons on the right of each product and service. When you are satisfied click the <button class="btn btn-success btn-xs"><span class="glyphicon glyphicon-ok"></span></button> button which will have appeared. Please try it out, you will see how easily it works. The more credits applied the higher the potential position your business may come on the list. You will notice as you adjust the credits a new 'estimated position' reflects this. Credits once confirmed are applied immediately. The time this happens is accurately noted on the system.</p>
             <p>Credits once applied last for precisely one week. Unless you remove them entirely, credits are renewed at the same time each nominal week. Each week we will send you an email to let you know where we estimate your business stands in the lists of products and services at that moment. You can easily check this by doing a search yourself on the product or service (bear in mind it can change in minutes through the actions of other suppliers). <!--We will advise you if your credits available are running low and need topping up or have run out. -->You can lose positions if you inadvertently run out of credits.</p>
-            <p>When you adjust credits in the middle of week the applied balance is accurately calculated to be as fair as possible. For example if exactly half way through this nominal week you add 4 more credits you are only charged 2 credits. When the new week arrives the full extra 4 credits are then charged. If you were to reduce from 6 credits to 3 exactly half way though the week you be refunded 1.5 credits.</p>
-            <p>If you don't need this notice any further, click below. You can always re-enable it later by clicking the <span class="glyphicon-primary glyphicon glyphicon-question-sign"></span> sign above.</p>
-            <div class="text-center">
-                <button id="ok_help_ranking_off" class="btn btn-default btn-sm help"><span class="glyphicon glyphicon-primary glyphicon-thumbs-up"></span>&nbsp;Got it!</button>
-                <br>
-                <br>
-            </div>
+            <p>When you adjust credits in the middle of week the applied balance is accurately calculated to be as fair as possible. For example if exactly half way through this nominal week you add 4 more credits you are only charged 2 credits. When the new week arrives the full extra 4 credits are then charged. If you were to reduce from 6 credits to 3 exactly half way though the week you be refunded 1.5 credits.</p>                            
+{% else %}
+        <p>You can elevate the rankings in the results pages using your credits. You can acquire <a href="/account/credit/{{activationcode}}">more credits here if your need them</a>.</p>
+        <p>Elevation is easy to do using the <button class="btn btn-default btn-xs"><span class="glyphicon glyphicon-plus"></span></button> and <button class="btn btn-default btn-xs"><span class="glyphicon glyphicon-minus"></span></button> buttons on the right of each product and service. When you are satisfied click the <button class="btn btn-success btn-xs"><span class="glyphicon glyphicon-ok"></span></button> button which will have appeared. Please try it out, you will see how easily it works. The more credits applied the higher the potential position your business may come on the list. You will notice as you adjust the credits a new 'estimated position' reflects this. Credits once confirmed are applied immediately. The time this happens is accurately noted on the system.</p>
+        <p>Credits once applied last for precisely one week. Unless you remove them entirely, credits are renewed at the same time each nominal week. Each week we will send you an email to let you know where we estimate your business stands in the lists of products and services at that moment. You can easily check this by doing a search yourself on the product or service (bear in mind it can change in minutes through the actions of other suppliers). <!--We will advise you if your credits available are running low and need topping up or have run out. -->You can lose positions if you inadvertently run out of credits.</p>
+        <p>When you adjust credits in the middle of week the applied balance is accurately calculated to be as fair as possible. For example if exactly half way through this nominal week you add 4 more credits you are only charged 2 credits. When the new week arrives the full extra 4 credits are then charged. If you were to reduce from 6 credits to 3 exactly half way though the week you be refunded 1.5 credits.</p>
+        <p>If you don't need this notice any further, click below. You can always re-enable it later by clicking the <span class="glyphicon-primary glyphicon glyphicon-question-sign"></span> sign.</p>
+        <div class="text-center">
+            <button id="ok_help_ranking_off" class="btn btn-default btn-sm help"><span class="glyphicon glyphicon-primary glyphicon-thumbs-up"></span>&nbsp;Got it</button>
         </div>
-    <!--/div>
-    <div class="col-xs-1 col-md-1"></div-->
+{% endif %}
+    </div>
 </div>
-<br>
-<br>
 <div class="row">
-    <!--div class="col-xs-1 col-md-1"></div>
-    <div class="col-xs-10 col-md-10"-->
-        <!--h3>Your Products and Services{{"&nbsp;"|raw}}<span style="font-size:18px;" onclick="$('#product-services-info1-plus').hide();$('#product-services-info1').show();$.request('onInfo1On');" id="product-services-info1-plus" class="glyphicon glyphicon-sm glyphicon glyphicon-info-sign {% if user.ok_help_ranking==1 %}collapse{%endif%}"></span></h3-->
-        {% if products %}
-        <table class="table table-bordered">
-            <tr class="">
-                <th class="">Products & Services</th>
-                <!--th class="text-center">Start<br>Dates</th-->
-                <th class="text-center">Current<br>Position</th>
-                <th class="text-center">Estimated<br>Position</th>
-                <th class="text-center">Renewal<br>Date</th>
-                <th class="text-center">Weekly<br>Amount</th>
-                <!--th class="text-center"></th-->
-
-                <!--th class="text-center border_only_right"></th-->
-            </tr>
-            {% for product in products %}
-                <tr class="{% if product.bp_user_credits %}success{%endif%}" id="row{{product.bp_id}}">
-                    <td class=""
-                        style="vertical-align: middle;"
-                        id="bp{{ product.bp_id }}"
-                        data-bp_id="{{ product.bp_id }}"
-                        data-bp_user_credits="{% if product.bp_user_credits %}{{product.bp_user_credits}}{%else%}0{%endif%}">
-                        {{ product.bp_name }}
-                    </td>
-                    <td class="text-center"><!-- Current Position -->
-                        <div class="form-group input-group col-centered">
-                            <label for="current-position{{ product.bp_id }}" class="sr-only" ></label>
-                            <input
-                            type="text"
-                            class="form-control input text-center"
-                            disabled
-                            id="current-position{{ product.bp_id }}"
-                            placeholder="--------"
-                            value= "{% if product.bp_high > 50 %}None{%elseif product.bp_high > 25%}Top 50{%elseif product.bp_high > 20%}Top 25{%elseif product.bp_high > 15%}Top 20{%elseif product.bp_high > 10%}Top 15{%elseif product.bp_high > 5%}Top 10{%elseif product.bp_high > 3%}Top 5{%elseif product.bp_high > 0%}Top 3{%endif%}"
-                             size="6">
-                        </div>
-                    </td>
-                    <td class="text-center"><!-- Estimated Position -->
-                        <div class="form-group input-group col-centered">
-                            <label for="estimated-position{{ product.bp_id }}" class="sr-only" ></label>
-                            <input
-                            type="text"
-                            class="form-control input text-center"
-                            disabled
-                            id="estimated-position{{ product.bp_id }}"
-                            placeholder=""
-                            value="--------"
-                            size="6">
-                        </div>
-                    </td>
-                    <td class="text-center"><!-- Expiration  -->
-                        <div class="form-group input-group col-centered">
-                            <label for="end_stamp{{ product.bp_id }}" class="sr-only" ></label>
-                            <input type="text" class="form-control input text-center" disabled id="end_stamp{{ product.bp_id }}" placeholder="None Assigned" value="{% if product.end_stamp %}{{ product.end_stamp|date("j M y, g:i a", user.ok_timezone) }}{%else%}None Assigned{%endif%}" size="18">
-                        </div>
-                    </td>
-                    <td class="text-center form-inline">
-                        <div class="input-group" id="ButtonGroupConfirm{{product.bp_id}}">
-                            <span class="collapse"></span>
-                            <!---MINUS  -->
-                            <span class="input-group-btn">
-                                <button id="btn-credit-minus{{product.bp_id}}"
-                                        type="button"
-                                        class="btn btn-default btn-credit"
-                                        {% if not product.bp_user_credits %}disabled="disabled"{%endif%}
-                                        data-type="minus"
-                                        data-bp_id="{{product.bp_id}}">
-                                    <span id="glyphicon-minus{{product.bp_id}}" class="glyphicon glyphicon-minus"></span>
-                                </button>
-                            </span>
-                            <!---CREDITS -->
-                            <span class="input-group-btn">
-                                <input  type="text"
-                                    id="credit{{product.bp_id}}"
-                                    name="credit{{product.bp_id}}"
-                                    class="form-control input input-number text-center"
-                                    value="{% if product.bp_user_credits %}{{product.bp_user_credits}}{%else%}0{%endif%}"
-                                    data-max-minus="0"
-                                    data-max-plus="99"
-                                    size="2"
-                                    style="width:41px;min-width:41px;"
-                                    disabled >
-                            </span>
-                            <!---PLUS -->
-                            <span class="input-group-btn">
-                                <button id="btn-credit-plus{{product.bp_id}}"
-                                        type="button"
-                                        class="btn btn-default btn-credit"
-                                        {% if user.ok_credits < 0.995 %}disabled="disabled"{%endif%}
-                                        data-type="plus"
-                                        data-bp_id="{{product.bp_id}}">
-                                    <span id="glyphicon-plus{{product.bp_id}}" class="glyphicon glyphicon-plus"></span>
-                                </button>
-                            </span>
-                        </div>
-                    </td>
-                    <td class="text-center"><!-- Expiration  -->
-                        <!---CONFIRM -->
-                        <button id="btn-confirm{{product.bp_id}}"
-                                style="visibility:hidden;"
-                                type="button"
-                                class="btn btn-confirm btn-success btn-sm"
-                                data-bp_name="{{ product.bp_name }}"
-                                data-bp_id="{{product.bp_id}}">
-                            <span id="glyphicon-confirm{{product.bp_id}}" class="glyphicon glyphicon-ok"></span>
-                        </button>
-                        <script>if(typeof previous == "undefined"){var previous = {};previous.bp_id=false;}</script>
-                    </td>
-                </tr>
-            {% endfor %}
-        </table>
-        {% endif %}
-    <!--/div>
-    <div class="col-xs-1 col-md-1"></div-->
+    <!--div class="col-12"--> 
+        <h3 class="text-center">You currently have {% if ok_sponored_products_count and ok_sponored_products_count > 0 %}{{ ok_sponored_products_count }}{%else%} no {% endif %}products elevated</h3><br>
+    <!--/div-->
 </div>
-
+{% if products %}
+<div class="row">
+    <table class="table table-bordered">
+        <tr class="">
+            <th class="">Your Products &amp; Services</th>
+            <th class="text-center">Current<br>Position</th>
+            <th class="text-center">Estimated<br>Position</th>
+            <th class="text-center">Renewal<br>Date</th>
+            <th class="text-center">Weekly<br>Amount</th>
+        </tr>
+    {% for product in products %}
+        <tr class="{% if product.bp_user_credits %}success{%endif%}" id="row{{product.bp_id}}">
+            <td class=""
+                style="vertical-align: middle;"
+                id="bp{{ product.bp_id }}"
+                data-bp_id="{{ product.bp_id }}"
+                data-bp_user_credits="{% if product.bp_user_credits %}{{product.bp_user_credits}}{%else%}0{%endif%}">
+                {{ product.bp_name }}
+            </td>
+            <td class="text-center"><!-- Current Position -->
+                <div class="form-group input-group col-centered">
+                    <label for="current-position{{ product.bp_id }}" class="sr-only" ></label>
+                    <input
+                        type="text"
+                        class="form-control input text-center"
+                        disabled
+                        id="current-position{{ product.bp_id }}"
+                        placeholder="--------"
+                        value= "{% if product.bp_high > 50 %}None{%elseif product.bp_high > 25%}Top 50{%elseif product.bp_high > 20%}Top 25{%elseif product.bp_high > 15%}Top 20{%elseif product.bp_high > 10%}Top 15{%elseif product.bp_high > 5%}Top 10{%elseif product.bp_high > 3%}Top 5{%elseif product.bp_high > 0%}Top 3{%endif%}"
+                         size="6">
+                </div>
+            </td>
+            <td class="text-center"><!-- Estimated Position -->
+                <div class="form-group input-group col-centered">
+                    <label for="estimated-position{{ product.bp_id }}" class="sr-only" ></label>
+                    <input
+                        type="text"
+                        class="form-control input text-center"
+                        disabled
+                        id="estimated-position{{ product.bp_id }}"
+                        placeholder=""
+                        value="--------"
+                        size="6">
+                </div>
+            </td>
+            <td class="text-center"><!-- Expiration  -->
+                <div class="form-group input-group col-centered">
+                    <label for="end_stamp{{ product.bp_id }}" class="sr-only" ></label>
+                    <input type="text" class="form-control input text-center" disabled id="end_stamp{{ product.bp_id }}" placeholder="None Assigned" value="{% if product.end_stamp %}{{ product.end_stamp|date("j M y, g:i a", user.ok_timezone) }}{%else%}None Assigned{%endif%}" size="18">
+                </div>
+            </td>
+            <td class="text-center form-inline">
+                <div class="input-group" id="ButtonGroupConfirm{{product.bp_id}}">
+                    <span class="collapse"></span>
+                    <!---MINUS  -->
+                    <span class="input-group-btn">
+                        <button id="btn-credit-minus{{product.bp_id}}"
+                            type="button"
+                            class="btn btn-default btn-credit"
+                            {% if not product.bp_user_credits %}disabled="disabled"{%endif%}
+                            data-type="minus"
+                            data-bp_id="{{product.bp_id}}">
+                            <span id="glyphicon-minus{{product.bp_id}}" class="glyphicon glyphicon-minus"></span>
+                        </button>
+                    </span>
+                    <!---CREDITS -->
+                    <span class="input-group-btn">
+                        <input  type="text"
+                            id="credit{{product.bp_id}}"
+                            name="credit{{product.bp_id}}"
+                            class="form-control input input-number text-center"
+                            value="{% if product.bp_user_credits %}{{product.bp_user_credits}}{%else%}0{%endif%}"
+                            data-max-minus="0"
+                            data-max-plus="99"
+                            size="2"
+                            style="width:41px;min-width:41px;"
+                            disabled >
+                    </span>
+                    <!---PLUS -->
+                    <span class="input-group-btn">
+                        <button id="btn-credit-plus{{product.bp_id}}"
+                            type="button"
+                            class="btn btn-default btn-credit"
+                            {% if user.ok_credits < 0.995 %}disabled="disabled"{%endif%}
+                            data-type="plus"
+                            data-bp_id="{{product.bp_id}}">
+                            <span id="glyphicon-plus{{product.bp_id}}" class="glyphicon glyphicon-plus"></span>
+                        </button>
+                    </span>
+                </div>
+            </td>
+            <td class="text-center"><!-- Expiration  -->
+            <!---CONFIRM -->
+                <button id="btn-confirm{{product.bp_id}}"
+                    style="visibility:hidden;"
+                    type="button"
+                    class="btn btn-confirm btn-success btn-sm"
+                    data-bp_name="{{ product.bp_name }}"
+                    data-bp_id="{{product.bp_id}}">
+                    <span id="glyphicon-confirm{{product.bp_id}}" class="glyphicon glyphicon-ok"></span>
+                </button>
+                <script>if(typeof previous == "undefined"){var previous = {};previous.bp_id=false;}</script>
+            </td>
+        </tr>
+    {% endfor %}
+    </table>
+</div>
+{% endif %}
 <!-- page specific javascript goes here-->
 <script>
 $('.btn-confirm').click(function(event){

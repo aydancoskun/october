@@ -7,7 +7,8 @@ paramCode = "code"
 ==
 <?php
 function onStart(){
-    $code = Request::segment(2);
+    // https://ipi.oktick.com/activation/cdd60ea0045eb7a6ec44c54d29ed402f0b4341741c
+    $code = $this->param('activationcode');
     $user_id = "";
     if($code) {
         // Get userid
@@ -16,10 +17,10 @@ function onStart(){
     if(!$user_id){
         // code not valid
         Flash::error("Activation Code Invalid");
-        return redirect("/");
+        return redirect("/",302);
     }        
         
-    return redirect("/account/password-change/$code");
+    return redirect("/account/$code");
 }
 function getRandomBytes($nbBytes = 32)
 {

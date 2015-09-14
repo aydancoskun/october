@@ -21,6 +21,16 @@
 <script src="/app/ot/assets/js/edit.js"></script>
 <script src="/app/ot/assets/js/pws.js"></script>
 <script src="/app/ot/assets/js/dialog.js"></script>
+<script src="/app/ot/assets/js/bubble.js"></script>
+<script>
+jQuery(function($){ //on document.ready
+    //Apply tooltip to links with class="addspeech", plus look inside 'speechdata.txt' for the tooltip markups
+    $('a.addspeech').speechbubble();
+    //$('a.addspeech').trigger('mouseenter');
+    //$('a.addspeech').trigger('mouseleave');
+    //$('a.addspeech').trigger('hover');
+})
+</script>
 <noscript><div id="noscript-warning" class="alert alert-danger">The accounts section of OKTicK requires that JavaScript is enabled</div>
 <div>You must <a href="http://www.enable-javascript.com" target="_blank">enable JavaScript</a> in your web browser.</div>
 </noscript>

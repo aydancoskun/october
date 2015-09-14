@@ -1,11 +1,15 @@
 title = "Unsubscribe"
-url = "/unsubscribe/:code"
+url = "/unsubscribe/:activationcode"
 layout = "main"
 is_hidden = "0"
 ==
 <?php
 function onInit(){
-    $code = Request::segment(2); //   MjE0ITIhZTNiMzYwMDYyMTZmNjhjODQ5NDYwNWQzZTcwYjllZTc=
+    /*
+/:activationcode?
+    */
+    //   MjE0ITIhZTNiMzYwMDYyMTZmNjhjODQ5NDYwNWQzZTcwYjllZTc=
+    $this['activationcode'] = $code = $this->param('activationcode');
     if(substr($code,-4)=="done"){
         //Flash::success("You were already removed from further emails!");
         $code=substr($code,0,-4);
@@ -15,19 +19,19 @@ function onInit(){
     if (count($parts) < 2) {
         //Flash::error("I'm sorry, Dave. I'm afraid I can't do that.(".$e->getMessage().")");
         Flash::error("I'm sorry, Dave. I'm afraid I can't do that.(faulty code)");
-        return redirect("/");
+        return redirect("/".$code);
     }
     list($user_id, $hash) = $parts;
     $email = DB::table('users')->where('id', $user_id)->pluck('email');
     $this['activation_code'] = DB::table('users')->where('id', $user_id)->pluck('activation_code');
     if (!$email) {
         Flash::error("I'm sorry, Dave. I'm afraid I can't do that.(no such subscriber)");
-        return redirect("/");
+        return redirect("/".$code);
     }
     $verifyCode = base64_encode($user_id.'!' . md5($user_id . '!' . $email));
     if ($code != $verifyCode) {
         Flash::error("I'm sorry, Dave. I'm afraid I can't do that.(invalid code)");
-        return redirect("/");
+        return redirect("/".$code);
     }
 }
 ?>
@@ -70,7 +74,7 @@ function onInit(){
                 <div class="row">
                     <div class="col-xs-0 col-md-4"></div>
                     <div class="col-xs-12 col-md-4">
-                        <a href="activation/{{activation_code}}" role="button" class="btn btn-primary center-block btn-lg">Accept Invitation</a>
+                        <a href="activation/{{activation_code}}" role="button" class="btn btn-primary center-block btn-lg">Get Started!</a>
                     </div> 
                     <div class="col-xs-0 col-md-4"></div>
                 </div>

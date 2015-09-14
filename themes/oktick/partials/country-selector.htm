@@ -2,8 +2,9 @@
 ==
 <?php
 function onStart(){
-    $user = $this->session->user()->attributes;
-    $ok_invoice_country = $user['ok_invoice_country'];
+    if (! Auth::check()) {
+        return redirect("/".$this['activationcode']);
+    }
 $tz["GB"]="United Kingdom";
 $tz["AF"]="Afghanistan";
 $tz["AX"]="Åland Islands";
@@ -249,8 +250,9 @@ $tz["YE"]="Yemen";
 $tz["ZM"]="Zambia";
 $tz["ZW"]="Zimbabwe";
 $print = '<option value="">Please Select</option>'."\n";
+$user = Auth::getUser();
 foreach($tz as $code => $name){
-    if($code == $ok_invoice_country)
+    if($code == $user->ok_invoice_country)
         $print .= '<option value="'.$code.'" selected="selected">'.$name.'</option>'."\n";
     else
         $print .= '<option value="'.$code.'">'.$name.'</option>'."\n";

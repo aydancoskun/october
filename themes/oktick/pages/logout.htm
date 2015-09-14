@@ -1,5 +1,5 @@
 title = "Logout"
-url = "/logout/:done?"
+url = "/logout/:activationcode?"
 layout = "main"
 is_hidden = "0"
 
@@ -7,13 +7,15 @@ is_hidden = "0"
 paramCode = "code"
 ==
 <?php
-use Illuminate\Http\RedirectResponse;
+function onInit(){
+    $this['activationcode']=$this->param('activationcode');
+}
 
 function onStart(){
     Auth::logout();
     Session::flush();
-    Flash::success("You are now logged out");
-    return redirect(env('APP_URL').'/');
+    Flash::success("You are now logged out!");
+    return redirect("/".$this['activationcode']);
 }
 ?>
 ==

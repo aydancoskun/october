@@ -1,22 +1,29 @@
 title = "Products & Services"
-url = "/account/products-services"
+url = "/account/products-services/:activationcode?"
 layout = "main"
 is_hidden = "0"
 ==
 <?php
 use Illuminate\Http\Response;
 
-function onStart(){
-    $now = time();
-    $user = $this->session->user()->attributes;
-    $company_id = $user['ok_company_id'];
-    $user_id = $user['id'];
+function onInit(){
+    /*
+/:activationcode?
+    */
+    $this['activationcode']=$this->param('activationcode');
+}
 
+function onStart(){
+    if (! Auth::check()) {
+        return redirect("/".$this['activationcode']);
+    }
+    $user = Auth::getUser();
+    $now = time();
     $this['pending_products'] = DB::table('operations.bp_suppliers_added')
-                    ->where('user_id', $user_id)
-                    ->where('company_uid', $company_id)
-                    ->orderBy('created_stamp', 'desc')
-                    ->get();
+        ->where('user_id', $user->id)
+        ->where('company_uid', $user->ok_company_id)
+        ->orderBy('created_stamp', 'desc')
+        ->get();
 }
 
 function verifyPost($post_name,$check="int"){
@@ -30,18 +37,19 @@ function verifyPost($post_name,$check="int"){
 }
 
 function onProductPendingDelete(){
+    if (! Auth::check()) {
+        return redirect("/".$this['activationcode']);
+    }
+    $user = Auth::getUser();
     $now = time();
     $uid = $this->verifyPost('uid',"int");
-    $user = $this->session->user()->attributes;
-    $company_id = $user['ok_company_id'];
-    $user_id = $user['id'];
 
     // EXIT if there is no product
     $sql=   "SELECT * FROM operations.bp_suppliers_added ".
             "WHERE ".
             "uid = $uid AND ".
-            "company_uid = $company_id AND ".
-            "user_id = $user_id ".
+            "company_uid = $user->ok_company_id AND ".
+            "user_id = $user->id ".
             "LIMIT 1";
     $dbr = DB::select($sql);
     if( ! isset($dbr[0]) ){
@@ -56,8 +64,8 @@ function onProductPendingDelete(){
     DB::table('operations.bp_suppliers_added')->where('uid',$uid)->delete();
 
     $this['pending_products'] = DB::table('operations.bp_suppliers_added')
-                    ->where('user_id', $user_id)
-                    ->where('company_uid', $company_id)
+                    ->where('user_id', $user->id)
+                    ->where('company_uid', $user->ok_company_id)
                     ->orderBy('created_stamp', 'desc')
                     ->get();
 
@@ -66,19 +74,19 @@ function onProductPendingDelete(){
 }
 
 function onProductDelete(){
-
+    if (! Auth::check()) {
+        return redirect("/".$this['activationcode']);
+    }
+    $user = Auth::getUser();
     $now = time();
     $bp_id = $this->verifyPost('bp_id',"int");
-    $user = $this->session->user()->attributes;
-    $company_id = $user['ok_company_id'];
-    $user_id = $user['id'];
 
     // EXIT if there is money riding on it by anyone
     $sql=   "SELECT count(*) as count ".
             "FROM operations.bp_sponsors ".
             "WHERE ".
             "bp_id = $bp_id AND ".
-            "company_id = $company_id AND ".
+            "company_id = $user->ok_company_id AND ".
             "UNIX_TIMESTAMP(start_stamp) < $now < UNIX_TIMESTAMP(end_stamp)";
     $dbr = DB::select($sql);
     if( $dbr[0]->count > 0 ){
@@ -98,7 +106,7 @@ function onProductDelete(){
             "FROM operations.bp_suppliers ".
             "WHERE ".
             "bp_uid = $bp_id AND ".
-            "company_uid = $company_id ".
+            "company_uid = $user->ok_company_id ".
             "LIMIT 1";
     $dbr = DB::select($sql);
     if( ! isset($dbr[0]) ){
@@ -129,31 +137,26 @@ function onProductDelete(){
             'jump_flag' => $dbr[0]->jump_flag,
             'sing' => $dbr[0]->sing,
             'prime_uid' => $dbr[0]->prime_uid,
-            'company_uid' => $company_id,
+            'company_uid' => $user->ok_company_id,
             'bp_uid' => $bp_id,
-            'user_id' => $user_id,
+            'user_id' => $user->id,
         ));
 
     DB::table('operations.bp_suppliers')->where('uid',$dbr[0]->uid)->delete();
-    $user['ok_company_products_count']=$user['ok_company_products_count']-1;
-    DB::table('oktick.users')
-       ->where('id', $user_id)
-            ->update(array(
-            'ok_company_products_count' => $user['ok_company_products_count'],
-        ));
-
+    $user->ok_company_products_count = $user->ok_company_products_count-1;
+    $user->save();
     DB::commit();
 
     return ['status' => 'success','message' => 'Product Deleted!','log' => [  'Deleted Product ID' => $bp_id,],];
 }
 
 function onProductAdd(){
+    if (! Auth::check()) {
+        return redirect("/".$this['activationcode']);
+    }
+    $user = Auth::getUser();
     $now = time();
     $bp_name = $this->verifyPost('bp_name',"string");
-    $user = $this->session->user()->attributes;
-    $company_id = $user['ok_company_id'];
-    $user_id = $user['id'];
-
     $bp_id = DB::table('operations.bps')->where('bp',$bp_name)->pluck('bp_uid');
 
     if( ! $bp_id) $bp_id = 0;
@@ -173,10 +176,10 @@ function onProductAdd(){
         DB::table('operations.bp_suppliers_added')
             ->insert(array(
                 'bp_name' => $bp_name,
-                'company_uid' => $company_id,
+                'company_uid' => $user->ok_company_id,
                 'status' => 'Pending verification',
                 'bp_uid' => $bp_id,
-                'user_id' => $user_id,)
+                'user_id' => $user->id,)
             );
     }
     catch(Exception $e) {
@@ -202,53 +205,19 @@ function onProductAdd(){
 <div class="container">
 <br>
 <h2 class="text-center">Products & Services Management<br>
-<span class="text-center" style="font-size:14px;">(Click here <span id="ok_help_productservices_on" class="help glyphicon-primary glyphicon glyphicon-question-sign"></span> for help)</span>
+<span class="text-center {% if user.ok_help_productservices %}collapse{% endif %}" id="ok_help_productservices_sign" style="font-size:14px;">(Click here <span id="ok_help_productservices_on" class="help glyphicon-primary glyphicon glyphicon-question-sign"></span> for help)</span>
 </h2>
-
 <div class="row">
     <!--div class="col-xs-1 col-md-1"></div>
     <div class="col-xs-10 col-md-10"-->
         <div id="ok_help_productservices" {% if user.ok_help_productservices==0 %}class="collapse"{% endif %} >
-{% if user.ok_purchase_number < 1 %}
-            <h4 class="text-center"><strong>Welcome to OKTicK!</strong></h4>
-            <p>On this page you can see the list of all products or services we have on record for your business.</p>
-            <p>Because these were automatically collected by our system there may be occassional errors. We suggest you don't worry about this to begin with, but rest assured that you can add and delete any items at any time.</p>
-            <p>You can elevate your standing on the OKTicK search results by clicking on the "Rankings" menu item above. For this purpose we have have given you free credits to work with. You can see at any time how many you have remaining by looking at the badge <span
-                            id="ok_credits"
-                            class="badge {% if user.ok_credits|round(2, 'common') > 0 %}badge-success{%else%}badge-primary{% endif %} badge-menu"
-                            data-toggle="tooltip"
-                            data-trigger="hover"
-                            data-placement="bottom"
-                            title="Number of credits"
-                            data-content="This shows the number of credits you have on account and available to place on products and services"
-                            data-value="{% if user.ok_credits %}{{user.ok_credits}}{%else%}0{% endif %}">{% if user.ok_credits and user.ok_credits > 0 %}{{ user.ok_credits|round(2, 'common') }}{%else%}0{% endif %}</span> next to "Credits" menu item.</p>
-            <p>You can see how many items we hold for your business by looking at the badge <span
-                            id="badge_total"
-                            class="badge {% if user.ok_company_products_count %}badge-success{%else%}badge-primary{% endif %} badge-menu"
-                            data-toggle="tooltip"
-                            data-trigger="hover"
-                            data-placement="bottom"
-                            title="Total number of products and services on the system"
-                            data-content="Total Number of products on system">
-                        {% if user.ok_company_products_count %}{{user.ok_company_products_count}}{%else%}0{% endif %}
-                            </span> next to the "Products &amp; Services" menu item.</p>
-            <p>You can see how many items you are elevating (by applying credit) by looking at the badge <span
-                            id="badge_active"
-                            class="badge {% if user.ok_sponored_products_count %}badge-success{%else%}badge-primary{% endif %} badge-menu"
-                            data-toggle="tooltip"
-                            data-trigger="hover"
-                            data-placement="bottom"
-                            title="Number of elevated Products and Services">
-                        {% if user.ok_sponored_products_count %}{{user.ok_sponored_products_count}}{%else%}0{% endif %}
-                            </span> next to the "Rankings" menu item.</p>
-{% else %}
+            <br>
             <p>{{"&nbsp;&nbsp;&nbsp;"|raw}}</p>
             <p>On this page you can see the list of all products or services we have on record for your business.</p>
             <p>If any are incorrect you can delete them using the delete <button type="button" class="btn btn-delete btn-danger btn-xs"><span class="glyphicon glyphicon-trash"></span></button> button and confirming your choice.</p>
             <p>If you find products or services your business provides are missing from this list, you can add them using the first row. Just enter your item, select your choice from the list and click the <button class="btn btn-success btn-xs"><span class="glyphicon glyphicon-ok"></span></button> button. If you cannot find it on the standard list add it anyway writing it as you normally would. Please note we only accept generic or general designations; trade and service marks are not permitted. Ideally products and services should not be more than three to four words.</p>
             <p>Each products and/or services you propose to add will be shown below your current products in a "Products & Services pending approval" section which appears when you have products pending approval. If you made an error you can delete any pending item. The reason items are not immediately available is because they have to be verified by the OKTicK Team which will be done as quickly as possible depending upon volume of traffic.</p>
-{% endif %}
-            <p>If you don't need this notice any further, click below. You can always re-enable it later by clicking the <span class="glyphicon-primary glyphicon glyphicon-question-sign"></span> sign above.</p>
+            <p>If you don't need this notice any further, click below. You can always re-enable it later by clicking the <span class="glyphicon-primary glyphicon glyphicon-question-sign"></span> sign.</p>
             <div class="text-center">
                 <button id="ok_help_productservices_off" class="btn btn-default btn-sm help"><span class="glyphicon glyphicon-primary glyphicon-thumbs-up"></span>&nbsp;Got it!</button>
                 <br>

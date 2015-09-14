@@ -1,9 +1,16 @@
 title = "Register Resend"
-url = "/register/resend"
+url = "/register/resend/:activationcode?"
 layout = "main"
 is_hidden = "0"
 ==
 <?php
+function onInit(){
+    /*
+/:activationcode?
+    */
+    $this['activationcode']=$this->param('activationcode');
+}
+
 function onStart() {
     $this['email'] = post('email');
     $result = Db::select('select id, name, activation_code from users where email = ? and activation_code IS NOT NULL limit 1', [$this['email']]);

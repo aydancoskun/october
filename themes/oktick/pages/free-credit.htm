@@ -1,0 +1,171 @@
+title = "Free Credit"
+url = "/account/offer/:activationcode?"
+layout = "main"
+is_hidden = "0"
+==
+<?php
+function verifyPost($post_name,$check="int"){
+    if( !isset($_POST[$post_name]) ) return false;
+    $post_val_raw = post($post_name);
+    if($check=="int") $post_val_cast = (int) $post_val_raw;
+    if($check=="float") $post_val_cast = (float) $post_val_raw;
+    if($check=="string") $post_val_cast = (string) $post_val_raw;
+    if( $post_val_raw <> $post_val_cast ) return false;
+    return $post_val_cast;
+}
+
+function onInit() {
+    $this['activationcode'] = $this->param('activationcode');
+}
+
+function onStart() {
+    if (! Auth::check()) {
+        return redirect("/".$this['activationcode']);
+    }
+    $user=Auth::getUser();
+
+    if( $user->ok_credits ){
+        Flash::error("Sorry you already took advantage of this offer.");
+        return redirect("/account/ranking/".$this['activationcode']);
+    }
+    if( $this['activationcode'] <> $user->activation_code){
+        // code not valid
+        Flash::error("Activation Code Invalid");
+        return redirect("/");
+    }
+    if( !isset($_POST['new-password-1']) OR !isset($_POST['new-password-2']) OR !isset($_POST['ok_vendor_data']) OR !isset($_POST['ok_company_name'])) {
+        return;
+    }
+    if(! $_POST['new-password-1'] OR !$_POST['new-password-2']){
+        Flash::error("New passwords can't be left blank. Please rinse and repeat.");
+        return;
+    }
+    if(! $_POST['ok_company_name']){
+        Flash::error("Business name can't be left blank. Please rinse and repeat.");
+        return;
+    }
+    if(! $_POST['ok_vendor_data']){
+        Flash::error("Business description can't be left blank. Please rinse and repeat.");
+        return;
+    }
+    if( $_POST['new-password-1'] <> $_POST['new-password-2']){
+        Flash::error("Password confirmation does not match. Please rinse and repeat.");
+        return;
+    }
+    $new_password = $this->verifyPost('new-password-1',"string");
+    $ok_company_name = $this->verifyPost('ok_company_name',"string");
+    $ok_vendor_data = $this->verifyPost('ok_vendor_data',"string");
+
+    $user=Auth::getUser();
+    if($user->ok_company_products_count <= 3) $offer = 5;
+    elseif($user->ok_company_products_count < 10) $offer = 10;
+    elseif($user->ok_company_products_count >= 10) $offer = 20;
+
+    $user->ok_credits = $offer;
+    $user->password = $new_password;
+    $user->password_confirmation = $new_password;
+    $user->ok_company_name = $ok_company_name;
+    $user->ok_vendor_data = $ok_vendor_data;
+    $user->save();
+    //$user->ok_company_name = $ok_company_name;
+    //$user->ok_vendor_data = $ok_vendor_data;
+    Auth::login($user->reload(), true);
+    try {
+DB::beginTransaction();
+        $ok_company_id=$user->ok_company_id;
+        $company_website_url = DB::table('operations.companies')->where('uid', $ok_company_id)->pluck('company_website_url');
+        $company_name = DB::table('operations.companies')->where('uid', $ok_company_id)->pluck('company_name');
+        $company_country="";
+        if(strpos(strtolower($company_website_url),"uk")!==false) $company_country="uk";
+        if(strpos(strtolower($company_name),"uk")!==false) $company_country="uk";
+
+        DB::table('operations.companies')
+            ->where('uid', $ok_company_id)
+            ->update(array(
+                'signup_completed' => 1,
+                'company_country' => $company_country,
+        ));
+        $score=8;
+        if($company_country=="uk") $score=9;
+        DB::table('operations.bp_supplier_positions')
+            ->where('company_id', $ok_company_id)
+            ->update(array(
+                'bp_position' => DB::raw("floor(bp_position/10)*10 + $score"),
+        ));
+    DB::commit();
+        Flash::success("Data set successfully. $offer Free Credits added!");
+        return redirect("/account/ranking/".$this['activationcode']);
+    } catch (Exception $e) {
+        // looks like we have no user
+        Flash::error("I'm sorry, Dave. I'm afraid I can't do that.(".$e->getMessage().")");
+        return redirect("/");
+    }
+
+    //    $password = Hash::make('secret');
+    //    $password = bcrypt('secret');
+    //Verifying A Password Against A Hash
+    //Checking If A Password Needs To Be Rehashed
+    //    if (Hash::needsRehash($hashed)) {
+    //        $hashed = Hash::make('secret');
+    //    }
+}
+?>
+==
+{% partial "head" %}
+{% partial "nav-top" %}
+<div class="container">
+<br>
+<h2 class="text-center">Free Credit Offer<br></h2>
+
+<div class="row">
+    <div class="col-xs-0 col-md-2"></div>
+    <div class="col-xs-12 col-md-8">
+        <p>{{"&nbsp;&nbsp;&nbsp;"|raw}}</p>
+        <div>
+            <p>We are offering you credits free of any charge on the OKTicK Search Engine.</p>
+            <p>With these you can move your goods & services up in the search results and see how easy it is to promote your stuff.</p>
+            <p>In order for you to effectively apply these credits, please do this:</p>
+            <p>a) Select a password of your own choosing so you can come back later.</p>
+            <p>b) Adjust your business name &amp; description as needed so your products are represented correctly.</p>
+        </div>
+    </div>
+    <div class="col-xs-0 col-md-2"></div>
+</div>
+
+<div class="row">
+    <div class="col-xs-1 col-md-2"></div>
+    <div class="col-xs-10 col-md-8">
+        <form id="update_account_form" action="" method="post">
+            <div class="form-group has-feedback input-group-lg">
+                <label class="control-label" for="new-password-1">Choose a password (Good ones are unique, easy to remember but hard to guess)</label>
+                <input type="password" class="form-control" id="new-password-1" name="new-password-1" aria-describedby="new-password-1">
+                <span class="glyphicon glyphicon-ok form-control-feedback collapse" aria-hidden="true"></span>
+                <span id="new-password-1-status" class="sr-only">(success)</span>
+            </div>
+            <div class="form-group has-feedback input-group-lg">
+                <label class="control-label" for="new-password-2"><small>Please verify your password</small></label>
+                <input type="password" class="form-control" id="new-password-2" name="new-password-2" aria-describedby="new-password-2">
+                <span class="glyphicon glyphicon-ok form-control-feedback collapse" aria-hidden="true"></span>
+                <span id="new-password-2-status" class="sr-only">(success)</span>
+            </div>
+            <div>
+                <p></p>
+            </div>
+            <div class="form-group input-group-lg">
+                <label for="Business_Name">Business Display Name (edit as needed)</label>
+                <input type="text" class="form-control" id="ok_company_name" placeholder='E.g. "Tim Taylor Tinker Ltd"' value="{{ user.ok_company_name }}" name="ok_company_name">
+            </div>
+            <div class="form-group input-group-lg">
+                <label for="Business_Description">Business Description<br><small>When you are listed in the search result, this will shown along with your business name to potential customers. Therefore you should tell them what goods you sell and services you provide (max 128 letters)</small></label>
+                <input type="text" class="form-control" id="ok_vendor_data" placeholder="E.g. &quot;stainless steel & exotic alloy valves&quot; or &quot;oak & pinewood furniture&quot;" value="{{ user.ok_vendor_data }}" name="ok_vendor_data">
+            </div>
+            <div class="text-right">
+                <button type="submit" class="btn btn-primary btn">Submit</button>
+            </div>
+        </form>
+    </div>
+    <div class="col-xs-1 col-md-2"></div>
+</div>
+</div><!--/container -->
+{% partial "nav-bottom" %}
+{% partial "foot" %}

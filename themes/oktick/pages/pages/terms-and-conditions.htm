@@ -1,9 +1,18 @@
 title = "Terms and Conditions"
-url = "/terms-and-conditions"
+url = "/terms-and-conditions/:activationcode?"
 layout = "main"
 is_hidden = "0"
 
 [editable]
+==
+<?php
+function onInit(){
+    /*
+/:activationcode?
+    */
+    $this['activationcode']=$this->param('activationcode');
+}
+?>
 ==
 {% partial "head" %}
 {% partial "nav-top" %}

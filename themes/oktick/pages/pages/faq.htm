@@ -1,22 +1,22 @@
 title = "FAQ"
-url = "/faq"
+url = "/faq/:activationcode?"
 layout = "main"
 is_hidden = "0"
 
 [editable]
 ==
 <?php
-function onInit()
-{
+function onInit(){
+    /*
+/:activationcode?
+    */
+    $this['activationcode']=$this->param('activationcode');
+}
 //    foreach($this->faqDisplayer->selectedFaqGroup->questions() as $q) echo $q;
  //   $selectedFaqGroup = $this['faqDisplayer']->selectedFaqGroup();
  //   $questions_obj = $selectedFaqGroup['relations']['questions'];
  //   var_dump($questions_obj->items());
  //   exit;
-}
-function onStart(){
-
-}
 ?>
 ==
 {% partial "head" %}
