@@ -1,0 +1,52 @@
+[
+    {
+        "name": "owl/hasmany",
+        "version": "dev-master",
+        "version_normalized": "9999999-dev",
+        "source": {
+            "type": "git",
+            "url": "https://github.com/october-widgets/hasmany.git",
+            "reference": "dc906963a6bc9f0aa868ced1df39e9ccceed5c9b"
+        },
+        "dist": {
+            "type": "zip",
+            "url": "https://api.github.com/repos/october-widgets/hasmany/zipball/dc906963a6bc9f0aa868ced1df39e9ccceed5c9b",
+            "reference": "dc906963a6bc9f0aa868ced1df39e9ccceed5c9b",
+            "shasum": ""
+        },
+        "require": {
+            "php": ">=5.4.0"
+        },
+        "time": "2015-04-09 16:09:36",
+        "type": "library",
+        "extra": {
+            "branch-alias": {
+                "dev-master": "1.0-dev"
+            }
+        },
+        "installation-source": "source",
+        "autoload": {
+            "psr-4": {
+                "Owl\\FormWidgets\\HasMany\\": ""
+            }
+        },
+        "notification-url": "https://packagist.org/downloads/",
+        "license": [
+            "MIT"
+        ],
+        "authors": [
+            {
+                "name": "Scott Bedard",
+                "email": "scottbedard90@gmail.com"
+            }
+        ],
+        "description": "Has-many / belongs-to relation subforms.",
+        "homepage": "http://github.com/october-widgets",
+        "keywords": [
+            "hasmany",
+            "october",
+            "october cms",
+            "owl"
+        ]
+    }
+]
