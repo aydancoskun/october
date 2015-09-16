@@ -10,7 +10,7 @@ if (!defined('PHPLISTINIT')) die(); ## avoid direct access
 
 ## don't remove spaces
 if (!defined  (  'STRUCTUREVERSION'  )) {
-  define("STRUCTUREVERSION","dev");
+  define("STRUCTUREVERSION","3.2.0");
 }
 
 $DBstructuser = array( # order of tables is essential for smooth upgrade
@@ -344,7 +344,7 @@ $DBstructuser = array( # order of tables is essential for smooth upgrade
          "url" => array("varchar(255) not null",""),
          "lastmodified" => array("integer",""),
          "added" => array("datetime",""),
-         "content" => array("mediumtext",""),
+         "content" => array("longblob",""), 
          "index_1" => array("urlindex (url)",""),
       ),
       //"gchartcache" => array(

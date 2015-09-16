@@ -1,21 +1,7 @@
 <?php
 
-
-
-if (!defined('VERSION')) {
-  if (!ini_get('open_basedir') && is_dir(dirname(__FILE__).'/../../../.git')) {
-    define("VERSION","3.0.12");
-    define('DEVVERSION',true);
-  } else {
-    define("VERSION","3.0.12");
-    define('DEVVERSION',false);
-  }
-} else {
-  define(   'DEVVERSION'    ,false);
-}
-
-require_once dirname(__FILE__)."/commonlib/lib/userlib.php";
-include_once dirname(__FILE__)."/commonlib/lib/maillib.php";
+require_once dirname(__FILE__)."/inc/userlib.php";
+include_once dirname(__FILE__)."/inc/maillib.php";
 
 # set some variables
 if (!isset ($_GET["pi"]))
@@ -59,20 +45,13 @@ $GLOBALS['img_busy'] = '<img src="images/busy.gif" with="34" height="34" border=
 $checkboxgroup_storesize = 1; # this will allow 10000 options for checkboxes
 
 # identify pages that can be run on commandline
-$commandline_pages = array('dbcheck','send','processqueueforked','processqueue','processbounces','import','upgrade','convertstats','reindex','blacklistemail','systemstats','converttoutf8','initlanguages'); 
+$commandline_pages = array('dbcheck','send','processqueueforked','processqueue','processbounces','import','upgrade','convertstats','reindex','blacklistemail','systemstats','converttoutf8','initlanguages', 'cron'); 
 
 if (isset($message_envelope)) {
   $envelope = "-f$message_envelope";
 }
   
 include_once dirname(__FILE__)."/pluginlib.php";
-
-/*
-$database_schema = '';
-$database_connection = Sql_Connect($database_host,$database_user,$database_password,$database_name);
-Sql_Set_Search_Path($database_schema);
-*/
-
 
 ## this needs more testing, and docs on how to set the Timezones in the DB
 if (defined('SYSTEM_TIMEZONE')) {
@@ -97,7 +76,7 @@ if (defined('SYSTEM_TIMEZONE')) {
 #  print "Time now: ".date('Y-m-d H:i:s').'<br/>';
 }
 
-if (!empty($GLOBALS["SessionTableName"])) {
+if (!empty($GLOBALS["SessionTableName"])) { // rather undocumented feature, but seems to be used by some
   include_once dirname(__FILE__)."/sessionlib.php";
 }
 
@@ -191,7 +170,7 @@ function SaveConfig($item,$value,$editable=1,$ignore_errors = 0) {
     $value = $configInfo['value'];
   }
   if (!empty($configInfo['hidden'])) {
-    $editable = false;
+    $editable = 0;
   }
   
   ## force reloading config values in session
@@ -199,7 +178,7 @@ function SaveConfig($item,$value,$editable=1,$ignore_errors = 0) {
   ## and refresh the config immediately https://mantis.phplist.com/view.php?id=16693
   unset($GLOBALS['config']); 
   
-  Sql_Replace( $tables["config"], array('item'=>$item, 'value'=>$value, 'editable'=>$editable), 'item');
+  Sql_Query(sprintf('replace into %s set item = "%s", value = "%s", editable = %d',$tables["config"],sql_escape($item),sql_escape($value),$editable));
   return false; ## true indicates error, and which one
 }
 
@@ -218,11 +197,11 @@ if (DEVVERSION)
 else
   $v = VERSION;
 if (REGISTER) {
-  $PoweredByImage = '<p class="poweredby"><a href="http://www.phplist.com/poweredby?utm_source=pl'.$v.'&amp;utm_medium=poweredhostedimg&amp;utm_campaign=phpList" title="visit the phpList website" ><img src="'.PHPLIST_POWEREDBY_URLROOT.'/'.$v.'/power-phplist.png" width="70" height="30" title="powered by phpList version '.$v.', &copy; phpList ltd" alt="powered by phpList '.$v.', &copy; phpList ltd" border="0" /></a></p>';
+  $PoweredByImage = '<p class="poweredby"><a href="https://www.phplist.com/poweredby?utm_source=pl'.$v.'&amp;utm_medium=poweredhostedimg&amp;utm_campaign=phpList" title="visit the phpList website" ><img src="'.PHPLIST_POWEREDBY_URLROOT.'/'.$v.'/power-phplist.png" width="70" height="30" title="powered by phpList version '.$v.', &copy; phpList ltd" alt="powered by phpList '.$v.', &copy; phpList ltd" border="0" /></a></p>';
 } else {
-  $PoweredByImage = '<p class="poweredby"><a href="http://www.phplist.com/poweredby?utm_source=pl'.$v.'&amp;utm_medium=poweredlocalimg&amp;utm_campaign=phpList" title="visit the phpList website"><img src="images/power-phplist.png" width="70" height="30" title="powered by phpList version '.$v.', &copy; phpList ltd" alt="powered by phpList '.$v.', &copy; phpList ltd" border="0"/></a></p>';
+  $PoweredByImage = '<p class="poweredby"><a href="https://www.phplist.com/poweredby?utm_source=pl'.$v.'&amp;utm_medium=poweredlocalimg&amp;utm_campaign=phpList" title="visit the phpList website"><img src="images/power-phplist.png" width="70" height="30" title="powered by phpList version '.$v.', &copy; phpList ltd" alt="powered by phpList '.$v.', &copy; phpList ltd" border="0"/></a></p>';
 }
-$PoweredByText = '<div style="clear: both; font-family: arial, verdana, sans-serif; font-size: 8px; font-variant: small-caps; font-weight: normal; padding: 2px; padding-left:10px;padding-top:20px;">powered by <a href="http://www.phplist.com/poweredby?utm_source=download'.$v.'&amp;utm_medium=poweredtxt&amp;utm_campaign=phpList" target="_blank" title="powered by phpList version '.$v.', &copy; phpList ltd">phpList</a></div>';
+$PoweredByText = '<div style="clear: both; font-family: arial, verdana, sans-serif; font-size: 8px; font-variant: small-caps; font-weight: normal; padding: 2px; padding-left:10px;padding-top:20px;">powered by <a href="https://www.phplist.com/poweredby?utm_source=download'.$v.'&amp;utm_medium=poweredtxt&amp;utm_campaign=phpList" target="_blank" title="powered by phpList version '.$v.', &copy; phpList ltd">phpList</a></div>';
 
 if (!TEST && REGISTER) {
   if (!PAGETEXTCREDITS) {
@@ -281,10 +260,15 @@ function formStart($additional="") {
 	return $html;
 }
 
-function checkAccess($page) {
-  global $tables;
-  if (!$GLOBALS["commandline"] && isset($GLOBALS['disallowpages']) && in_array($page,$GLOBALS['disallowpages'])) {
-    return 0;
+function checkAccess($page,$pluginName = '') {
+  if (empty($pluginName)) {
+      if (!$GLOBALS["commandline"] && isset($GLOBALS['disallowpages']) && in_array($page,$GLOBALS['disallowpages'])) {
+        return 0;
+      }
+  } else {
+      if (!$GLOBALS["commandline"] && isset($GLOBALS['disallowpages']) && in_array($page.'&pi='.$pluginName,$GLOBALS['disallowpages'])) {
+        return 0;
+      }
   }
   
 /*
@@ -430,6 +414,14 @@ function join_clean($sep,$array) {
 }
 
 function Fatal_Error($msg,$documentationURL = '') {
+  if (empty($_SESSION['fatalerror'])) $_SESSION['fatalerror'] = 0;
+  $_SESSION['fatalerror']++;
+  header('Fatal error',true,509);
+  if ($_SESSION['fatalerror'] > 5) {
+    $_SESSION['logout_error'] = s('Too many errors, please login again');
+    Redirect('logout&err=2');
+  }
+  
   if ($GLOBALS['commandline']) {
     @ob_end_clean();
     print "\n".$GLOBALS["I18N"]->get("fatalerror").": ".strip_tags($msg)."\n";
@@ -498,7 +490,7 @@ function ActionResult($msg) {
     print "\n".strip_tags($msg)."\n";
     @ob_start();
   } else {
-    return '<div class="result">'.$msg.'</div>';
+    return '<div class="actionresult">'.$msg.'</div>';
   }
 }
 
@@ -527,21 +519,23 @@ $GLOBALS['pagecategories'] = array(
         'export',
         'listbounces',
         'massremove',
-        'massunconfirm',
+        'suppressionlist',
         'reconcileusers',
         'usercheck',
         'userhistory',
         'user',
+        'adduser',
       ),
      'menulinks' => array(
         'users',
+        'adduser',
         'usermgt',
         'list',
         'import',
         'export',
         'listbounces',
  #       'massremove',
-        'massunconfirm',
+        'suppressionlist',
         'reconcileusers',
  #       'usercheck',
       ),
@@ -603,7 +597,7 @@ $GLOBALS['pagecategories'] = array(
         'updatetranslation',
       ),
       'menulinks' => array(
-        'bounces',
+   #     'bounces',
         'updatetranslation',
         'dbcheck',
         'eventlog',
@@ -611,7 +605,7 @@ $GLOBALS['pagecategories'] = array(
         'upgrade',
         'bouncemgt',
         'processqueue',
-        'processbounces',
+   #     'processbounces',
         'reindex',
       ),
   ),
@@ -742,12 +736,12 @@ function contextMenu() {
   if ($nm != "phplist") {
     $GLOBALS["context_menu"]["community"] = "";
   }
-  if (USE_ADVANCED_BOUNCEHANDLING) {
+ # if (USE_ADVANCED_BOUNCEHANDLING) {
     $GLOBALS["context_menu"]["bounces"] = "";
     $GLOBALS["context_menu"]["processbounces"] = "";
-  } else {
-    $GLOBALS["context_menu"]["bouncemgt"] = '';
-  }
+ # } else {
+ #   $GLOBALS["context_menu"]["bouncemgt"] = '';
+ # }
 
   if ($GLOBALS["require_login"] && (!isset ($_SESSION["adminloggedin"]) || !$_SESSION["adminloggedin"]))
     return '<ul class="contextmenu">'.$spb . PageLink2('home', $GLOBALS["I18N"]->get('Main Page')) . '<br />' . $spe . $spb . PageLink2('about', $GLOBALS["I18N"]->get('about') . ' phplist') . '<br />' . $spe.'</ul>';
@@ -767,7 +761,7 @@ function contextMenu() {
       break;
   }
   if (TEST && REGISTER)
-    $pixel = '<img src="http://powered.phplist.com/images/pixel.gif" width="1" height="1" alt="" />';
+    $pixel = '<img src="https://d3u7tsw7cvar0t.cloudfront.net/images/pixel.gif" width="1" height="1" alt="" />';
   else
     $pixel = "";
   global $tables;
@@ -897,7 +891,7 @@ function recentlyVisited() {
             $titlehover = $GLOBALS['I18N']->pageTitleHover($p);
           }
           if (!empty($p) && !empty($title) && !in_array($url,$browsetaildone)) {
-            $html .= '<li class="shade'.$shade.'"><a href="./?'.htmlspecialchars($url).'" title="'.htmlspecialchars($titlehover).'"><!--'.$pageid.'-->'.$title.'</a></li>';
+            $html .= '<li class="shade'.$shade.'"><a href="./?'.htmlspecialchars($url).addCsrfGetToken().'" title="'.htmlspecialchars($titlehover).'"><!--'.$pageid.'-->'.$title.'</a></li>';
             $shade = !$shade;
             $browsetaildone[] = $url;
             $num++;
@@ -1016,7 +1010,7 @@ function PageLink2($name,$desc="",$url="",$no_plugin = false,$title = '') {
   }
   
   $pqChoice = getConfig('pqchoice');
-  $hideProcessQueue = !MANUALLY_PROCESS_QUEUE || $pqChoice == 'phplistdotcom';
+  $hideProcessQueue = !MANUALLY_PROCESS_QUEUE;
   
   if ($access == "owner" || $access == "all" || $access == "view") {
     if ($name == "processqueue" && $hideProcessQueue)
@@ -1030,7 +1024,7 @@ function PageLink2($name,$desc="",$url="",$no_plugin = false,$title = '') {
       }
       
       if (!empty($_SESSION['csrf_token'])) {
-        $token = '&tk='.$_SESSION['csrf_token'];
+        $token = '&amp;tk='.$_SESSION['csrf_token'];
       } else {
         $token = '';
       }
@@ -1133,8 +1127,9 @@ function PageURL2($name,$desc = "",$url="",$no_plugin = false) {
   }
 }
 
-#function ListofLists($messagedata,$fieldname,$subselect) {
 function ListofLists($current,$fieldname,$subselect) {
+  ## @@TODO, this is slow on more than 150 lists. We should add caching or optimise
+  $GLOBALS['systemTimer']->interval();
   $categoryhtml = array();
   ## add a hidden field, so that all checkboxes can be unchecked while keeping the field in POST to process it
  # $categoryhtml['unselect'] = '<input type="hidden" name="'.$fieldname.'[unselect]" value="1" />';
@@ -1155,17 +1150,18 @@ function ListofLists($current,$fieldname,$subselect) {
 
   ## need a better way to suppress this
   if ($_GET['page'] != 'send') {
-    $categoryhtml['all'] .= '<li>'.PageLinkDialog('addlist',$GLOBALS['I18N']->get('Add a list')).'</li>';
+    $categoryhtml['all'] .= '<li>'.PageLinkDialog('addlist',s('Add a list')).'</li>';
   }
-
+  
   $result = Sql_query('select * from '.$GLOBALS['tables']['list']. $subselect.' order by category, name');
   $numLists = Sql_Affected_Rows();
+  
   while ($list = Sql_fetch_array($result)) {
     if (empty($list['category'])) {
       if ($numLists < 5) { ## for a small number of lists, add them to the @ tab
         $list['category'] = 'all';
       } else {
-        $list['category'] = $GLOBALS['I18N']->get('Uncategorised');
+        $list['category'] = s('Uncategorised');
       }
     }
     if (!isset($categoryhtml[$list['category']])) {
@@ -1174,16 +1170,16 @@ function ListofLists($current,$fieldname,$subselect) {
     if (isset($current[$list["id"]]) && $current[$list["id"]]) {
       $list['category'] = 'selected';
     }
-    $categoryhtml[$list['category']] .= sprintf('<li><input type=checkbox name="'.$fieldname.'[%d]" value="%d" ',$list["id"],$list["id"]);
+    $categoryhtml[$list['category']] .= sprintf('<li><input type="checkbox" name="'.$fieldname.'[%d]" value="%d" ',$list["id"],$list["id"]);
     # check whether this message has been marked to send to a list (when editing)
     if (isset($current[$list["id"]]) && $current[$list["id"]]) {
       $categoryhtml[$list['category']] .= "checked";
     }
     $categoryhtml[$list['category']] .= " />".htmlspecialchars(stripslashes($list["name"]));
     if ($list["active"]) {
-      $categoryhtml[$list['category']] .= ' (<span class="activelist">'.$GLOBALS['I18N']->get('Public list').'</span>)';
+      $categoryhtml[$list['category']] .= ' <span class="activelist">'.s('Public list').'</span>';
     } else {
-      $categoryhtml[$list['category']] .= ' (<span class="inactivelist">'.$GLOBALS['I18N']->get('Private list').'</span>)';
+      $categoryhtml[$list['category']] .= ' <span class="inactivelist">'.s('Private list').'</span>';
     }
 
     if (!empty($list["description"])) {
@@ -1194,10 +1190,12 @@ function ListofLists($current,$fieldname,$subselect) {
     $some = 1;
   }
   if (empty($categoryhtml['selected'])) unset($categoryhtml['selected']);
+#  file_put_contents('/tmp/timer.log','ListOfLists '.$GLOBALS['systemTimer']->interval(). "\n",FILE_APPEND);
   return $categoryhtml;
 }
 
 function listSelectHTML ($current,$fieldname,$subselect,$alltab = '') {
+  $GLOBALS['systemTimer']->interval();
   $categoryhtml = ListofLists($current,$fieldname,$subselect);
 
   $tabno = 1;
@@ -1216,7 +1214,15 @@ function listSelectHTML ($current,$fieldname,$subselect,$alltab = '') {
       if ($some > 1) { ## don't show tabs, when there's just one
         $listindex .= sprintf('<li><a href="#%s%d">%s</a></li>',$fieldname,$tabno,$category);
       }
-      $listhtml .= sprintf('<div id="%s%d"><ul>%s</ul></div>',$fieldname,$tabno,$content);
+      if ($fieldname == 'targetlist') {
+          // Add select all checkbox in every category to select all lists in that category.
+          if ($category == 'selected') {
+             $content = sprintf('<li class="selectallcategory"><input type="checkbox" name="all-lists-'.$fieldname.'-cat-' . str_replace(' ', '-', strtolower($category)) . '" checked="checked">'.s('Select all').'</li>') . $content;
+          } elseif ($category != '@') {
+             $content = sprintf('<li class="selectallcategory"><input type="checkbox" name="all-lists-'.$fieldname.'-cat-' . str_replace(' ', '-', strtolower($category)) . '">'.s('Select all').'</li>') . $content;
+          }
+      }
+      $listhtml .= sprintf('<div class="%s" id="%s%d"><ul>%s</ul></div>', str_replace(' ', '-', strtolower($category)), $fieldname,$tabno,$content);
       $tabno++;
     }
   }
@@ -1226,8 +1232,9 @@ function listSelectHTML ($current,$fieldname,$subselect,$alltab = '') {
   $html .= '</div><!-- end of tabbed -->'; ## close tabbed
 
   if (!$some) {
-    $html = $GLOBALS['I18N']->get('There are no lists available');
+    $html = s('There are no lists available');
   }
+# file_put_contents('/tmp/timer.log','ListSelectHTML '.$GLOBALS['systemTimer']->interval(). "\n",FILE_APPEND);
   return $html;
 }
 
@@ -1264,13 +1271,19 @@ function getSelectedLists($fieldname) {
   return $lists;
 }
 
-function Redirect($page) {
-  if (!empty($_SERVER['HTTP_HOST'])) {
-    $website = $_SERVER['HTTP_HOST'];
+function hostName() {
+  if (HTTP_HOST) {
+    return HTTP_HOST;
+  } elseif (!empty($_SERVER['HTTP_HOST'])) {
+    return $_SERVER['HTTP_HOST'];
   } else {
     ## could check SERVER_NAME as well
-    $website = getConfig("website");
+    return getConfig("website");
   }
+}
+
+function Redirect($page) {
+  $website = hostName();
   Header("Location: ".$GLOBALS['admin_scheme']."://".$website.$GLOBALS["adminpages"]."/?page=$page");
   exit;
 }
@@ -1352,7 +1365,7 @@ function dbg($variable, $description = 'Value', $nestingLevel = 0) {
 function PageData($id) {
   global $tables;
   $req = Sql_Query(sprintf('select * from %s where id = %d',$tables["subscribepage_data"],$id));
-  if (!Sql_Num_Rows($req)) {
+  if (!Sql_Affected_Rows()) {
     $data = array();
     $data["header"] = getConfig("pageheader");
     $data["footer"] = getConfig("pagefooter");
@@ -1395,6 +1408,9 @@ function PageData($id) {
     }
     $data[$row["name"]] = preg_replace('/<\?=VERSION\?>/i', VERSION, $data[$row['name']]);
     $data[$row["name"]] = str_ireplace('[organisation_name]', $GLOBALS['organisation_name'], $data[$row['name']]);
+    $data[$row["name"]] = str_ireplace('[website]', $GLOBALS['website'], $data[$row['name']]);
+    $data[$row["name"]] = str_ireplace('[website]', $GLOBALS['domain'], $data[$row['name']]);
+    //@@ TODO, add call to plugins here? 
   }
   if (!isset ($data['lists']))
     $data['lists'] = '';
@@ -1464,7 +1480,7 @@ $newpoweredimage = 'iVBORw0KGgoAAAANSUhEUgAAAEsAAAAhCAYAAACRIVbWAAAABHNCSVQICAgI
 
 function FileNotFound($msg = '') {
   ob_end_clean();
-  header("HTTP/1.0 404 File Not Found");
+  header("HTTP/1.0 404 File Not Found",true,404);
   if (defined('ERROR404PAGE') && is_file($_SERVER['DOCUMENT_ROOT'].'/'.ERROR404PAGE)) {
     print file_get_contents($_SERVER['DOCUMENT_ROOT'].'/'.ERROR404PAGE);
     exit;
@@ -1539,25 +1555,55 @@ function repeatMessage($msgid) {
 
   $data = loadMessageData($msgid);
   ## do not repeat when it has already been done
-  if (!empty($data['repeatedid'])) return;
+  if ($data['repeatinterval'] == 0 || !empty($data['repeatedid']))
+    return;
 
-  # get the future embargo, either "repeat" minutes after the old embargo
-  # or "repeat" after this very moment to make sure that we're not sending the
-  # message every time running the queue when there's no embargo set.
+  # calculate the future embargo, a multiple of repeatinterval minutes after the current embargo
+
   $msgdata = Sql_Fetch_Array_Query(
-    sprintf('select *,date_add(embargo,interval repeatinterval minute) as newembargo,
-      date_add(now(),interval repeatinterval minute) as newembargo2, date_add(embargo,interval repeatinterval minute) > now() as isfuture
-      from %s where id = %d and repeatuntil > now()',$GLOBALS["tables"]["message"],$msgid));
-  if (!$msgdata["id"] || !$msgdata["repeatinterval"]) return;
+    sprintf(
+        'SELECT *,
+        embargo +
+            INTERVAL (FLOOR(TIMESTAMPDIFF(MINUTE, embargo, GREATEST(embargo, NOW())) / repeatinterval) + 1) * repeatinterval MINUTE AS newembargo
+        FROM %s
+        WHERE id = %d AND now() < repeatuntil',
+        $GLOBALS["tables"]["message"],
+        $msgid
+    )
+  );
+
+  if (!$msgdata) {
+    logEvent("Message $msgid not repeated due to reaching the repeatuntil date");
+    return;
+  }
+
+  # check whether the new embargo is not on an exclusion
+  if (isset($GLOBALS["repeat_exclude"]) && is_array($GLOBALS["repeat_exclude"])) {
+    $loopcnt = 0;
+
+    while (excludedDateForRepetition($msgdata["newembargo"])) {
+      if (++$loopcnt > 15) {
+        logEvent("Unable to find new embargo date too many exclusions? for message $msgid");
+        return;
+      }
+      $result = Sql_Fetch_Array_Query(
+          sprintf(
+            "SELECT '%s' + INTERVAL repeatinterval MINUTE AS newembargo
+            FROM %s
+            WHERE id = %d",
+            $msgdata["newembargo"],
+            $GLOBALS["tables"]["message"],
+            $msgid
+          )
+      );
+      $msgdata['newembargo'] = $result['newembargo'];
+    }
+  }
 
   # copy the new message
-  $query
-  = ' insert into ' . $GLOBALS['tables']['message']
-  . '    (entered)'
-  . ' values'
-  . '    (current_timestamp)';
-  Sql_Query($query);
-  $newid = Sql_Insert_Id($GLOBALS['tables']['message'], 'id');
+  Sql_Query(sprintf('
+    insert into %s (entered) values(now())',$GLOBALS["tables"]["message"]));
+  $newid = Sql_Insert_id();
   require dirname(__FILE__).'/structure.php';
   if (!is_array($DBstruct["message"])) {
     logEvent("Error including structure when trying to duplicate message $msgid");
@@ -1569,33 +1615,14 @@ function repeatMessage($msgid) {
         $GLOBALS["tables"]["message"],$column,addslashes($msgdata[$column]),$newid));
      }
   }
-  $req = Sql_Query(sprintf('select * from %s where id = %d',
-    $GLOBALS['tables']['messagedata'],$msgid));
+  $req = Sql_Query(sprintf(
+    "SELECT *
+    FROM %s
+    WHERE id = %d AND name NOT IN ('id')",
+    $GLOBALS['tables']['messagedata'],$msgid
+  ));
   while ($row = Sql_Fetch_Array($req)) {
     setMessageData($newid,$row['name'],$row['data']);
-  }
-
-  # check whether the new embargo is not on an exclusion
-  if (isset($GLOBALS["repeat_exclude"]) && is_array($GLOBALS["repeat_exclude"])) {
-    $repeatinterval = $msgdata["repeatinterval"];
-    $loopcnt = 0;
-    while (excludedDateForRepetition($msgdata["newembargo"])) {
-      $repeat += $msgdata["repeatinterval"];
-      $loopcnt++;
-      $msgdata = Sql_Fetch_Array_Query(
-          sprintf('select *,date_add(embargo,interval %d minute) as newembargo,
-            date_add(current_timestamp,interval %d minute) as newembargo2, date_add(embargo,interval %d minute) > current_timestamp as isfuture
-            from %s where id = %d and repeatuntil > current_timestamp',$repeatinterval,$repeatinterval,$repeatinterval,
-            $GLOBALS["tables"]["message"],$msgid));
-      if ($loopcnt > 15) {
-        logEvent("Unable to find new embargo date too many exclusions? for message $msgid");
-        return;
-      }
-    }
-  }
-  # correct some values
-  if (!$msgdata["isfuture"]) {
-    $msgdata["newembargo"] = $msgdata["newembargo2"];
   }
 
   Sql_Query(sprintf('update %s set embargo = "%s",status = "submitted",sent = "" where id = %d',
@@ -1614,7 +1641,7 @@ function repeatMessage($msgid) {
   # lists
   $req = Sql_Query(sprintf('select listid from %s where messageid = %d',$GLOBALS["tables"]["listmessage"],$msgid));
   while ($row = Sql_Fetch_Row($req)) {
-    Sql_Query(sprintf('insert into %s (messageid,listid,entered) values(%d,%d,current_timestamp)',
+    Sql_Query(sprintf('insert into %s (messageid,listid,entered) values(%d,%d,now())',
       $GLOBALS["tables"]["listmessage"],$newid,$row[0]));
   }
 
@@ -1634,7 +1661,7 @@ function repeatMessage($msgid) {
       values("%s","%s","%s","%s",%d)',
       $GLOBALS["tables"]["attachment"],addslashes($row["filename"]),addslashes($row["remotefile"]),
       addslashes($row["mimetype"]),addslashes($row["description"]),$row["size"]));
-    $attid = Sql_Insert_Id($GLOBALS['tables']['attachment'], 'id');
+    $attid = Sql_Insert_id();
     Sql_Query(sprintf('insert into %s (messageid,attachmentid) values(%d,%d)',
       $GLOBALS["tables"]["message_attachment"],$newid,$attid));
   }
@@ -1679,6 +1706,15 @@ function formatDateTime ($datetime,$short = 0) {
   return formatDate($date,$short). " ".formatTime($time,$short);
 }
 
+function cl_processtitle($title) {
+    $title = preg_replace('/[^\w-]/','',$title);
+    if (function_exists('cli_set_process_title')) { // PHP5.5 and up
+        cli_set_process_title ('phpList:'.$GLOBALS['installation_name'].':'.$title ) ;
+    } elseif (function_exists('setproctitle')) { // pecl extension
+        setproctitle ('phpList:'.$GLOBALS['installation_name'].':'.$title ) ;
+    }
+}
+
 function cl_output($message) {
   if (!empty($GLOBALS["commandline"])) {
     @ob_end_clean();
@@ -1700,7 +1736,7 @@ function phplist_shutdown () {
   $status = connection_status();
   if ($GLOBALS["mail_error_count"]) {
    $message = "Some errors occurred in the phpList Mailinglist System\n"
-    ."URL: {$_SERVER['HTTP_HOST']}{$_SERVER['REQUEST_URI']}\n"
+    ."URL: ".$GLOBALS['admin_scheme']."://".hostName()."{$_SERVER['REQUEST_URI']}\n"
     ."Error message(s):\n\n"
 
     .$GLOBALS["mail_error"];
@@ -1708,13 +1744,13 @@ function phplist_shutdown () {
     if (is_array($_SERVER))
     while (list($key,$val) = each ($_SERVER)) {
       if (stripos($key,"password") === false) {
-        $message .= $key . "=" . $val . "\n";
+        $message .= $key . "=" . serialize($val) . "\n";
       }
     }
     foreach ($GLOBALS['plugins'] as $pluginname => $plugin) {
       $plugin->processError($message);
     }
-#    sendMail(getConfig("report_address"),$GLOBALS["installation_name"]." Mail list error",,"");
+#   sendMail(getConfig("report_address"),$GLOBALS["installation_name"]." Mail list error",$message);
   }
 
 #  print "Phplist shutdown $status";
@@ -1773,7 +1809,7 @@ function listPlaceHolders() {
   $html = '<table border="1"><tr><td><strong>'.s('Attribute').'</strong></td><td><strong>'.s('Placeholder').'</strong></td></tr>';
   $req = Sql_query('select name from '.$GLOBALS['tables']["attribute"].' order by listorder');
   while ($row = Sql_Fetch_Row($req))
-    if (strlen($row[0]) < 20) {
+    if (strlen($row[0]) <= 30) {
       $html .= sprintf ('<tr><td>%s</td><td>[%s]</td></tr>',$row[0],strtoupper(cleanAttributeName($row[0])));
     }
   $html .= '</table>';  

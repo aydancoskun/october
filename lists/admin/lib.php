@@ -56,7 +56,7 @@ function setMessageData($msgid,$name,$value) {
       while ($row = Sql_Fetch_Array($res))  {
         $listid  =  $row["id"];
         if ($row["active"] || !empty($value["all"]))  {
-          $result  =  Sql_query("insert ignore into ".$GLOBALS['tables']["listmessage"]."  (messageid,listid,entered) values($msgid,$listid,current_timestamp)");
+          $result  =  Sql_query("insert ignore into ".$GLOBALS['tables']["listmessage"]."  (messageid,listid,entered) values($msgid,$listid,now())");
         }
       }
       ## once we used "all" to set all, unset it, to avoid confusion trying to unselect lists
@@ -64,12 +64,8 @@ function setMessageData($msgid,$name,$value) {
     } else {
       foreach($value as $listid => $val) {
         if ($listid != 'unselect') { ## see #16940 - ignore a list called "unselect" which is there to allow unselecting all
-          $query
-          = ' insert into ' . $GLOBALS['tables']["listmessage"]
-          . '    (messageid,listid,entered)'
-          . ' values'
-          . '    (?, ?, current_timestamp)';
-          $result = Sql_Query_Params($query, array($msgid, $listid));
+          $query = sprintf(' insert into ' . $GLOBALS['tables']["listmessage"] .' (messageid,listid,entered) values(%d, %d, now())',$msgid, $listid);
+          $result = Sql_Query($query);
         }
       }
     }
@@ -77,9 +73,14 @@ function setMessageData($msgid,$name,$value) {
   if (is_array($value) || is_object($value)) {
     $value = 'SER:'.serialize($value);
   }
+  if ($name == 'footer') {
+    // strip HTML comments
+    $value = preg_replace('/<!--.*-->/','',$value);// this is ungreedy 
+  }
   
-  Sql_Replace($GLOBALS['tables']['messagedata'], array('id' => $msgid, 'name' => $name, 'data' => $value), array('name', 'id'));
-#  print "<br/>setting $name for $msgid to $value";
+  Sql_Query(sprintf('replace into %s set id = %d,name = "%s", data = "%s"',
+    $GLOBALS['tables']['messagedata'],$msgid,addslashes($name),addslashes($value)));
+#  print "setting $name for $msgid to $value";
 #  exit;
 }
 
@@ -148,6 +149,9 @@ function loadMessageData($msgid) {
     $messagedata["message"] = $_POST["message"];
     $messagedata["targetlist"] = $_POST["targetlist"];
   }
+  if ($messagedata["subject"] == '(no title)') {
+      $messagedata["subject"] = '(no subject)';
+  }
 
   $msgdata_req = Sql_Query(sprintf('select * from %s where id = %d',
     $GLOBALS['tables']['messagedata'],$msgid));
@@ -209,6 +213,14 @@ function loadMessageData($msgid) {
     $messagedata["fromemail"] = $default['from'];
     $messagedata["fromname"] = $messagedata["fromfield"] ;
   }
+  // disallow an email address in the name
+  if (preg_match("/([^ ]+@[^ ]+)/",$messagedata["fromname"],$regs)) {
+    $messagedata["fromname"] = str_replace($regs[0],"",$messagedata["fromname"]);
+  }
+  // clean up
+  $messagedata["fromemail"] = str_replace(',','',$messagedata['fromemail']);
+  $messagedata["fromname"] = str_replace(',','',$messagedata['fromname']);
+  
   $messagedata["fromname"] = trim($messagedata["fromname"]);
 
   # erase double spacing 
@@ -227,10 +239,32 @@ function loadMessageData($msgid) {
   if (isset($messagedata['excludelist']['unselect'])) {
     unset($messagedata['excludelist']['unselect']);
   }
-
+  
+  if (empty($messagedata['campaigntitle'])) {
+      if ($messagedata['subject'] != '(no subject)') {
+          $messagedata['campaigntitle'] = $messagedata['subject'];
+      } else {
+          $messagedata['campaigntitle'] = '(no title)';
+      }
+  }
+  ## copy subject to title
+  if ($messagedata['campaigntitle'] == '(no title)' && $messagedata['subject'] != '(no subject)') {
+      $messagedata['campaigntitle'] = $messagedata['subject'];
+  }
   $GLOBALS['MD'][$msgid] = $messagedata;
 #  var_dump($messagedata);
   return $messagedata;
+}
+
+function campaignTitle($id) {
+  $campaignTitle = Sql_Fetch_Assoc_Query(sprintf('select data as title from %s where name = "subject" and id = %d',$GLOBALS['tables']['messagedata'],$id));
+  if (empty($campaignTitle['title'])) {
+    $campaignTitle = Sql_Fetch_Assoc_Query(sprintf('select subject as title from %s where id = %d',$GLOBALS['tables']['message'],$id));
+  }
+  if (empty($campaignTitle['title'])) {
+      $campaignTitle['title'] = $id;
+  }
+  return stripslashes($campaignTitle['title']);
 }
 
 #Send email with a random encrypted token.
@@ -544,23 +578,13 @@ function previewTemplate($id,$adminid = 0,$text = "", $footer = "") {
   }
   $poweredImageId = 0;
   # make sure the 0 template has the powered by image
-  $query
-  = ' select id'
-  . ' from %s'
-  . ' where filename = ?'
-  . '   and template = 0';
-  $query = sprintf($query, $GLOBALS['tables']['templateimage']);
-  $rs = Sql_Query_Params($query, array('powerphplist.png'));
-  if (!Sql_Num_Rows($rs)) {
-    $query
-    = ' insert into %s'
-    . '   (template, mimetype, filename, data, width, height)'
-    . ' values (0, ?, ?, ?, ?, ?)';
-    $query = sprintf($query, $GLOBALS["tables"]["templateimage"]);
-    Sql_Query_Params($query, array('image/png', 'powerphplist.png', $GLOBALS['newpoweredimage'], 70, 30));
+  $req = Sql_Query(sprintf('select id from %s where filename = "powerphplist.png" and template = 0', $GLOBALS['tables']['templateimage']));
+  if (!Sql_Affected_Rows()) {
+    Sql_Query(sprintf('insert into %s (template, mimetype, filename, data, width, height) 
+      values (0, "image/png", "powerphplist.png", "%s", 70, 30)', $GLOBALS["tables"]["templateimage"],$GLOBALS['newpoweredimage']));
     $poweredImageId = Sql_Insert_Id();
   } else {
-    $row = Sql_Fetch_Row($rs);
+    $row = Sql_Fetch_Row($req);
     $poweredImageId = $row[0];
   }
   $tmpl = Sql_Fetch_Row_Query(sprintf('select template from %s where id = %d',$tables["template"],$id));
@@ -677,16 +701,10 @@ function logEvent($msg) {
     $p = 'unknown page';
   }
   if (!Sql_Table_Exists($tables["eventlog"])) {
-    return;
+	return;
   }
-
-  $query
-  = ' insert into %s'
-  . '    (entered,page,entry)'
-  . ' values'
-  . '    (current_timestamp, ?, ?)';
-  $query = sprintf($query, $tables["eventlog"]);
-  Sql_Query_Params($query, array($p, $msg));
+  Sql_Query(sprintf('insert into %s (entered,page,entry) values(now(),"%s","%s")',$tables["eventlog"],
+    $p,sql_escape($msg)));
 }
 
 ### process locking stuff
@@ -696,6 +714,7 @@ function getPageLock($force = 0) {
   if ($thispage == 'pageaction') {
     $thispage = $_GET['action'];
   }
+  $thispage = preg_replace('/\W/','',$thispage);
 #  cl_output('getting pagelock '.$thispage);
 #  ob_end_flush();
   
@@ -712,21 +731,12 @@ function getPageLock($force = 0) {
   
   ## allow killing other processes
   if ($force) {
-    Sql_Query_Params("delete from ".$tables['sendprocess']." where page = ?",array($thispage));
+    Sql_query('delete from '.$tables["sendprocess"].' where page = "'.sql_escape($thispage).'"');
   }
 
-  $query
-  = ' select current_timestamp - modified as age, id'
-  . ' from ' . $tables['sendprocess']
-  . ' where page = ?'
-  . ' and alive > 0'
-  . ' order by age desc';
-  $running_req = Sql_Query_Params($query, array($thispage));
-  $running_res = Sql_Fetch_Assoc($running_req);
+  $running_req = Sql_query(sprintf('select now() - modified as age,id from %s where page = "%s" and alive order by started desc',$tables["sendprocess"],sql_escape($thispage)));
   $count = Sql_Num_Rows($running_req);
-  if (VERBOSE) {
-    cl_output($count. ' out of '.$max.' active processes');
-  }
+  $running_res = Sql_Fetch_Assoc($running_req);
   $waited = 0;
  # while ($running_res['age'] && $count >= $max) { # a process is already running
   while ($count >= $max) { # don't check age, as it may be 0
@@ -737,9 +747,10 @@ function getPageLock($force = 0) {
       Sql_query("update {$tables["sendprocess"]} set alive = 0 where id = ".$running_res['id']);
     } elseif ((int)$count >= (int)$max) {
    #   cl_output (sprintf($GLOBALS['I18N']->get('A process for this page is already running and it was still alive %s seconds ago'),$running_res['age']));
-      output (sprintf($GLOBALS['I18N']->get('A process for this page is already running and it was still alive %s seconds ago'),$running_res['age']),0);
+      output (s('A process for this page is already running and it was still alive %d seconds ago',$running_res['age']),0);
       sleep(1); # to log the messages in the correct order
       if ($GLOBALS["commandline"]) {
+        cl_output (s('A process for this page is already running and it was still alive %d seconds ago',$running_res['age']),0);
         cl_output($GLOBALS['I18N']->get('Running commandline, quitting. We\'ll find out what to do in the next run.'));
         exit;
       }
@@ -754,30 +765,17 @@ function getPageLock($force = 0) {
       output($GLOBALS['I18N']->get('We have been waiting too long, I guess the other process is still going ok'),0);
       return false;
     }
-    $query
-    = ' select current_timestamp - modified as age, id'
-    . ' from ' . $tables['sendprocess']
-    . ' where page = ?'
-    . ' and alive > 0'
-    . ' order by age desc';
-    $running_req = Sql_Query_Params($query, array($thispage));
-    $running_res = Sql_Fetch_Assoc($running_req);
+    $running_req = Sql_query("select now() - modified,id from ".$tables["sendprocess"]." where page = \"$thispage\" and alive order by started desc");
     $count = Sql_Num_Rows($running_req);
+    $running_res = Sql_Fetch_row($running_req);
   }
-  $query
-  = ' insert into ' . $tables['sendprocess']
-  . '    (started, page, alive, ipaddress)'
-  . ' values'
-  . '    (current_timestamp, ?, 1, ?)';
-  
   if (!empty($GLOBALS['commandline'])) {
     $processIdentifier = SENDPROCESS_SERVERNAME.':'.getmypid();
   } else {
     $processIdentifier = $_SERVER['REMOTE_ADDR'];
   }
-  
-  $res = Sql_Query_Params($query, array($thispage, $processIdentifier));
-  $send_process_id = Sql_Insert_Id($tables['sendprocess'], 'id');
+  $res = Sql_query('insert into '.$tables["sendprocess"].' (started,page,alive,ipaddress) values(now(),"'.$thispage.'",1,"'.$processIdentifier.'")');
+  $send_process_id = Sql_Insert_Id();
   $abort = ignore_user_abort(1);
 #  cl_output('Got pagelock '.$send_process_id );
   return $send_process_id;
@@ -797,8 +795,6 @@ function checkLock($processid) {
   return $row[0];
 }
 
-// function addAbsoluteResources() moved to commonlib/maillib.php
-
 function getPageCache($url,$lastmodified = 0) {
   $req = Sql_Fetch_Row_Query(sprintf('select content from %s where url = "%s" and lastmodified >= %d',$GLOBALS["tables"]["urlcache"],$url,$lastmodified));
   return $req[0];
@@ -813,12 +809,12 @@ function setPageCache($url,$lastmodified = 0,$content) {
 #  if (isset($GLOBALS['developer_email'])) return;
   Sql_Query(sprintf('delete from %s where url = "%s"',$GLOBALS["tables"]["urlcache"],$url));
   Sql_Query(sprintf('insert into %s (url,lastmodified,added,content)
-    values("%s",%d,current_timestamp,"%s")',$GLOBALS["tables"]["urlcache"],$url,$lastmodified,addslashes($content)));
+    values("%s",%d,now(),"%s")',$GLOBALS["tables"]["urlcache"],$url,$lastmodified,sql_escape($content)));
 }
 
 function clearPageCache () {
-  Sql_Query('delete from ' . $GLOBALS['tables']['urlcache']);
   unset($GLOBALS['urlcache']);
+  Sql_Query('delete from ' . $GLOBALS['tables']['urlcache']);
 }
 
 function removeJavascript($content) {
@@ -919,7 +915,7 @@ function fetchStyles($text) {
 /* verify that a redirection is to ourselves */
 function isValidRedirect($url) {
   ## we might want to add some more checks here
-  return strpos($url,$_SERVER['HTTP_HOST']);
+  return strpos($url,hostName());
 }
 
 /* check the url_append config and expand the url with it
@@ -1074,7 +1070,11 @@ function fetchUrlCurl($url,$request_parameters) {
     curl_close($curl);
     if (VERBOSE) logEvent('fetched '.$url.' status '.$status);
 #    var_dump($status); exit;
-    return $raw_result;
+    if ($status == 200) {
+        return $raw_result;
+    } else {
+        return "";
+    }
 }
 
 function fetchUrlPear($url,$request_parameters) {
@@ -1202,12 +1202,7 @@ function adminName($id = 0) {
   if (is_object($GLOBALS["admin_auth"])) {
     return $GLOBALS["admin_auth"]->adminName($id);
   }
-  $query
-  = ' select loginname'
-  . ' from ' . $GLOBALS['tables']['admin']
-  . ' where id = ?';
-  $rs = Sql_Query_Params($query, array($id));
-  $req = Sql_Fetch_Row($rs);
+  $req = Sql_Fetch_Row_Query(sprintf('select loginname from %s where id = %d',$GLOBALS["tables"]["admin"],$id));
   return $req[0] ? $req[0] : "Nobody";
 }
 
@@ -1235,21 +1230,12 @@ function addSubscriberStatistics($item = '',$amount,$list = 0) {
       $time = mktime(0,0,0,date('m'),date('d'),date('Y'));
       break;
   }
-  $query
-  = ' update ' . $GLOBALS['tables']['userstats']
-  . ' set value = value + ?'
-  . ' where unixdate = ?'
-  . '   and item = ?'
-  . '   and listid = ?';
-  Sql_Query_Params($query, array($amount, $time, $item, $list));
+  Sql_Query(sprintf('update %s set value = value + %d where unixdate = %d and item = "%s" and listid = %d',
+    $GLOBALS['tables']['userstats'],$amount,$time,$item,$list));
   $done = Sql_Affected_Rows();
   if (!$done) {
-    $query
-    = ' insert into ' . $GLOBALS['tables']['userstats']
-    . '   (value, unixdate, item, listid)'
-    . ' values'
-    . '   (?, ?, ?, ?)';
-    Sql_Query_Params($query, array($amount, $time, $item, $list));
+    Sql_Query(sprintf('insert into %s set value = %d,unixdate = %d,item = "%s",listid = %d',
+      $GLOBALS['tables']['userstats'],$amount,$time,$item,$list));
   }
 }
 
@@ -1452,15 +1438,18 @@ function verifyToken() {
 }
 
 ## verify the session token on ajaxed GET requests
-function verifyCsrfGetToken() {
+function verifyCsrfGetToken($enforce = 1) { // enforce=0 allows checking "if exist"
+  if (!defined('PHPLISTINIT')) die();
   if ($GLOBALS['commandline']) return true;
   if (isset($_GET['tk']) && isset($_SESSION['csrf_token'])) {
     if ($_GET['tk'] != $_SESSION['csrf_token']) {
-      print s('Error, incorrect session token');
+      $_SESSION['logout_error'] = s('Error, incorrect session token');
+      Redirect('logout&err=1');
       exit;
     }
-  } elseif (isset($_SESSION['csrf_token'])) {
-    print s('Error, incorrect session token');
+  } elseif ($enforce && isset($_SESSION['csrf_token'])) {
+    $_SESSION['logout_error'] = s('Error, incorrect session token');
+    Redirect('logout&err=1');
     exit;
   }  
 }
@@ -1532,6 +1521,11 @@ function listCategories() {
  */
 
 function shortenTextDisplay($text,$max = 30) {
+  ## use mb_ version if possible, see https://github.com/phpList/phplist3/pull/10
+  if (function_exists('mb_strlen')) {
+      return mb_shortenTextDisplay($text,$max);
+  }
+   
   $text = str_replace('http://','',$text);
   if (strlen($text) > $max) {
     if ($max < 30) {
@@ -1548,6 +1542,25 @@ function shortenTextDisplay($text,$max = 30) {
   
   return sprintf('<span title="%s" ondblclick="alert(\'%s\');">%s</span>',htmlspecialchars($text),htmlspecialchars($text),$display);
 }
+
+function mb_shortenTextDisplay($text,$max = 30) {
+  $text = str_replace('http://','',$text);
+  if (mb_strlen($text) > $max) {
+    if ($max < 30) {
+      $display = mb_substr($text,0,$max - 4).' ... ';
+    } else {
+      $display = mb_substr($text,0,20).' ... '.mb_substr($text,-10);
+    }
+      
+  } else {
+    $display = $text;
+  }
+  $display = str_replace('/','/&#x200b;',$display);
+  $display = str_replace('@','@&#x200b;',$display);
+  
+  return sprintf('<span title="%s" ondblclick="alert(\'%s\');">%s</span>',htmlspecialchars($text),htmlspecialchars($text),$display);
+}
+
 
 if (!function_exists('getnicebacktrace')) {
 function getNiceBackTrace( $bTrace = false ) {
@@ -1677,7 +1690,7 @@ function quoteEnclosed($value,$col_delim = "\t",$row_delim = "\n") {
 
 function activateRemoteQueue() {
   $result = '';
-  $activated = file_get_contents(PQAPI_URL.'&cmd=start&key='.getConfig('PQAPIkey').'&s='.urlencode(getConfig('remote_processing_secret')).'&u='.base64_encode($_SERVER['REQUEST_SCHEME'].'://'.$_SERVER['HTTP_HOST'].dirname($_SERVER['REQUEST_URI'])));
+  $activated = file_get_contents(PQAPI_URL.'&cmd=start&key='.getConfig('PQAPIkey').'&s='.urlencode(getConfig('remote_processing_secret')).'&u='.base64_encode($GLOBALS['admin_scheme'].'://'.hostName().dirname($_SERVER['REQUEST_URI'])));
   if ($activated == 'OK') {
     $result .= '<h3>'.s('Remote queue processing has been activated successfully').'</h3>';
     $result .= '<p>'.PageLinkButton("messages&tab=active",$GLOBALS['I18N']->get("view progress")).'</p>';

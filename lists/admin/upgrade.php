@@ -66,10 +66,6 @@ if (isset($_GET["doit"]) && $_GET["doit"] == 'yes') {
   @ob_end_flush();
   @ob_start();
 
-  print '<script language="Javascript" src="js/progressbar.js" type="text/javascript"></script>';
-  print '<script language="Javascript" type="text/javascript"> document.write(progressmeter); start();</script>';
-  # upgrade depending on old version
-
   output( '<p class="information">'.$GLOBALS['I18N']->get('Please wait, upgrading your database, do not interrupt').'</p>');
 
   flush();
@@ -89,7 +85,7 @@ if (isset($_GET["doit"]) && $_GET["doit"] == 'yes') {
           Sql_Create_Table($tables[$table],$DBstruct[$table]);
           if ($table == "admin") {
             # create a default admin
-            Sql_Query(sprintf('insert into %s values(0,"%s","%s","%s",current_timestamp,current_timestamp,"%s","%s",current_timestamp,%d,0)',
+            Sql_Query(sprintf('insert into %s values(0,"%s","%s","%s",now(),now(),"%s","%s",now(),%d,0)',
               $tables["admin"],"admin","admin","",$adminname,"phplist",1));
           } elseif ($table == "task") {
             while (list($type,$pages) = each ($system_pages)) {
@@ -134,7 +130,7 @@ if (isset($_GET["doit"]) && $_GET["doit"] == 'yes') {
         }
          Sql_Query(sprintf('update %s set value = "" where attributeid = %d and value != "on"',
            $tables["user_attribute"],$row["id"]));
-        Sql_Drop_Table($table_prefix . 'listattr_' . $row['tablename']);
+        Sql_Query("drop table $table_prefix"."listattr_".$row["tablename"]);
       }
       Sql_Query("insert into {$tables["task"]} (page,type) values(\"export\",\"user\")");
     case "1.6.3":
@@ -142,8 +138,8 @@ if (isset($_GET["doit"]) && $_GET["doit"] == 'yes') {
       Sql_Query("alter table {$tables["user"]} add column bouncecount integer default 0");
       Sql_Query("alter table {$tables["message"]} add column bouncecount integer default 0");
       # we actually never used these tables, so we can just as well drop and recreate them
-      Sql_Drop_Table($tables['bounce']);
-      Sql_Drop_Table($tables['user_message_bounce']);
+      Sql_Query("drop table if exists {$tables["bounce"]}");
+      Sql_Query("drop table if exists {$tables["user_message_bounce"]}");
       Sql_Query(sprintf('create table %s (
         id integer not null primary key auto_increment,
         date datetime,
@@ -267,7 +263,7 @@ if (isset($_GET["doit"]) && $_GET["doit"] == 'yes') {
       Sql_Verbose_Query("alter table {$tables["message"]} add column repeat integer default 0");
       Sql_Verbose_Query("alter table {$tables["message"]} add column repeatuntil datetime");
       # make sure that current queued messages are sent
-      Sql_Verbose_Query("update {$tables["message"]} set embargo = current_timestamp where status = \"submitted\"");
+      Sql_Verbose_Query("update {$tables["message"]} set embargo = now() where status = \"submitted\"");
       Sql_Query("alter table {$tables["message"]} change column status status enum('submitted','inprocess','sent','cancelled','prepared','draft')");
     case "2.6.6":case "2.7.0": case "2.7.1": case "2.7.2":
       Sql_Create_Table($tables["user_history"],$DBstruct["user_history"]);
@@ -353,11 +349,9 @@ if (isset($_GET["doit"]) && $_GET["doit"] == 'yes') {
         $req = Sql_Query(sprintf('select loginname,password from %s where length(password) < %d',$GLOBALS['tables']['admin'],$GLOBALS['hash_length']));
         while ($row = Sql_Fetch_Assoc($req)) {
           $encryptedPassDB =  hash(ENCRYPTION_ALGO,$row['password']);
-          $query = "update %s set password = '%s' where loginname = ?";
-          $query = sprintf($query, $GLOBALS['tables']['admin'], $encryptedPassDB);
-          Sql_Query_Params($query, array($row['loginname']));
+          $query = sprintf('update %s set password = "%s" where loginname = "%s"', $GLOBALS['tables']['admin'], $encryptedPassDB,$row['loginname']);
+          Sql_Query($query);
         }
-#        Sql_Create_Table($tables["gchartcache"],$DBstruct["gchartcache"],1); ## really need this?
       }
       break;
   }
@@ -389,7 +383,6 @@ if (isset($_GET["doit"]) && $_GET["doit"] == 'yes') {
   Sql_Query(sprintf('update %s set data = "%s",width=70,height=30 where filename = "powerphplist.png"',
     $tables["templateimage"],$newpoweredimage));
 
-  print '<script language="Javascript" type="text/javascript"> finish(); </script>';
   # update the system pages
   include_once dirname(__FILE__).'/defaultconfig.php';
 
@@ -517,13 +510,17 @@ if (isset($_GET["doit"]) && $_GET["doit"] == 'yes') {
   
   ## #17328 - remove list categories with quotes
   Sql_Query(sprintf("update %s set category = replace(category,\"\\\\'\",\" \")",$tables['list']));
+  
+  ## longblobs are better at mixing character encoding. We don't know the encoding of anything we may want to store in cache
+  ## before converting, it's quickest to clear the cache
+  clearPageCache ();
+  Sql_Query(sprintf('alter table %s change column content content longblob',$tables['urlcache']));
 
   # mark the database to be our current version
   if ($success) {
     SaveConfig("version",VERSION,0);
     # mark now to be the last time we checked for an update
-    Sql_Query(sprintf('replace into %s (item,value,editable) values("updatelastcheck",current_timestamp,0)',
-      $tables["config"]));
+    SaveConfig('updatelastcheck',date("Y-m-d H:i:s",time()),0,true);
     ## also clear any possible value for "updateavailable"
     Sql_Query(sprintf('delete from %s where item = "updateavailable"',$tables["config"]));
     

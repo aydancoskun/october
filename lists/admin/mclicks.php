@@ -57,6 +57,7 @@ if (!$id) {
   $ls = new WebblerListing($GLOBALS['I18N']->get('Available Messages'));
   while ($row = Sql_Fetch_Array($req)) {
     $some = 1;
+    $messagedata = loadMessageData($row['messageid']);
     $totalusers = Sql_Fetch_Row_Query(sprintf('select count(userid) from %s where messageid = %d and status = "sent"',$GLOBALS['tables']['usermessage'],$row['messageid']));
     $totalclicked = Sql_Fetch_Row_Query(sprintf('select count(distinct userid) from %s where messageid = %d',$GLOBALS['tables']['linktrack_uml_click'],$row['messageid']));
     if ($totalusers[0] > 0) {
@@ -65,9 +66,13 @@ if (!$id) {
       $clickrate = $GLOBALS['I18N']->get('N/A');
     }
     if (!$download) {
-      $element = '<!--'.$row['messageid']. '-->'.shortenTextDisplay($row['subject']);
+      if ($messagedata['subject'] != $messagedata['campaigntitle']) {
+         $element = '<!--'.$row['messageid'].'-->'.stripslashes($messagedata["campaigntitle"]). '<br/><strong>'.shortenTextDisplay($messagedata["subject"],30).'</strong>';
+      } else {
+         $element = '<!--'.$row['messageid'].'-->'.shortenTextDisplay($messagedata["subject"],30);
+      }
     } else {
-      $element = '<!--'.$row['messageid']. '-->'.$row['subject'];
+      $element = $messagedata['subject'];
     }
       
     $ls->addElement($element,PageURL2('mclicks&amp;id='.$row['messageid']));
@@ -77,7 +82,7 @@ if (!$id) {
     $ls->addColumn($element,$GLOBALS['I18N']->get('user clicks'),$totalclicked[0]);
     $ls->addColumn($element,$GLOBALS['I18N']->get('clickrate'),$clickrate);
     
-    $ls->addColumn($element,$GLOBALS['I18N']->get('total clicks'),$row['totalclicks']);
+    $ls->addColumn($element,$GLOBALS['I18N']->get('total clicks'),PageLink2('userclicks&msgid='.$row['messageid'],$row['totalclicks']));
 #    $ls->addColumn($element,$GLOBALS['I18N']->get('total'),$row['total']);
 #    $ls->addColumn($element,$GLOBALS['I18N']->get('users'),$row['users']);
     $ls->addRow($element,'','<div class="content listingsmall fright gray">'.$GLOBALS['I18N']->get('html').': '.$row['htmlclicked'].'</div><div class="content listingsmall fright gray">'.$GLOBALS['I18N']->get('text').': '.$row['textclicked'].'</div>');
@@ -122,7 +127,7 @@ if ($totalusers[0] > 0) {
   print sprintf('%0.2f',($totalbounced[0] / $totalusers[0] * 100));
   print '%)</td></tr>';
 }
-print '<tr><td>'.$GLOBALS['I18N']->get('Clicks').'<td><td>'.$totalclicked[0].'</td></tr>
+print '<tr><td>'.$GLOBALS['I18N']->get('Clicks').'<td><td>'.$totalclicked[0].' '.PageLinkButton('userclicks&msgid='.$id,s('View subscribers')).'</td></tr>
 <tr><td>'.$GLOBALS['I18N']->get('Click rate').'<td><td>'.$clickperc.' %</td></tr>
 </table><hr/>';
 

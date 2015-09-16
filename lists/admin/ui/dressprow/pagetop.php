@@ -2,10 +2,10 @@
 /*
   We request you retain the full headers below including the links.
   This not only gives respect to the large amount of time given freely
-  by the developers  but also helps build interest, traffic and use of
-  PHPlist, which is beneficial to it's future development.
+  by the developers, but also helps build interest, traffic and use of
+  phpList, which is beneficial to it's future development.
 
-  Michiel Dethmers, phpList Ltd 2003 - 2013
+  Michiel Dethmers, phpList Ltd 2003 - 2015
   * 
 */
 ?>
@@ -14,10 +14,8 @@
 <head>
 <meta http-equiv="pragma" content="no-cache" />
 <meta http-equiv="Cache-Control" content="no-cache, must-revalidate" />
-<link rev="made" href="mailto:info%40phplist.com" />
-<link rel="home" href="http://www.phplist.com" title="phplist homepage" />
-<link rel="license" href="http://www.gnu.org/copyleft/gpl.html" title="GNU General Public License" />
-<meta name="Author" content="Michiel Dethmers - http://www.phplist.com" />
+<meta name="License" content="GNU Affero General Public License, http://www.gnu.org/licenses/agpl.html" />
+<meta name="Author" content="Michiel Dethmers - https://www.phplist.com" />
 <meta name="Copyright" content="Michiel Dethmers, phpList Ltd - http://phplist.com" />
 <meta name="Powered-By" content="phplist version <?php echo VERSION?>" />
 <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
@@ -28,15 +26,15 @@
 <script type="text/javascript" src="js/jquery-1.7.1.min.js"></script>
 <script type="text/javascript" src="js/jquery-ui-1.8.1.all.min.js"></script>
 <script type="text/javascript" src="js/jquery.tools.scrollable.js"></script>
-<script language="Javascript" type="text/javascript" src="js/phplistapp.js"></script>
+<script type="text/javascript" src="js/phplistapp.js"></script>
 <link rel="stylesheet" href="css/reset.css" />
 <link href="css/jquery-ui-1.8.1.all.css" rel="stylesheet" type="text/css"/>
 <link rel="stylesheet" href="css/app.css" />
 <link rel="stylesheet" href="css/menu.css" />
 
 <!-- now override the above with the styles and JS from the UI theme -->
-<script language="Javascript" type="text/javascript" src="ui/dressprow/js/jquery.tablednd.js"></script>
-<script language="Javascript" type="text/javascript" src="ui/dressprow/js/phplist.js"></script>
+<script type="text/javascript" src="ui/dressprow/js/jquery.tablednd.js"></script>
+<script type="text/javascript" src="ui/dressprow/js/phplist.js"></script>
 <link rel="stylesheet" href="ui/dressprow/css/base.css" />
 <link rel="stylesheet" href="ui/dressprow/css/layout.css" />
 <link rel="stylesheet" href="ui/dressprow/css/skeleton.css" />
