@@ -15,7 +15,9 @@ function onStart() {
         return redirect("/".$this['activationcode']);
     }
     $user=Auth::getUser();
-    if($user->ok_company_products_count < 4){
+    if($user->ok_credits < 0.995){
+        Flash::warning("Your credits are running low. Click on 'Credits' menu to get more");
+    }    if($user->ok_company_products_count < 4){
         $this['offer'] = 5;
     }
     elseif($user->ok_company_products_count < 10){
@@ -359,7 +361,7 @@ function onCreditConfirm(){
                         disabled
                         id="current-position{{ product.bp_id }}"
                         placeholder="--------"
-                        value= "{% if product.bp_high > 50 %}None{%elseif product.bp_high > 25%}Top 50{%elseif product.bp_high > 20%}Top 25{%elseif product.bp_high > 15%}Top 20{%elseif product.bp_high > 10%}Top 15{%elseif product.bp_high > 5%}Top 10{%elseif product.bp_high > 3%}Top 5{%elseif product.bp_high > 0%}Top 3{%endif%}"
+                        value= "{% if product.bp_high > 50 %}--------{%elseif product.bp_high > 25%}Top 50{%elseif product.bp_high > 20%}Top 25{%elseif product.bp_high > 15%}Top 20{%elseif product.bp_high > 10%}Top 15{%elseif product.bp_high > 5%}Top 10{%elseif product.bp_high > 3%}Top 5{%elseif product.bp_high > 0%}Top 3{%endif%}"
                          size="6">
                 </div>
             </td>
@@ -389,7 +391,7 @@ function onCreditConfirm(){
                     <span class="input-group-btn">
                         <button id="btn-credit-minus{{product.bp_id}}"
                             type="button"
-                            class="btn btn-default btn-credit"
+                            class="btn btn-default btn-credit btn-credit-minus"
                             {% if not product.bp_user_credits %}disabled="disabled"{%endif%}
                             data-type="minus"
                             data-bp_id="{{product.bp_id}}">
@@ -413,7 +415,7 @@ function onCreditConfirm(){
                     <span class="input-group-btn">
                         <button id="btn-credit-plus{{product.bp_id}}"
                             type="button"
-                            class="btn btn-default btn-credit"
+                            class="btn btn-default btn-credit btn-credit-plus"
                             {% if user.ok_credits < 0.995 %}disabled="disabled"{%endif%}
                             data-type="plus"
                             data-bp_id="{{product.bp_id}}">
@@ -461,6 +463,8 @@ $('.btn-confirm').click(function(event){
         }
     })
     .always(function( data, textStatus, errorThrown ) {
+            //location.reload();
+            //return;
             if(data.status=="error"){
                 console.log(data.log);
 //                alert(data.message);
@@ -483,7 +487,10 @@ $('.btn-confirm').click(function(event){
                     label: 'OK',
                     //icon: 'glyphicon glyphicon-remove',
                     cssClass: 'btn-default',
-                    action: function(dialog) {dialog.close();},
+                    action: function(dialog) {
+                        dialog.close();
+                        if(data.ok_credits < 0.995) window.location.replace("/account/ranking/{{activationcode}}");
+                    },
                 }]
             });
 
@@ -494,11 +501,11 @@ $('.btn-confirm').click(function(event){
                 var badge_active = Math.round($("#badge_active").text())+1;
                 $( '#row' + bp_id ).addClass('success');
                 $( '#badge_active').text(badge_active);
-                    $( '#badge_active' ).removeClass('badge-danger');
-                    $( '#badge_active' ).removeClass('badge-warning');
-                    $( '#badge_active' ).removeClass('badge-default');
-                    $( '#badge_active' ).removeClass('badge-primary');
-                    $( '#badge_active' ).addClass('badge-success');
+                $( '#badge_active' ).removeClass('badge-danger');
+                $( '#badge_active' ).removeClass('badge-warning');
+                $( '#badge_active' ).removeClass('badge-default');
+                $( '#badge_active' ).removeClass('badge-primary');
+                $( '#badge_active' ).addClass('badge-success');
             }
             else if(data.badge_active == -1){
                 var badge_active = Math.round($("#badge_active").text())-1;
@@ -529,6 +536,12 @@ $('.btn-confirm').click(function(event){
             $( '#btn-credit-plus'  + bp_id).removeAttr('disabled');
             if(credits_confirmed > 0) $( '#btn-credit-minus' + bp_id).removeAttr('disabled');
             else $( '#btn-credit-minus' + bp_id).attr('disabled', true);
+            
+            if(total_credits >= 0.995) $( '.btn-credit-plus').removeAttr('disabled');
+            else {
+                $( '.btn-credit-plus').attr('disabled', true);
+            }
+            
 //        },
 /*        error: function(data) {// Assign handlers immediately after making the request,
             console.log('error');

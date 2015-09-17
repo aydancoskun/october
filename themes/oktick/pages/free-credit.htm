@@ -85,8 +85,8 @@ DB::beginTransaction();
                 'signup_completed' => 1,
                 'company_country' => $company_country,
         ));
-        $score=8;
-        if($company_country=="uk") $score=9;
+        $score=6;
+        if($company_country=="uk") $score=7;
         DB::table('operations.bp_supplier_positions')
             ->where('company_id', $ok_company_id)
             ->update(array(
