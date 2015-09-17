@@ -44,9 +44,9 @@ function onInit(){
             'role_id' => 3,
             'created_at'=>gmdate('Y-m-d H:i:s'),
     ));
-        Flash::success("Temporary password set to '$password'.");
+        Flash::success("Welcome to OKTicK");
     } catch (Exception $e) {
-        Flash::warning("Temporary password set to '$password'.");
+        Flash::warning("Welcome to OKTicK");
     }
     return redirect("/".$this['activationcode']);
 }
