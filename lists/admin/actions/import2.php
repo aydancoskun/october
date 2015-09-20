@@ -43,7 +43,7 @@ if (sizeof($email_list)) {
     flush();
     # increase the memory to make sure we are not running out
     #    $mem = sizeof($email_list);
-    ini_set("memory_limit", "32M");
+//    ini_set("memory_limit", "32M");
   }
 
   ### store the chosen mappings in the $system_attribute_mapping list

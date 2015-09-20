@@ -330,7 +330,7 @@ function onCreditConfirm(){
 </div>
 <div class="row">
     <!--div class="col-12"--> 
-        <h3 class="text-center">You currently have {% if ok_sponored_products_count and ok_sponored_products_count > 0 %}{{ ok_sponored_products_count }}{%else%} no {% endif %}products elevated</h3><br>
+        <h3 class="text-center">You currently have {% if user.ok_sponored_products_count and user.ok_sponored_products_count > 0 %}{{ user.ok_sponored_products_count }}{%else%} no {% endif %} products elevated</h3><br>
     <!--/div-->
 </div>
 {% if products %}

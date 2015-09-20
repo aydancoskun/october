@@ -86,8 +86,8 @@ if (isset ($_POST["import"])) {
   }
   if (!$GLOBALS['commandline'] && filesize($_FILES["import_file"]['tmp_name']) > (IMPORT_FILESIZE*1000000)) {
     # if we allow more, we will certainly run out of memory
-    Fatal_Error($GLOBALS['I18N']->get('File too big, please split it up into smaller ones'));
-    return;
+//    Fatal_Error($GLOBALS['I18N']->get('File too big, please split it up into smaller ones'));
+//    return;
   }
 /*
   if (!preg_match("/^[0-9A-Za-z_\.\-\s \(\)]+$/", $_FILES["import_file"]["name"])) {
