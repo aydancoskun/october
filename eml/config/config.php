@@ -41,7 +41,7 @@ $database_password = '1c4f21c534b36c73e3d93be09122ebdc';
 # this is here, to make sure you edited the config file and mails are not sent "accidentally"
 # on unmanaged systems
 
-define ("TEST",1);
+define ("TEST",0);
 
 
 
@@ -146,7 +146,7 @@ $usertable_prefix = "user_";
 
 # if you change the path to the phpList system, make the change here as well
 # path should be relative to the root directory of your webserver (document root)
-$pageroot = '/lists';
+$pageroot = '/eml';
 
 /*
 
@@ -166,28 +166,28 @@ Settings for handling bounces
 # to use this feature, uncomment the following line, and change the email address
 # to some existing account on your system
 # requires PHP version > "4.0.5" and "4.3.1+" without safe_mode
-$message_envelope = 'bounce@oktick.com';
+#$message_envelope = 'bounce@oktick.com';
 
 # Handling bounces. Check README.bounces for more info
 # This can be 'pop' or 'mbox'
-$bounce_protocol = 'pop';
+#$bounce_protocol = 'pop';
 
 # set this to 0, if you set up a cron to download bounces regularly by using the
 # commandline option. If this is 0, users cannot run the page from the web
 # frontend. Read README.commandline to find out how to set it up on the
 # commandline
-define ("MANUALLY_PROCESS_BOUNCES",1);
+#define ("MANUALLY_PROCESS_BOUNCES",1);
 
 # when the protocol is pop, specify these three
-$bounce_mailbox_host = 'localhost';
-$bounce_mailbox_user = 'phplist.oktick';
-$bounce_mailbox_password = '30c6f2fb4d2f9fdc1650cbfe8d38ca97';
+#$bounce_mailbox_host = 'localhost';
+#$bounce_mailbox_user = 'phplist.oktick';
+#$bounce_mailbox_password = '30c6f2fb4d2f9fdc1650cbfe8d38ca97';
 
 # the "port" is the remote port of the connection to retrieve the emails
 # the default should be fine but if it doesn't work, you can try the second
 # one. To do that, add a # before the first line and take off the one before the
 # second line
-$bounce_mailbox_port = "110/pop3/notls";
+#$bounce_mailbox_port = "110/pop3/notls";
 #$bounce_mailbox_port = "110/pop3";
 
 # it's getting more common to have secure connections, in which case you probably want to use
@@ -200,16 +200,16 @@ $bounce_mailbox = '/var/spool/mail/listbounces';
 # set this to 0 if you want to keep your messages in the mailbox. this is potentially
 # a problem, because bounces will be counted multiple times, so only do this if you are
 # testing things.
-$bounce_mailbox_purge = 1;
+#$bounce_mailbox_purge = 1;
 
 # set this to 0 if you want to keep unprocessed messages in the mailbox. Unprocessed
 # messages are messages that could not be matched with a user in the system
 # messages are still downloaded into phpList, so it is safe to delete them from
 # the mailbox and view them in phpList
-$bounce_mailbox_purge_unprocessed = 1;
+#$bounce_mailbox_purge_unprocessed = 1;
 
 # how many bounces in a row need to have occurred for a user to be marked unconfirmed
-$bounce_unsubscribe_threshold = 5;
+#$bounce_unsubscribe_threshold = 5;
 
 
 /*
@@ -227,7 +227,7 @@ Security related settings
 # you will be able to add administrators who control their own lists
 # default login is "admin" with password "phplist"
 #
-$require_login = 0;
+$require_login = 1;
 
 # if you use login, how many lists can be created per administrator
 define("MAXLIST",1);
