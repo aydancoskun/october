@@ -1,20 +1,19 @@
 title = "Mailing 2015-09-20"
-url = "/ok_mailing-2015-09-20/:emailaddress"
+url = "/ok_mailing-2015-09-20/:emailaddress?"
 is_hidden = "0"
 ==
 <?php
-function onInit() {
+/*function onInit() {
     $this['emailaddress'] = $this->param('emailaddress');
     $data = DB::table('users')->where('username', $subscriber->id)->first();
-
-    [email] - the email of the subscriber
-[id] - the subscriber ID
-[uniqid] - the Unique Code for the subscriber
-[htmlemail] - the HT
+//    [email] - the email of the subscriber
+//    [id] - the subscriber ID
+//    [uniqid] - the Unique Code for the subscriber
+//    [htmlemail] - the HT
 }
 function onStart(){
-    /*****************************************/
-        // Inject company_name
+    /*****************************************
+    /        // Inject company_name
         $data = DB::table('users')->where('id', $subscriber->id)->first();
         $result = str_replace('__company__',$data->ok_company_name,$result);
 
@@ -39,6 +38,7 @@ function onStart(){
         return $result;
 
 }
+*/
 ?>
 ==
 <!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN"
