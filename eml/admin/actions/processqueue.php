@@ -1124,13 +1124,13 @@ while ($message = Sql_fetch_array($messages)) {
              $script_stage = 5; # we have actually sent one user
            }
            if (isset($running_throttle_delay)) {
-             sleep($running_throttle_delay);
+             //sleep($running_throttle_delay);
              if ($counters['sent'] % 5 == 0) {
                # retry running faster after some more messages, to see if that helps
                unset($running_throttle_delay);
              }
            } elseif (MAILQUEUE_THROTTLE) {
-             usleep(MAILQUEUE_THROTTLE * 1000000);
+             //usleep(MAILQUEUE_THROTTLE * 1000000);
            } elseif (MAILQUEUE_BATCH_SIZE && MAILQUEUE_AUTOTHROTTLE) {
              $totaltime = $GLOBALS['processqueue_timer']->elapsed(1);
              $msgperhour = (3600/$totaltime) * $counters['sent'];
@@ -1150,7 +1150,7 @@ while ($message = Sql_fetch_array($messages)) {
                         $delay, (MAILQUEUE_BATCH_PERIOD / MAILQUEUE_BATCH_SIZE))
                 );
                }
-               usleep($delay * 1000000);
+               //usleep($delay * 1000000);
              }
            }
         } else {
