@@ -1,38 +1,47 @@
 title = "Unsubscribe"
-url = "/unsubscribe/:activationcode"
+url = "/45f308f54294bb5bde189a5049952cf639acc16daf595a8c8e0226faeaf008b21a637780058480934ad6ff978c9e53e186b9af539600a6553f460eee7f2339f2/:activationcode"
 layout = "main"
 is_hidden = "0"
 ==
 <?php
-function onInit(){
-    /*
-/:activationcode?
-    */
+function onStart(){
+
     //   MjE0ITIhZTNiMzYwMDYyMTZmNjhjODQ5NDYwNWQzZTcwYjllZTc=
-    $this['activationcode'] = $code = $this->param('activationcode');
-    if(substr($code,-4)=="done"){
-        //Flash::success("You were already removed from further emails!");
-        $code=substr($code,0,-4);
-        $this['already_done']=true;
-    }
-    $parts = explode('!', base64_decode($code));
-    if (count($parts) < 2) {
-        //Flash::error("I'm sorry, Dave. I'm afraid I can't do that.(".$e->getMessage().")");
-        Flash::error("I'm sorry, Dave. I'm afraid I can't do that.(faulty code)");
-        return redirect("/".$code);
-    }
-    list($user_id, $hash) = $parts;
-    $email = DB::table('users')->where('id', $user_id)->pluck('email');
-    $this['activation_code'] = DB::table('users')->where('id', $user_id)->pluck('activation_code');
-    if (!$email) {
+    $this['activationcode'] = $this->param('activationcode');
+    
+//    $parts = explode('!', base64_decode($code));
+//    if (count($parts) < 2) {
+//        Flash::error("I'm sorry, Dave. I'm afraid I can't do that.(".$e->getMessage().")");
+//        Flash::error("I'm sorry, Dave. I'm afraid I can't do that.(faulty code)");
+//        return redirect("/".$code);
+//    }
+//    list($user_id, $hash) = $parts;
+
+    $user = DB::table('users')->where('activation_code', $this['activationcode'] )->first();
+    if ( ! $user) {
         Flash::error("I'm sorry, Dave. I'm afraid I can't do that.(no such subscriber)");
-        return redirect("/".$code);
+        return redirect( "/" . $this['activationcode'] );
     }
-    $verifyCode = base64_encode($user_id.'!' . md5($user_id . '!' . $email));
-    if ($code != $verifyCode) {
-        Flash::error("I'm sorry, Dave. I'm afraid I can't do that.(invalid code)");
-        return redirect("/".$code);
+
+    if( $user->ok_unsubscribed_at ) {
+        $this['already_done']=true;
+    } else {
+        DB::table('oktick.users')->where('id',$user->id)->update(array(
+            'ok_unsubscribed_at' => date( 'Y-m-d H:i:s', time()),
+        ));
     }
+//    return redirect( "/" . $this['activationcode'] );
+//    $email = DB::table('users')->where('activation_code', $code)->pluck('email');
+//    $this['activation_code'] = DB::table('users')->where('id', $user_id)->pluck('activation_code');
+//    if (!$email) {
+//        Flash::error("I'm sorry, Dave. I'm afraid I can't do that.(no such subscriber)");
+//        return redirect("/".$code);
+//    }
+//    $verifyCode = base64_encode($user_id.'!' . md5($user_id . '!' . $email));
+//    if ($code != $verifyCode) {
+//        Flash::error("I'm sorry, Dave. I'm afraid I can't do that.(invalid code)");
+//        return redirect("/".$code);
+//    }
 }
 ?>
 ==
@@ -67,8 +76,8 @@ function onInit(){
                 <h2 class="text-justified"><small><strong>Unsubscribe Successful! You will not hear from us again unless you tell us otherwise.</strong></small></h2>
 {% endif %}
                 <h2 class="text-justified"><small>You can always try searching for something you supply to see where your business shows up in the search results.</small></h2>
-{% if activation_code %}
-                <h2 class="text-justified"><small>Should you change your mind or you made a mistake you can use the button below and get you business promoted easily for free.</a></small></h2><br>
+{% if activationcode %}
+                <h2 class="text-justified"><small>If you changed your mind or made a mistake you can use the button below and get you business promoted easily for free.</a></small></h2><br>
             </div>
             <div class="text-center">
                 <div class="row">
