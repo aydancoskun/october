@@ -428,7 +428,7 @@ define ("MANUALLY_PROCESS_QUEUE",1);
 
 # max messages to process
 # if there are multiple messages in the queue, set a maximum to work on
-define('MAX_PROCESS_MESSAGE',999);
+define('MAX_PROCESS_MESSAGE',9999);
 
 # define the amount of emails you want to send per period. If 0, batch processing
 # is disabled and messages are sent out as fast as possible
@@ -463,7 +463,7 @@ define('MAILQUEUE_AUTOTHROTTLE',0);
 # if too many failures for throttling occur, the send process will automatically add an extra
 # delay to try to improve that. The example sends 1 message every 2 minutes.
 
-define('USE_DOMAIN_THROTTLE',1);
+define('USE_DOMAIN_THROTTLE',0);
 define('DOMAIN_BATCH_SIZE',10);
 define('DOMAIN_BATCH_PERIOD',60);
 
@@ -472,7 +472,7 @@ define('DOMAIN_BATCH_PERIOD',60);
 # to simply delay a bit between messages to increase the number of messages sent per queue run
 # if you want to use that set this to 1, otherwise simply run the queue many times. A cron
 # process every 10 or 15 minutes is recommended.
-define('DOMAIN_AUTO_THROTTLE',1);
+define('DOMAIN_AUTO_THROTTLE',0);
 
 # MAX_PROCESSQUEUE_TIME
 # to limit the time, regardless of batch processing or other throttling of a single run of "processqueue"
