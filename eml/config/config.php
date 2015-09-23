@@ -677,14 +677,14 @@ Advanced Features, HTML editor, RSS, Attachments, Plugins. PDF creation
 # go via phpList. This will make sure that clicks are tracked. This is experimental and
 # all your findings when using this feature should be reported to mantis
 # for now it's off by default until we think it works correctly
-define('CLICKTRACK',1);
+define('CLICKTRACK',0);
 
 # Click track, list detail
 # if you enable this, you will get some extra statistics about unique users who have clicked the
 # links in your messages, and the breakdown between clicks from text or html messages.
 # However, this will slow down the process to view the statistics, so it is
 # recommended to leave it off, but if you're very curious, you can enable it
-define('CLICKTRACK_SHOWDETAIL',1);
+define('CLICKTRACK_SHOWDETAIL',0);
 
 # If you want to upload images in the editor, you need to specify the location
 # of the directory where the images go. This needs to be writable by the webserver,

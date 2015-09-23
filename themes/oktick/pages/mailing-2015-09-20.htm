@@ -13,7 +13,7 @@ function onStart(){
     }
     $this['activation_code'] = $data->activation_code;
     $this['ok_company_name'] = $data->ok_company_name;
-    $this['uri'] = trim( str_replace( $code, '', Request::path() ), '/' );
+    $this['uri'] = trim( str_replace( rawurlencode($code), '', Request::path() ), '/' );
     
     // Inject sample_products
     $this['products'] = DB::table('operations.bp_suppliers')
