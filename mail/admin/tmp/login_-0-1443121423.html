@@ -1,0 +1,156 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<html>
+<head>
+<META HTTP-EQUIV="Content-Type" CONTENT="text/html; charset=UTF-8">
+<meta name="application" content="Tellmatic v1.0.9.0-rc1 - Die Newsletter Maschine (www.tellmatic.org)">
+<meta name="author" content="Volker Augustin">
+<meta name="Publisher" content="Tellmatic">
+<meta name="Copyright" content="2007-2010 Volker Augustin - multi.art.studio Hanau">
+<meta name="Description" content="tellmatic - the newslettermaschine - www.tellmatic.org">
+<meta name="Page-topic" content="Newsletter">
+<meta name="Audience" content="all">
+<!--meta name="Content-language" content="DE"-->
+<meta name="Robots" content="NOINDEX,NOFOLLOW">
+<meta name="Keywords" content="news, newsletter, massmail, personalized mail, mailing, emailmarketing">
+<meta name="OBGZip" content="true">
+<link rel="shortcut icon" href="https://ipi.oktick.com/mail/img/favicon.ico">
+
+<title>Tellmatic v1.0.9.0-rc1 - Die Newsletter Maschine (www.tellmatic.org)</title>
+
+<style type="text/css">
+	@import url(https://ipi.oktick.com/mail/css/calendar.css);
+	@import url(https://ipi.oktick.com/mail/css/tellmatic.css);
+	@import url(https://ipi.oktick.com/mail/css/cadillac/tellmatic.css);
+	@import url(https://ipi.oktick.com/mail/css/cadillac/tellmatic_head.css);
+	@import url(https://ipi.oktick.com/mail/css/cadillac/tellmatic_menu.css);
+	@import url(https://ipi.oktick.com/mail/css/cadillac/tellmatic_main.css);
+	@import url(https://ipi.oktick.com/mail/css/cadillac/tellmatic_form.css);
+</style>
+	<script type="text/javascript" src="https://ipi.oktick.com/mail/js/tellmatic.js"></script>
+	<script type="text/javascript" src="https://ipi.oktick.com/mail/js/tellmatic_cookie.js"></script>
+	<!--script type="text/javascript" src="https://ipi.oktick.com/mail/js/tellmatic_ajax.js"></script-->
+	<script type="text/javascript" src="https://ipi.oktick.com/mail/js/jsFormValidation/jsFormValidation.js"></script>
+	<!--calendar-->
+	<script type="text/javascript" src="https://ipi.oktick.com/mail/js/cal/calendar.js"></script>
+	<script type="text/javascript" src="https://ipi.oktick.com/mail/js/cal/lang/calendar-en.js"></script>
+	<script type="text/javascript" src="https://ipi.oktick.com/mail/js/cal/calendar-setup.js"></script>
+	<!--mootools-->
+	<script type="text/javascript" src="https://ipi.oktick.com/mail/js/mootools/mootools.js"></script>
+	<script type="text/javascript" src="https://ipi.oktick.com/mail/js/mootools/mootools-more.js"></script>
+	<script type="text/javascript" src="https://ipi.oktick.com/mail/js/tellmatic_mootools.js"></script>
+
+</head>
+<body><!-- onload="init_ajax();" -->
+	<div id="div_loader" class="loader">
+		<div id="ld" align="left" style="display:block;background-color:#ff0000;padding:0;">
+			<table id="lpc" bgcolor="#ffcc00" cellpadding=0 cellspacing=0>
+			<tr><td>
+			<div id="lt" style="background-color:#33ff33; color:#ffffff; padding:0;">
+					<div id="ltt" style="background-color:#eeeeee; color:#ff0000; padding:0;">
+						<b>loading&nbsp;.......</b>
+					</div>
+			</div>
+			</td></tr>
+			</table>
+		</div>
+	</div>
+	<script type="text/javascript">
+	//<!--
+	load();
+	//--></script>
+
+
+<!-- Template fuer Seitenlayout, interne Verwendung -->
+
+<div id="head" class="head" style="-moz-opacity:1">
+<!-- Template fuer Header, interne Verwendung -->
+<div id="logo" class="logo">
+<a href="?act=">&nbsp;&nbsp;&nbsp;</a>
+</div>
+<div id="tellmatic" class="tellmatic">
+<a href="?act=">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</a>
+</div>
+
+<div id="sprechblase" class="sprechblase">
+	<center>
+	<div id="sprechblase_text" class="sprechblase_text">
+	?
+	</div>
+	</center>
+</div>
+<!--div id="head_info" class="head_info">
+Angemeldet als: 
+</div-->
+</div>
+
+<div id="menu" class="menu" style="-moz-opacity:1">
+
+</div>
+
+<div id="main" class="main" style="-moz-opacity:1">
+<!-- Template fuer Detailbereich, interne Verwendung -->
+<div class="main_head" id="main_head" style="-moz-opacity:0">
+Please log in with your username and password<br>
+</div>
+<div class="main_help" id="main_help" style="-moz-opacity:0">
+
+</div>
+<div class="main_info_nopopup" id="main_info" style="-moz-opacity:0"><!-- class: main_info/main_info_nopopup-->
+<font size=-1><!--a href="javascript:switchSection('main_info')"--><a href="#" id="toggle_main_info"><img src="https://ipi.oktick.com/mail/img/icons/exclamation.png" title="Informations" border="0" alt="Icon: Informations" id="icon_555855" onmouseover="switchSection('sprechblase');doc_writer('sprechblase_text','Informations');" onmouseout="switchSection('sprechblase');" >&nbsp;Hide informations</a></font><br><br><script language="javascript" type="text/javascript"></script>Timeout<br><br>
+</div>
+<div class="main_detail" id="main_detail" style="-moz-opacity:1">
+<form name="login" id="login" method="post" action="/mail/admin/index.php" target="_self" onSubmit="switchSection('div_loader');" >
+<table><tr><td valign=top><img src="https://ipi.oktick.com/mail/img/icons/user_comment.png" border="0" alt="User">&nbsp;User</td><td valign=top><label for="user_name" class="mFormFieldLabel"><span class="mFormFieldLabel">
+</span>
+</label>
+<input type="text" name="user_name" id="user_name" value="" size="48" maxlength="256" tabindex="1" title="User"  class="mFormText"  onChange="flash('submit','#ff0000');"  onFocus="document.getElementById('user_name').className = 'mFormTextFocus';" onBlur="document.getElementById('user_name').className = 'mFormText';">
+
+</td></tr><tr><td valign=top><img src="https://ipi.oktick.com/mail/img/icons/pilcrow.png" border="0"  alt="Password">&nbsp;Password</td><td valign=top><label for="user_pw" class="mFormFieldLabel"><span class="mFormFieldLabel">
+</span>
+</label>
+<input type="password" name="user_pw" id="user_pw" value="" size="48" maxlength="256" tabindex="2" title="Password"  class="mFormText"  onChange="flash('submit','#ff0000');"  onFocus="document.getElementById('user_pw').className = 'mFormTextFocus';" onBlur="document.getElementById('user_pw').className = 'mFormText';">
+
+</td></tr><tr><td valign=top colspan=2><label for="submit" class="mFormFieldLabel"><span class="mFormFieldLabel">
+</span>
+</label>
+<input type="submit" name="submit" id="submit" tabindex="998" title=""  class="mFormSubmit"  onFocus="document.getElementById('submit').className = 'mFormSubmitFocus';" onBlur="document.getElementById('submit').className = 'mFormSubmit';" value="Login"></td></tr></table></form>
+
+<script type="text/javascript">
+	<!--
+	toggleSlide("toggle_main_info","main_info",0);
+	checkForm();
+	-->
+</script>
+
+</div>
+
+<br><br><center>&copy;-left 2006-2010 <a href="http://www.tellmatic.org" target="blank">Tellmatic v1.0.9.0-rc1 - Die Newsletter Maschine (www.tellmatic.org)</a></center><br><br>
+</div>
+
+<div id="foot" class="foot">
+<!-- Template fuer Footer, interne Verwendung -->
+<div id="div_debug" class="debug"><a href="javascript:switchSection('div_debug');"><img src="https://ipi.oktick.com/mail/img/icons/information.png" border="0"  alt="Used memory: %s bytes"></a><br><br>Used memory: 3,13 MB<br>Processing time 0,37 seconds<br>Max. upload: 50M bytes<br>Memory-limit: 128M bytes<br>Max. POST-data: 50M bytes<br>Max. execution time: 240 seconds<br>Domain=: ipi.oktick.com<br>Docroot=: /home/oktick/public_development<br>Dir=: /mail/admin<br><br><a href="https://ipi.oktick.com/mail/include/phpinfo.php" target="_blank">PHP info</a><br><br><br><br><a href="javascript:switchSection('div_debug');">(X) Close window</a><br><br><br><br><center>&copy;-left 2006-2010 <a href="http://www.tellmatic.org" target="blank">Tellmatic v1.0.9.0-rc1 - Die Newsletter Maschine (www.tellmatic.org)</a></center><br><br></div>
+</div>
+
+
+<script type="text/javascript">
+	if (document.getElementById("main_info") && document.getElementById("main_info").style.MozOpacity) //if Firefox/ NS6+
+	setInterval("fadein('main_info')",5)
+
+	if (document.getElementById("main_help") && document.getElementById("main_help").style.MozOpacity) //if Firefox/ NS6+
+	setInterval("fadein('main_help')",5)
+
+	if (document.getElementById("main_head") && document.getElementById("main_head").style.MozOpacity) //if Firefox/ NS6+
+	setInterval("fadein('main_head')",25)
+	switchSection("sprechblase");
+	switchSection("div_loader");
+	switchSection("div_debug");
+	switchSection("main_info");
+
+	//loaded();
+switchSection('main_info');
+</script>
+<br>
+<br>
+</body>
+</html>
