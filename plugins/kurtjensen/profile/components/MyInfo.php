@@ -5,8 +5,8 @@ use Input;
 use Redirect;
 use Cms\Classes\ComponentBase;
 use System\Models\File as File;
-use RainLab\User\Models\State as State;
-use RainLab\User\Models\Country as Country;
+use RainLab\Location\Models\State as State;
+use RainLab\Location\Models\Country as Country;
 
 use Config;
 
@@ -55,6 +55,14 @@ class MyInfo extends ComponentBase
                 'default'     => '1',
                 'group'       => 'Country',
                 'options'     => Country::getNameList(),
+            ],
+            'stdSelect' => [
+                'title'       => 'Standard Select Dropdowns',
+                'description' => 'If you do not want \'form-control custom-select\' type drop downs for contry and state choose YES.',
+                'type'        => 'dropdown',
+                'default'     => '0',
+                'group'       => 'Country',
+                'options'     => [0=>'No',1=>'Yes']
             ]
         ];
     }
@@ -115,13 +123,16 @@ class MyInfo extends ComponentBase
 
     protected function countryInput($country)
     {
+        $adOptions = ['data-request' => 'onCountryChange',
+                      'data-request-update' => '\'MyInfo::_state\' : \'#state_div\''
+        ];
+        if (!$this->property('stdSelect')) $adOptions['class'] = 'form-control custom-select';
+
         $this->countrylist =
             Country::formSelect(
                 'country',                                      // name
                 $country,                                       // Cur Val
-                array('class' => 'form-control custom-select',
-                      'data-request' => 'onCountryChange',
-                      'data-request-update' => '\'MyInfo::_state\' : \'#state_div\'')  // Input Field Params
+                $adOptions                                      // Input Field Params
                 );
         return $this->countrylist;
     }
@@ -129,12 +140,14 @@ class MyInfo extends ComponentBase
 
     protected function stateInput($country,$state = null)
     {
+        $adOptions = $this->property('stdSelect') ?[]:['class' => 'form-control custom-select'];
+
         $this->statelist =
             State::formSelect(
                 'state',                                        // name
                 $country,                                       // CountryID
                 $state,                                         // Cur Val
-                array('class' => 'form-control custom-select')  // Input Field Params
+                $adOptions                                      // Input Field Params
                 );
         return $this->statelist;
     }

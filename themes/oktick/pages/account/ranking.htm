@@ -1,7 +1,7 @@
 title = "Ranking"
 url = "/account/ranking/:activationcode?"
 layout = "main"
-is_hidden = "0"
+is_hidden = 0
 ==
 <?php
 use Illuminate\Http\Response;
@@ -15,10 +15,12 @@ function onStart() {
         return redirect("/".$this['activationcode']);
     }
     $user=Auth::getUser();
-    if($user->ok_credits < 0.995){
+    if($user->ok_credits < 0.995 && !$this['activationcode']){
         Flash::warning("Your credits are running low. Click on 'Credits' menu to get more");
-    }    if($user->ok_company_products_count < 4){
-        $this['offer'] = 5;
+    }
+/*
+    if($user->ok_free_credits){
+        $this['offer'] = $user->ok_free_credits;
     }
     elseif($user->ok_company_products_count < 10){
         $this['offer'] = 10;
@@ -26,6 +28,7 @@ function onStart() {
     elseif($user->ok_company_products_count > 9){
         $this['offer'] = 20;
     }
+*/
 }
 
 function verifyPost($post_name,$check="int"){
@@ -283,7 +286,7 @@ function onCreditConfirm(){
         <br>
         <p>On this page you can see all products or services we have on record for your business and can elevate their standings on the OKTicK results pages.</p>
 {% if (activationcode) and (user.ok_credits == 0) %}
-        <p>You can elevate the rankings in the results pages with the <button class="btn btn-default btn-xs"><span class="glyphicon glyphicon-plus"></span></button> and <button class="btn btn-default btn-xs"><span class="glyphicon glyphicon-minus"></span></button> buttons using free credits by clicking here: <a role="button" class="btn btn-success addspeech" rel="claimcredits" href="/account/offer/{{activationcode}}">Give me my FREE Credits NOW!</a></p>
+        <p>You can elevate the rankings in the results pages with the <button class="btn btn-default btn-xs"><span class="glyphicon glyphicon-plus"></span></button> and <button class="btn btn-default btn-xs"><span class="glyphicon glyphicon-minus"></span></button> buttons using free credits by clicking here: <a role="button" class="btn btn-success addspeech" rel="claimcredits" href="/account/offer/{{activationcode}}">Claim lifetime credits now!</a></p>
 {% elseif (activationcode) %}
             <p>You can use your free credits to elevate products. You can see at any time how many credits you have remaining by looking at the badge <span
                             id="ok_credits"

@@ -23,7 +23,7 @@ use KurtJensen\Profile\Models\Profile as ProfileModel;
 class Plugin extends PluginBase
 {
 
-    public $require = ['RainLab.User'];
+    public $require = ['RainLab.User','RainLab.Location','RainLab.UserPlus'];
 
     /**
      * Returns information about this plugin.
@@ -63,6 +63,7 @@ class Plugin extends PluginBase
             'KurtJensen\Profile\Components\Profpic' => 'Profpic',
             'KurtJensen\Profile\Components\UserList' => 'UserList',
             'KurtJensen\Profile\Components\Gallery' => 'Gallery',
+            'KurtJensen\Profile\Components\VCard' => 'VCard',
         ];
     }
     

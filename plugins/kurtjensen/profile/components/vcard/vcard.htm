@@ -1,0 +1,15 @@
+BEGIN:VCARD
+VERSION:3.0
+CLASS:PUBLIC
+PRODID:-//KurtJensen-OctoberCMS-Profiles-Plugin
+REV:{{ person.updated_at|date("Y-m-d H:i:s") }}
+FN:{{ person.name }} {{ person.surname }}
+N:{{ person.surname }};{{ person.name }};;;
+NICKNAME:{{ person.name }}
+ORG:{{ userGroups[person.primary_usergroup] }}
+ADR;TYPE=home:;;{{ person.street_addr }};{{ person.city }};{{ person.state.name }};{{ person.zip }};
+EMAIL;TYPE=internet,pref:{{ person.email }}
+{% for cphone in person.cellphones  %}
+TEL;TYPE={{ cphone.label }},voice:{{ cphone.phone }}
+{% endfor %}
+END:VCARD

@@ -71,7 +71,7 @@ class PageList
                 }
 
                 $result[] = (object)[
-                    'page' => $pageObject,
+                    'page'     => $pageObject,
                     'subpages' => $iterator($subpages)
                 ];
             }
@@ -100,8 +100,10 @@ class PageList
                     return true;
                 }
 
-                if ($iterator($subpages) == true) {
+                if ($iterator($subpages) == true && is_null($parent)) {
+
                     $parent = $fileName;
+
                     return true;
                 }
             }
@@ -128,6 +130,7 @@ class PageList
             foreach ($configPages as $fileName => $subpages) {
                 if ($fileName == $requestedFileName) {
                     $subTree = $subpages;
+
                     return true;
                 }
 
@@ -149,7 +152,6 @@ class PageList
     public function updateStructure($structure)
     {
         $originalData = $this->getPagesConfig();
-
         $originalData['static-pages'] = $structure;
 
         $dumper = new YamlDumper();
@@ -157,6 +159,7 @@ class PageList
 
         $filePath = $this->getConfigFilePath();
         $dirPath = dirname($filePath);
+
         if (!file_exists($dirPath) || !is_dir($dirPath)) {
             if (!File::makeDirectory($dirPath, 0777, true, true)) {
                 throw new ApplicationException(Lang::get('cms::lang.cms_object.error_creating_directory', ['name' => $dirPath]));
@@ -187,6 +190,7 @@ class PageList
                 foreach ($configPages as $fileName => &$subpages) {
                     if ($fileName == $parent) {
                         $subpages[$page->getBaseFileName()] = [];
+
                         return true;
                     }
 
@@ -241,7 +245,7 @@ class PageList
         $filePath = $this->getConfigFilePath();
 
         if (!file_exists($filePath)) {
-            return self::$configCache = ['static-pages'=>[]];
+            return self::$configCache = ['static-pages' => []];
         }
 
         $config = Yaml::parse(File::get($filePath));

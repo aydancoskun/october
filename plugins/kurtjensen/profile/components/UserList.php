@@ -1,33 +1,29 @@
 <?php namespace KurtJensen\Profile\Components;
 
-use DB;
 use Lang;
 use App;
 use Cms\Classes\Page;
 use Cms\Classes\ComponentBase;
 use RainLab\User\Models\User as user;
 use ShahiemSeymor\Roles\Models\UserGroup;
-use October\Rain\Auth\Models\User as UserBase;
-
-//use KurtJensen\Cellphone\Models\Cellphone;
 use KurtJensen\Cellphone\Models\Provider as CellProvider;
 
 use KurtJensen\Profile\Models\Settings;
 use KurtJensen\Profile\Components\ExtendedInfo;
-// Testing
-use Form;
 
 class UserList extends ComponentBase
 {
     public $people = [];
     
+    public $person = [];   
+    
     public $userGroups = [];
     
     public $showCountry;
     
-    public $testform = '';
-    
     public $sort = '';
+
+    public $vcardPage = '';
     
     public $UserSelected = 0;
 
@@ -35,7 +31,7 @@ class UserList extends ComponentBase
     public function componentDetails()
     {
         return [
-            'name'        => 'UserList Component',
+            'name'        => 'User List',
             'description' => 'Shows a list of users and their information when selected'
         ];
     }
@@ -45,8 +41,8 @@ class UserList extends ComponentBase
         return [
             'SLSlug' => [
                 'title'       => 'Selected User Slug',
-                'description' => '( Optional ) Slug for displaying a single users information.  If used page will only display user with an id that matches the slug.',
-                'type'        => 'dropdown',
+                'description' => '( Optional ) Slug for displaying a single users information.  If used, page will only display user with an id that matches the slug.',
+                'type'        => 'string',
                 'default'     => '{{ :slug }}'
             ],
             'showCountry' => [
@@ -54,8 +50,20 @@ class UserList extends ComponentBase
                 'description' => 'Country field for allowing users to choose a country.',
                 'type'        => 'dropdown',
                 'default'     => 0,
-                'group'       => 'Country',
                 'options'     => [0=>'No',1=>'Yes']
+            ],
+            'defSort' => [
+                'title'       => 'Default Sort Order',
+                'description' => 'Sort order of users when directory first opened.',
+                'type'        => 'dropdown',
+                'default'     => 0,
+                'options'     => ['group'=>'group','given'=>'given  name','surname'=>'surnane']
+            ],
+            'vcard' => [
+                'title'       => 'Vcard Page',
+                'description' => 'Page that contains the VCard component.',
+                'type'        => 'dropdown',
+                'default'     => '',
             ],
         ];
     }
@@ -64,6 +72,7 @@ class UserList extends ComponentBase
     {
         $this->getPrimaryUsergroups();
         $this->showCountry = $this->property('showCountry');
+        $this->vcardPage = $this->property('vcard',0);
     }
 
     public function onRun()
@@ -73,12 +82,17 @@ class UserList extends ComponentBase
         $this->UserSelected = intval( $this->property('SLSlug'));
         if ( $this->UserSelected ) 
             return $this->UserDisplayOne();
-        $this->page['sort'] = $this->sort = post('sort');        
+        $this->page['sort'] = $this->sort = get('sort',$this->property('defSort'));        
         
         $this->loadUserInfo();
         $this->page['people'] = $this->people;
         
         
+    }
+
+    public function getVcardOptions()
+    {
+        return [''=>'- none -'] + Page::sortBy('baseFileName')->lists('baseFileName', 'baseFileName');
     }
     
     public function loadUserInfo()
@@ -117,18 +131,23 @@ class UserList extends ComponentBase
     
     public function UserDisplayOne()
     {
-        $this->page['person'] = $this->person = user::find($this->UserSelected);
-
-        $this->page['avatarThumb'] = $this->person->getAvatarThumb(200);
-        
-        $this->page['epsettings'] = ExtendedInfo::loadSettings($this->person);
-        //$this->page['hint'] = count($this->page['epsettings']);
-         
+        $this->oneUser($this->UserSelected);
     }
     
     public function onUserDisplay()
     {
-        $this->page['person'] = $this->person = user::find(post('id'));
+        $this->oneUser(post('id'));
+    }
+    
+    public function onUserVcard()
+    {
+        $this->oneUser(post('id'));
+        return $this->renderPartial('vcard');
+    }
+    
+    public function oneUser($id)
+    {
+        $this->page['person'] = $this->person = user::find($id);
 
         $this->page['avatarThumb'] = $this->person->getAvatarThumb(200);
         

@@ -15,6 +15,21 @@ function onStart(){
     } else {
         $this['logout'] = false;
     }
+    if (! Auth::check()) return;
+    $user = Auth::getUser();
+    $now = time();
+    $this['ok_free_credits'] = $Amount = $user->ok_free_credits;
+    $next_transaction_date = date( 'Y-m-d H:i:s',strtotime($user->ok_free_credits_datetime ."+ 7 days") );
+    if($user->ok_credits >= $user->ok_free_credits){
+        $this['ok_free_credits_button'] = "nocredit";
+        return;
+    }
+    if( $now < strtotime($user->ok_free_credits_datetime ."+ 7 days") ){
+        $this['ok_free_credits_button'] = "notime";
+        $this['ok_free_credits_days'] = intval(((strtotime($user->ok_free_credits_datetime ."+ 7 days")-$now)/60/60/24)+1);
+        return;
+    }
+    $this['ok_free_credits_button'] = "free";
 }
 ?>
 ==
@@ -51,8 +66,8 @@ function onStart(){
         </div>
         <!--div class="navbar-header pull-right collapse navbar-collapse" id="oktick-top-navbar"-->
         <div class="collapse navbar-collapse" id="oktick-top-navbar">
-            <ul class="nav navbar-nav nav-top">
-                {% if user %}
+            {% if user %}
+                <ul class="nav navbar-nav nav-top">
                     <li class="{% if (this.page.id == "main") and (activationcode) and (user.ok_credits == 0) %}addspeech{% endif %} {% if this.page.id == "account-ranking" %}active{% endif %}" rel="navbarrankings">
                         <a href="/account/ranking/{{activationcode}}">Rankings <span
                             id="badge_active"
@@ -63,18 +78,6 @@ function onStart(){
                             title="Number of elevated Products and Services">
                         {% if user.ok_sponored_products_count %}{{user.ok_sponored_products_count}}{%else%}0{% endif %}
                             </span>
-                        </a>
-                    </li>
-                   <li class="{% if (this.page.id == "account-ranking-todo") and (activationcode) and (user.ok_credits == 0)%}addspeech{% endif %}  {% if this.page.id == "account-credit" %}active{% endif %}" rel="navbarcredits">
-                        <a href="/account/credit/{{activationcode}}">Credits <span
-                            id="ok_credits"
-                            class="badge {% if user.ok_credits|round(2, 'common') > 0 %}badge-success{%else%}badge-primary{% endif %} badge-menu"
-                            data-toggle="tooltip"
-                            data-trigger="hover"
-                            data-placement="bottom"
-                            title="Number of credits"
-                            data-content="This shows the number of credits you have on account and available to place on products and services"
-                            data-value="{% if user.ok_credits %}{{user.ok_credits}}{%else%}0{% endif %}">{% if user.ok_credits and user.ok_credits > 0 %}{{ user.ok_credits|round(2, 'common') }}{%else%}0{% endif %}</span>
                         </a>
                     </li>
                     <li class="{% if (this.page.id == "account-credit-todo") and (activationcode) and (user.ok_credits == 0)%}addspeech{% endif %} {% if this.page.id == "account-products-services" %}active{% endif %}" rel="navbarps">
@@ -90,12 +93,101 @@ function onStart(){
                             </span>
                         </a>
                     </li>
-                {% else %}
+                   <li class="{% if (this.page.id == "account-ranking-todo") and (activationcode) and (user.ok_credits == 0)%}addspeech{% endif %}  {% if this.page.id == "account-credit" %}active{% endif %}" rel="navbarcredits">
+                        <a href="/account/credit/{{activationcode}}">Credits <span
+                            id="ok_credits"
+                            class="badge {% if user.ok_credits|round(2, 'common') > 0 %}badge-success{%else%}badge-primary{% endif %} badge-menu"
+                            data-toggle="tooltip"
+                            data-trigger="hover"
+                            data-placement="bottom"
+                            title="Number of credits"
+                            data-content="This shows the number of credits you have on account and available to place on products and services"
+                            data-value="{% if user.ok_credits %}{{user.ok_credits}}{%else%}0{% endif %}">{% if user.ok_credits and user.ok_credits > 0 %}{{ user.ok_credits|round(2, 'common') }}{%else%}0{% endif %}</span>
+                        </a>
+                    </li>
+                    {% if (activationcode) and (user.ok_credits == 0) %}
+                    {#% if true %#}
+                    <li class="navbar-form">
+                        <button 
+                        id="btn-claim-free" 
+                        class="btn btn-success"
+                        data-toggle="tooltip" data-trigger="hover" data-placement="bottom"
+                        title="Click to claim your lifetime free credits"
+                        onclick="window.location='/account/offer/{{activationcode}}'"
+                        >Claim lifetime credits</button>
+                    {% elseif ok_free_credits_button == "free" %}
+                    <li class="navbar-form">
+                        <button 
+                        id="btn-claim-free" 
+                        class="btn btn-success"
+                        data-toggle="tooltip" data-trigger="hover" data-placement="bottom"
+                        title="Click to claim your free credits"
+                        >Free Credit</button>
+                        <script>
+$('#btn-claim-free').click(function(event){
+    event.preventDefault();
+    //console.log("btn-claim-free");
+    BootstrapDialog.show({
+        title: 'Info:',
+    {% if user.ok_free_credits_datetime == "0000-00-00 00:00:00"%}
+        message: 'OK, so you are one of the lucky ones with a free CREDITS FOR LIFE deal.<br>Great, so {{ ok_free_credits }} credits it is!<br><br>'+
+                 'Click OK, to get your credits. In a week the "Free Credit" button will again turn green and we\'ll top you up!',
+    {% else %}
+        message: 'Click OK, to get topped up to {{ ok_free_credits }} credits. In a week the "Free Credit" button will again turn green and we\'ll top you up!',
+    {% endif %}
+        type: BootstrapDialog.TYPE_PRIMARY,
+        size: BootstrapDialog.SIZE_SMALL,
+        buttons: [{
+            label: 'OK',
+            //icon: 'glyphicon glyphicon-remove',
+            cssClass: 'btn-primary',
+            action: function(dialog) {
+                $(this).request('onClaimFree')
+//                $.request('onClaimFree', {
+  //                  data: {}
+//                })
+                .always(function( data, textStatus, errorThrown ) {
+                    if(data.status=="error"){
+                        dialog.close();
+                        alert(data.message);
+                        console.log(data.log);
+                        return;
+                    }
+                    if(data.status=="success"){
+                        console.log(data.log);
+                        dialog.close();
+                        location.reload(true);
+                        return;
+                    }
+                    dialog.close();
+                });
+            }
+        }]
+    });
+});
+                        </script>
+                    </li>
+                    {% elseif ok_free_credits_button == "nocredit" %}
+                    <li class="navbar-form"
+                        data-toggle="tooltip" data-trigger="hover" data-placement="bottom"
+                        title="Use credits before claiming more">
+                        <button id="btn-claim-free2" class="btn btn-default" disabled>Free Credit</button>
+                    </li>
+                    {% elseif ok_free_credits_button == "notime" %}
+                    <li class="navbar-form"
+                        data-toggle="tooltip" data-trigger="hover" data-placement="bottom"
+                        title="Your next topup will be available in {{ ok_free_credits_days }} day{% if ok_free_credits_days > 1%}s{% endif %} or less">
+                        <button id="btn-claim-free1" class="btn btn-default" disabled>Free Credit</button>
+                    </li>
+                    {% endif %}
+                </ul>
+            {% else %}
+                <ul class="nav navbar-nav nav-top">
                     <li class="{% if this.page.id == "pages-search-tips" %}active{% endif %}"><a href="/search-tips/{{activationcode}}">Search Tips</a></li>
                     <li class="{% if this.page.id == "pages-why-register" %}active{% endif %}"><a href="/why-register/{{activationcode}}">Why Register?</a></li>
                     <li class="{% if this.page.id == "pages-faq" %}active{% endif %}"><a href="/faq/{{activationcode}}">FAQ</a></li>
-                {% endif %}
-            </ul>
+                </ul>
+            {% endif %}
             <ul class="nav navbar-nav navbar-right nav-top">
                 {% if user %}
                     <li class="" rel="navbaraccount">

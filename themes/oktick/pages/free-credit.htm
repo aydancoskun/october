@@ -1,7 +1,7 @@
 title = "Free Credit"
 url = "/account/offer/:activationcode?"
 layout = "main"
-is_hidden = "0"
+is_hidden = 0
 ==
 <?php
 function verifyPost($post_name,$check="int"){
@@ -57,15 +57,16 @@ function onStart() {
     $ok_vendor_data = $this->verifyPost('ok_vendor_data',"string");
 
     $user=Auth::getUser();
-    if($user->ok_company_products_count <= 3) $offer = 5;
-    elseif($user->ok_company_products_count < 10) $offer = 10;
-    elseif($user->ok_company_products_count >= 10) $offer = 20;
-
-    $user->ok_credits = $offer;
+    //if($user->ok_company_products_count <= 3) $offer = 5;
+    //elseif($user->ok_company_products_count < 10) $offer = 10;
+    //elseif($user->ok_company_products_count >= 10) $offer = 20;
+    $user->ok_credits = $user->ok_free_credits;
     $user->password = $new_password;
     $user->password_confirmation = $new_password;
     $user->ok_company_name = $ok_company_name;
     $user->ok_vendor_data = $ok_vendor_data;
+    $user->ok_free_credits_datetime = date( 'Y-m-d H:i:s' );
+
     $user->save();
     //$user->ok_company_name = $ok_company_name;
     //$user->ok_vendor_data = $ok_vendor_data;
@@ -93,7 +94,7 @@ DB::beginTransaction();
                 'bp_position' => DB::raw("floor(bp_position/10)*10 + $score"),
         ));
     DB::commit();
-        Flash::success("Data set successfully. $offer Free Credits added!");
+        Flash::success("Thank you. $user->ok_free_credits Credits added!");
         return redirect("/account/ranking/".$this['activationcode']);
     } catch (Exception $e) {
         // looks like we have no user
@@ -115,18 +116,15 @@ DB::beginTransaction();
 {% partial "nav-top" %}
 <div class="container">
 <br>
-<h2 class="text-center">Free Credit Offer<br></h2>
+<h2 class="text-center">Free Lifetime Credits<br></h2>
 
 <div class="row">
     <div class="col-xs-0 col-md-2"></div>
     <div class="col-xs-12 col-md-8">
         <p>{{"&nbsp;&nbsp;&nbsp;"|raw}}</p>
         <div>
-            <p>We are offering you credits free of any charge on the OKTicK Search Engine.</p>
-            <p>With these you can move your goods & services up in the search results and see how easy it is to promote your stuff.</p>
-            <p>In order for you to effectively apply these credits, please do this:</p>
-            <p>a) Select a password of your own choosing so you can come back later.</p>
-            <p>b) Adjust your business name &amp; description as needed so your products are represented correctly.</p>
+            <p>To kick off our launch we are giving away "Free Credits For Life" to the first 5000 suppliers signing on with us. This is free as in "Free Beer". It costs you absolutely nothing to promote on the OKTicK Search Engine - for Life.</p>
+            <p>With Credits you can move your goods & services up in the search results. You'll see for yourself how easy on-line advertising can be. We don't do pay-per-click and even dreaded SEO plays no part. You do your business and we get you known.</p>
         </div>
     </div>
     <div class="col-xs-0 col-md-2"></div>
@@ -136,14 +134,17 @@ DB::beginTransaction();
     <div class="col-xs-1 col-md-2"></div>
     <div class="col-xs-10 col-md-8">
         <form id="update_account_form" action="" method="post">
+            <div class="form-group input-group-lg">
+                <label>To get your Credits, do this:</label>
+            </div>
             <div class="form-group has-feedback input-group-lg">
-                <label class="control-label" for="new-password-1">Choose a password (Good ones are unique, easy to remember but hard to guess)</label>
+                <label class="control-label" for="new-password-1">A) Choose a password (Good ones are unique, easy to remember but hard to guess)<br><small>(You'll need a password so you can come back later)</small></label>
                 <input type="password" class="form-control" id="new-password-1" name="new-password-1" aria-describedby="new-password-1">
                 <span class="glyphicon glyphicon-ok form-control-feedback collapse" aria-hidden="true"></span>
                 <span id="new-password-1-status" class="sr-only">(success)</span>
             </div>
             <div class="form-group has-feedback input-group-lg">
-                <label class="control-label" for="new-password-2"><small>Please verify your password</small></label>
+                <label class="control-label" for="new-password-2">B) Verify your password</label>
                 <input type="password" class="form-control" id="new-password-2" name="new-password-2" aria-describedby="new-password-2">
                 <span class="glyphicon glyphicon-ok form-control-feedback collapse" aria-hidden="true"></span>
                 <span id="new-password-2-status" class="sr-only">(success)</span>
@@ -152,15 +153,18 @@ DB::beginTransaction();
                 <p></p>
             </div>
             <div class="form-group input-group-lg">
-                <label for="Business_Name">Business Display Name (edit as needed)</label>
+                <label for="Business_Name">C) Adjust Business Display Name as needed<br><small>(So your business name is presented correctly to searchers)</small></label>
                 <input type="text" class="form-control" id="ok_company_name" placeholder='E.g. "Tim Taylor Tinker Ltd"' value="{{ user.ok_company_name }}" name="ok_company_name">
             </div>
             <div class="form-group input-group-lg">
-                <label for="Business_Description">Business Description<br><small>When you are listed in the search result, this will shown along with your business name to potential customers. Therefore you should tell them what goods you sell and services you provide (max 128 letters)</small></label>
+                <label for="Business_Description">D) Adjust Business Description as needed<br><small>(When you show up in search result, this will show next to your business name. You should say here what makes you unique or what specifications or sub categories you cater to. Max 128 letters)</small></label>
                 <input type="text" class="form-control" id="ok_vendor_data" placeholder="E.g. &quot;stainless steel & exotic alloy valves&quot; or &quot;oak & pinewood furniture&quot;" value="{{ user.ok_vendor_data }}" name="ok_vendor_data">
             </div>
+            <div class="form-group input-group-lg">
+                <label>E) Agree to our Terms and Conditions which you can find <a href="https://ipi.oktick.com/terms-and-conditions/{{activationcode}}">here</a><br><small>(No hocus pocus - but our solicitors insisted we'd have some. By clicking "Apply" you indicate your aggrement)</small></label>
+            </div>
             <div class="text-right">
-                <button type="submit" class="btn btn-primary btn">Submit</button>
+                <button type="submit" class="btn btn-primary btn">Apply</button>
             </div>
         </form>
     </div>

@@ -1,9 +1,0 @@
-
-<br /><br />
-Languages available for your country:<br />
-| {% for language in __SELF__.displayedLocales %}
-{% for locale,localeName in language %}
-<a href="{{ locale }}">{{ localeName }}</a> |
-{% endfor %}
-{% endfor %}
-

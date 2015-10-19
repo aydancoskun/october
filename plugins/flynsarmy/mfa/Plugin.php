@@ -50,34 +50,34 @@ class Plugin extends PluginBase
             ]);
         });
 
-    // Conditionally required fields
-    //Event::listen('eloquent.validating: Backend\Models\User', function($model) {
-    BackendUser::validating(function($model) {
-        if ( !$model->mfa_enabled )
-            return;
+        // Conditionally required fields
+        //Event::listen('eloquent.validating: Backend\Models\User', function($model) {
+        BackendUser::validating(function($model) {
+            if ( !$model->mfa_enabled )
+                return;
 
-        // Get the original values from this model straight from the DB
-        $original = $model->getOriginal();
+            // Get the original values from this model straight from the DB
+            $original = $model->getOriginal();
 
-        $model->rules['mfa_secret'] = 'required';
-        $model->rules['mfa_question_1'] = 'required';
-        $model->rules['mfa_question_2'] = 'required';
+            $model->rules['mfa_secret'] = 'required';
+            $model->rules['mfa_question_1'] = 'required';
+            $model->rules['mfa_question_2'] = 'required';
 
-        // If no MFA is set in the DB yet, we need one set on the form
-        if ( $original['mfa_answer_1'] === '' )
-            $model->rules['mfa_answer_1'] = 'required';
-        if ( $original['mfa_answer_2'] === '' )
-            $model->rules['mfa_answer_2'] = 'required';
-    });
+            // If no MFA is set in the DB yet, we need one set on the form
+            if ( $original['mfa_answer_1'] === '' )
+                $model->rules['mfa_answer_1'] = 'required';
+            if ( $original['mfa_answer_2'] === '' )
+                $model->rules['mfa_answer_2'] = 'required';
+        });
 
-    BackendUser::extend(function($model) {
-        $model->addHashableAttribute('mfa_answer_1');
-        $model->addHashableAttribute('mfa_answer_2');
-        $model->setHidden(array_merge($model->getHidden(), ['mfa_answer_1', 'mfa_answer_2']));
-        $model->attributeNames['mfa_question_1'] = 'MFA security question 1';
-        $model->attributeNames['mfa_question_2'] = 'MFA security question 2';
-        $model->attributeNames['mfa_answer_1'] = 'MFA security answer 1';
-        $model->attributeNames['mfa_answer_2'] = 'MFA security answer 2';
+        BackendUser::extend(function($model) {
+            $model->addHashableAttribute('mfa_answer_1');
+            $model->addHashableAttribute('mfa_answer_2');
+            $model->setHidden(array_merge($model->getHidden(), ['mfa_answer_1', 'mfa_answer_2']));
+            $model->attributeNames['mfa_question_1'] = 'MFA security question 1';
+            $model->attributeNames['mfa_question_2'] = 'MFA security question 2';
+            $model->attributeNames['mfa_answer_1'] = 'MFA security answer 1';
+            $model->attributeNames['mfa_answer_2'] = 'MFA security answer 2';
 
             // Like a password field, mfa_answers shouldn't be changed in the DB
             // when they're left blank
@@ -159,25 +159,25 @@ class Plugin extends PluginBase
         /*
          * Add MFA fields to frontend user form - requires rainlab.user
          */
-        Event::listen('backend.form.extendFields', function(\Backend\Widgets\Form $widget) {
-            if (!$widget->getController() instanceof \RainLab\User\Controllers\Users) return;
-            if ($widget->getContext() != 'update') return;
-
-            $widget->addFields([
-                'mfa_enabled' => [
-                    'label'       => 'Use MFA?',
-                    'type'        => 'checkbox',
-                    'span'        => 'left',
-                    'description' => "Use Google Authenticator as an extra login check after entering your username and password."
-                ],
-                'mfa_secret' => [
-                    'label'       => 'MFA Secret',
-                    'type'        => 'text',
-                    'span'        => 'right',
-                    'description' => "Changing this will invalidate your existing Google Authenticator account. You will need to re-add it."
-                ],
-            ], 'primary');
-        });
+        //Event::listen('backend.form.extendFields', function(\Backend\Widgets\Form $widget) {
+        //    if (!$widget->getController() instanceof \RainLab\User\Controllers\Users) return;
+        //    if ($widget->getContext() != 'update') return;
+        //
+        //    $widget->addFields([
+        //        'mfa_enabled' => [
+        //            'label'       => 'Use MFA?',
+        //            'type'        => 'checkbox',
+        //            'span'        => 'left',
+        //            'description' => "Use Google Authenticator as an extra login check after entering your username and password."
+        //        ],
+        //        'mfa_secret' => [
+        //            'label'       => 'MFA Secret',
+        //            'type'        => 'text',
+        //            'span'        => 'right',
+        //            'description' => "Changing this will invalidate your existing Google Authenticator account. You will need to re-add it."
+        //        ],
+        //    ], 'primary');
+        //});
 
         /**
          * @param \Cms\Classes\Controller $controller
@@ -198,7 +198,7 @@ class Plugin extends PluginBase
          */
         Event::listen('backend.page.beforeDisplay', function(\Backend\Classes\Controller $controller, $action, array $params) {
             // Admin isn't logged in yet or is accessing a public action. Nothing to do here.
-            if ( !BackendAuth::check() || in_array($action, $controller->publicActions) )
+            if ( !BackendAuth::check() || in_array($action, $controller->getPublicActions()) )
                 return;
 
             $manager = BackendAuthManager::instance();

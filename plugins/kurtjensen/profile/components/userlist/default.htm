@@ -18,8 +18,8 @@ small{ font-size: 0.6em;
   Sort: <a href="?sort=default">Last Name</a> | 
   <a href="?sort=given">First Name</a> | 
   <a href="?sort=group">Group</a>
-    <div id="MemberShow" class="left"></div>
-    <div>
+<div id="MemberShow" style="float:none; overflow:hidden;
+padding: 20px 20px 20px 20px;"></div>
 {% for person in people  %}
         {% if sort == 'group' %}
           {% if curgr != person.primary_usergroup %}
@@ -42,7 +42,6 @@ small{ font-size: 0.6em;
             <small>{{ userGroups[person.primary_usergroup] }}</small>
        </a>
 {% endfor %}
-    </div>
 </div>
 {% endif %}
 {{ hint }}

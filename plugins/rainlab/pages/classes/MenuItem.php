@@ -81,8 +81,15 @@ class MenuItem
         'code',
         'reference',
         'cmsPage',
-        'replace'
+        'replace',
+        'viewBag'
     ];
+
+    /**
+     * @var array Contains the view bag properties.
+     * This property is used by the menu editor internally.
+     */
+    public $viewBag = [];
 
     /**
      * Initializes a menu item from a data array. 
@@ -120,8 +127,8 @@ class MenuItem
     public function getTypeOptions($keyValue = null)
     {
         $result = ['url' => 'URL'];
-
         $apiResult = Event::fire('pages.menuitem.listTypes');
+
         if (is_array($apiResult)) {
             foreach ($apiResult as $typeList) {
                 if (!is_array($typeList)) {
@@ -151,6 +158,7 @@ class MenuItem
     {
         $result = [];
         $apiResult = Event::fire('pages.menuitem.getTypeInfo', [$type]);
+
         if (is_array($apiResult)) {
             foreach ($apiResult as $typeInfo) {
                 if (!is_array($typeInfo)) {
@@ -189,6 +197,7 @@ class MenuItem
     public function toArray()
     {
         $result = [];
+
         foreach ($this->fillable as $property) {
             $result[$property] = $this->$property;
         }

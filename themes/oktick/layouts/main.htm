@@ -54,6 +54,7 @@ function onStart() {
             $user->ok_sponored_products_count = $sponored_products_count;
             $user->save();
         }
+        //$this['user'] = $user;
         return;
     } catch (Exception $e) {
         Debugbar::addMessage("No user found");
@@ -83,6 +84,45 @@ function onHelp() {
     } catch (Exception $e) {
         Debugbar::addMessage("No user found to store help");
     }
+}
+function onClaimFree(){
+    if (! Auth::check()) return;
+    $user = Auth::getUser();
+    $now = time();
+    $Amount = $user->ok_free_credits;
+    $transaction_date = date( 'Y-m-d H:i:s' );
+    $allowed_transaction_date = date( 'Y-m-d H:i:s', strtotime("$transaction_date - 7 days") );
+//    \Debugbar::info($Amount,"credits","info:116");
+    if($user->ok_free_credits_datetime > $allowed_transaction_date){
+        $msg = "Not time yet to top up credits";
+        return ['status' => 'error','message' => $msg,'log' => [ 'error'=>$msg,],];
+    }
+    if($user->ok_credits >= $Amount){
+        $msg = "You don't need any top up, You've already got $user->ok_credits credits";
+        return ['status' => 'error','message' => $msg ,'log' => [ 'error'=> $msg ,],];
+    }
+    DB::beginTransaction();
+    $user->ok_credits = $Amount;
+    $user->ok_purchase_number=$user->ok_purchase_number + 1;
+    $user->ok_free_credits_datetime = $transaction_date;
+    $user->save();
+    DB::table('ok_payments')->insert(
+                            array(
+                                'company' => $user->company,
+                                'user_id' => $user->id,
+                                'transaction_date' => $transaction_date,
+                                'transaction_currency' => 'FREE',
+                                'credits_purchased' => $Amount,
+                                'credits_total' => $user->ok_credits,
+                                'price_paid' => '0',
+                                'charge_id' => 'FREE'.$transaction_date,
+                                'download_code' => Hash('sha512',"FREE".$transaction_date),
+                                'created_at' => $transaction_date,
+                                'updated_at' => $transaction_date,
+                                )
+    );
+    DB::commit();
+    return ['status' => 'success','message' => '50 credits added!','log' => [ 'success'=>'$Amount credits added',],];
 }
 ?>
 ==

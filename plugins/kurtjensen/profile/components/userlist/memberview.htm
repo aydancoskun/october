@@ -2,14 +2,11 @@
 <div style="border-radius: 5px;
 width:100%;
 overflow: hidden;
-margin-top: 20px;
-margin-bottom: 20px;
-float:left;
 border: #4D4D4D 2px solid;
-padding: 5px;"
-class="row">
+padding: 5px;">
     <div class="col-sm-4">
-        <h3>{{ person.name }}</h3>
+        <h3>{{ person.name }} {{ person.surname }}
+        <small>{{ userGroups[person.primary_usergroup] }}</small></h3>
         <table>
         <!--    <tr>
                 <td class="kurtjensen-profile-label">DBID : </td><td class="kurtjensen-profile-data"> {{ user.id }}</td>
@@ -82,7 +79,7 @@ class="row">
         
     </div>
     <div class="col-sm-3">
-        <div  class="right">
+        <div  class="center">
 {% if person.avatar %}
             <a href="{{ person.avatar.getThumb(600,600) }}" target="ProfPic">
                 <img class="sq200" src="{{ avatarThumb }}" alt="{{ person.avatar.filename }}" />
@@ -91,6 +88,14 @@ class="row">
             <img class="sq200" src="{{ avatarThumb }}" alt="{{ person.avatar.filename }}" />
 {% endif %}
         </div>
+{% if __SELF__.vcardPage %}
+        <div  class="center" style="padding:5px;">
+            <a class="btn btn-info"
+            href="{{ __SELF__.vcardPage|app }}/{{ person.id }}" title="Download V-Card">
+                Add To Contacts <i class="icon-download icon-2x"></i>
+            </a>
+        </div>
+{% endif %}
         {% if person.profdate %}
         <strong>Dates</strong>
         <ul>

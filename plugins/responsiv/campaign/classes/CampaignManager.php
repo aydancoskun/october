@@ -1,5 +1,5 @@
-<?php
-namespace Responsiv\Campaign\Classes;
+<?php namespace Responsiv\Campaign\Classes;
+
 use Mail;
 use Event;
 use Responsiv\Campaign\Models\Message;
@@ -7,7 +7,6 @@ use Responsiv\Campaign\Models\Subscriber;
 use Responsiv\Campaign\Models\MessageStatus;
 use Carbon\Carbon;
 use ApplicationException;
-use Html2Text\Html2Text;
 
 class CampaignManager
 {
@@ -109,10 +108,9 @@ class CampaignManager
     public function sendToSubscriber($campaign, $subscriber)
     {
         $html = $campaign->renderForSubscriber($subscriber);
-        $text = Html2Text::convert(str_replace(array("\r", "\n"), "", $html));
-//        $text = $this->getTextMessage($campaign->getBrowserUrl($subscriber));
+        $text = $this->getTextMessage($campaign->getBrowserUrl($subscriber));
         Mail::rawTo($subscriber, ['html' => $html, 'text' => $text], function($message) use ($campaign) {
-        $message->subject($campaign->subject);
+            $message->subject($campaign->subject);
         });
     }
 

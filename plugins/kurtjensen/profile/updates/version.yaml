@@ -30,3 +30,9 @@
     - Fix bug caused by fix in 1.0.13
 1.0.15:
     - Added Counrty field option to MyInfo component and UserList Component
+1.0.16:
+    - Changed old User Country and State to the New RainLab.Locations and UserPlus plugins
+1.0.17:
+    - Added option to have standard dropdowns in basic information forms
+1.0.18:
+    - Added V-Card Download and fixed sorting issue in user directory.

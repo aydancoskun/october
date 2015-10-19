@@ -8,8 +8,7 @@ use Cms\Classes\Page;
 use Cms\Classes\Theme;
 use Cms\Classes\Controller as CmsController;
 use October\Rain\Parse\Template as TextParser;
-use October\Rain\Database;
-use DB;
+
 /**
  * Message Model
  */
@@ -111,7 +110,7 @@ class Message extends Model
     public function getBrowserUrl($subscriber)
     {
         $code = $this->getUniqueCode($subscriber);
-        return str_replace("ipi", "www", Page::url($this->page, ['code' => $code]));
+        return Page::url($this->page, ['code' => $code]);
     }
 
     /**
@@ -210,14 +209,11 @@ class Message extends Model
     public static function getAvailableTags()
     {
         return [
-            'first_name'                => "Subscriber's first name",
-            'last_name'                 => "Subscriber's last name",
-            'email'                     => "Subscriber's email address",
-            'unsubscribe_url'           => "Link to unsubscribe from emails",
-            'browser_url'               => "Link to open web-based version",
-            'ok_company_name'           => "ok_company_name",
-            'ok_sample_products'        => "ok_sample_products",
-            'ok_company_products_count' => "ok_company_products_count",
+            'first_name'      => "Subscriber's first name",
+            'last_name'       => "Subscriber's last name",
+            'email'           => "Subscriber's email address",
+            'unsubscribe_url' => "Link to unsubscribe from emails",
+            'browser_url'     => "Link to open web-based version"
         ];
     }
 
@@ -231,21 +227,12 @@ class Message extends Model
         $data['first_name'] = $subscriber->first_name;
         $data['last_name'] = $subscriber->last_name;
         $data['email'] = $subscriber->email;
-        $data['ok_company_name'] = $subscriber->ok_company_name;
-        $data['ok_sample_products'] = $subscriber->ok_sample_products;
-        $data['ok_company_products_count'] = $subscriber->ok_company_products_count;
         $data['unsubscribe_url'] = $this->getBrowserUrl($subscriber).'?unsubscribe=1';
         $data['browser_url'] = $this->getBrowserUrl($subscriber);
         $data['tracking_pixel'] = $this->getTrackingPixelImage($subscriber);
         $data['tracking_url'] = $this->getBrowserUrl($subscriber).'.png';
 
         return $data;
-    }
-
-    public function getOkSampleProducts($subscriber)
-    {
-        $src = $this->getBrowserUrl($subscriber).'.png';
-        return '<img src="'.$src.'" alt="" />';
     }
 
     public function getTrackingPixelImage($subscriber)
@@ -360,9 +347,6 @@ class Message extends Model
         $data['browser_url'] = 'javascript:;';
         $data['tracking_pixel'] = '';
         $data['tracking_url'] = 'javascript:;';
-        $data['ok_company_name'] = "test_ok_company_name";
-        $data['ok_sample_products'] = "test_ok_sample_products";
-        $data['ok_company_products_count'] = "test_ok_company_products_count";
 
         $result = $parser->parseString($content, $data);
 
@@ -378,8 +362,6 @@ class Message extends Model
 
     public function renderForSubscriber($subscriber)
     {
-        $this->rebuildContent();
-        $this->renderTemplate();
         $parser = new TextParser;
         $data = $this->buildTagData($subscriber);
         $result = $parser->parseString($this->content_html, $data);
@@ -390,32 +372,6 @@ class Message extends Model
             $this->getTrackingPixelImage($subscriber) . PHP_EOL . '</body>',
             $result
         );
-
-
-/******************************************
-/ start of my modifications
-/*****************************************/
-        // Inject company_name
-        $data = DB::table('users')->where('id', $subscriber->id)->first();
-        $result = str_replace('__company__',$data->ok_company_name,$result);
-
-        // Inject accept_invite_link
-        $result = str_replace('__accept_invite_code__',$data->activation_code,$result,$result);
-
-        // Inject sample_products
-        $products = DB::table('operations.bp_suppliers')
-                        ->where('company_uid', $data->ok_company_id)
-                        ->lists('bp');
-
-        $sample_products_counter=1;$sample_products="";
-        foreach($products as $product){
-            $sample_products .= $sample_products_counter.". $product<br \>\n";
-            if ($sample_products_counter++ > 10) break;
-        }
-        $result = str_replace('__sample_products__',$sample_products,$result);
-
-        // Inject number_products_found
-        $result = str_replace('__number_products_found__',count($products),$result);
 
         return $result;
     }

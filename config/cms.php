@@ -33,7 +33,7 @@ return array(
     |
     */
 
-    'disablePlugins' => ['Flynsarmy.Mfa'],
+    'disablePlugins' => [],
 
     /*
     |--------------------------------------------------------------------------

@@ -54,7 +54,7 @@ class Template extends ComponentBase
         }
 
         // Internal call
-        if ($code == LARAVEL_START) return; //LARAVEL_START
+        if ($code == LARAVEL_START) return;
 
         // Verify subscription
         if (get('verify')) {
@@ -168,26 +168,28 @@ class Template extends ComponentBase
 
     protected function handleUnsubscribe()
     {
-        if ( isset($this->subscriber->pivot) AND ! $this->subscriber->pivot->stop_at) {
-            $pivot = $this->subscriber->pivot;
-            $pivot->stop_at = $this->campaign->freshTimestamp();
-            $pivot->read_at = $this->campaign->freshTimestamp();
-            $pivot->save();
-            $this->campaign->count_read++;
-            $this->campaign->count_stop++;
-            $this->campaign->save();
-            $this->subscriber->confirmed_at = null;
-            $this->subscriber->unsubscribed_at = $this->subscriber->freshTimestamp();
-            $this->subscriber->save();
-            $already="";
-        } else {
-            $already="done";
+        if (!isset($this->subscriber->pivot)) {
+            return 'You are already unsubscribed from our mailing list!';
         }
 
-        $hash = base64_encode($this->subscriber->id.'!' . md5($this->subscriber->id . '!' . $this->subscriber->email));
+        $pivot = $this->subscriber->pivot;
+        if ($pivot->stop_at) {
+            return 'You are already unsubscribed from our mailing list!';
+        }
+
+        $pivot->stop_at = $this->campaign->freshTimestamp();
+        $pivot->read_at = $this->campaign->freshTimestamp();
+        $pivot->save();
+
+        $this->campaign->count_read++;
+        $this->campaign->count_stop++;
+        $this->campaign->save();
+
+        $this->subscriber->confirmed_at = null;
+        $this->subscriber->unsubscribed_at = $this->subscriber->freshTimestamp();
+        $this->subscriber->save();
 
         // @todo Template + Language
-        return redirect('/unsubscribe/'.$hash.$already);
         return '<html><head><title>Unsubscribe successful</title></head><body><h1>Unsubscribe successful</h1><p>Your email has been successfully unsubscribed from this list!</p></body></html>';
     }
 

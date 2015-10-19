@@ -75,7 +75,7 @@ class Page extends Content
         parent::__construct($theme);
 
         $this->viewBagValidationMessages = [
-            'url.regex' => Lang::get('rainlab.pages::lang.page.invalid_url'),
+            'url.regex'      => Lang::get('rainlab.pages::lang.page.invalid_url'),
             'url.unique_url' => Lang::get('rainlab.pages::lang.page.url_not_unique')
         ];
 
@@ -173,6 +173,7 @@ class Page extends Content
 
             $curName = $fileName.'.htm';
             $counter = 2;
+
             while (File::exists($dir.'/'.$curName)) {
                 $curName = $fileName.'-'.$counter.'.htm';
                 $counter++;
@@ -292,6 +293,7 @@ class Page extends Content
         $pageList = new PageList($this->theme);
 
         $subtree = $pageList->getPageSubTree($this);
+
         foreach ($subtree as $fileName => $subPages) {
             $subPage = static::load($this->theme, $fileName);
             if ($subPage) {
@@ -310,8 +312,8 @@ class Page extends Content
     public function getLayoutOptions()
     {
         $result = [];
-
         $layouts = Layout::listInTheme($this->theme, true);
+
         foreach ($layouts as $layout) {
             if (!$layout->hasComponent('staticPage')) {
                 continue;
@@ -394,8 +396,9 @@ class Page extends Content
 
         $result = [];
         $bodyNode = $layout->getTwigNodeTree()->getNode('body')->getNode(0);
+        $nodes = $this->flattenTwigNode($bodyNode);
 
-        foreach ($bodyNode as $node) {
+        foreach ($nodes as $node) {
             if (!$node instanceof \Cms\Twig\PlaceholderNode) {
                 continue;
             }
@@ -409,10 +412,30 @@ class Page extends Content
 
             $placeholderInfo = [
                 'title' => $title,
-                'type' => $type ?: 'html'
+                'type'  => $type ?: 'html'
             ];
 
             $result[$node->getAttribute('name')] = $placeholderInfo;
+        }
+
+        return $result;
+    }
+
+    /**
+     * Recursively flattens a twig node and children
+     * @param $node
+     * @return array A flat array of twig nodes
+     */
+    protected function flattenTwigNode($node)
+    {
+        $result = [];
+        if (!$node instanceof \Twig_Node) {
+            return $result;
+        }
+
+        foreach ($node as $subNode) {
+            $flatNodes = $this->flattenTwigNode($subNode);
+            $result = array_merge($result, [$subNode], $flatNodes);
         }
 
         return $result;
@@ -551,8 +574,8 @@ class Page extends Content
 
         if ($type == 'static-page') {
             return [
-                'references' => self::listStaticPageMenuOptions(),
-                'nesting' => true,
+                'references'   => self::listStaticPageMenuOptions(),
+                'nesting'      => true,
                 'dynamicItems' => true
             ];
         }
@@ -656,6 +679,7 @@ class Page extends Content
                         $result[$url] = $page;
                     }
                 }
+
                 return $result;
             };
 
@@ -698,10 +722,10 @@ class Page extends Content
                 $pageCode = $item->page->getBaseFileName();
 
                 $itemData = [
-                    'url'   => Str::lower(RouterHelper::normalizeUrl($viewBag->property('url'))),
-                    'title' => $viewBag->property('title'),
-                    'mtime' => $item->page->mtime,
-                    'items' => $iterator($item->subpages, $pageCode, $level+1),
+                    'url'    => Str::lower(RouterHelper::normalizeUrl($viewBag->property('url'))),
+                    'title'  => $viewBag->property('title'),
+                    'mtime'  => $item->page->mtime,
+                    'items'  => $iterator($item->subpages, $pageCode, $level+1),
                     'parent' => $parent,
                     'navigation_hidden' => $viewBag->property('navigation_hidden')
                 ];

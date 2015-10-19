@@ -20,6 +20,7 @@ class Gallery extends ComponentBase
     
     public $perPage = 12;
     public $currentPage = 1;
+    public $lastPage = 1;
     public $paginationUrl = '';
     public $firstItem = 0;
     public $lastItem = 0;
