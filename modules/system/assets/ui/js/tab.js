@@ -1,12 +1,12 @@
 /*
-=require ../vendor/bootstrap/js/transition.js
-=require ../vendor/bootstrap/js/tab.js
-=require toolbar.js
-*/
-/*
  * Tab control
  *
- * - Documentation: ../docs/tab.md
+ * Documentation: ../docs/tab.md
+ *
+ * Require:
+ *  - bootstrap/transition
+ *  - bootstrap/tab
+ *  - storm/toolbar
  */
 +function ($) { "use strict";
 
@@ -199,6 +199,8 @@
         this.$el.trigger(e)
         if (e.isDefaultPrevented())
             return
+
+        $.oc.foundation.controlUtils.disposeControls($pane.get(0))
 
         $pane.remove()
         $tab.remove()
