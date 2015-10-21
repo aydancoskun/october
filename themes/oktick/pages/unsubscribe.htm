@@ -1,13 +1,13 @@
 title = "Unsubscribe"
-url = "/45f308f54294bb5bde189a5049952cf639acc16daf595a8c8e0226faeaf008b21a637780058480934ad6ff978c9e53e186b9af539600a6553f460eee7f2339f2/:activationcode"
+url = "/45f308f54294bb5bde189a5049952cf639acc16daf595a8c8e0226faeaf008b21a637780058480934ad6ff978c9e53e186b9af539600a6553f460eee7f2339f2/:activation_code?"
 layout = "main"
-is_hidden = "0"
+is_hidden = 0
 ==
 <?php
 function onStart(){
 
     //   MjE0ITIhZTNiMzYwMDYyMTZmNjhjODQ5NDYwNWQzZTcwYjllZTc=
-    $this['activationcode'] = $this->param('activationcode');
+    $this['activation_code'] = $this->param('activation_code');
     
 //    $parts = explode('!', base64_decode($code));
 //    if (count($parts) < 2) {
@@ -17,10 +17,10 @@ function onStart(){
 //    }
 //    list($user_id, $hash) = $parts;
 
-    $user = DB::table('users')->where('activation_code', $this['activationcode'] )->first();
+    $user = DB::table('users')->where('activation_code', $this['activation_code'] )->first();
     if ( ! $user) {
         Flash::error("I'm sorry, Dave. I'm afraid I can't do that.(no such subscriber)");
-        return redirect( "/" . $this['activationcode'] );
+        return redirect( "/" . $this['activation_code'] );
     }
 
     if( $user->ok_unsubscribed_at ) {
@@ -28,6 +28,9 @@ function onStart(){
     } else {
         DB::table('oktick.users')->where('id',$user->id)->update(array(
             'ok_unsubscribed_at' => date( 'Y-m-d H:i:s', time()),
+            'password'=>"",
+            'persist_code'=>"",
+            'is_activated'=>0
         ));
     }
 //    return redirect( "/" . $this['activationcode'] );
@@ -76,14 +79,14 @@ function onStart(){
                 <h2 class="text-justified"><small><strong>Unsubscribe Successful! You will not hear from us again unless you tell us otherwise.</strong></small></h2>
 {% endif %}
                 <h2 class="text-justified"><small>You can always try searching for something you supply to see where your business shows up in the search results.</small></h2>
-{% if activationcode %}
-                <h2 class="text-justified"><small>If you changed your mind or made a mistake you can use the button below and get you business promoted easily for free.</a></small></h2><br>
+{% if activation_code %}
+                <h2 class="text-justified"><small>If you changed your mind or made a mistake you can use the button below and get you business promoted easily for free. You can also click the blue button in your email to reactivate.</a></small></h2><br>
             </div>
             <div class="text-center">
                 <div class="row">
                     <div class="col-xs-0 col-md-4"></div>
                     <div class="col-xs-12 col-md-4">
-                        <a href="activation/{{activation_code}}" role="button" class="btn btn-primary center-block btn-lg">Get Started!</a>
+                        <a href="/activation/{{activation_code}}" role="button" class="btn btn-primary center-block btn-lg">Reactivate me!</a>
                     </div> 
                     <div class="col-xs-0 col-md-4"></div>
                 </div>

@@ -1,6 +1,6 @@
 title = "Activation"
-url = "/activation/:activationcode?"
-is_hidden = "0"
+url = "/activation/:activation_code?"
+is_hidden = 0
 
 [account]
 paramCode = "code"
@@ -8,11 +8,11 @@ paramCode = "code"
 <?php
 function onStart(){
     // https://ipi.oktick.com/activation/cdd60ea0045eb7a6ec44c54d29ed402f0b4341741c
-    $code = $this->param('activationcode');
+    $activation_code = $this->param('activation_code');
     $user_id = "";
-    if($code) {
+    if($activation_code) {
         // Get userid
-        $user_id = DB::table('users')->where('activation_code', $code)->pluck('id');
+        $user_id = DB::table('users')->where('activation_code', $activation_code)->pluck('id');
     }
     if(!$user_id){
         // code not valid
@@ -20,7 +20,7 @@ function onStart(){
         return redirect("/",302);
     }        
         
-    return redirect("/account/$code");
+    return redirect("/$activation_code");
 }
 function getRandomBytes($nbBytes = 32)
 {
