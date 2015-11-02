@@ -1,6 +1,6 @@
 title = "Submit"
 url = "/submit/:url_query/:from?0"
-is_hidden = "0"
+is_hidden = 0
 ==
 <?php
 // for debugging
@@ -92,7 +92,6 @@ function submit(){
         $oktick_filter .
         "ORDER BY ".
         "s.bp_position DESC ".
-        ",RAND() ".
         "LIMIT ".FROM.", 25", array(URL_QUERY));
     if(empty($this['companies'])) return false;
     $this['companies_count'] = count($this['companies']);
