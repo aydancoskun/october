@@ -1,237 +1,111 @@
 <?php
 
-/*
-
-* ==============================================================================================================
-*
-*
-* The minimum requirements to get phpList working are in this file.
-* If you are interested in tweaking more options, check out the config_extended.php file
-* or visit http://resources.phplist.com/system/config
-*
-* ** NOTE: To use options from config_extended.php, you need to copy them to this file **
-*
-==============================================================================================================
-
-*/
-
-# what is your Mysql database server hostname
-$database_host = "localhost";
-
-# what is the name of the database we are using
-$database_name = "emails";
-
-# what user has access to this database
-$database_user = "oktick";
-
-# and what is the password to login to control the database
-$database_password = '1c4f21c534b36c73e3d93be09122ebdc';
-
-# if you have an SMTP server, set it here. Otherwise it will use the normal php mail() function
-# if your SMTP server is called "smtp.mydomain.com" you enter this below like this:
-#
-# define("PHPMAILERHOST",'smtp.mydomain.com');
-# in the above you can specify multiple SMTP servers like this:
-# 'server1:port1;server2:port2;server3:port3' eg
-#define('PHPMAILERHOST','smtp1.mydomain.com:25;smtp2.mydomain.com:2500;smtp3.phplist.com:5123');
-
-#define("PHPMAILERHOST",'oktick.com');
-
+## General 
 # if test is true (not 0) it will not actually send ANY messages, but display what it would have sent
 # this is here, to make sure you edited the config file and mails are not sent "accidentally"
 # on unmanaged systems
-
 define ("TEST",0);
+# if you use multiple installations of phpList you can set this to
+# something to identify this one. it will be prepended to email report subjects
+$installation_name = 'oktick-mailer';
+# if you change the path to the phpList system, make the change here as well
+# path should be relative to the root directory of your webserver (document root)
+$pageroot = '/eml';
 
+## Database
+# what is your Mysql database server hostname
+$database_host = "localhost";
+# what is the name of the database we are using
+$database_name = "emails";
+# if you want a prefix to all your tables, specify it here,
+$table_prefix = "phplist_";
+# if you want to use a different prefix to user tables, specify it here.
+# read README.usertables for more information
+$usertable_prefix = "user_";
+# what user has access to this database
+$database_user = "oktick";
+# and what is the password to login to control the database
+$database_password = '1c4f21c534b36c73e3d93be09122ebdc';
+# enable database connection compression
+$database_connection_compression = false;
+# force database connection to use SSL
+$database_connection_ssl = false;
 
+## if you have an SMTP server, set it here. Otherwise it will use the normal php mail() function
+# if your SMTP server is called "smtp.mydomain.com" you enter this below like this:
+define("PHPMAILERHOST",'oktick-beta.com');
+# in the above you can specify multiple SMTP servers like this:
+# 'server1:port1;server2:port2;server3:port3' eg
+#define('PHPMAILERHOST','smtp1.mydomain.com:25;smtp2.mydomain.com:2500;smtp3.phplist.com:5123');
+# you can set this to send out via a different SMTP port
+define('PHPMAILERPORT',25);
+# if you want to use smtp authentication when sending the email uncomment the following
+# two lines and set the username and password to be the correct ones
+$phpmailer_smtpuser = 'bounce.oktick-beta';
+$phpmailer_smtppassword = '30c6f2fb4d2f9fdc1650cbfe8d38ca97';
+# to use SSL/TLS when sending set this value
+# it can either be "ssl" or "tls", nothing else
+define("PHPMAILER_SECURE",'ssl');
+# you can send test messages via a different SMTP host than the actual campaign queue
+# if not set, these default to the above PHPMAILERHOST and PHPMAILERPORT
+# define('PHPMAILERTESTHOST','testsmtp.mydomain.com');
+# define('PHPMAILERBLASTHOST','livesmtp.mydomain.com');
+# define('PHPMAILERBLASTPORT',25);
+define('SMTP_TIMEOUT',10); ## defaults to 5 seconds
 
-/*
-==============================================================================================================
-*
-* Settings for handling bounces
-*
-* This section is OPTIONAL, and not necessary to send out mailings, but it is highly recommended to correctly
-* set up bounce processing. Without processing of bounces your system will end up sending large amounts of
-* unnecessary messages, which overloads your own server, the receiving servers and internet traffic as a whole
-*
-==============================================================================================================
-*/
-
-# Message envelope.
-#
+## Bounces.
+# Message envelope. This is the email that system messages come from
+# NOTE: this is *very* different from the From: line in a message
 # This is the address that most bounces will be delivered to
 # Your should make this an address that no PERSON reads
 # but a mailbox that phpList can empty every so often, to process the bounces
-
-$message_envelope = 'bounce@oktick.com';
-
+$message_envelope = 'bounce@oktick-beta.com';
 # Handling bounces. Check README.bounces for more info
 # This can be 'pop' or 'mbox'
 $bounce_protocol = 'pop';
-
+# when the protocol is pop, specify these four
+$bounce_mailbox_host = 'oktick-beta.com';
+$bounce_mailbox_user = 'bounce.oktick-beta';
+$bounce_mailbox_password = '30c6f2fb4d2f9fdc1650cbfe8d38ca97';
+$bounce_mailbox_port = "110/pop3/notls";
+#$bounce_mailbox_port = "110/pop3";
+#$bounce_mailbox_port = "995/pop3/ssl/novalidate-cert";
+# the default should be fine but if it doesn't work, you can try the other ones.
+# If the protocol is mbox specify this one
+# it needs to be a local file in mbox format, accessible to your webserver user
+#$bounce_mailbox = '/var/mail/listbounces';
 # set this to 0, if you set up a cron to download bounces regularly by using the
 # commandline option. If this is 0, users cannot run the page from the web
 # frontend. Read README.commandline to find out how to set it up on the
 # commandline
 define ("MANUALLY_PROCESS_BOUNCES",1);
-
-# when the protocol is pop, specify these three
-$bounce_mailbox_host = 'localhost';
-$bounce_mailbox_user = 'phplist.oktick';
-$bounce_mailbox_password = '30c6f2fb4d2f9fdc1650cbfe8d38ca97';
-
-# the "port" is the remote port of the connection to retrieve the emails
-# the default should be fine but if it doesn't work, you can try the second
-# one. To do that, add a # before the first line and take off the one before the
-# second line
-$bounce_mailbox_port = "110/pop3/notls";
-#$bounce_mailbox_port = "110/pop3";
-
-# it's getting more common to have secure connections, in which case you probably want to use
-#$bounce_mailbox_port = "995/pop3/ssl/novalidate-cert";
-
-# when the protocol is mbox specify this one
-# it needs to be a local file in mbox format, accessible to your webserver user
-$bounce_mailbox = '/var/mail/listbounces';
-
 # set this to 0 if you want to keep your messages in the mailbox. this is potentially
 # a problem, because bounces will be counted multiple times, so only do this if you are
 # testing things.
 $bounce_mailbox_purge = 1;
-
 # set this to 0 if you want to keep unprocessed messages in the mailbox. Unprocessed
 # messages are messages that could not be matched with a user in the system
 # messages are still downloaded into phpList, so it is safe to delete them from
 # the mailbox and view them in phpList
 $bounce_mailbox_purge_unprocessed = 1;
-
 # how many bounces in a row need to have occurred for a user to be marked unconfirmed
-$bounce_unsubscribe_threshold = 5;
+$bounce_unsubscribe_threshold = 1;
 
-/*
-
-=========================================================================
-
-Extended settings for language and database
-
-=========================================================================
-
-*/
-
-
-# select the language module to use
+## select the language module to use
 # Look for <country>.inc files in the texts directory
 # to find your language
 # this is the language for the frontend pages. In the admin pages you can
 # choose your language by using the dropdown in the pages.
 $language_module = "english.inc";
 
-# enable database connection compression
-$database_connection_compression = false;
-
-# force database connection to use SSL
-$database_connection_ssl = false;
-
-# if you use multiple installations of phpList you can set this to
-# something to identify this one. it will be prepended to email report
-# subjects
-$installation_name = 'oktick-mailer';
-
-# if you want a prefix to all your tables, specify it here,
-$table_prefix = "phplist_";
-
-# if you want to use a different prefix to user tables, specify it here.
-# read README.usertables for more information
-$usertable_prefix = "user_";
-
-# if you change the path to the phpList system, make the change here as well
-# path should be relative to the root directory of your webserver (document root)
-$pageroot = '/eml';
-
-/*
-
-=========================================================================
-
-Settings for handling bounces
-
-=========================================================================
-
-*/
-
-# Message envelope. This is the email that system messages come from
-# it is useful to make this one where you can process the bounces on
-# you will probably get a X-Authentication-Warning in your message
-# when using this with sendmail
-# NOTE: this is *very* different from the From: line in a message
-# to use this feature, uncomment the following line, and change the email address
-# to some existing account on your system
-# requires PHP version > "4.0.5" and "4.3.1+" without safe_mode
-#$message_envelope = 'bounce@oktick.com';
-
-# Handling bounces. Check README.bounces for more info
-# This can be 'pop' or 'mbox'
-#$bounce_protocol = 'pop';
-
-# set this to 0, if you set up a cron to download bounces regularly by using the
-# commandline option. If this is 0, users cannot run the page from the web
-# frontend. Read README.commandline to find out how to set it up on the
-# commandline
-#define ("MANUALLY_PROCESS_BOUNCES",1);
-
-# when the protocol is pop, specify these three
-#$bounce_mailbox_host = 'localhost';
-#$bounce_mailbox_user = 'phplist.oktick';
-#$bounce_mailbox_password = '30c6f2fb4d2f9fdc1650cbfe8d38ca97';
-
-# the "port" is the remote port of the connection to retrieve the emails
-# the default should be fine but if it doesn't work, you can try the second
-# one. To do that, add a # before the first line and take off the one before the
-# second line
-#$bounce_mailbox_port = "110/pop3/notls";
-#$bounce_mailbox_port = "110/pop3";
-
-# it's getting more common to have secure connections, in which case you probably want to use
-#$bounce_mailbox_port = "995/pop3/ssl/novalidate-cert";
-
-# when the protocol is mbox specify this one
-# it needs to be a local file in mbox format, accessible to your webserver user
-$bounce_mailbox = '/var/spool/mail/listbounces';
-
-# set this to 0 if you want to keep your messages in the mailbox. this is potentially
-# a problem, because bounces will be counted multiple times, so only do this if you are
-# testing things.
-#$bounce_mailbox_purge = 1;
-
-# set this to 0 if you want to keep unprocessed messages in the mailbox. Unprocessed
-# messages are messages that could not be matched with a user in the system
-# messages are still downloaded into phpList, so it is safe to delete them from
-# the mailbox and view them in phpList
-#$bounce_mailbox_purge_unprocessed = 1;
-
-# how many bounces in a row need to have occurred for a user to be marked unconfirmed
-#$bounce_unsubscribe_threshold = 5;
-
-
-/*
-
-=========================================================================
-
-Security related settings
-
-=========================================================================
-
-*/
-
+## Login
 # set this to 1 if you want phpList to deal with login for the administrative
 # section of the system
 # you will be able to add administrators who control their own lists
 # default login is "admin" with password "phplist"
-#
-$require_login = 1;
-
+$require_login = 0;
 # if you use login, how many lists can be created per administrator
 define("MAXLIST",1);
-
 # if you use commandline, you will need to identify the users who are allowed to run
 # the script. See README.commandline for more info
 # $commandline_users = array("admin");
@@ -286,23 +160,10 @@ $blacklist_gracetime = 5;
 # switch off the checking by setting this to 0
 define("CHECK_SESSIONIP",0);
 
-
-
 # Check for host of email entered for subscription
 # Do not use it if your server is not 24hr online
 # make the 0 a 1, if you want to use it
 $check_for_host = 0;
-
-/*
-
-=========================================================================
-
-Debugging and informational
-
-=========================================================================
-
-*/
-
 
 # if you set verbose to 1, it will show the messages that will be sent. Do not do this
 # if you have a lot of users, because it is likely to crash your browser
@@ -337,15 +198,6 @@ define('USE_SPAM_BLOCK',1);
 # in the configuration set to true
 define('NOTIFY_SPAM',1);
 
-/*
-=========================================================================
-
-Security
-
-=========================================================================
-
-*/
-
 # CHECK REFERRER. Set this to "true" to activate a check on each request to make sure that
 # the "referrer" in the request is from ourselves. This is not failsafe, as the referrer may
 # not exist, or can be spoofed, but it will help a little
@@ -358,15 +210,6 @@ define('CHECK_REFERRER',false);
 # for example: $allowed_referrers = array('mydomain.com','msn.com','yahoo.com','google.com');
 $allowed_referrers = array();
 
-/*
-
-=========================================================================
-
-Feedback to developers
-
-=========================================================================
-
-*/
 
 # use Register to "register" to phpList.com. Once you set TEST to 0, the system will then
 # request the "Powered By" image from www.phplist.com, instead of locally. This will give me
@@ -399,18 +242,6 @@ define ("NOSTATSCOLLECTION",1);
 # to your self. If you use the default you will give me some feedback about performance
 # which is useful for me for future developments
 # $stats_collection_address = 'phplist-stats@phplist.com';
-
-
-/*
-
-=========================================================================
-
-Queue and Load management
-
-=========================================================================
-
-*/
-
 
 # If you set up your system to send the message automatically (from commandline),
 # you can set this value to 0, so "Process Queue" will disappear from the site
@@ -481,19 +312,6 @@ define('DOMAIN_AUTO_THROTTLE',0);
 # this allows multiple installations each to run the queue, but slow installations (eg with large emails)
 # set to 0 to disable this feature.
 define('MAX_PROCESSQUEUE_TIME',0);
-
-
-
-
-/*
-
-=========================================================================
-
-Miscellaneous
-
-=========================================================================
-
-*/
 
 ## default system language
 # set the default system language. If the language cannot be detected, it will fall back to
@@ -610,59 +428,12 @@ define('LANGUAGE_SWITCH',0);
 ## the contents are displayed "as-is", so it will not run any PHP code in the file.
 define('ERROR404PAGE','404.html');
 
-
-/*
-
-=========================================================================
-
-Message sending options
-* phpList now only uses phpMailer for sending, but below you can
-* tweak a few options on how that is done
-
-=========================================================================
-
-*/
-
 # you can specify the location of the phpMailer class here
 # if not set, the version included in the distribution will be used
 ## eg for Debian based systems, it may be something like the example below
 ## when you do this, you may need to run some tests, to see if the phpMailer version
 ## you have works ok
 #define ('PHPMAILER_PATH','/usr/share/php/libphp-phpmailer/class.phpmailer.php');
-
-# if you want to use smtp authentication when sending the email uncomment the following
-# two lines and set the username and password to be the correct ones
-#$phpmailer_smtpuser = 'smtpuser';
-#$phpmailer_smtppassword = 'smtppassword';
-
-## you can set this to send out via a different SMTP port
-# define('PHPMAILERPORT',25);
-
-## test vs blast
-# you can send test messages via a different SMTP host than the actual campaign queue
-# if not set, these default to the above PHPMAILERHOST and PHPMAILERPORT
-# define('PHPMAILERTESTHOST','testsmtp.mydomain.com');
-# define('PHPMAILERBLASTHOST','livesmtp.mydomain.com');
-# define('PHPMAILERBLASTPORT',25);
-
-# to use SSL/TLS when sending set this value
-# it can either be "ssl" or "tls", nothing else
-# define("PHPMAILER_SECURE",'ssl');
-
-## Smtp Timeout
-## If you use SMTP for sending, you can set the timeout of the SMTP connection
-## defaults to 5 seconds
-# define('SMTP_TIMEOUT',5);
-
-/*
-
-=========================================================================
-
-Advanced Features, HTML editor, RSS, Attachments, Plugins. PDF creation
-
-=========================================================================
-
-*/
 
 # Usertrack
 # Usertrack is used to track views or opens of campaigns. This only works in HTML messages
