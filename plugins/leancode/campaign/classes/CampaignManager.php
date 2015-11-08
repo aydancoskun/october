@@ -116,7 +116,6 @@ class CampaignManager
         $transport = Swift_SmtpTransport::newInstance('oktick-beta.com', 587,array('tls' => ['verify_peer' => false])); // 'ssl', 'tls'
 		$transport->setUsername('bounce.oktick-beta');
 		$transport->setPassword('30c6f2fb4d2f9fdc1650cbfe8d38ca97');
-		$transport->verify_peer(false);
 /*
 		$contextOptions = [
     'tls' => [
