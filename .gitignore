@@ -15,7 +15,6 @@
 /bootstrap/compiled.php
 /vendor
 /storage
-/eml
 /api/database/templates_c
 /api/piwik/tmp/sessions
 /stats
