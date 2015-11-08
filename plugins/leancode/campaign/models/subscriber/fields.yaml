@@ -1,0 +1,51 @@
+# ===================================
+#  Form Field Definitions
+# ===================================
+
+fields:
+    first_name:
+        label: First Name
+        span: auto
+
+    last_name:
+        label: Last Name
+        span: auto
+
+    email:
+        label: Email
+        span: auto
+
+    message_type:
+        label: Preferred message type
+        type: dropdown
+        span: auto
+        options:
+            html: HTML
+            plaintext: Plaintext
+
+    subscriber_lists:
+        label: Subscribed to
+        type: relation
+        context: [create, update]
+
+    created_ip_address:
+        label: Created IP Address
+        span: auto
+        disabled: true
+
+    created_at:
+        label: Created Date
+        span: auto
+        type: datepicker
+        disabled: true
+
+    confirmed_ip_address:
+        label: Confirmed IP Address
+        span: auto
+        disabled: true
+
+    confirmed_at:
+        label: Confirmed Date
+        span: auto
+        type: datepicker
+        disabled: true
