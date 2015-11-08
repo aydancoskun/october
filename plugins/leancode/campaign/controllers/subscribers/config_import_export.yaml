@@ -1,0 +1,35 @@
+# ===================================
+#  Import/Export Behavior Config
+# ===================================
+
+import:
+    # Page title
+    title: Import addresses
+
+    # Import List Column configuration
+    list: $/leancode/campaign/models/subscriberimport/columns.yaml
+
+    # Import Form Field configuration
+    form: $/leancode/campaign/models/subscriberimport/fields.yaml
+
+    # Import Model class
+    modelClass: Leancode\Campaign\Models\SubscriberImport
+
+    # Redirect when finished
+    redirect: leancode/campaign/subscribers
+
+export:
+    # Page title
+    title: Export addresses
+
+    # Output file name
+    fileName: addresses.csv
+
+    # Export List Column configuration
+    list: $/leancode/campaign/models/subscriberexport/columns.yaml
+
+    # Export Model class
+    modelClass: Leancode\Campaign\Models\SubscriberExport
+
+    # Redirect when finished
+    redirect: leancode/campaign/subscribers

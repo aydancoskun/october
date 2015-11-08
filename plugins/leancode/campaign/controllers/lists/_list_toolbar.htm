@@ -1,0 +1,18 @@
+<div data-control="toolbar">
+    <a 
+    href="<?= Backend::url('leancode/campaign/lists/create') ?>" 
+    class="btn btn-primary oc-icon-plus">
+    Mailing Lists
+    </a>
+    <a 
+     href="javascript:;"
+     data-control="popup"
+     data-size="large"
+     data-handler="onProccessList"
+     onclick="$(this).data('request-data', {
+         checked: $('.control-list').listWidget('getChecked')
+    })"
+    class="btn btn-primary oc-icon-cogs">
+    Process Lists
+    </a>
+</div>

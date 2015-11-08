@@ -1,0 +1,14 @@
+# ===================================
+#  Relation Behavior Config
+# ===================================
+
+subscribers:
+    label: address
+    list: ~/plugins/leancode/campaign/models/subscriber/columns_list.yaml
+    form: ~/plugins/leancode/campaign/models/subscriber/fields.yaml
+    view:
+        toolbarButtons: create|add|remove
+        recordsPerPage: 10
+        showSearch: true
+    manage:
+        recordsPerPage: 10

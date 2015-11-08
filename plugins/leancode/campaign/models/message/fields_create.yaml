@@ -1,0 +1,12 @@
+# ===================================
+#  Form Field Definitions
+# ===================================
+
+fields:
+    name:
+        label: Mailing name
+        comment: Enter a name to help you identify this mailing later.
+
+    page:
+        label: Select mailing template
+        type: Leancode\Campaign\FormWidgets\TemplateSelector

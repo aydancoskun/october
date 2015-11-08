@@ -1,0 +1,31 @@
+# ===================================
+#  Form Behavior Config
+# ===================================
+
+# Record name
+name: List
+
+# Model Form Field configuration
+form: $/leancode/campaign/models/subscriberlist/fields.yaml
+
+# Model Class name
+modelClass: Leancode\Campaign\Models\SubscriberList
+
+# Default redirect location
+defaultRedirect: leancode/campaign/lists
+
+# Create page
+create:
+    title: Create List
+    redirect: leancode/campaign/lists/update/:id
+    redirectClose: leancode/campaign/lists
+
+# Update page
+update:
+    title: Edit List
+    redirect: leancode/campaign/lists
+    redirectClose: leancode/campaign/lists/preview/:id
+
+# Preview page
+preview:
+    title: Preview List

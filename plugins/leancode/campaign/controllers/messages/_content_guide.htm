@@ -1,0 +1,52 @@
+<?php if (!in_array($formContext, ['send', 'setup'])): ?>
+
+    <!-- Refresh content fields -->
+    <?= $this->makeHintPartial(null, 'hint_refresh_template', ['page' => $formModel->page]) ?>
+
+<?php endif ?>
+
+<?php if ($formContext == 'setup'): ?>
+
+    <!-- Set up -->
+    <?= $this->makeHintPartial(null, 'hint_setup_template', [
+        'title' => 'Campaign content',
+        'icon' => 'icon-info-circle',
+        'type' => 'info'
+    ]) ?>
+
+<?php elseif ($formContext == 'send'): ?>
+
+    <!-- Sending -->
+    <?= $this->makeHintPartial(null, 'hint_send_template', [
+        'title' => 'Launch this campaign',
+        'icon' => 'icon-check-circle',
+        'type' => 'success'
+    ]) ?>
+
+<?php endif ?>
+
+<?php if (in_array($formContext, ['update', 'setup'])): ?>
+
+    <div class="form-preview">
+
+        <!-- Content management -->
+        <p>These variables are available:</p>
+        <div class="control-balloon-selector">
+            <ul>
+                <?php foreach ($availableTags as $tag => $description): ?>
+                    <li
+                        title="<?= $description ?>"
+                        data-control="dragvalue"
+                        data-drag-click="true"
+                        data-text-value="{<?= $tag ?>}">
+                        {<?= $tag ?>}
+                    </li>
+                <?php endforeach ?>
+            </ul>
+        </div>
+        <div class="small"><em>Click or drag these in to the content area</em></div>
+
+    </div>
+
+<?php endif ?>
+

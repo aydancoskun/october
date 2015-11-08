@@ -1,0 +1,78 @@
+<?php
+    $isCancelled = $formModel->status && $formModel->status == 'cancelled';
+    $isArchived = $formModel->status && $formModel->status == 'archived';
+?>
+<?php if (!$isLaunched): ?>
+    <a
+        href="<?= Backend::url('leancode/campaign/messages/update/'.$formModel->id.'/send') ?>"
+        class="btn btn-success oc-icon-paper-plane">
+        Launch mailing
+    </a>
+    <a
+        href="<?= Backend::url('leancode/campaign/messages/update/'.$formModel->id) ?>"
+        class="btn btn-primary oc-icon-pencil">
+        Edit content
+    </a>
+
+    <button
+        type="button"
+        data-request="onRefreshTemplate"
+        data-load-indicator="Refreshing..."
+        data-request-confirm="Are you sure?"
+        class="btn btn-default oc-icon-refresh">
+        Refresh template
+    </button>
+<?php else: ?>
+    <a
+        href="javascript:;"
+        data-toggle="tooltip"
+        data-delay="500"
+        title="Create a new mailing based on this one"
+        data-control="popup"
+        data-size="large"
+        data-handler="onDuplicateForm"
+        data-request-data="id: '<?= $formModel->id ?>'"
+        class="btn btn-info oc-icon-files-o">
+        Duplicate mailing
+    </a>
+<?php endif ?>
+
+<button
+    type="button"
+    data-request="onTest"
+    data-load-indicator="Sending test mailing..."
+    data-request-confirm="A test of this mailing will be sent to <?= e(BackendAuth::getUser()->email) ?>. Continue?"
+    class="btn btn-default oc-icon-paper-plane-o">
+    Send test mailing
+</button>
+
+<?php if ($isLaunched && !$isCancelled && !$isArchived): ?>
+    <?php if ($isSent): ?>
+        <a
+            href="javascript:;"
+            data-request="onArchive"
+            data-load-indicator="Archiving Mailing..."
+            data-request-confirm="Do you really want to archive this mailing? It will remove all recipient statistics."
+            class="btn btn-default oc-icon-archive">
+            Archive mailing
+        </a>
+    <?php else: ?>
+        <a
+            href="javascript:;"
+            data-request="onCancel"
+            data-load-indicator="Cancelling Mailing..."
+            data-request-confirm="Do you really want to cancel this mailing?"
+            class="btn btn-default oc-icon-ban">
+            Cancel mailing
+        </a>
+    <?php endif ?>
+<?php endif ?>
+
+<a
+    href="javascript:;"
+    data-request="onDelete"
+    data-load-indicator="Deleting Mailing..."
+    data-request-confirm="Do you really want to delete this mailing?"
+    class="btn btn-default oc-icon-times">
+    Delete mailing
+</a>

@@ -1,0 +1,141 @@
+<?php Block::put('breadcrumb') ?>
+    <ul>
+        <li><a href="<?= Backend::url('leancode/campaign/messages') ?>">Mailings</a></li>
+        <li><?= e($this->pageTitle) ?></li>
+    </ul>
+<?php Block::endPut() ?>
+
+<?php if (!$this->fatalError): ?>
+
+    <?php
+        $isLaunched = $formModel->status && $formModel->status != 'draft';
+        $isPending = $formModel->status && $formModel->status == 'pending';
+        $isSent = $formModel->status && $formModel->status == 'sent';
+    ?>
+
+    <div class="scoreboard">
+        <div data-control="toolbar">
+
+            <?php if ($isLaunched): ?>
+                <?php
+                    $stats = $formModel->getExtendedStats();
+                ?>
+                <div class="scoreboard-item control-chart" data-control="chart-pie">
+                    <ul>
+                        <?php if (!$isSent): ?>
+                            <li data-color="#cccccc">Queued <span><?= $formModel->count_subscriber - $formModel->count_sent ?></span></li>
+                        <?php endif ?>
+                        <li data-color="#e5a91a">Sent <span><?= $formModel->count_sent ?></span></li>
+                        <li data-color="#95b753">Opened <span><?= $formModel->count_read ?></span></li>
+                        <?php if ($isSent): ?>
+                            <li data-color="#ff0000">Unsubscribed <span><?= $formModel->count_stop ?></span></li>
+                        <?php endif ?>
+                    </ul>
+                </div>
+                <div class="scoreboard-item title-value" data-control="goal-meter" data-value="<?= $stats->open_rate ?>">
+                    <h4>Open rate</h4>
+                    <p><?= $stats->open_rate ?>%</p>
+                    <p class="description"><?= $stats->count_unread ?> unread</p>
+                </div>
+                <div class="scoreboard-item title-value goal-meter-inverse" data-control="goal-meter" data-value="<?= $stats->stop_rate ?>">
+                    <h4>Unsubscribe rate</h4>
+                    <p><?= $stats->stop_rate ?>%</p>
+                    <p class="description"><?= $stats->count_happy ?> still happy</p>
+                </div>
+            <?php endif ?>
+
+            <div class="scoreboard-item title-value">
+                <h4>Mailing</h4>
+                <p><?= $formModel->iterative_name ?></p>
+                <p class="description">Template: <?= $formModel->getPageName() ?></p>
+            </div>
+
+            <?php if ($formModel->status): ?>
+                <div class="scoreboard-item title-value">
+                    <h4>Status</h4>
+                    <p><?= $formModel->status->name ?></p>
+                    <?php if ($formModel->status == 'draft'): ?>
+                        <p class="description">Still making changes...</p>
+                    <?php elseif ($formModel->status == 'pending'): ?>
+                        <p class="description">Awaiting launch...</p>
+                    <?php elseif ($formModel->status == 'active'): ?>
+                        <p class="description">
+                            <?php if ($formModel->processed_at): ?>
+                                Last processed: <?= $formModel->processed_at->diffForHumans() ?>
+                            <?php else: ?>
+                                In progress...
+                            <?php endif ?>
+                        </p>
+                    <?php elseif ($formModel->status == 'cancelled'): ?>
+                        <p class="description">Mailing cancelled</p>
+                    <?php else: ?>
+                        <p class="description">Mailing complete!</p>
+                    <?php endif ?>
+                </div>
+            <?php endif ?>
+
+        </div>
+    </div>
+
+    <?php if ($isLaunched && !$isPending && !$formModel->count_subscriber): ?>
+        <!-- Empty campaign -->
+        <?= $this->makeHintPartial('hint_empty_campaign_'.$formModel->id, [
+            'partial' => 'hint_empty_campaign',
+            'title' => 'Mailing has no addresses',
+            'icon' => 'icon-user-times',
+            'type' => 'danger',
+            'cssClass' => 'padded-container loading-indicator-container indicator-inset'
+        ]) ?>
+    <?php endif ?>
+
+    <div class="form-buttons">
+        <div class="loading-indicator-container">
+            <?= $this->makePartial('preview_toolbar', [
+                'isLaunched' => $isLaunched,
+                'isSent' => $isSent
+            ]) ?>
+        </div>
+    </div>
+
+    <div class="control-tabs content-tabs tabs-offset" data-control="tab">
+        <ul class="nav nav-tabs">
+            <li class="active"><a href="#messageTemplate">Preview</a></li>
+            <?php if ($isLaunched): ?>
+                <li><a href="#messageDetails">Details</a></li>
+                <?php if ($formModel->status != 'archived'): ?>
+                    <li><a href="#messageSubscribers">Addresses</a></li>
+                <?php endif ?>
+            <?php endif ?>
+        </ul>
+        <div class="tab-content">
+            <div class="tab-pane active">
+                <div class="padded-container">
+                    <?= $this->makeHintPartial(null, 'hint_subject', ['model' => $formModel]) ?>
+                </div>
+                <?= $this->makePartial('message_iframe') ?>
+            </div>
+            <?php if ($isLaunched): ?>
+                <div class="tab-pane">
+                    <div class="padded-container">
+                        <form>
+                            <?= $this->formRenderPreview() ?>
+                        </form>
+                    </div>
+                </div>
+                <?php if ($formModel->status != 'archived'): ?>
+                    <div class="tab-pane">
+                        <div class="relation-flush">
+                            <?= $this->relationRender('subscribers') ?>
+                        </div>
+                    </div>
+                <?php endif ?>
+            <?php endif ?>
+        </div>
+    </div>
+
+<?php else: ?>
+
+    <p class="flash-message static error"><?= e($this->fatalError) ?></p>
+    <p><a href="<?= Backend::url('leancode/campaign/messages') ?>" class="btn btn-default">Return to messages list</a></p>
+
+<?php endif ?>
