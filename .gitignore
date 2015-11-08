@@ -35,3 +35,4 @@ selenium.php
 access_log
 error_log
 php.log
+*.bbprojectd
