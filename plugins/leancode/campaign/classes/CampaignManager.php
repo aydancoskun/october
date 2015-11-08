@@ -113,14 +113,14 @@ class CampaignManager
     {
 	    $backup_original_mailer = Mail::getSwiftMailer();
 		// Setup our other mailer if needed
-        $transport = Swift_SmtpTransport::newInstance('oktick-beta.com', 587,'tls'); // 'ssl', 'tls'
+        $transport = Swift_SmtpTransport::newInstance('oktick-beta.com', 587,'tls' => ['verify_peer' => false]); // 'ssl', 'tls'
 		$transport->setUsername('bounce.oktick-beta');
 		$transport->setPassword('30c6f2fb4d2f9fdc1650cbfe8d38ca97');
 		$transport->verify_peer(false);
 /*
 		$contextOptions = [
-    'ssl' => [
-        'verify_peer' => true,
+    'tls' => [
+        'verify_peer' => false,
         'cafile' => '/path/to/cafile.pem',
         'CN_match' => 'example.com',
     ]
