@@ -10,6 +10,7 @@ use ApplicationException;
 use Html2Text\Html2Text;
 use DB;
 use Swift_SmtpTransport;
+use Swift_Mailer;
 
 class CampaignManager
 {
