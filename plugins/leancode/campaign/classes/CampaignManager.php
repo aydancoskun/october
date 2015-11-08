@@ -116,6 +116,18 @@ class CampaignManager
         $transport = Swift_SmtpTransport::newInstance('oktick-beta.com', 587,'tls'); // 'ssl', 'tls'
 		$transport->setUsername('bounce.oktick-beta');
 		$transport->setPassword('30c6f2fb4d2f9fdc1650cbfe8d38ca97');
+		$transport->verify_peer(false);
+/*
+		$contextOptions = [
+    'ssl' => [
+        'verify_peer' => true,
+        'cafile' => '/path/to/cafile.pem',
+        'CN_match' => 'example.com',
+    ]
+];
+$context = stream_context_create($contextOptions);
+*/
+
 		// Any other mailer configuration stuff needed...
 		$massmailer = new Swift_Mailer($transport);
 		// Set the mailer as gmail
