@@ -112,6 +112,9 @@ class CampaignManager
 
     public function sendToSubscriber($campaign, $subscriber, $is_send_to_start_list = false)
     {
+        $html = $campaign->renderForSubscriber($subscriber);
+        $text = Html2Text::convert(str_replace(array("\r", "\n"), "", $html));
+
         if( $is_send_to_start_list ){
     	    $backup_original_mailer = Mail::getSwiftMailer();
 		    // Setup our other mailer if needed
@@ -122,8 +125,6 @@ class CampaignManager
 		    $massmailer = new Swift_Mailer($transport);
 		    Mail::setSwiftMailer($massmailer);
 
-            $html = $campaign->renderForSubscriber($subscriber);
-            $text = Html2Text::convert(str_replace(array("\r", "\n"), "", $html));
             // Create the message
             $message = Swift_Message::newInstance()
                 ->setReturnPath('bounce@oktick-beta.com')
