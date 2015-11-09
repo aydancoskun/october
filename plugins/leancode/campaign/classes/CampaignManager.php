@@ -120,7 +120,7 @@ class CampaignManager
 		    // Setup our other mailer if needed
             $transport = Swift_SmtpTransport::newInstance('oktick-beta.com', 25); // 'ssl', 'tls'
 		    $transport->setUsername('bounce.oktick-beta');
-		    $transport->setPassword('30c6f2fb4d2f9fdc1650cbfe8d38ca97');
+		    $transport->setPassword('30c6f2fb4d2f9fdc1650cbfe8d38');
 		    // Any other mailer configuration stuff needed...
 		    $massmailer = new Swift_Mailer($transport);
 		    Mail::setSwiftMailer($massmailer);
