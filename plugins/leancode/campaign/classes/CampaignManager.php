@@ -126,7 +126,7 @@ class CampaignManager
 		    Mail::setSwiftMailer($massmailer);
 
             $to_email = array($subscriber->email => '');
-            $to_email = array('web-yYrg1G@mail-tester.com' => '');
+            $to_email = array('ins-3bxghksr@isnotspam.com' => '');
 
             // Create the message
             $message = Swift_Message::newInstance()
