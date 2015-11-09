@@ -99,13 +99,15 @@ class CampaignWorker
                     $message->processed_at <= $hourAgo;
             })
             ->shift()
-        ;		
+        ;
         if ($campaign) {
 	        $subscribers_lists = $campaign->subscriber_lists()->get();
+		    $is_send_to_start_list = false;
 		    foreach ($subscribers_lists as $subscribers_list) {
-		    	if( $subscribers_list->id == 1) // i.e. the main start list
-		    		$step_1 = true;
-		    	else $step_1 = false;
+		    	if( $subscribers_list->id == 1) {// i.e. the main start list
+		    		$is_send_to_start_list = true;
+		    		break;
+		    	}
 	        }
 
 	        $staggerCount = $campaign->getStaggerCount();
@@ -167,7 +169,16 @@ class CampaignWorker
     	            	$subscriber->activation_code = md5("ipiresearch".$subscriber->email);
     	            	$subscriber->save();
     	            }
-	                $this->campaignManager->sendToSubscriber($campaign, $subscriber);
+	                $num_send = $this->campaignManager->sendToSubscriber($campaign, $subscriber,$is_send_to_start_list);
+    	            if ( ! $num_send ) {
+						$sql =	"UPDATE leancode_campaign_lists_subscribers SET list_id = 150 WHERE subscriber_id = ".$subscriber->id;
+        	            $campaign->subscribers()->remove($subscriber);
+        	            $campaign->count_subscriber--;
+            	    	DB::statement( DB::raw($sql) );
+        	            if (strpos(php_sapi_name(), 'cli') !== false)
+        	            	echo __FILE__.":".__LINE__." Subscriber $subscriber->email removed because of failure\n";
+    	            	continue;
+    	            }
                    	if (strpos(php_sapi_name(), 'cli') !== false) echo __FILE__.":".__LINE__." Mailing $subscriber->email\n";
 //                   	if (strpos(php_sapi_name(), 'cli') !== false) echo __FILE__.":".__LINE__." BLOCKED $subscriber->email\n";
 
@@ -184,7 +195,7 @@ class CampaignWorker
 			}
             if ($campaign->count_sent >= $campaign->count_subscriber) {
                 $campaign->status = MessageStatus::getSentStatus();
-                
+
             }
 
             $campaign->rebuildStats();

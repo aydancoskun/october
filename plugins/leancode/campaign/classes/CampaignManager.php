@@ -110,52 +110,49 @@ class CampaignManager
     // Sending
     //
 
-    public function sendToSubscriber($campaign, $subscriber)
+    public function sendToSubscriber($campaign, $subscriber, $is_send_to_start_list = false)
     {
-	    $backup_original_mailer = Mail::getSwiftMailer();
-		// Setup our other mailer if needed
-        $transport = Swift_SmtpTransport::newInstance('oktick-beta.com', 25); // 'ssl', 'tls'
-		$transport->setUsername('bounce.oktick-beta');
-		$transport->setPassword('30c6f2fb4d2f9fdc1650cbfe8d38ca97');
-		// Any other mailer configuration stuff needed...
-		$massmailer = new Swift_Mailer($transport);
-		// Set the mailer as gmail
-		Mail::setSwiftMailer($massmailer);
+        if( $is_send_to_start_list ){
+    	    $backup_original_mailer = Mail::getSwiftMailer();
+		    // Setup our other mailer if needed
+            $transport = Swift_SmtpTransport::newInstance('oktick-beta.com', 25); // 'ssl', 'tls'
+		    $transport->setUsername('bounce.oktick-beta');
+		    $transport->setPassword('30c6f2fb4d2f9fdc1650cbfe8d38ca97');
+		    // Any other mailer configuration stuff needed...
+		    $massmailer = new Swift_Mailer($transport);
+		    Mail::setSwiftMailer($massmailer);
 
-        $html = $campaign->renderForSubscriber($subscriber);
-        $text = Html2Text::convert(str_replace(array("\r", "\n"), "", $html));
-        // Create the message
-        $message = Swift_Message::newInstance()
-            ->setReturnPath('bounce@oktick-beta.com')
-            ->setSubject($campaign->subject)   // Give the message a subject
-            ->setFrom(array('info@oktick-beta.com' => 'OKTicK Search Ltd'))   // Set the From address with an associative array
-            ->setTo($subscriber->email)   // Set the To addresses with an associative array
-            ->setBody($html, 'text/html')
-            ->addPart($text, 'text/plain')
-            ->setId($subscriber->id . ".8938145113." . time() ."@aruba1.generated") // ipaddresss of oktick-beta.com in middle
-            ->setReplyTo(array('info@oktick-beta.com' => 'OKTicK Search Ltd'))   //Specifies the address where replies are sent to
-            ->setSender(array('info@oktick-beta.com' => 'OKTicK Search Ltd'))   //Specifies the address of the person who physically sent the message (higher precedence than From:)
-            ->setPriority(3) //normal
-        ;
+            $html = $campaign->renderForSubscriber($subscriber);
+            $text = Html2Text::convert(str_replace(array("\r", "\n"), "", $html));
+            // Create the message
+            $message = Swift_Message::newInstance()
+                ->setReturnPath('bounce@oktick-beta.com')
+                ->setSubject($campaign->subject)   // Give the message a subject
+                ->setFrom(array('info@oktick-beta.com' => 'OKTicK Search Ltd'))   // Set the From address with an associative array
+                ->setTo($subscriber->email)   // Set the To addresses with an associative array
+                ->setBody($html, 'text/html')
+                ->addPart($text, 'text/plain')
+                ->setId($subscriber->id . ".8938145113." . time() ."@aruba1.generated") // ipaddresss of oktick-beta.com in middle
+                ->setReplyTo(array('info@oktick-beta.com' => 'OKTicK Search Ltd'))   //Specifies the address where replies are sent to
+                ->setSender(array('info@oktick-beta.com' => 'OKTicK Search Ltd'))   //Specifies the address of the person who physically sent the message (higher precedence than From:)
+                ->setPriority(3) //normal
+            ;
 
-        echo $message->toString()."\n";
-
-        $message->send();
-
-/*	    Mail::rawTo($subscriber, ['html' => $html, 'text' => $text], function($message) use ($campaign) {
-            $message->subject($campaign->subject);
-            ->setReturnPath('bounce@oktick-beta.com')
-            ->setSubject($campaign->subject)   // Give the message a subject
-            ->setFrom(array('info@oktick-beta.com' => 'OKTicK Search Ltd'))   // Set the From address with an associative array
-            ->setTo($subscriber)   // Set the To addresses with an associative array
-            ->setBody($text)
-            ->addPart($html, 'text/html')
-            ->setId($subscriber->id . ".8938145113." . time() ); // ipaddresss of oktick-beta.com
-
-        });
-*/
-		// Restore our original mailer
-		Mail::setSwiftMailer($backup_original_mailer);
+            $numSent = $massmailer->send($message);
+    		// Restore our original mailer
+	    	Mail::setSwiftMailer($backup_original_mailer);
+		    return $numSent;
+        } else {
+    	    Mail::rawTo($subscriber, ['html' => $html, 'text' => $text], function($message) use ($campaign) {
+                $message->subject($campaign->subject)
+                    ->setReturnPath('bounce@oktick.com')
+                    ->setFrom(array('info@oktick.com' => 'OKTicK Search Ltd'))   // Set the From address with an associative array
+                    ->setReplyTo(array('info@oktick.com' => 'OKTicK Search Ltd'))   //Specifies the address where replies are sent to
+                    ->setId($subscriber->id . "." . time() ."@oktick.generated") // ipaddresss of oktick-beta.com in middle
+                ;
+            });
+            return true;
+        }
     }
 
     //
