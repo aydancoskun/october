@@ -102,10 +102,10 @@ class CampaignWorker
         ;
         if ($campaign) {
 	        $subscribers_lists = $campaign->subscriber_lists()->get();
-		    $is_send_to_start_list = false;
+		    $use_massmailer = false;
 		    foreach ($subscribers_lists as $subscribers_list) {
-		    	if( $subscribers_list->id == 1) {// i.e. the main start list
-		    		$is_send_to_start_list = true;
+		    	if( $subscribers_list->id == 1 OR $subscribers_list->id == 2 ) {// i.e. the main start list to which large amount of mails are being sent
+		    		$use_massmailer = true;
 		    		break;
 		    	}
 	        }
@@ -169,8 +169,8 @@ class CampaignWorker
     	            	$subscriber->activation_code = md5("ipiresearch".$subscriber->email);
     	            	$subscriber->save();
     	            }
-    	            $is_send_to_start_list=true;
-	                $num_send = $this->campaignManager->sendToSubscriber($campaign, $subscriber,$is_send_to_start_list);
+    	            $use_massmailer=true;
+	                $num_send = $this->campaignManager->sendToSubscriber($campaign, $subscriber,$use_massmailer);
     	            if ( ! $num_send ) {
 						$sql =	"UPDATE leancode_campaign_lists_subscribers SET list_id = 150 WHERE subscriber_id = ".$subscriber->id;
         	            $campaign->subscribers()->remove($subscriber);

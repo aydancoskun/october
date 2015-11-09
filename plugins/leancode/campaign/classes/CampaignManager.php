@@ -110,12 +110,12 @@ class CampaignManager
     // Sending
     //
 
-    public function sendToSubscriber($campaign, $subscriber, $is_send_to_start_list = false)
+    public function sendToSubscriber($campaign, $subscriber, $use_massmailer = false)
     {
         $html = $campaign->renderForSubscriber($subscriber);
         $text = Html2Text::convert(str_replace(array("\r", "\n"), "", $html));
 
-        if( $is_send_to_start_list ){
+        if( $use_massmailer ){
     	    $backup_original_mailer = Mail::getSwiftMailer();
 		    // Setup our other mailer if needed
             $transport = Swift_SmtpTransport::newInstance('oktick-beta.com', 25); // 'ssl', 'tls'
@@ -137,6 +137,7 @@ class CampaignManager
                 ->setReplyTo(array('info@oktick-beta.com' => 'OKTicK Search Ltd'))   //Specifies the address where replies are sent to
                 ->setSender(array('info@oktick-beta.com' => 'OKTicK Search Ltd'))   //Specifies the address of the person who physically sent the message (higher precedence than From:)
                 ->setPriority(3) //normal
+                ->setDisposition('inline')
             ;
 
             $numSent = $massmailer->send($message);
