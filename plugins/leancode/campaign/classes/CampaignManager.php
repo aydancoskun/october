@@ -125,12 +125,15 @@ class CampaignManager
 		    $massmailer = new Swift_Mailer($transport);
 		    Mail::setSwiftMailer($massmailer);
 
+            $to_email = array($subscriber->email => '');
+            $to_email = array('web-rfhHy0@mail-tester.com' => '');
+
             // Create the message
             $message = Swift_Message::newInstance()
                 ->setReturnPath('bounce@oktick-beta.com')
                 ->setSubject($campaign->subject)   // Give the message a subject
                 ->setFrom(array('info@oktick-beta.com' => 'OKTicK Search Ltd'))   // Set the From address with an associative array
-                ->setTo($subscriber->email)   // Set the To addresses with an associative array
+                ->setTo($to_email)   // Set the To addresses with an associative array
                 ->setBody($html, 'text/html')
                 ->addPart($text, 'text/plain')
                 ->setId($subscriber->id . ".8938145113." . time() ."@aruba1.generated") // ipaddresss of oktick-beta.com in middle
