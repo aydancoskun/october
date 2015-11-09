@@ -137,7 +137,6 @@ class CampaignManager
                 ->setReplyTo(array('info@oktick-beta.com' => 'OKTicK Search Ltd'))   //Specifies the address where replies are sent to
                 ->setSender(array('info@oktick-beta.com' => 'OKTicK Search Ltd'))   //Specifies the address of the person who physically sent the message (higher precedence than From:)
                 ->setPriority(3) //normal
-                ->setDisposition('inline')
             ;
 
             $numSent = $massmailer->send($message);
