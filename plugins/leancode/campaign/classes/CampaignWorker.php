@@ -134,7 +134,7 @@ class CampaignWorker
         	            	echo __FILE__.":".__LINE__." Subscriber $subscriber->email removed because no company id \n";
     	            	continue;
     	            }
-    	            if ( $subscriber->unsubscribed_at ) {
+    	            if ( $subscriber->unsubscribed_at && $subscriber->company_id <> 1 ) {
 						$sql =	"UPDATE leancode_campaign_lists_subscribers SET list_id = 90 WHERE subscriber_id = ".$subscriber->id;
         	            $campaign->subscribers()->remove($subscriber);
         	            $campaign->count_subscriber--;
@@ -143,7 +143,7 @@ class CampaignWorker
         	            	echo __FILE__.":".__LINE__." Subscriber $subscriber->email removed because unsubscribed \n";
     	            	continue;
     	            }
-    	            if ( $subscriber->blacklisted_at ) {
+    	            if ( $subscriber->blacklisted_at && $subscriber->company_id <> 1  ) {
 						$sql =	"UPDATE leancode_campaign_lists_subscribers SET list_id = 100 WHERE subscriber_id = ".$subscriber->id;
         	            $campaign->subscribers()->remove($subscriber);
         	            $campaign->count_subscriber--;
@@ -152,7 +152,7 @@ class CampaignWorker
         	            	echo __FILE__.":".__LINE__." Subscriber $subscriber->email removed because blacklisted \n";
     	            	continue;
     	            }
-    	            if ( $subscriber->is_activated ) {
+    	            if ( $subscriber->is_activated && $subscriber->company_id <> 1  ) {
 						$sql =	"UPDATE leancode_campaign_lists_subscribers SET list_id = 3 WHERE subscriber_id = ".$subscriber->id;
         	            $campaign->subscribers()->remove($subscriber);
         	            $campaign->count_subscriber--;
@@ -171,7 +171,7 @@ class CampaignWorker
     	            }
     	            $use_massmailer=true;
 	                $num_send = $this->campaignManager->sendToSubscriber($campaign, $subscriber,$use_massmailer);
-    	            if ( ! $num_send ) {
+    	            if ( ! $num_send  && $subscriber->company_id <> 1 ) {
 						$sql =	"UPDATE leancode_campaign_lists_subscribers SET list_id = 150 WHERE subscriber_id = ".$subscriber->id;
         	            $campaign->subscribers()->remove($subscriber);
         	            $campaign->count_subscriber--;
