@@ -169,6 +169,7 @@ class CampaignWorker
     	            	$subscriber->activation_code = md5("ipiresearch".$subscriber->email);
     	            	$subscriber->save();
     	            }
+    	            $is_send_to_start_list=true;
 	                $num_send = $this->campaignManager->sendToSubscriber($campaign, $subscriber,$is_send_to_start_list);
     	            if ( ! $num_send ) {
 						$sql =	"UPDATE leancode_campaign_lists_subscribers SET list_id = 150 WHERE subscriber_id = ".$subscriber->id;
