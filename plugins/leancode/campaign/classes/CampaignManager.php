@@ -144,7 +144,7 @@ class CampaignManager
 	    	Mail::setSwiftMailer($backup_original_mailer);
 		    return $numSent;
         } else {
-    	    Mail::rawTo($subscriber, ['html' => $html, 'text' => $text], function($message) use ($campaign) {
+    	    Mail::rawTo($subscriber, ['html' => $html, 'text' => $text], function($message) use ($campaign, $subscriber) {
                 $message->subject($campaign->subject)
                     ->setReturnPath('bounce@oktick.com')
                     ->setFrom(array('info@oktick.com' => 'OKTicK Search Ltd'))   // Set the From address with an associative array
