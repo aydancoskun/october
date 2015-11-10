@@ -48,7 +48,7 @@ This plugin relies on the system schedule process for running its automated task
 
 ## Implementing front-end subscription form
 
-Use the `campaignSignup` component to display a subscription form on a page. The component has the following properties:
+Use the `leancodeCampaignSignup` component to display a subscription form on a page. The component has the following properties:
 
 - **list** - a campaign list code to subscribe the person to. Eg: `followers`
 - **confirm** - if this is checked, addresses must confirm their address before they are added to the list.
@@ -58,14 +58,14 @@ Here is some sample markup:
     title = "My page"
     url = "/mypage"
 
-    [campaignSignup]
+    [leancodeCampaignSignup]
     list = "followers"
     confirm = 0
     ==
     <div id="container">
         <form
-            data-request="campaignSignup::onSignup"
-            data-request-update="'campaignSignup::result': '#container'">
+            data-request="leancodeCampaignSignup::onSignup"
+            data-request-update="'leancodeCampaignSignup::result': '#container'">
 
             <!-- Optional first name -->
             <input name="first_name" type="text" placeholder="First name" />
@@ -83,13 +83,13 @@ Here is some sample markup:
 
 ## Campaign Templates
 
-Campaign Templates are managed in the CMS area and should be designed by a developer. Each template should use the `campaignTemplate` CMS Component and like any CMS page, they can support using other components for dynamically generating content.
+Campaign Templates are managed in the CMS area and should be designed by a developer. Each template should use the `leancodeCampaignTemplate` CMS Component and like any CMS page, they can support using other components for dynamically generating content.
 
     title = "Default template"
     url = "/campaign/message/:code"
     description = "Campaign with basic fields"
 
-    [campaignTemplate]
+    [leancodeCampaignTemplate]
     ==
     <!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN"
        "http://www.w3.org/TR/html4/loose.dtd">

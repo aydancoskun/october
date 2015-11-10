@@ -48,7 +48,7 @@ class Signup extends ComponentBase
 
     public function getTemplatePageOptions()
     {
-        return Page::withComponent('campaignTemplate')->sortBy('baseFileName')->lists('baseFileName', 'baseFileName');
+        return Page::withComponent('leancodeCampaignTemplate')->sortBy('baseFileName')->lists('baseFileName', 'baseFileName');
     }
 
     public function getListOptions()

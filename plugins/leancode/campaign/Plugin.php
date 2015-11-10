@@ -34,8 +34,8 @@ class Plugin extends PluginBase
     public function registerComponents()
     {
         return [
-            'Leancode\Campaign\Components\Template' => 'campaignTemplate',
-            'Leancode\Campaign\Components\Signup'   => 'campaignSignup',
+            'Leancode\Campaign\Components\Template' => 'leancodeCampaignTemplate',
+            'Leancode\Campaign\Components\Signup'   => 'leancodeCampaignSignup',
         ];
     }
 

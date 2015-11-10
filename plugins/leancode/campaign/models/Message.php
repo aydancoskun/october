@@ -310,7 +310,7 @@ class Message extends Model
     public function listPagesWithCampaignComponent()
     {
         $result = [];
-        $pages = Page::withComponent('campaignTemplate')->sortBy('baseFileName')->all();
+        $pages = Page::withComponent('leancodeCampaignTemplate')->sortBy('baseFileName')->all();
 
         foreach ($pages as $page) {
             $baseName = $page->getBaseFileName();

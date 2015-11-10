@@ -1,6 +1,6 @@
 /*
  * Template Selector plugin
- * 
+ *
  * Data attributes:
  * - data-control="campaign-templateselector" - enables the plugin on an element
  * - data-option="value" - an option with a value
@@ -8,7 +8,7 @@
  * JavaScript API:
  * $('a#someElement').templateSelector({ option: 'value' })
  *
- * Dependences: 
+ * Dependences:
  * - Some other plugin (filename.js)
  */
 
@@ -56,13 +56,13 @@
         var args = Array.prototype.slice.call(arguments, 1), result
         this.each(function () {
             var $this   = $(this)
-            var data    = $this.data('oc.campaignTemplateSelector')
+            var data    = $this.data('oc.leancodeCampaignTemplateSelector')
             var options = $.extend({}, TemplateSelector.DEFAULTS, $this.data(), typeof option == 'object' && option)
-            if (!data) $this.data('oc.campaignTemplateSelector', (data = new TemplateSelector(this, options)))
+            if (!data) $this.data('oc.leancodeCampaignTemplateSelector', (data = new TemplateSelector(this, options)))
             if (typeof option == 'string') result = data[option].apply(data, args)
             if (typeof result != 'undefined') return false
         })
-        
+
         return result ? result : this
     }
 
