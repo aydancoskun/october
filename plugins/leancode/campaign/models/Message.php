@@ -216,9 +216,9 @@ class Message extends Model
             'unsubscribe_url'           => "Link to unsubscribe from emails",
             'signup_url'                => "Link to signup from emails",
             'browser_url'               => "Link to open web-based version",
-            'ok_company_name'           => "ok_company_name",
-            'ok_sample_products'        => "ok_sample_products",
-            'ok_company_products_count' => "ok_company_products_count"
+            'ok_company_name'           => "Company Name",
+            'ok_sample_products'        => "Sample Products",
+            'ok_company_products_count' => "Company Product Count"
 	    ];
     }
 
