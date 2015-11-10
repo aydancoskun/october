@@ -2,7 +2,7 @@ title = "Mailing 2015-09-20"
 url = "/20150923/:code"
 is_hidden = 0
 
-[Responsiv\Campaign\Components\Template campaignTemplate]
+[Leancode\Campaign\Components\Template addressoTemplate]
 ==
 <?php
 function onStart(){
@@ -16,7 +16,7 @@ function onStart(){
     $this['activation_code'] = $data->activation_code;
     $this['ok_company_name'] = $data->ok_company_name;
     $this['uri'] = trim( str_replace( rawurlencode($code), '', Request::path() ), '/' );
-    
+
     // Inject sample_products
     $this['products'] = DB::table('operations.bp_suppliers')
                         ->where('company_uid', $data->ok_company_id)
@@ -123,7 +123,7 @@ function onStart(){
                                                 {% set count = count + 1 %}
                                                     {{count}}. {{ product }}<br>
                                                 {% endfor %}
-                                                
+
                                                 {{ sample_products }}<br>
                                                 We found a total of {{ number_products_found }} products or services being supplied by your company and they are now available on the OKTicK search engine.<br><br>
                                                 OKTicK is free to be on for all legitimate suppliers. Just by accepting this invitation alone you will improve the standings of your products &amp; services in search results.<br>
