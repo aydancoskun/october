@@ -231,11 +231,11 @@ class Message extends Model
         $data['first_name'] = $subscriber->first_name;
         $data['last_name'] = $subscriber->last_name;
         $data['email'] = $subscriber->email;
+        $data['unsubscribe_url'] = $this->getBrowserUrl($subscriber).'?unsubscribe=1';
+        $data['browser_url'] = $this->getBrowserUrl($subscriber);
         $data['ok_company_name'] = $subscriber->ok_company_name;
         $data['ok_sample_products'] = $subscriber->ok_sample_products;
         $data['ok_company_products_count'] = $subscriber->ok_company_products_count;
-        $data['unsubscribe_url'] = $this->getBrowserUrl($subscriber).'?unsubscribe=1';
-        $data['browser_url'] = $this->getBrowserUrl($subscriber);
         $data['tracking_pixel'] = $this->getTrackingPixelImage($subscriber);
         $data['tracking_url'] = $this->getBrowserUrl($subscriber).'.png';
 
@@ -358,11 +358,11 @@ class Message extends Model
         $data['email'] = 'test@email.tld';
         $data['unsubscribe_url'] = 'javascript:;';
         $data['browser_url'] = 'javascript:;';
-        $data['tracking_pixel'] = '';
-        $data['tracking_url'] = 'javascript:;';
         $data['ok_company_name'] = "test_ok_company_name";
         $data['ok_sample_products'] = "test_ok_sample_products";
         $data['ok_company_products_count'] = "test_ok_company_products_count";
+        $data['tracking_pixel'] = '';
+        $data['tracking_url'] = 'javascript:;';
 
         $result = $parser->parseString($content, $data);
 

@@ -209,11 +209,14 @@ class Message extends Model
     public static function getAvailableTags()
     {
         return [
-            'first_name'      => "Subscriber's first name",
-            'last_name'       => "Subscriber's last name",
-            'email'           => "Subscriber's email address",
-            'unsubscribe_url' => "Link to unsubscribe from emails",
-            'browser_url'     => "Link to open web-based version"
+            'first_name'                => "Subscriber's first name",
+            'last_name'                 => "Subscriber's last name",
+            'email'                     => "Subscriber's email address",
+            'unsubscribe_url'           => "Link to unsubscribe from emails",
+            'browser_url'               => "Link to open web-based version"
+            'ok_company_name'           => "Company Name",
+            'ok_sample_products'        => "Sample Products",
+            'ok_company_products_count' => "Number of Company Products"
         ];
     }
 
@@ -223,15 +226,16 @@ class Message extends Model
     public function buildTagData($subscriber)
     {
         $data = [];
-
         $data['first_name'] = $subscriber->first_name;
         $data['last_name'] = $subscriber->last_name;
         $data['email'] = $subscriber->email;
         $data['unsubscribe_url'] = $this->getBrowserUrl($subscriber).'?unsubscribe=1';
         $data['browser_url'] = $this->getBrowserUrl($subscriber);
+        $data['ok_company_name'] = $subscriber->ok_company_name;
+        $data['ok_sample_products'] = $subscriber->ok_sample_products;
+        $data['ok_company_products_count'] = $subscriber->ok_company_products_count;
         $data['tracking_pixel'] = $this->getTrackingPixelImage($subscriber);
         $data['tracking_url'] = $this->getBrowserUrl($subscriber).'.png';
-
         return $data;
     }
 
@@ -345,9 +349,11 @@ class Message extends Model
         $data['email'] = 'test@email.tld';
         $data['unsubscribe_url'] = 'javascript:;';
         $data['browser_url'] = 'javascript:;';
+        $data['ok_company_name'] = 'Test Ccompany';
+        $data['ok_sample_products'] = 'Test Product 1<br>Test Product 2';
+        $data['ok_company_products_count'] = '2';
         $data['tracking_pixel'] = '';
         $data['tracking_url'] = 'javascript:;';
-
         $result = $parser->parseString($content, $data);
 
         // Inject base target
