@@ -95,7 +95,7 @@ class Subscriber extends Model
 
     public function getUniqueCode()
     {
-        $hash = md5($this->id . '!' . $this->email);
+        $hash = md5( env('APP_KEY') . $this->id . '!' . $this->email);
         return base64_encode($this->id.'!'.$hash);
     }
 

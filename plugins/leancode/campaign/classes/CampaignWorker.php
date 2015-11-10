@@ -166,7 +166,7 @@ class CampaignWorker
     	            	$subscriber->save();
     	            }
     	            if ( ! $subscriber->activation_code) {
-    	            	$subscriber->activation_code = md5("ipiresearch".$subscriber->email);
+    	            	$subscriber->activation_code = md5(env('APP_KEY') . $subscriber->email);
     	            	$subscriber->save();
     	            }
     	            $use_massmailer=true;

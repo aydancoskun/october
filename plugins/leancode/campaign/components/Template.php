@@ -130,7 +130,7 @@ class Template extends ComponentBase
          * Verify unique hash
          */
         $verifyValue = $campaignId.'!'.$subscriberId;
-        $verifyHash = md5($verifyValue.'!'.$this->subscriber->email);
+        $verifyHash = md5( env('APP_KEY') . $verifyValue.'!'.$this->subscriber->email);
 
         if ($hash != $verifyHash) {
             throw new ApplicationException('Invalid hash');
@@ -182,7 +182,7 @@ class Template extends ComponentBase
 		} else {
             $already="done";
         }
-        $hash = base64_encode($this->subscriber->id.'!' . md5($this->subscriber->id . '!' . $this->subscriber->email));
+        $hash = base64_encode($this->subscriber->id.'!' . md5( env('APP_KEY') . $this->subscriber->id . '!' . $this->subscriber->email));
 
         // @todo Template + Language
     	return redirect('/unsubscribe/'.$hash.$already);

@@ -105,7 +105,7 @@ class Message extends Model
     public function getUniqueCode($subscriber)
     {
         $value = $this->id.'!'.$subscriber->id;
-        $hash = md5($value . '!' . $subscriber->email);
+        $hash = md5( env('APP_KEY') . $value . '!' . $subscriber->email);
         return base64_encode($value.'!'.$hash);
     }
 
