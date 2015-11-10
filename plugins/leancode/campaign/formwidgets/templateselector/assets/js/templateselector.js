@@ -56,9 +56,9 @@
         var args = Array.prototype.slice.call(arguments, 1), result
         this.each(function () {
             var $this   = $(this)
-            var data    = $this.data('oc.leancodeCampaignTemplateSelector')
+            var data    = $this.data('oc.addressoTemplateSelector')
             var options = $.extend({}, TemplateSelector.DEFAULTS, $this.data(), typeof option == 'object' && option)
-            if (!data) $this.data('oc.leancodeCampaignTemplateSelector', (data = new TemplateSelector(this, options)))
+            if (!data) $this.data('oc.addressoTemplateSelector', (data = new TemplateSelector(this, options)))
             if (typeof option == 'string') result = data[option].apply(data, args)
             if (typeof result != 'undefined') return false
         })

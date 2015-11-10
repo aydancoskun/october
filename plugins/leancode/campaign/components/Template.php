@@ -36,7 +36,7 @@ class Template extends ComponentBase
     public function componentDetails()
     {
         return [
-            'name'        => 'Campaign Template',
+            'name'        => 'Addresso Template',
             'description' => 'Used for displaying web-based versions of campaign messages.'
         ];
     }
@@ -183,7 +183,7 @@ class Template extends ComponentBase
             $already="done";
         }
         $hash = base64_encode($this->subscriber->id.'!' . md5($this->subscriber->id . '!' . $this->subscriber->email));
- 
+
         // @todo Template + Language
     	return redirect('/unsubscribe/'.$hash.$already);
     }

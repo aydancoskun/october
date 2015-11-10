@@ -17,7 +17,7 @@ class Signup extends ComponentBase
     public function componentDetails()
     {
         return [
-            'name'        => 'Signup Form',
+            'name'        => 'Addresso Signup Form',
             'description' => 'Form to add a new address to a mailing list.'
         ];
     }
@@ -48,7 +48,7 @@ class Signup extends ComponentBase
 
     public function getTemplatePageOptions()
     {
-        return Page::withComponent('leancodeCampaignTemplate')->sortBy('baseFileName')->lists('baseFileName', 'baseFileName');
+        return Page::withComponent('addressoTemplate')->sortBy('baseFileName')->lists('baseFileName', 'baseFileName');
     }
 
     public function getListOptions()

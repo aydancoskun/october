@@ -101,10 +101,10 @@ class Messages extends Controller
             $pages = Page::lists('baseFileName', 'baseFileName');
             $pageName = post('page_name');
             $pageSettings = [
-                'title'                    => post('page_title'),
-                'url'                      => post('page_url'),
-                'description'              => post('page_description'),
-                'leancodeCampaignTemplate' => []
+                'title'            => post('page_title'),
+                'url'              => post('page_url'),
+                'description'      => post('page_description'),
+                'addressoTemplate' => []
             ];
 
             $pageExists = array_key_exists($pageName, $pages);
