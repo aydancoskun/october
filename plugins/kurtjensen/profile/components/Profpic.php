@@ -1,86 +1,79 @@
 <?php namespace KurtJensen\Profile\Components;
 
 use Auth;
+use Cms\Classes\ComponentBase;
+use Cms\Classes\Page;
 use Input;
 use Redirect;
-use Cms\Classes\Page;
-use Cms\Classes\ComponentBase;
 use System\Models\File as File;
 
-class Profpic extends ComponentBase
-{
-    /**
-     * @var User The user model used for display
-     * of a single user.
-     */
-    public $AvaUser;
-    
-    public $AvaUserid;
+class Profpic extends ComponentBase {
+	/**
+	 * @var User The user model used for display
+	 * of a single user.
+	 */
+	public $AvaUser;
 
-    public function componentDetails()
-    {
-        return [
-            'name'        => 'Avatar Display & Form',
-            'description' => 'Frontend display and form for user to manage their avatar'
-        ];
-    }
+	public $AvaUserid;
 
-    public function defineProperties()
-    {
-        return [
-            'redirect' => [
-                'title'       => 'Form Redirect',
-                'description' => 'Page to redirect to after submiting new avatar image.',
-                'type'        => 'dropdown',
-                'default'     => '',
-                'group'       => 'Links',
-            ],
-        ];
-    }
-    
-    function init()
-    {        
-    // This code will be executed before
-    // an AJAX request is handled.
-        
-        $this->page['AvaUser'] = $this->AvaUser = Auth::getUser();
+	public function componentDetails() {
+		return [
+			'name' => 'Avatar Display & Form',
+			'description' => 'Frontend display and form for user to manage their avatar',
+		];
+	}
 
-        if (!$this->AvaUser)
-            return null;
-        
-        $this->AvaUserid = intval( $this->AvaUser->id );
-        $this->page['avatarThumb'] = $this->AvaUser->getAvatarThumb(200);        
-    }
+	public function defineProperties() {
+		return [
+			'redirect' => [
+				'title' => 'Form Redirect',
+				'description' => 'Page to redirect to after submiting new avatar image.',
+				'type' => 'dropdown',
+				'default' => '',
+				'group' => 'Links',
+			],
+		];
+	}
 
-    /**
-     * Executed when this component is bound to a page or layout.
-     */
+	function init() {
+		// This code will be executed before
+		// an AJAX request is handled.
 
-    function onRun()
-    {
-    }
+		$this->page['AvaUser'] = $this->AvaUser = Auth::getUser();
 
-    public function getRedirectOptions()
-    {
-        return [''=>'- none -'] + Page::sortBy('baseFileName')->lists('baseFileName', 'baseFileName');
-    }
+		if (!$this->AvaUser) {
+			return null;
+		}
 
+		$this->AvaUserid = intval($this->AvaUser->id);
+		$this->page['avatarThumb'] = $this->AvaUser->getAvatarThumb(200);
+	}
 
-    protected function onAvatarForm()
-    {
-        if (!$this->AvaUserid)
-            return null;
-    }
-    
-    public function onAvatarUpdate()
-    {
-        $file = new File;
-        $file->data = Input::file('avatar');
-        $file->save();
-        $this->AvaUser->avatar()->add($file);
-        
-        return Redirect::intended($this->pageUrl($this->property('redirect')));
-    }
+	/**
+	 * Executed when this component is bound to a page or layout.
+	 */
 
+	function onRun() {
+	}
+
+	public function getRedirectOptions() {
+		return ['' => '- none -'] + Page::sortBy('baseFileName')->lists('baseFileName', 'baseFileName');
+	}
+
+	protected function onAvatarForm() {
+		if (!$this->AvaUserid) {
+			return null;
+		}
+
+	}
+
+	public function onAvatarUpdate() {
+		$file = new File;
+		$file->data = Input::file('avatar');
+		$file->save();
+		$this->AvaUser->avatar()->add($file);
+
+		return Redirect::intended($this->pageUrl($this->property('redirect')));
+	}
 
 }

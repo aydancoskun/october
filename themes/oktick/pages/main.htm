@@ -1,7 +1,7 @@
 title = "Main"
 url = "/:activationcode?"
 layout = "main"
-is_hidden = "0"
+is_hidden = 0
 ==
 <?php
 function onInit(){
@@ -33,7 +33,7 @@ function onInit(){
 
 
     try{
-        DB::table('oktick.responsiv_campaign_messages_subscribers')
+        DB::table('oktick.leancode_campaign_messages_subscribers')
             ->where('subscriber_id', $user->id)
             ->update(array('stop_at' => null,));
         DB::table('oktick.shahiemseymor_assigned_roles')

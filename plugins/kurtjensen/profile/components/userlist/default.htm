@@ -6,20 +6,26 @@
 small{ font-size: 0.6em;
     color: #FF2A00;
 }
-
 .nametag { margin:5px;}
 .center { text-align: center;}
-.right { text-align: right;}
-.left { text-align: left;}
 .sq200 {width:200px; height:200px;}
+dd {padding-top:2em;}
 </style>
+
+<div id="MemberShow" class="modal fade" role="dialog" aria-hidden="true" style="display: none;">
+  <div class="modal-dialog">
+    <div class="modal-content" id="UserDetail">
+      
+    </div>
+  </div>
+</div>
+
 <div class="content center">
-  <a id="top" />
   Sort: <a href="?sort=default">Last Name</a> | 
   <a href="?sort=given">First Name</a> | 
   <a href="?sort=group">Group</a>
-<div id="MemberShow" style="float:none; overflow:hidden;
-padding: 20px 20px 20px 20px;"></div>
+</div>
+<div class="content center">
 {% for person in people  %}
         {% if sort == 'group' %}
           {% if curgr != person.primary_usergroup %}
@@ -31,8 +37,8 @@ padding: 20px 20px 20px 20px;"></div>
           title="Show"
           data-request="onUserDisplay"
           data-request-data="id: {{ person.id }}"
-          data-request-success="$('html, body').animate({ scrollTop: 0 });"
-          data-request-update="'UserList::memberview': '#MemberShow'" 
+          data-request-update="'UserList::memberview': '#UserDetail'"
+          data-toggle="modal" data-target="#MemberShow"
           class="btn btn-default nametag">
         {% if sort == 'given' %}
             {{ person.name }} {{ person.surname }}

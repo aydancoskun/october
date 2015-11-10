@@ -36,3 +36,7 @@
     - Added option to have standard dropdowns in basic information forms
 1.0.18:
     - Added V-Card Download and fixed sorting issue in user directory.
+1.0.19:
+    - Restyled user directory to use module dialog.
+1.0.20:
+    - Restored avatar from restyle of user directory.

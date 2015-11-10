@@ -4,16 +4,16 @@ namespace KurtJensen\Profile\models;
 
 use Model;
 
-class Settings extends Model{
+class Settings extends Model {
 
-    public $implement = ['System.Behaviors.SettingsModel'];
+	public $implement = ['System.Behaviors.SettingsModel'];
 
-    // A unique code
-    public $settingsCode = 'kurtjensen_profile_settings';
+	// A unique code
+	public $settingsCode = 'kurtjensen_profile_settings';
 
-    // Reference to field configuration
-    public $settingsFields = 'fields.yaml';
+	// Reference to field configuration
+	public $settingsFields = 'fields.yaml';
 
-    protected $cache = [];
+	protected $cache = [];
 
-} 
+}

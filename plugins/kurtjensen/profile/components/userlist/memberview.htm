@@ -1,111 +1,92 @@
 {% set showCountry = __SELF__.showCountry %}
-<div style="border-radius: 5px;
-width:100%;
-overflow: hidden;
-border: #4D4D4D 2px solid;
-padding: 5px;">
-    <div class="col-sm-4">
-        <h3>{{ person.name }} {{ person.surname }}
-        <small>{{ userGroups[person.primary_usergroup] }}</small></h3>
-        <table>
-        <!--    <tr>
-                <td class="kurtjensen-profile-label">DBID : </td><td class="kurtjensen-profile-data"> {{ user.id }}</td>
-            </tr> -->
-            <tr>
-                <td class="kurtjensen-profile-label">Login : </td><td class="kurtjensen-profile-data bot-bord"> {{ person.login }}</td>
-            </tr>
-            <tr>
-                <td class="kurtjensen-profile-label">Company : </td><td class="kurtjensen-profile-data bot-bord"> {{ person.company }}</td>
-            </tr>
-            <tr>
-                <td class="kurtjensen-profile-label">Address : </td>
-                <td class="kurtjensen-profile-data bot-bord"> 
+<div class="modal-header">
+<button type="button" class="btn btn-default" data-dismiss="modal" style="float:right;">Close</button>
+    <h3 class="modal-title">{{ person.name }} {{ person.surname }} &nbsp;&nbsp;&nbsp;{% if __SELF__.vcardPage %}
+            <a class="btn btn-info"
+              href="{{ __SELF__.vcardPage|app }}/{{ person.id }}" title="Download V-Card">
+                <i class="icon-download icon-large"></i>Add To Contacts
+            </a>
+    {% endif %}
+    </h3> 
+    <small>{{ userGroups[person.primary_usergroup] }}</small>
+
+</div>
+<div class="modal-body">
+<div class="row">
+      <div class="col-md-3">
+{% if person.avatar %}
+              <a href="{{ person.avatar.getThumb(600,600) }}" target="ProfPic">
+                  <img class="sq200" src="{{ avatarThumb }}" alt="{{ person.avatar.filename }}" />
+              </a>
+{% elseif avatarThumb %}
+            <img class="sq200" src="{{ avatarThumb }}" alt="No Photo On File" />
+{% endif %}
+    </div>
+    <div class="col-md-9">
+        <dl class="dl-horizontal">
+            <dt>Company:</dt>
+            <dd><p>{{ person.company }}</p></dd>
+{% if (person.city) and (person.state.name) and (person.zip) %}
+            <dt>Address:</dt>
+            <dd>
+                <address>
+                    <a target="map" class="btn btn-danger"
+                      href="http://maps.google.com/maps?f=q&amp;source=s_q&amp;hl=en&amp;q={{ person.street_addr }},+{{ person.city }},+{{ person.state.name }}+{{ person.zip }}&amp;z=16">
+                      <i class="icon-map-marker icon-large"></i>
+                    </a>
                     {{ person.street_addr }}<br />
                     {{ person.city }}, {{ person.state.name }} {{ person.zip }}
 {% if showCountry %}<br />
                     {{ person.country.name }}
 {% endif %}
-{% if (person.city) and (person.state.name) and (person.zip) %}
-                    <a target="map" 
-                       style="font-size: small;" 
-                       href="http://maps.google.com/maps?f=q&amp;source=s_q&amp;hl=en&amp;q={{ person.street_addr }},+{{ person.city }},+{{ person.state.name }}+{{ person.zip }}&amp;z=16">
-                       <i class="icon-map-marker icon-2x"></i>
-                    </a>
+                </address></dd>
+            </dl>
+        </div>
+    </div>
+    <div>
+        <dl class="dl-horizontal">
+
 {% endif %}
-                </td>
-            </tr>
-            <tr>
-                <td class="kurtjensen-profile-label">Email : </td><td class="kurtjensen-profile-data bot-bord"> <a href="mailto:{{ person.name }}<{{ person.email }}>">{{ person.email }}</a></td>
-            </tr>
-            <tr>
-                <td> </td><td class="profile-meta"> Updated : {{ person.updated_at }}</td>
-            </tr>
-{% if person.cellphones %}            
-            
-            <tr>
-                <td class="kurtjensen-profile-label">Phones : </td><td>&nbsp;</td>
-            
-                
+
+            <h4>Email:</h4>        
+              <dt></dt>
+              <dd><a href="mailto:{{ person.name }}<{{ person.email }}>" class="btn btn-primary"><i class="icon-envelope icon-large"></i></a> {{ person.email }}<br />
+                <small>Updated : {{ person.updated_at }}</small>
+              </dd>
+              
+{% if person.cellphones %}
+     
+            <h4>Phones:</h4> 
 {% for cphone in person.cellphones  %}
-            <tr>
-                <td class="kurtjensen-profile-label">{{ cphone.label }}</td>
-                <td class="kurtjensen-profile-data">{{ cphone.phone }}<span class="icon-2x">
-                        <a href="tel:{{ cphone.phone }}"><i class="icon-phone "></i></a>{% if cphone.provider.name %}  
-                        <a href="sms:{{ cphone.phone }}"><i class="icon-comment"></i></a>  
-                        <a href="mailto:{{ cphone.address }}"><i class="icon-envelope"></i></a></span>  
-                        <sub></sub>{% endif %}
-                </td>
-            </tr>
-            <tr>
-                <td> </td><td class="profile-meta"> Updated : {{ cphone.updated_at }} provider:{{ cphone.provider.name }}</td>
-            </tr>
-{% endfor %}        
-                </td>
-            </tr>
+              <dt>{{ cphone.label|title }}:</dt>
+              <dd>{{ cphone.phone }}
+                            <a href="tel:{{ cphone.phone }}" class="btn btn-info"><i class="icon-phone icon-large"></i></a>
+{% if cphone.provider.name %}  
+                            <a href="sms:{{ cphone.phone }}" class="btn btn-success"><i class="icon-comment icon-large"></i></a>  
+                            <a href="mailto:{{ cphone.address }}" class="btn btn-primary"><i class="icon-envelope icon-large"></i></a>
+{% endif %}<br />
+                            <small>Updated : {{ cphone.updated_at }} &nbsp;&nbsp; provider:{{ cphone.provider.name }}</small>
+              </dd>
+{% endfor %}
 {% endif %}
-        </table>        
-    </div>
-    <div class="col-sm-5">
-        
-        
-        
-        <table>            
-        {% for name, prop in epsettings %}    
-            <tr>
-                <td class="kurtjensen-profile-label">{{ prop.label }} : </td><td class="kurtjensen-profile-data bot-bord"> {{ prop.value }}</td>
-            </tr>
-        {% endfor %}
-        </table>
-        
-    </div>
-    <div class="col-sm-3">
-        <div  class="center">
-{% if person.avatar %}
-            <a href="{{ person.avatar.getThumb(600,600) }}" target="ProfPic">
-                <img class="sq200" src="{{ avatarThumb }}" alt="{{ person.avatar.filename }}" />
-            </a>
-{% else %}
-            <img class="sq200" src="{{ avatarThumb }}" alt="{{ person.avatar.filename }}" />
+
+{% for name, prop in epsettings %}
+{% if prop.value %}
+              <dt>{{ prop.label|title }}</dt>
+              <dd>{{ prop.value }}</dd>
 {% endif %}
-        </div>
-{% if __SELF__.vcardPage %}
-        <div  class="center" style="padding:5px;">
-            <a class="btn btn-info"
-            href="{{ __SELF__.vcardPage|app }}/{{ person.id }}" title="Download V-Card">
-                Add To Contacts <i class="icon-download icon-2x"></i>
-            </a>
-        </div>
+{% endfor %}
+{% if person.profdate %}
+
+            <h4>Dates</h4>
+{% for date in person.profdate  %}
+              <dt>{{ date.label|title  }}</dt>
+              <dd>{{ date.day }} - <sub>{{ date.note }}</sub></dd>
+{% endfor %}
 {% endif %}
-        {% if person.profdate %}
-        <strong>Dates</strong>
-        <ul>
-        {% for date in person.profdate  %}
-            <li>
-                {{ date.label }} <strong>{{ date.day }}</strong> <br/> 
-                <sub>{{ date.note }}</sub>
-            </li>
-        {% endfor %}
-        </ul>
-        {% endif %}
+        </dl>
     </div>
+</div>
+<div class="modal-footer">
+<button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
 </div>
