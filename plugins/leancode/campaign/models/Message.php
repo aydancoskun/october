@@ -358,9 +358,9 @@ class Message extends Model
         $data['email'] = 'test@email.tld';
         $data['unsubscribe_url'] = 'javascript:;';
         $data['browser_url'] = 'javascript:;';
-        $data['ok_company_name'] = "test_ok_company_name";
-        $data['ok_sample_products'] = "test_ok_sample_products";
-        $data['ok_company_products_count'] = "test_ok_company_products_count";
+        $data['ok_company_name'] = "Test Company Name";
+        $data['ok_sample_products'] = "Test Sample Product 1<br>Test Sample Product 2";
+        $data['ok_company_products_count'] = "Test Company Products Count";
         $data['tracking_pixel'] = '';
         $data['tracking_url'] = 'javascript:;';
 
