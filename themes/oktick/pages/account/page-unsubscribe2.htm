@@ -10,7 +10,10 @@ function onStart(){
         if (ends_with($code, '.png')) {
             $code = substr($code, 0, -4);
         }
-
+        if ( ! $code) {
+            Flash::error("I'm sorry, Dave. I'm afraid I can't do that.(no such code: err 500)");
+            return redirect( "/" );
+        }
         $parts = explode('!', base64_decode($code));
         if (count($parts) < 3) {
             Flash::error("I'm sorry, Dave. I'm afraid I can't do that.(no such code: err 501)");
@@ -23,7 +26,7 @@ function onStart(){
             return redirect( "/" );
         }
         $verifyValue = $campaignId.'!'.$userId;
-        $verifyHash = md5( env('APP_KEY') . $verifyValue.'!'.$this->user->email);
+        $verifyHash = md5( env('APP_KEY') . $verifyValue.'!'.$user->email);
         if ($hash != $verifyHash) {
             Flash::error("I'm sorry, Dave. I'm afraid I can't do that.(no such code: err 503)");
             return redirect( "/" );

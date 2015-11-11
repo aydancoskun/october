@@ -1,5 +1,5 @@
 title = "Activation2"
-url = "/activate/:activation_code?"
+url = "/activate/:code?"
 is_hidden = 0
 
 [account]
@@ -7,20 +7,33 @@ paramCode = "code"
 ==
 <?php
 function onStart(){
-    // https://ipi.oktick.com/activation/cdd60ea0045eb7a6ec44c54d29ed402f0b4341741c
-    $activation_code = $this->param('activation_code');
-    $user_id = "";
-    if($activation_code) {
-        // Get userid
-        $user_id = DB::table('users')->where('activation_code', $activation_code)->pluck('id');
+    $code = $this['code'] = $this->param('code');
+
+    if (ends_with($code, '.png')) {
+        $code = substr($code, 0, -4);
     }
-    if(!$user_id){
-        // code not valid
-        Flash::error("Activation Code Invalid");
-        return redirect("/",302);
-    }        
-        
-    return redirect("/$activation_code");
+    if ( ! $code) {
+        Flash::error("I'm sorry, Dave. I'm afraid I can't do that.(no such code: err 500)");
+        return redirect( "/" );
+    }
+    $parts = explode('!', base64_decode($code));
+    if (count($parts) < 3) {
+        Flash::error("I'm sorry, Dave. I'm afraid I can't do that.(no such code: err 501)");
+        return redirect( "/" );
+    }
+    list($campaignId, $userId, $hash) = $parts;
+    $user = DB::table('users')->where('id', $userId )->first();
+    if ( ! $user) {
+        Flash::error("I'm sorry, Dave. I'm afraid I can't do that.(no such code: err 502)");
+        return redirect( "/" );
+    }
+    $verifyValue = $campaignId.'!'.$userId;
+    $verifyHash = md5( env('APP_KEY') . $verifyValue.'!'.$this->user->email);
+    if ($hash != $verifyHash) {
+        Flash::error("I'm sorry, Dave. I'm afraid I can't do that.(no such code: err 503)");
+        return redirect( "/" );
+    }
+    return redirect("/$code");
 }
 function getRandomBytes($nbBytes = 32)
 {
