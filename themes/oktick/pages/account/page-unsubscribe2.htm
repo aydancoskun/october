@@ -1,50 +1,43 @@
 title = "Page Unsubscribe New"
-url = "/unsubscribe/:activation_code?"
+url = "/unsubscribe/:code"
 layout = "main"
 is_hidden = 0
 ==
 <?php
 function onStart(){
+        $code = $this['code'] = $this->param('code');
 
-    //   MjE0ITIhZTNiMzYwMDYyMTZmNjhjODQ5NDYwNWQzZTcwYjllZTc=
-    $this['activation_code'] = $this->param('activation_code');
+        if (ends_with($code, '.png')) {
+            $code = substr($code, 0, -4);
+        }
 
-//    $parts = explode('!', base64_decode($code));
-//    if (count($parts) < 2) {
-//        Flash::error("I'm sorry, Dave. I'm afraid I can't do that.(".$e->getMessage().")");
-//        Flash::error("I'm sorry, Dave. I'm afraid I can't do that.(faulty code)");
-//        return redirect("/".$code);
-//    }
-//    list($user_id, $hash) = $parts;
-
-    $user = DB::table('users')->where('activation_code', $this['activation_code'] )->first();
-    if ( ! $user) {
-        Flash::error("I'm sorry, Dave. I'm afraid I can't do that.(no such subscriber)");
-        return redirect( "/" . $this['activation_code'] );
-    }
-
-    if( $user->ok_unsubscribed_at ) {
-        $this['already_done']=true;
-    } else {
-        DB::table('oktick.users')->where('id',$user->id)->update(array(
-            'ok_unsubscribed_at' => date( 'Y-m-d H:i:s', time()),
-            'password'=>"",
-            'persist_code'=>"",
-            'is_activated'=>0
-        ));
-    }
-//    return redirect( "/" . $this['activationcode'] );
-//    $email = DB::table('users')->where('activation_code', $code)->pluck('email');
-//    $this['activation_code'] = DB::table('users')->where('id', $user_id)->pluck('activation_code');
-//    if (!$email) {
-//        Flash::error("I'm sorry, Dave. I'm afraid I can't do that.(no such subscriber)");
-//        return redirect("/".$code);
-//    }
-//    $verifyCode = base64_encode($user_id.'!' . md5($user_id . '!' . $email));
-//    if ($code != $verifyCode) {
-//        Flash::error("I'm sorry, Dave. I'm afraid I can't do that.(invalid code)");
-//        return redirect("/".$code);
-//    }
+        $parts = explode('!', base64_decode($code));
+        if (count($parts) < 3) {
+            Flash::error("I'm sorry, Dave. I'm afraid I can't do that.(no such code: err 501)");
+            return redirect( "/" );
+        }
+        list($campaignId, $userId, $hash) = $parts;
+        $user = DB::table('users')->where('id', $userId )->first();
+        if ( ! $user) {
+            Flash::error("I'm sorry, Dave. I'm afraid I can't do that.(no such code: err 502)");
+            return redirect( "/" );
+        }
+        $verifyValue = $campaignId.'!'.$userId;
+        $verifyHash = md5( env('APP_KEY') . $verifyValue.'!'.$this->user->email);
+        if ($hash != $verifyHash) {
+            Flash::error("I'm sorry, Dave. I'm afraid I can't do that.(no such code: err 503)");
+            return redirect( "/" );
+        }
+        if( $user->ok_unsubscribed_at ) {
+            $this['already_done']=true;
+        } else {
+            DB::table('oktick.users')->where('id',$user->id)->update(array(
+                'ok_unsubscribed_at' => date( 'Y-m-d H:i:s', time()),
+                'password'=>"",
+                'persist_code'=>"",
+                'is_activated'=>0
+            ));
+        }
 }
 ?>
 ==
@@ -79,14 +72,14 @@ function onStart(){
                 <h2 class="text-justified"><small><strong>Unsubscribe Successful! You will not hear from us again unless you tell us otherwise.</strong></small></h2>
 {% endif %}
                 <h2 class="text-justified"><small>You can always try searching for something you supply to see where your business shows up in the search results.</small></h2>
-{% if activation_code %}
+{% if code %}
                 <h2 class="text-justified"><small>If you changed your mind or made a mistake you can use the button below and get you business promoted easily for free. You can also click the blue button in your email to reactivate.</a></small></h2><br>
             </div>
             <div class="text-center">
                 <div class="row">
                     <div class="col-xs-0 col-md-4"></div>
                     <div class="col-xs-12 col-md-4">
-                        <a href="/activation/{{activation_code}}" role="button" class="btn btn-primary center-block btn-lg">Reactivate me!</a>
+                        <a href="/activation/{{code}}" role="button" class="btn btn-primary center-block btn-lg">Reactivate me!</a>
                     </div>
                     <div class="col-xs-0 col-md-4"></div>
                 </div>

@@ -1,8 +1,40 @@
-title = "#120151109"
-url = "/120151109/:code"
+title = "Mailing 2015-09-20"
+url = "/addresso/:code"
 is_hidden = 0
 
-[addressoTemplate]
+[Leancode\Campaign\Components\Template addressoTemplate]
+==
+<?php
+function onStart(){
+    $code = $this->param('code');
+    if( ! $code ) return redirect( "/" );
+    $data = DB::table('users')->where('email', $code )->first();
+    if( ! $data ) {
+        $data = DB::table('users')->where('activation_code', $code )->first();
+        if( ! $data ) return redirect( "/" );
+    }
+    $this['activation_code'] = $data->activation_code;
+    $this['ok_company_name'] = $data->ok_company_name;
+    $this['uri'] = trim( str_replace( rawurlencode($code), '', Request::path() ), '/' );
+
+    // Inject sample_products
+    $this['products'] = DB::table('operations.bp_suppliers')
+                        ->where('company_uid', $data->ok_company_id)
+                        ->lists('bp');
+//    foreach($products as $product){
+//        $this['sample_products'] .= $sample_products_counter.". $product<br \>\n";
+//        if ($sample_products_counter++ > 10) break;
+//    }
+
+    $this['number_products_found'] = count( $this['products'] );
+
+//    $sample_products_counter=1;$this['sample_products']="";
+//    foreach($products as $product){
+//        $this['sample_products'] .= $sample_products_counter.". $product<br \>\n";
+//        if ($sample_products_counter++ > 10) break;
+//    }
+}
+?>
 ==
 <!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN"
    "http://www.w3.org/TR/html4/loose.dtd">
@@ -42,14 +74,13 @@ is_hidden = 0
                                     <td>
                                         <div style="font-family:Arial, Helvetica, sans-serif;font-size:12px;color:#7a7a7a;">
                                             Trouble reading this email?<br>
-                                            View in browser <a class="link" href="{browser_url}">here</a>.
+                                            <a class="link" href="/{{ uri }}/{{ activation_code }}">View it in your browser</a>.
                                         </div>
-                                        
                                     </td>
                                     <td align="right">
                                         <div style="font-family:Arial,Helvetica,sans-serif;font-size:12px;color:#7a7a7a;text-align:right">
-                                            No longer interested hearing from us?<br>
-                                        Immediately unsubscribe <a class="link" href="https://www.oktick.com/45f308f54294bb5bde189a5049952cf639acc16daf595a8c8e0226faeaf008b21a637780058480934ad6ff978c9e53e186b9af539600a6553f460eee7f2339f2/__accept_invite_code__">here</a>.
+                                    Not interested?
+                                            <a class="link" href="/45f308f54294bb5bde189a5049952cf639acc16daf595a8c8e0226faeaf008b21a637780058480934ad6ff978c9e53e186b9af539600a6553f460eee7f2339f2/{{ activation_code }}">Unsubscribe here</a>.
                                         </div>
                                     </td>
                                 </tr>
@@ -80,19 +111,27 @@ is_hidden = 0
                             <table cellspacing="0" cellpadding="0" border="0" align="center" width="660" style="width:660px;">
                                 <tr>
                                     <td>
-                                        <div style="font-size:16px;color:#555;font-family:Helvetica,Arial,sans-serif;">
+                                        <div style="font-size:12px;color:#333;font-family:Helvetica,Arial,sans-serif;">
                                             <div style="padding-top:10px">
-                                                <h2 style="font-size:26px;padding:0;margin:0;letter-spacing:-1px">__company__
-                                                </h2>
+                                                <h2 style="font-size:26px;color:#555;padding:0;margin:0;letter-spacing:-1px">{{ ok_company_name }}</h2>
                                             </div>
-                                            <p style="line-height:150%;padding-top:15px;margin:5px">We officially launched! As before, during beta, no ads, no SEO, no pay-per-clicks. Just plain product search.
-                                            </p>
-                                            <p style="line-height:150%;padding-top:15px;margin:5px">In celebration, we offer, no stings attached, no cost <strong>CREDITS FOR LIFE</strong> to the first 5000 suppliers. Yes, really. <strong>No cost. No catch. No card details.</strong> All you need to do is apply.
-                                            </p>
-                                            <br>
-                                            <table align="center" style="border-collapse:separate!important;border:2px solid #F2F2F2;border-radius: 4px;background-color: #2A62AF;table-layout: fixed;mso-table-lspace: 0pt;mso-table-rspace: 0pt;-ms-text-size-adjust: 100%;-webkit-text-size-adjust: 100%;" border="0" cellpadding="0" cellspacing="0"><tbody><tr><td style="font-family: Arial;font-size: 16px;padding: 20px;mso-table-lspace: 0pt;mso-table-rspace: 0pt;-ms-text-size-adjust: 100%;-webkit-text-size-adjust: 100%;" align="center" valign="middle"><a class="mcnButton " title="Accept-Invitation" href="https://www.oktick.com/__accept_invite_code__" target="_blank" style="font-size:12px;color:#333;font-weight: bold;letter-spacing: normal;line-height: 100%;text-align: center;text-decoration: none;color: #fff;word-wrap: break-word;-ms-text-size-adjust: 100%;-webkit-text-size-adjust: 100%;display: block;">Apply Now</a></td></tr></tbody>
-                                            </table>
-                                            <br>
+                                            <p style="font-size:16px;line-height:150%;font-weight:bold;color:#555;padding-top:15px;margin:5px">OKTicK - a new way to search for products and services using the direct search technique.</p>
+                                            <div style="font-size:16px;line-height:150%;font-weight:normal;color:#555;padding-top:15px;padding-bottom:15px;margin:5px">
+                                                Our automated system has determined that the items below are some of the goods and/or services you are supplying:<br><br>
+                                                {% set count = 0 %}
+                                                {% for product in products %}
+                                                {% set count = count + 1 %}
+                                                    {{count}}. {{ product }}<br>
+                                                {% endfor %}
+
+                                                {{ sample_products }}<br>
+                                                We found a total of {{ number_products_found }} products or services being supplied by your company and they are now available on the OKTicK search engine.<br><br>
+                                                OKTicK is free to be on for all legitimate suppliers. Just by accepting this invitation alone you will improve the standings of your products &amp; services in search results.<br>
+                                            </div>
+                                            <table align="center" style="border-collapse:separate!important;border:2px solid #F2F2F2;border-radius: 4px;background-color: #2A62AF;table-layout: fixed;mso-table-lspace: 0pt;mso-table-rspace: 0pt;-ms-text-size-adjust: 100%;-webkit-text-size-adjust: 100%;" border="0" cellpadding="0" cellspacing="0"><tbody><tr><td style="font-family: Arial;font-size: 16px;padding: 20px;mso-table-lspace: 0pt;mso-table-rspace: 0pt;-ms-text-size-adjust: 100%;-webkit-text-size-adjust: 100%;" align="center" valign="middle"><a class="mcnButton " title="Accept-Invitation" href="https://www.oktick.com/{{ activation_code }}" target="_blank" style="font-weight: bold;letter-spacing: normal;line-height: 100%;text-align: center;text-decoration: none;color: #fff;word-wrap: break-word;-ms-text-size-adjust: 100%;-webkit-text-size-adjust: 100%;display: block;">Accept the Invitation!</a></td></tr></tbody></table>
+                                            <div style="font-size:16px;line-height:150%;font-weight:normal;color:#555;padding-top:15px;margin:5px">
+                                        Once you accept the invitation you will be able to view, edit and add to the entire list of the products and services we have found for your company and to represent your companies products and services to potential customers.
+                                            </div>
                                             <br>
                                         </div>
                                     </td>
@@ -106,15 +145,13 @@ is_hidden = 0
                                 <tr>
                                     <td height="126" valign="middle" align="center">
                                         <div class="footer" style="color:#777;font-weight:bold;font-size:16px;font-family:Arial, Helvetica, sans-serif;padding-top:5px;padding-bottom:0;">
-                                            <a href="https://www.octick.com/" style="color:#777">www.oktick.com</a><br>
+                                            <a href="https://www.octick.com/" style="color:#777">www.oktick.com</a>
                                         </div>
                                         <br>
                                         <div style="font-weight:normal;color:#999;font-size:12px;font-family:Arial, Helvetica, sans-serif;padding-bottom:5px;">
-                                            <strong>Who we are:</strong>
+                                            <strong>Our mailing address is:</strong>
 																					<br>
-																						OKTicK Search Limited
-																					<br>
-																					    Reg: #9482402 (England/Wales)
+																						OKTicK Search Limited (reg #9482402)
 																					<br>
 																						71-75 Shelton Street
 																					<br>

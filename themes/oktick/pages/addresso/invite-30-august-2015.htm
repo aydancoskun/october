@@ -1,40 +1,9 @@
-title = "Mailing 2015-09-20"
-url = "/20150923/:code"
+title = "invite 30 August 2015"
+url = "/addresso/:code"
+description = "OKTICK Invite 30 August 2015"
 is_hidden = 0
 
-[Leancode\Campaign\Components\Template addressoTemplate]
-==
-<?php
-function onStart(){
-    $code = $this->param('code');
-    if( ! $code ) return redirect( "/" );
-    $data = DB::table('users')->where('email', $code )->first();
-    if( ! $data ) {
-        $data = DB::table('users')->where('activation_code', $code )->first();
-        if( ! $data ) return redirect( "/" );
-    }
-    $this['activation_code'] = $data->activation_code;
-    $this['ok_company_name'] = $data->ok_company_name;
-    $this['uri'] = trim( str_replace( rawurlencode($code), '', Request::path() ), '/' );
-
-    // Inject sample_products
-    $this['products'] = DB::table('operations.bp_suppliers')
-                        ->where('company_uid', $data->ok_company_id)
-                        ->lists('bp');
-//    foreach($products as $product){
-//        $this['sample_products'] .= $sample_products_counter.". $product<br \>\n";
-//        if ($sample_products_counter++ > 10) break;
-//    }
-
-    $this['number_products_found'] = count( $this['products'] );
-
-//    $sample_products_counter=1;$this['sample_products']="";
-//    foreach($products as $product){
-//        $this['sample_products'] .= $sample_products_counter.". $product<br \>\n";
-//        if ($sample_products_counter++ > 10) break;
-//    }
-}
-?>
+[addressoTemplate]
 ==
 <!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN"
    "http://www.w3.org/TR/html4/loose.dtd">
@@ -73,14 +42,14 @@ function onStart(){
                                 <tr>
                                     <td>
                                         <div style="font-family:Arial, Helvetica, sans-serif;font-size:12px;color:#7a7a7a;">
-                                            Trouble reading this email?<br>
-                                            <a class="link" href="/{{ uri }}/{{ activation_code }}">View it in your browser</a>.
+                                            Trouble reading this email?
+                                            <a class="link" href="{browser_url}">View it in your browser</a>.
                                         </div>
                                     </td>
                                     <td align="right">
                                         <div style="font-family:Arial,Helvetica,sans-serif;font-size:12px;color:#7a7a7a;text-align:right">
                                     Not interested?
-                                            <a class="link" href="/45f308f54294bb5bde189a5049952cf639acc16daf595a8c8e0226faeaf008b21a637780058480934ad6ff978c9e53e186b9af539600a6553f460eee7f2339f2/{{ activation_code }}">Unsubscribe here</a>.
+                                            <a class="link" href="{unsubscribe_url}">Immediately unsubscribe here</a>.
                                         </div>
                                     </td>
                                 </tr>
@@ -113,25 +82,24 @@ function onStart(){
                                     <td>
                                         <div style="font-size:12px;color:#333;font-family:Helvetica,Arial,sans-serif;">
                                             <div style="padding-top:10px">
-                                                <h2 style="font-size:26px;color:#555;padding:0;margin:0;letter-spacing:-1px">{{ ok_company_name }}</h2>
+                                                <h2 style="font-size:26px;color:#555;padding:0;margin:0;letter-spacing:-1px">__company__</h2>
                                             </div>
-                                            <p style="font-size:16px;line-height:150%;font-weight:bold;color:#555;padding-top:15px;margin:5px">OKTicK - a new way to search for products and services using the direct search technique.</p>
+                                            <p style="font-size:16px;line-height:150%;font-weight:bold;color:#555;padding-top:15px;margin:5px">
+                                                Well yes we are!
+                                            </p>
                                             <div style="font-size:16px;line-height:150%;font-weight:normal;color:#555;padding-top:15px;padding-bottom:15px;margin:5px">
-                                                Our automated system has determined that the items below are some of the goods and/or services you are supplying:<br><br>
-                                                {% set count = 0 %}
-                                                {% for product in products %}
-                                                {% set count = count + 1 %}
-                                                    {{count}}. {{ product }}<br>
-                                                {% endfor %}
-
-                                                {{ sample_products }}<br>
-                                                We found a total of {{ number_products_found }} products or services being supplied by your company and they are now available on the OKTicK search engine.<br><br>
-                                                OKTicK is free to be on for all legitimate suppliers. Just by accepting this invitation alone you will improve the standings of your products &amp; services in search results.<br>
+                                                We know that advertising is vital and without it our businesses will eventually shrink.<br>
+                                                Old customers go away or out of business and we must advertise to get that vital new business.<br>
+                                                We also know that in today's climate our advertising has to include the internet.<br>
+                                                But here's the snag - do you find you are bleeding money as you try to do your online advertising?<br>
+                                                Is your internet advertising budget now out of range?<br>
+                                                Do you find you now spend more on your advertising that you get back out of it? That all too often it runs at a loss?<br>
+                                                Your choices, you find, are more limited than they were, as well as overly expensive?<br>
+                                                You may not know this yet but there is another way to make your business known online. OKTicK.<br>
+                                                Frequently you can raise your business on OKTicK lists by simply registering alone or for the cost of pence per week.<br>
+                                                We invite you to take a look to see how it works and how easy it is to use. .<br>
                                             </div>
-                                            <table align="center" style="border-collapse:separate!important;border:2px solid #F2F2F2;border-radius: 4px;background-color: #2A62AF;table-layout: fixed;mso-table-lspace: 0pt;mso-table-rspace: 0pt;-ms-text-size-adjust: 100%;-webkit-text-size-adjust: 100%;" border="0" cellpadding="0" cellspacing="0"><tbody><tr><td style="font-family: Arial;font-size: 16px;padding: 20px;mso-table-lspace: 0pt;mso-table-rspace: 0pt;-ms-text-size-adjust: 100%;-webkit-text-size-adjust: 100%;" align="center" valign="middle"><a class="mcnButton " title="Accept-Invitation" href="https://www.oktick.com/{{ activation_code }}" target="_blank" style="font-weight: bold;letter-spacing: normal;line-height: 100%;text-align: center;text-decoration: none;color: #fff;word-wrap: break-word;-ms-text-size-adjust: 100%;-webkit-text-size-adjust: 100%;display: block;">Accept the Invitation!</a></td></tr></tbody></table>
-                                            <div style="font-size:16px;line-height:150%;font-weight:normal;color:#555;padding-top:15px;margin:5px">
-                                        Once you accept the invitation you will be able to view, edit and add to the entire list of the products and services we have found for your company and to represent your companies products and services to potential customers.
-                                            </div>
+                                            <table align="center" style="border-collapse:separate!important;border:2px solid #F2F2F2;border-radius: 4px;background-color: #2A62AF;table-layout: fixed;mso-table-lspace: 0pt;mso-table-rspace: 0pt;-ms-text-size-adjust: 100%;-webkit-text-size-adjust: 100%;" border="0" cellpadding="0" cellspacing="0"><tbody><tr><td style="font-family: Arial;font-size: 16px;padding: 20px;mso-table-lspace: 0pt;mso-table-rspace: 0pt;-ms-text-size-adjust: 100%;-webkit-text-size-adjust: 100%;" align="center" valign="middle"><a class="mcnButton " title="Accept-Invitation" href="https://www.oktick.com/activation/__accept_invite_code__" target="_blank" style="font-weight: bold;letter-spacing: normal;line-height: 100%;text-align: center;text-decoration: none;color: #fff;word-wrap: break-word;-ms-text-size-adjust: 100%;-webkit-text-size-adjust: 100%;display: block;">Accept the Invitation!</a></td></tr></tbody></table>
                                             <br>
                                         </div>
                                     </td>
