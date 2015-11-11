@@ -5,12 +5,12 @@ is_hidden = 0
 ==
 <?php
 function onInit(){
-    if( ! $this->param('activationcode')) return;
     $code = $this['activationcode'] = $this->param('activationcode');
+    if( ! $code ) return;
     if (ends_with($code, '.png')) $code = substr($code, 0, -4);
     if ( ! $code) return;
     $parts = explode('!', base64_decode($code));
-    if (count($parts) = 3) {
+    if (count($parts) == 3) {
         list($campaignId, $userId, $hash) = $parts;
         $user = DB::table('users')->where('id', $userId )->first();
         $verifyValue = $campaignId.'!'.$userId;
@@ -19,7 +19,10 @@ function onInit(){
     } else {
         $user = DB::table('users')->where('activation_code', $code)->first();
     }
-    if($user->is_activated) return;
+    if($user->is_activated) {
+        Flash::success("User is active!");
+        return redirect( "/" );
+    }
     DB::table('users')->where('id', $user->id)->update(['is_activated' => 1]);
     $username = $user->username;
     $password = str_random(12);
