@@ -48,7 +48,7 @@ class Template extends ComponentBase
 
     public function onRun()
     {
-        if (!($code = $this->param('code')) || $code == 'default') {
+        if ( ! ($code = $this->param('code')) || $code == 'default') {
             $this->setStatusCode(404);
             return $this->controller->run('404');
         }
@@ -69,7 +69,7 @@ class Template extends ComponentBase
         }
 
         if (get('unsubscribe')) {
-            return $this->handleUnsubscribe();
+            return $this->handleUnsubscribe($code);
         }
 
         $this->markSubscriberAsRead();
@@ -166,7 +166,7 @@ class Template extends ComponentBase
         return '<html><head><title>Verification successful</title></head><body><h1>Email verification successful</h1><p></p></body></html>';
     }
 
-	protected function handleUnsubscribe() {
+	protected function handleUnsubscribe($code=false) {
 		if ( isset($this->subscriber->pivot) AND ! $this->subscriber->pivot->stop_at) {
         	$pivot = $this->subscriber->pivot;
         	$pivot->stop_at = $this->campaign->freshTimestamp();
@@ -182,10 +182,7 @@ class Template extends ComponentBase
 		} else {
             $already="done";
         }
-        $hash = base64_encode($this->subscriber->id.'!' . md5( env('APP_KEY') . $this->subscriber->id . '!' . $this->subscriber->email));
-
-        // @todo Template + Language
-    	return redirect('/unsubscribe/'.$hash.$already);
+    	return redirect('/unsubscribe/'.$code);
     }
 
     protected function renderTrackingPixel()
