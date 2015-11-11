@@ -1,0 +1,59 @@
+title = "Activation2"
+url = "/activate/:activation_code?"
+is_hidden = 0
+
+[account]
+paramCode = "code"
+==
+<?php
+function onStart(){
+    // https://ipi.oktick.com/activation/cdd60ea0045eb7a6ec44c54d29ed402f0b4341741c
+    $activation_code = $this->param('activation_code');
+    $user_id = "";
+    if($activation_code) {
+        // Get userid
+        $user_id = DB::table('users')->where('activation_code', $activation_code)->pluck('id');
+    }
+    if(!$user_id){
+        // code not valid
+        Flash::error("Activation Code Invalid");
+        return redirect("/",302);
+    }        
+        
+    return redirect("/$activation_code");
+}
+function getRandomBytes($nbBytes = 32)
+{
+    $bytes = openssl_random_pseudo_bytes($nbBytes, $strong);
+    if (false !== $bytes && true === $strong) {
+        return $bytes;
+    }
+    else {
+        throw new \Exception("Unable to generate secure token from OpenSSL.");
+    }
+}
+function generatePassword($length){
+    return substr(preg_replace("/[^a-zA-Z0-9]/", "", base64_encode($this->getRandomBytes($length+1))),0,$length);
+}
+?>
+==
+{% partial "head" %}
+{% partial "nav-top" %}
+<div class="container">
+<div class="row">
+    <div class="col-xs-0 col-md-3"></div>
+    <div class="col-xs-12 col-md-6">
+{% if user.is_activated %}
+        <h2 class="text-center">Account Activation</h2>
+        <p>Your account is now active!</p>
+        <p>Here is a link provided by the component: {% component 'account::activation_check' %}</p>
+        <p>Here is a plain link, see if it works: <a href="javascript:;" data-request="onSendActivationEmail">Send the verification email again</a>.</p>
+{% else %}
+        <p>Here is a link provided by the component: {% component 'account::activation_check' %}</p>
+        <p>Here is a plain link, see if it works: <a href="javascript:;" data-request="onSendActivationEmail">Send the verification email again</a>.</p>
+{% endif %}
+    <div class="col-xs-0 col-md-3"></div>
+</div>
+</div>
+{% partial "nav-bottom" %}
+{% partial "foot" %}
