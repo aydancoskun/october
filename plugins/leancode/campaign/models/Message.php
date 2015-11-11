@@ -233,7 +233,7 @@ class Message extends Model
         $data['last_name'] = $subscriber->last_name;
         $data['email'] = $subscriber->email;
         $data['unsubscribe_url'] = $this->getBrowserUrl($subscriber).'?unsubscribe=1';
-        $data['signup_url'] = $this->getBrowserUrl($subscriber).'?signup=1';
+        $data['signup_url'] = $this->getBrowserUrl($subscriber).'?activate=1';
         $data['browser_url'] = $this->getBrowserUrl($subscriber);
         $data['ok_company_name'] = $subscriber->ok_company_name;
         $data['ok_sample_products'] = $subscriber->ok_sample_products;

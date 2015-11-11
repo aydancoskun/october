@@ -56,6 +56,14 @@ class Template extends ComponentBase
         // Internal call
         if ($code == LARAVEL_START) return;
 
+        if (get('unsubscribe')) {
+            return $this->handleUnsubscribe($code);
+        }
+        if (get('activate')) {
+            return $this->handleActivate($code);
+        }
+
+
         // Verify subscription
         if (get('verify')) {
             return $this->handleVerify($code);
@@ -66,10 +74,6 @@ class Template extends ComponentBase
         }
         catch (Exception $ex) {
             return 'Invalid request!';
-        }
-
-        if (get('unsubscribe')) {
-            return $this->handleUnsubscribe($code);
         }
 
         $this->markSubscriberAsRead();
@@ -166,7 +170,13 @@ class Template extends ComponentBase
         return '<html><head><title>Verification successful</title></head><body><h1>Email verification successful</h1><p></p></body></html>';
     }
 
+	protected function handleActivate($code=false) {
+    	return redirect('/'.$code);
+    }
+
 	protected function handleUnsubscribe($code=false) {
+    	return redirect('/unsubscribe/'.$code);
+/*
 		if ( isset($this->subscriber->pivot) AND ! $this->subscriber->pivot->stop_at) {
         	$pivot = $this->subscriber->pivot;
         	$pivot->stop_at = $this->campaign->freshTimestamp();
@@ -183,6 +193,7 @@ class Template extends ComponentBase
             $already="done";
         }
     	return redirect('/unsubscribe/'.$code);
+*/
     }
 
     protected function renderTrackingPixel()
