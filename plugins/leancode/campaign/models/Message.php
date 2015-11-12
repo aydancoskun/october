@@ -240,7 +240,7 @@ class Message extends Model
         $data['ok_company_products_count'] = $subscriber->ok_company_products_count;
         $data['tracking_pixel'] = $this->getTrackingPixelImage($subscriber);
         $data['tracking_url'] = $this->getBrowserUrl($subscriber).'.png';
-
+//        echo $this->getBrowserUrl($subscriber)."\n";
         return $data;
     }
 
