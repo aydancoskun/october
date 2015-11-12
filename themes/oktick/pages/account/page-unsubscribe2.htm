@@ -1,5 +1,5 @@
 title = "Page Unsubscribe New"
-url = "/unsubscribe/:code"
+url = "/unsubscribe/:code?"
 layout = "main"
 is_hidden = 0
 ==
@@ -82,7 +82,7 @@ function onStart(){
                 <div class="row">
                     <div class="col-xs-0 col-md-4"></div>
                     <div class="col-xs-12 col-md-4">
-                        <a href="/activation/{{code}}" role="button" class="btn btn-primary center-block btn-lg">Reactivate me!</a>
+                        <a href="/activate/{{code}}" role="button" class="btn btn-primary center-block btn-lg">Reactivate me!</a>
                     </div>
                     <div class="col-xs-0 col-md-4"></div>
                 </div>

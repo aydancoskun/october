@@ -28,7 +28,10 @@ function onStart(){
         return redirect( "/" );
     }
     $verifyValue = $campaignId.'!'.$userId;
-    $verifyHash = md5( env('APP_KEY') . $verifyValue.'!'.$this->user->email);
+//    echo "userId=$userId<br>";
+//    var_dump($user);
+//    exit;
+    $verifyHash = md5( env('APP_KEY') . $verifyValue.'!'.$user->email);
     if ($hash != $verifyHash) {
         Flash::error("I'm sorry, Dave. I'm afraid I can't do that.(no such code: err 503)");
         return redirect( "/" );
