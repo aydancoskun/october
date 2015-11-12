@@ -93,12 +93,6 @@ class Subscriber extends Model
         return $subscriber;
     }
 
-    public function getUniqueCode()
-    {
-        $hash = md5( env('APP_KEY') . $this->id . '!' . $this->email);
-        return base64_encode($this->id.'!'.$hash);
-    }
-
     public function afterDelete()
     {
         $this->subscriber_lists()->detach();
