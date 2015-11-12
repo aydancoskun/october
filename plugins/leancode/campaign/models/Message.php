@@ -214,7 +214,7 @@ class Message extends Model
             'last_name'                 => "Publics's last name",
             'email'                     => "Publics's email address",
             'unsubscribe_url'           => "Link to unsubscribe from emails",
-            'signup_url'                => "Link to signup from emails",
+            'activate_url'              => "Link to activate from emails",
             'browser_url'               => "Link to open web-based version",
             'ok_company_name'           => "Company Name",
             'ok_sample_products'        => "Sample Products",
@@ -233,7 +233,7 @@ class Message extends Model
         $data['last_name'] = $subscriber->last_name;
         $data['email'] = $subscriber->email;
         $data['unsubscribe_url'] = $this->getBrowserUrl($subscriber).'?unsubscribe=1';
-        $data['signup_url'] = $this->getBrowserUrl($subscriber).'?activate=1';
+        $data['activate_url'] = $this->getBrowserUrl($subscriber).'?activate=1';
         $data['browser_url'] = $this->getBrowserUrl($subscriber);
         $data['ok_company_name'] = $subscriber->ok_company_name;
         $data['ok_sample_products'] = $subscriber->ok_sample_products;
@@ -359,7 +359,7 @@ class Message extends Model
         $data['last_name'] = 'Person';
         $data['email'] = 'test@email.tld';
         $data['unsubscribe_url'] = 'javascript:;';
-        $data['signup_url'] = 'javascript:;';
+        $data['activate_url'] = 'javascript:;';
         $data['browser_url'] = 'javascript:;';
         $data['ok_company_name'] = "Test Company Name";
         $data['ok_sample_products'] = "Test Sample Product 1<br>Test Sample Product 2";
