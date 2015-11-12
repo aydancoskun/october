@@ -236,7 +236,7 @@ class Message extends Model
         $data['activate_url'] = $this->getBrowserUrl($subscriber).'?activate=1';
         $data['browser_url'] = $this->getBrowserUrl($subscriber);
         $data['ok_company_name'] = $subscriber->ok_company_name;
-        $data['ok_sample_products'] = $subscriber->ok_sample_products;
+        $data['ok_sample_products'] = $this->getOkSampleProducts($subscriber);
         $data['ok_company_products_count'] = $subscriber->ok_company_products_count;
         $data['tracking_pixel'] = $this->getTrackingPixelImage($subscriber);
         $data['tracking_url'] = $this->getBrowserUrl($subscriber).'.png';
@@ -246,9 +246,10 @@ class Message extends Model
 
     public function getOkSampleProducts($subscriber)
     {
-        $src = $this->getBrowserUrl($subscriber).'.png';
-        return '<img src="'.$src.'" alt="" />';
+        // format here as needed
+        return $subscriber->ok_sample_products;
     }
+
 
     public function getTrackingPixelImage($subscriber)
     {
@@ -336,6 +337,8 @@ class Message extends Model
     {
         $theme = Theme::getEditTheme();
         $result = CmsController::render($page, ['code' => LARAVEL_START], $theme);
+        echo $result;
+        exit;
         return $result;
     }
 
