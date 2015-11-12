@@ -112,6 +112,8 @@ class Message extends Model
     public function getBrowserUrl($subscriber)
     {
         $code = $this->getUniqueCode($subscriber);
+        echo $code."<br>";
+        exit;
         return str_replace("ipi", "www", Page::url($this->page, ['code' => $code]));
     }
 
