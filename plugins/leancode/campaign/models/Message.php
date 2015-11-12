@@ -393,8 +393,12 @@ class Message extends Model
             $this->getTrackingPixelImage($subscriber) . PHP_EOL . '</body>',
             $result
         );
-        if (strpos(php_sapi_name(), 'cli') !== false)
+        if (strpos(php_sapi_name(), 'cli') !== false) {
+            var_dump($data);
             echo __FILE__.":".__LINE__." Subscriber $subscriber->email found \n";
+        }
+
+    	return $result;
 
 		/******************************************
 		/ start of my modifications
@@ -422,7 +426,6 @@ class Message extends Model
         // Inject number_products_found
         $result = str_replace('__number_products_found__',count($products),$result);
 */
-    	return $result;
 	}
 
 
