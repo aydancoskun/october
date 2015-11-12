@@ -185,6 +185,9 @@ class Messages extends Controller
                 'email'      => $user->email,
                 'first_name' => $user->first_name,
                 'last_name'  => $user->last_name,
+                'ok_company_name' => $user->ok_company_name,
+                'ok_sample_products' => $user->ok_sample_products,
+                'ok_company_products_count' => $user->ok_company_products_count,
             ]);
 
             CampaignManager::instance()->sendToSubscriber($model, $subscriber);

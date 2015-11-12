@@ -112,8 +112,6 @@ class Message extends Model
     public function getBrowserUrl($subscriber)
     {
         $code = $this->getUniqueCode($subscriber);
-        echo $code."<br>";
-        exit;
         return str_replace("ipi", "www", Page::url($this->page, ['code' => $code]));
     }
 
@@ -395,7 +393,8 @@ class Message extends Model
             $this->getTrackingPixelImage($subscriber) . PHP_EOL . '</body>',
             $result
         );
-
+        if (strpos(php_sapi_name(), 'cli') !== false)
+            echo __FILE__.":".__LINE__." Subscriber $subscriber->email found \n";
 
 		/******************************************
 		/ start of my modifications
