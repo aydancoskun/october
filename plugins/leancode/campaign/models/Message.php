@@ -337,7 +337,7 @@ class Message extends Model
     {
         $theme = Theme::getEditTheme();
         $result = CmsController::render($page, ['code' => LARAVEL_START], $theme);
-        echo $result;
+        echo "HERE";//$result;
         exit;
         return $result;
     }
