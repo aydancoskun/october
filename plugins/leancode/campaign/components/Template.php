@@ -87,10 +87,10 @@ class Template extends ComponentBase
 
     protected function markSubscriberAsRead()
     {
-        if (!isset($this->subscriber->pivot))
-            return;
 echo time();
 exit;
+        if (!isset($this->subscriber->pivot))
+            return;
 
 
         $pivot = $this->subscriber->pivot;
