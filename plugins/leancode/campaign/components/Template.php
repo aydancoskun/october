@@ -120,8 +120,8 @@ class Template extends ComponentBase
          * Render unique content for the subscriber
          */
         $this->campaign = Message::find((int) $campaignId);
-#        var_dump($this->campaign);
-#        exit;
+        var_dump($this->campaign);
+        exit;
 
         $this->subscriber = $this->campaign->subscribers()
             ->where('id', (int) $subscriberId)
