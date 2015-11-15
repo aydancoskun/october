@@ -113,23 +113,23 @@ class Template extends ComponentBase
         }
 
         list($campaignId, $subscriberId, $hash) = $parts;
-#        echo "campaignId=$campaignId<br>";
-#        echo "subscriberId=$subscriberId<br>";
-#        echo "hash=$hash<br>";
+//        echo "campaignId=$campaignId<br>";
+//        echo "subscriberId=$subscriberId<br>";
+//        echo "hash=$hash<br>";
         /*
          * Render unique content for the subscriber
          */
-        $this->campaign = Message::find((int) $campaignId);
-        var_dump($this->campaign);
-        exit;
+//        $this->campaign = Message::find((int) $campaignId);
+//        var_dump($this->campaign);
+//        exit;
 
-        $this->subscriber = $this->campaign->subscribers()
-            ->where('id', (int) $subscriberId)
-            ->first();
+//        $this->subscriber = $this->campaign->subscribers()
+//            ->where('id', (int) $subscriberId)
+//            ->first();
 
-        if (!$this->subscriber) {
+//        if (!$this->subscriber) {
             $this->subscriber = Subscriber::find((int) $subscriberId);
-        }
+//        }
 
         if (!$this->campaign || !$this->subscriber) {
             throw new ApplicationException('Invalid code');
