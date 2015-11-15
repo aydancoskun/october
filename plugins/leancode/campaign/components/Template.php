@@ -78,9 +78,6 @@ class Template extends ComponentBase
 
         $this->markSubscriberAsRead();
 
-echo time();
-exit;
-
         if ($this->trackingMode) {
             return $this->renderTrackingPixel();
         }
@@ -92,6 +89,9 @@ exit;
     {
         if (!isset($this->subscriber->pivot))
             return;
+echo time();
+exit;
+
 
         $pivot = $this->subscriber->pivot;
         if ($pivot->read_at) return;
