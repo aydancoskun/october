@@ -113,14 +113,16 @@ class Template extends ComponentBase
         }
 
         list($campaignId, $subscriberId, $hash) = $parts;
-        echo "campaignId=$campaignId<br>";
-        echo "subscriberId=$subscriberId<br>";
-        echo "hash=$hash<br>";
-        exit;
+#        echo "campaignId=$campaignId<br>";
+#        echo "subscriberId=$subscriberId<br>";
+#        echo "hash=$hash<br>";
         /*
          * Render unique content for the subscriber
          */
         $this->campaign = Message::find((int) $campaignId);
+#        var_dump($this->campaign);
+#        exit;
+
         $this->subscriber = $this->campaign->subscribers()
             ->where('id', (int) $subscriberId)
             ->first();
