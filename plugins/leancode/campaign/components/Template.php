@@ -124,11 +124,11 @@ class Template extends ComponentBase
 //        $this->campaign = Message::find((int) $campaignId);
 //        var_dump($this->campaign);
 //        exit;
-        $this->subscriber = DB::table('leancode_campaign_subscribers')->where('id', (int) $subscriberId)->first();
+//        $this->subscriber = DB::table('leancode_campaign_subscribers')->where('id', (int) $subscriberId)->first();
 
-//        $this->subscriber = $this->campaign->subscribers()
-//            ->where('id', (int) $subscriberId)
-//            ->first();
+        $this->subscriber = $this->campaign->subscribers()
+            ->where('id', (int) $subscriberId)
+            ->first();
 
         if (!$this->subscriber) {
             $this->subscriber = Subscriber::find((int) $subscriberId);
