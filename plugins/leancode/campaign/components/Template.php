@@ -113,7 +113,10 @@ class Template extends ComponentBase
         }
 
         list($campaignId, $subscriberId, $hash) = $parts;
-
+        echo "campaignId=$campaignId<br>";
+        echo "subscriberId=$subscriberId<br>";
+        echo "hash=$hash<br>";
+        exit;
         /*
          * Render unique content for the subscriber
          */
