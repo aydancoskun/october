@@ -75,8 +75,6 @@ class Template extends ComponentBase
         catch (Exception $ex) {
             return 'Invalid request!';
         }
-echo time();
-exit;
 
         $this->markSubscriberAsRead();
 
