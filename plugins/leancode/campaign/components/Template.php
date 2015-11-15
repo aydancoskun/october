@@ -76,7 +76,8 @@ class Template extends ComponentBase
         catch (Exception $ex) {
             return 'Invalid request!';
         }
-
+echo time();
+exit;
         $this->markSubscriberAsRead();
 
         if ($this->trackingMode) {
@@ -151,8 +152,6 @@ class Template extends ComponentBase
         if ($hash != $verifyHash) {
             throw new ApplicationException('Invalid hash');
         }
-        echo "verifyHash=$verifyHash = $hash";
-        exit;
     }
 
     protected function handleVerify($code)
