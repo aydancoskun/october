@@ -131,7 +131,7 @@ exit;
 //        var_dump($this->campaign);
 //        echo "<br><br><br><br>";
 //        exit;
-        $this->subscriber = DB::table('leancode_campaign_subscribers')->where('id', (int) $subscriberId)->first();
+//        $this->subscriber = DB::table('leancode_campaign_subscribers')->where('id', (int) $subscriberId)->first();
 //        var_dump($this->subscriber);
 //        echo "<br><br><br><br>";
 //        exit;
