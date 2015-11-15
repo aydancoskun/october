@@ -148,11 +148,11 @@ class Template extends ComponentBase
         $verifyValue = $campaignId.'!'.$subscriberId;
         $verifyHash = md5( env('APP_KEY') . $verifyValue.'!'.$this->subscriber->email);
 
-        echo "verifyHash=$verifyHash = $hash";
-        exit;
         if ($hash != $verifyHash) {
             throw new ApplicationException('Invalid hash');
         }
+        echo "verifyHash=$verifyHash = $hash";
+        exit;
     }
 
     protected function handleVerify($code)
