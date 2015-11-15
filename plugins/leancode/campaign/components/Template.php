@@ -89,9 +89,6 @@ class Template extends ComponentBase
     {
         if (!isset($this->subscriber->pivot))
             return;
-//echo time();
-//exit;
-
 
         $pivot = $this->subscriber->pivot;
         if ($pivot->read_at) return;
