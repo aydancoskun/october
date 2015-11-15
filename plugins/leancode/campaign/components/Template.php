@@ -73,7 +73,7 @@ class Template extends ComponentBase
             $this->validateCampaignCode($code);
         }
         catch (Exception $ex) {
-            return 'Invalid request 2!';
+            return 'Invalid request!';
         }
 
         $this->markSubscriberAsRead();
@@ -123,13 +123,13 @@ class Template extends ComponentBase
 //        var_dump($this->campaign);
 //        exit;
 
-//        $this->subscriber = $this->campaign->subscribers()
-//            ->where('id', (int) $subscriberId)
-//            ->first();
+        $this->subscriber = $this->campaign->subscribers()
+            ->where('id', (int) $subscriberId)
+            ->first();
 
-//        if (!$this->subscriber) {
+        if (!$this->subscriber) {
             $this->subscriber = Subscriber::find((int) $subscriberId);
-//        }
+        }
 
         if (!$this->campaign || !$this->subscriber) {
             throw new ApplicationException('Invalid code');
