@@ -8,8 +8,8 @@ use ApplicationException;
 use Cms\Classes\ComponentBase;
 use Leancode\Campaign\Models\Message;
 use Leancode\Campaign\Models\Subscriber;
-use DB;
 use Exception;
+use DB;
 
 class Template extends ComponentBase
 {
@@ -121,7 +121,7 @@ class Template extends ComponentBase
         /*
          * Render unique content for the subscriber
          */
-        $this->campaign = Message::find((int) $campaignId);
+//        $this->campaign = Message::find((int) $campaignId);
 //        var_dump($this->campaign);
 //        exit;
         $this->subscriber = DB::table('leancode_campaign_subscribers')->where('id', (int) $subscriberId)->first();
