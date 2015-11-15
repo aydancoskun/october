@@ -8,6 +8,7 @@ use ApplicationException;
 use Cms\Classes\ComponentBase;
 use Leancode\Campaign\Models\Message;
 use Leancode\Campaign\Models\Subscriber;
+use DB;
 use Exception;
 
 class Template extends ComponentBase
