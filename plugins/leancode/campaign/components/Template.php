@@ -121,14 +121,10 @@ class Template extends ComponentBase
         /*
          * Render unique content for the subscriber
          */
-//        $this->campaign = Message::find((int) $campaignId);
+        $this->campaign = Message::find((int) $campaignId);
 //        var_dump($this->campaign);
 //        exit;
         $this->subscriber = DB::table('leancode_campaign_subscribers')->where('id', (int) $subscriberId)->first();
-        var_dump($this->subscriber);
-        exit;
-
-//        $result = str_replace('__company__',$data->ok_company_name,$result);
 
 //        $this->subscriber = $this->campaign->subscribers()
 //            ->where('id', (int) $subscriberId)
