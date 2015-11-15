@@ -71,6 +71,8 @@ class Template extends ComponentBase
 
         try {
             $this->validateCampaignCode($code);
+echo time();
+exit;
         }
         catch (Exception $ex) {
             return 'Invalid request!';
