@@ -130,9 +130,9 @@ class Template extends ComponentBase
 //        echo "<br><br><br><br>";
 //        exit;
 
-//        $this->subscriber = $this->campaign->subscribers()
-//            ->where('id', (int) $subscriberId)
-//            ->first();
+        $this->subscriber = $this->campaign->subscribers()
+            ->where('id', (int) $subscriberId)
+            ->first();
 
         if (!$this->subscriber) {
             $this->subscriber = Subscriber::find((int) $subscriberId);
