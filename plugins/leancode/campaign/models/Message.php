@@ -395,7 +395,7 @@ class Message extends Model
             $result
         );
         if (strpos(php_sapi_name(), 'cli') !== false) {
-            var_dump($data);
+//            var_dump($data);
             echo __FILE__.":".__LINE__." Subscriber $subscriber->email found \n";
         }
 
