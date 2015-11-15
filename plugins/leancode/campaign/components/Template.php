@@ -73,7 +73,7 @@ class Template extends ComponentBase
             $this->validateCampaignCode($code);
         }
         catch (Exception $ex) {
-            return 'Invalid request!';
+            return 'Invalid request 2!';
         }
 
         $this->markSubscriberAsRead();
