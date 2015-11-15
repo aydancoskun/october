@@ -9,7 +9,6 @@ use Cms\Classes\ComponentBase;
 use Leancode\Campaign\Models\Message;
 use Leancode\Campaign\Models\Subscriber;
 use Exception;
-use DB;
 
 class Template extends ComponentBase
 {
@@ -76,9 +75,11 @@ class Template extends ComponentBase
         catch (Exception $ex) {
             return 'Invalid request!';
         }
+
+        $this->markSubscriberAsRead();
+
 echo time();
 exit;
-        $this->markSubscriberAsRead();
 
         if ($this->trackingMode) {
             return $this->renderTrackingPixel();
