@@ -126,9 +126,9 @@ class Template extends ComponentBase
 //        echo "<br><br><br><br>";
 //        exit;
         $this->subscriber = DB::table('leancode_campaign_subscribers')->where('id', (int) $subscriberId)->first();
-        var_dump($this->subscriber);
-        echo "<br><br><br><br>";
-        exit;
+//        var_dump($this->subscriber);
+//        echo "<br><br><br><br>";
+//        exit;
 
 //        $this->subscriber = $this->campaign->subscribers()
 //            ->where('id', (int) $subscriberId)
