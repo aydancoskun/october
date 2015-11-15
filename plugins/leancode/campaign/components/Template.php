@@ -142,12 +142,6 @@ class Template extends ComponentBase
             throw new ApplicationException('Invalid code');
         }
 
-        var_dump($this->campaign);
-        echo "<br><br><br><br>";
-        var_dump($this->subscriber);
-        echo "<br><br><br><br>";
-        exit;
-
         /*
          * Verify unique hash
          */
