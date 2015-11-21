@@ -80,7 +80,7 @@ function onGetEstimatedPosition(){
         $dbr = DB::select($sql);
 
         $bp_high = (isset($dbr[0])  ? $dbr[0]->bp_high : 0);
-        if ($bp_high > 50) return ['estimatedPosition' => "None"];
+        if ($bp_high > 50) return ['estimatedPosition' => "--------"];
         if ($bp_high > 25) return ['estimatedPosition' => "Top 50"];
         if ($bp_high > 20) return ['estimatedPosition' => "Top 25"];
         if ($bp_high > 15) return ['estimatedPosition' => "Top 20"];
