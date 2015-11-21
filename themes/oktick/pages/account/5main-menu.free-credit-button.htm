@@ -19,20 +19,69 @@ function onInit() {
 }
 
 function onStart() {
-    if (! Auth::check()) {
-        return redirect("/".$this['activationcode']);
+    $code = $this['activationcode'] = $this->param('activationcode');
+    if( ! $code ) {
+        // no code
+        Flash::error("Sorry, no Activation Code Found");
+        return redirect("/");
     }
+    if (ends_with($code, '.png')) $code = substr($code, 0, -4);
+    if ( ! $code) return;
     $user=Auth::getUser();
-
+    $parts = explode('!', base64_decode($code));
+    if (count($parts) == 3) {
+        list($campaignId, $userId, $hash) = $parts;
+        if ( ! $user OR $user->id <> $userId) {
+            // code not valid
+            Flash::error("Activation Code Invalid (err30)");
+            return redirect("/");
+        }
+        $verifyValue = $campaignId.'!'.$userId;
+        $verifyHash = md5( env('APP_KEY') . $verifyValue.'!'.$user->email);
+        if ($hash != $verifyHash) {
+            // code not valid
+            Flash::error("Activation Code Invalid (err37)");
+            return redirect("/");
+        }
+    }
+    if ( ! $user) {
+        // code not valid
+        Flash::error("Activation Code Invalid (err45)");
+        return redirect("/");
+    }
     if( $user->ok_credits ){
         Flash::error("Sorry you already took advantage of this offer.");
         return redirect("/account/ranking/".$this['activationcode']);
     }
-    if( $this['activationcode'] <> $user->activation_code){
-        // code not valid
-        Flash::error("Activation Code Invalid");
-        return redirect("/");
+    
+    $company = DB::table('operations.companies')->where('uid',$user->ok_company_id)->first();
+
+    if( ! $company->company_name_edited ) {
+        DB::table('operations.companies')
+            ->where('uid', $user->ok_company_id)
+            ->update(array(
+                'company_name_edited' => $company->company_name,
+            ));
     }
+    if( ! $company->vendor_data_edited ) {
+        DB::table('operations.companies')
+            ->where('uid', $user->ok_company_id)
+            ->update(array(
+                'vendor_data_edited' => $company->vendor_data,
+        ));
+    }
+
+    if( ! isset($_POST['ok_company_name']) AND ! $user->ok_company_name ) {
+        if($company->company_name_edited) $user->ok_company_name = $company->company_name_edited;
+        else $user->ok_company_name = $company->company_name;
+        $user->save();
+    }
+    if( ! isset($_POST['ok_vendor_data']) AND ! $user->ok_vendor_data ) {
+        if( $company->vendor_data_edited ) $user->ok_vendor_data = $company->vendor_data_edited;
+        else $user->ok_vendor_data = $company->vendor_data;
+        $user->save();
+    }
+
     if( !isset($_POST['new-password-1']) OR !isset($_POST['new-password-2']) OR !isset($_POST['ok_vendor_data']) OR !isset($_POST['ok_company_name'])) {
         return;
     }
@@ -56,44 +105,36 @@ function onStart() {
     $ok_company_name = $this->verifyPost('ok_company_name',"string");
     $ok_vendor_data = $this->verifyPost('ok_vendor_data',"string");
 
-    $user=Auth::getUser();
-    //if($user->ok_company_products_count <= 3) $offer = 5;
-    //elseif($user->ok_company_products_count < 10) $offer = 10;
-    //elseif($user->ok_company_products_count >= 10) $offer = 20;
-    $user->ok_credits = $user->ok_free_credits;
-    $user->password = $new_password;
-    $user->password_confirmation = $new_password;
-    $user->ok_company_name = $ok_company_name;
-    $user->ok_vendor_data = $ok_vendor_data;
-    $user->ok_free_credits_datetime = date( 'Y-m-d H:i:s' );
+    $company_country="";
+    if(strpos(strtolower($company->company_website_url),"uk")!==false) $company->company_country="uk";
+    if(strpos(strtolower($ok_company_name),"uk")!==false) $company->company_country="uk";
 
-    $user->save();
-    //$user->ok_company_name = $ok_company_name;
-    //$user->ok_vendor_data = $ok_vendor_data;
-    Auth::login($user->reload(), true);
     try {
 DB::beginTransaction();
-        $ok_company_id=$user->ok_company_id;
-        $company_website_url = DB::table('operations.companies')->where('uid', $ok_company_id)->pluck('company_website_url');
-        $company_name = DB::table('operations.companies')->where('uid', $ok_company_id)->pluck('company_name');
-        $company_country="";
-        if(strpos(strtolower($company_website_url),"uk")!==false) $company_country="uk";
-        if(strpos(strtolower($company_name),"uk")!==false) $company_country="uk";
-
+        $user->ok_credits = $user->ok_free_credits;
+        $user->password = $new_password;
+        $user->password_confirmation = $new_password;
+        $user->ok_company_name = $ok_company_name;
+        $user->ok_vendor_data = $ok_vendor_data;
+        $user->ok_free_credits_datetime = date( 'Y-m-d H:i:s' );
+        $user->save();
         DB::table('operations.companies')
-            ->where('uid', $ok_company_id)
-            ->update(array(
-                'signup_completed' => 1,
-                'company_country' => $company_country,
+        ->where('uid', $user->ok_company_id)
+        ->update(array(
+            'company_name_edited' => $ok_company_name,
+            'vendor_data_edited' => $ok_vendor_data,
+            'signup_completed' => 1,
+            'company_country' => $company_country,
         ));
         $score=6;
         if($company_country=="uk") $score=7;
         DB::table('operations.bp_supplier_positions')
-            ->where('company_id', $ok_company_id)
+            ->where('company_id', $user->ok_company_id)
             ->update(array(
                 'bp_position' => DB::raw("floor(bp_position/10)*10 + $score"),
         ));
-    DB::commit();
+DB::commit();
+        Auth::login($user->reload(), true);
         Flash::success("Thank you. $user->ok_free_credits Credits added!");
         return redirect("/account/ranking/".$this['activationcode']);
     } catch (Exception $e) {

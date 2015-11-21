@@ -93,7 +93,6 @@ function onProductDelete(){
         return ['status' => 'error','message' => 'Product could not be deleted! (err: CR)','log' => [  'err: CR' => $bp_id,],];
     }
 
-
     // EXIT if there is no product
     $sql=   "SELECT ".
             "uid, ".
@@ -143,6 +142,7 @@ function onProductDelete(){
         ));
 
     DB::table('operations.bp_suppliers')->where('uid',$dbr[0]->uid)->delete();
+    DB::table('operations.bp_supplier_positions')->where(array('bp_id'=>$bp_id,'company_id'=>$user->ok_company_id))->delete();
     $user->ok_company_products_count = $user->ok_company_products_count-1;
     $user->save();
     DB::commit();
@@ -150,6 +150,15 @@ function onProductDelete(){
     return ['status' => 'success','message' => 'Product Deleted!','log' => [  'Deleted Product ID' => $bp_id,],];
 }
 
+function make_company_website_url($url,$proto,$www){
+    if( ! $url) return false;
+    if(strpos($url,"http")!==false) return $url;
+    if(!$proto) $final_url = "http://";
+    else $final_url = $proto."://";
+    if(!$www) $final_url .= $url;
+    else $final_url .= $www.".".$url;
+    return $final_url;
+}
 function onProductAdd(){
     if (! Auth::check()) {
         return redirect("/".$this['activationcode']);
@@ -157,10 +166,8 @@ function onProductAdd(){
     $user = Auth::getUser();
     $now = time();
     $bp_name = $this->verifyPost('bp_name',"string");
-    $bp_id = DB::table('operations.bps')->where('bp',$bp_name)->pluck('bp_uid');
-
-    if( ! $bp_id) $bp_id = 0;
-
+    
+    $bp = DB::table('operations.bps')->where('bp',$bp_name)->pluck('bp_uid');
     // EXIT if app in DEVELOPMENT
 /*
     if( env("APP_ENV") == "development" OR env("APP_ENV") <> "production" ){
@@ -171,31 +178,75 @@ function onProductAdd(){
         ];
     }
 */
-    try {
 
-        DB::table('operations.bp_suppliers_added')
-            ->insert(array(
-                'bp_name' => $bp_name,
-                'company_uid' => $user->ok_company_id,
-                'status' => 'Pending verification',
-                'bp_uid' => $bp_id,
-                'user_id' => $user->id,)
-            );
-    }
-    catch(Exception $e) {
-        \Debugbar::info("insert = ".$e->getMessage());
-    return [
-        'status' => 'error',
-        'message' => $e->getMessage(),
-        'log' => [ 'Product Name' => $bp_name, 'error'=>$e->getMessage(),],
-    ];
-    }
+    if( ! $bp){
+        try {
+            $company = DB::table('operations.companyies')->where('uid',$user->ok_company_id)->first();
+            DB::table('operations.bp_suppliers_added')
+                ->insert(array(
+                    'bp_name' => $bp_name,
+                    'company_uid' => $user->ok_company_id,
+                    'status' => 'Pending verification',
+                    'bp_uid' => 0,
+                    'user_id' => $user->id,)
+                );
+        }
+        catch(Exception $e) {
+            \Debugbar::info("co add new bp failed= ".$e->getMessage());
+            return [
+                'status' => 'error',
+                'message' => $e->getMessage(),
+                'log' => [ 'Product Name' => $bp_name, 'error'=>$e->getMessage(),],
+            ];
+        }
+        return [
+            'status' => 'success',
+            'message' => 'New Product added to queubject to verification by our research team',
+            'log' => [ 'Product Name' => $bp_name,],
+        ];
+    } else {
+        try {
+            DB::table('operations.bp_suppliers_added')
+                ->insert(array(
+                    'bp_name' => $bp->bp,
+                    'company_uid' => $user->ok_company_id,
+                    'status' => 'Pending verification',
+                    'bp_uid' => $bp->bp_uid,
+                    'user_id' => $user->id,)
+                );
+            $company = DB::table('operations.companyies')->where('uid',$user->ok_company_id)->first();
+            $company_website_url = $this->make_company_website_url($company->company_website_url,$company->company_website_proto,$company->company_website_www);
+            if( ! $company_website_url) throw new Exception("No website url for your company");
+            DB::table('operations.bp_suppliers')
+                ->insert(array(
+                    'trawling_rule_no' => 99,
+                    'company_website_url' => $company_website_url,
+                    'same_name_flag' => $dbr[0]->same_name_flag,
+                    'jump_flag' => $dbr[0]->jump_flag,
+                    'sing' => $dbr[0]->sing,
+                    'prime_uid' => $dbr[0]->prime_uid,
+                    'company_uid' => $user->ok_company_id,
+                    'bp_uid' => $bp->$bp_uid,
+                    'user_id' => $user->id,)
+                );
 
-    return [
-        'status' => 'success',
-        'message' => 'Product added but subject to verification by our research team',
-        'log' => [ 'Product Name' => $bp_name,],
-    ];
+            DB::table('operations.bp_suppliers')->where('uid',$dbr[0]->uid)->delete();
+            DB::table('operations.bp_supplier_positions')->where(array('bp_id'=>$bp->bp_uid,'company_id'=>$user->ok_company_id))->delete();
+        }
+        catch(Exception $e) {
+            \Debugbar::info("co add bp failed= ".$e->getMessage());
+            return [
+                'status' => 'error',
+                'message' => $e->getMessage(),
+                'log' => [ 'Product Name' => $bp_name, 'error'=>$e->getMessage(),],
+            ];
+        }
+            return [
+            'status' => 'success',
+            'message' => 'Product was added',
+            'log' => [ 'Product Name' => $bp_name,],
+        ];
+    }
 }
 ?>
 ==

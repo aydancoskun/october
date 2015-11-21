@@ -235,12 +235,12 @@
         "source": {
             "type": "git",
             "url": "https://github.com/octobercms/library.git",
-            "reference": "01bf7d15662b3910c8e59947dadaa3b0ad98b66e"
+            "reference": "d343f0964a1dcfbee29b2665c58eb28ba5c65b91"
         },
         "dist": {
             "type": "zip",
-            "url": "https://api.github.com/repos/octobercms/library/zipball/01bf7d15662b3910c8e59947dadaa3b0ad98b66e",
-            "reference": "01bf7d15662b3910c8e59947dadaa3b0ad98b66e",
+            "url": "https://api.github.com/repos/octobercms/library/zipball/d343f0964a1dcfbee29b2665c58eb28ba5c65b91",
+            "reference": "d343f0964a1dcfbee29b2665c58eb28ba5c65b91",
             "shasum": ""
         },
         "require": {
@@ -283,7 +283,7 @@
             "symfony/config": "2.5.*",
             "symfony/translation": "2.5.*"
         },
-        "time": "2015-10-17 06:53:56",
+        "time": "2015-11-13 21:15:19",
         "type": "library",
         "extra": {
             "branch-alias": {
@@ -328,12 +328,12 @@
         "source": {
             "type": "git",
             "url": "https://github.com/octoberrain/system.git",
-            "reference": "5b4f47ba0a0ffca872196bf72004193796368370"
+            "reference": "d038448df36270792eed73cb0d68223ff8bb255f"
         },
         "dist": {
             "type": "zip",
-            "url": "https://api.github.com/repos/octoberrain/system/zipball/5b4f47ba0a0ffca872196bf72004193796368370",
-            "reference": "5b4f47ba0a0ffca872196bf72004193796368370",
+            "url": "https://api.github.com/repos/octoberrain/system/zipball/d038448df36270792eed73cb0d68223ff8bb255f",
+            "reference": "d038448df36270792eed73cb0d68223ff8bb255f",
             "shasum": ""
         },
         "require": {
@@ -341,7 +341,7 @@
             "october/rain": "~1.0",
             "php": ">=5.4.0"
         },
-        "time": "2015-10-18 01:00:20",
+        "time": "2015-11-09 23:36:58",
         "type": "october-module",
         "extra": {
             "branch-alias": {
@@ -383,12 +383,12 @@
         "source": {
             "type": "git",
             "url": "https://github.com/octoberrain/backend.git",
-            "reference": "d45bc00a28d631951984dc135fe1cc64cc0d8a39"
+            "reference": "f41b7839dd61264026c186cae85208a1bb3d50c4"
         },
         "dist": {
             "type": "zip",
-            "url": "https://api.github.com/repos/octoberrain/backend/zipball/d45bc00a28d631951984dc135fe1cc64cc0d8a39",
-            "reference": "d45bc00a28d631951984dc135fe1cc64cc0d8a39",
+            "url": "https://api.github.com/repos/octoberrain/backend/zipball/f41b7839dd61264026c186cae85208a1bb3d50c4",
+            "reference": "f41b7839dd61264026c186cae85208a1bb3d50c4",
             "shasum": ""
         },
         "require": {
@@ -396,7 +396,7 @@
             "october/rain": "~1.0",
             "php": ">=5.4.0"
         },
-        "time": "2015-10-17 01:48:49",
+        "time": "2015-11-04 20:31:35",
         "type": "october-module",
         "extra": {
             "branch-alias": {
@@ -438,12 +438,12 @@
         "source": {
             "type": "git",
             "url": "https://github.com/octoberrain/cms.git",
-            "reference": "56daa985b006ba655349f17fd5ded9e2adb9094d"
+            "reference": "38e8e3d8aa16681614b3c903a8a97d02ac713e70"
         },
         "dist": {
             "type": "zip",
-            "url": "https://api.github.com/repos/octoberrain/cms/zipball/56daa985b006ba655349f17fd5ded9e2adb9094d",
-            "reference": "56daa985b006ba655349f17fd5ded9e2adb9094d",
+            "url": "https://api.github.com/repos/octoberrain/cms/zipball/38e8e3d8aa16681614b3c903a8a97d02ac713e70",
+            "reference": "38e8e3d8aa16681614b3c903a8a97d02ac713e70",
             "shasum": ""
         },
         "require": {
@@ -451,7 +451,7 @@
             "october/rain": "~1.0",
             "php": ">=5.4.0"
         },
-        "time": "2015-10-17 03:52:50",
+        "time": "2015-11-01 02:16:43",
         "type": "october-module",
         "extra": {
             "branch-alias": {
@@ -2767,86 +2767,6 @@
         ]
     },
     {
-        "name": "kriswallsmith/assetic",
-        "version": "v1.3.1",
-        "version_normalized": "1.3.1.0",
-        "source": {
-            "type": "git",
-            "url": "https://github.com/kriswallsmith/assetic.git",
-            "reference": "cb92b179dddfb8a3f341d53bd27e088f24d9c2e5"
-        },
-        "dist": {
-            "type": "zip",
-            "url": "https://api.github.com/repos/kriswallsmith/assetic/zipball/cb92b179dddfb8a3f341d53bd27e088f24d9c2e5",
-            "reference": "cb92b179dddfb8a3f341d53bd27e088f24d9c2e5",
-            "shasum": ""
-        },
-        "require": {
-            "php": ">=5.3.1",
-            "symfony/process": "~2.1"
-        },
-        "conflict": {
-            "twig/twig": "<1.12"
-        },
-        "require-dev": {
-            "cssmin/cssmin": "*",
-            "joliclic/javascript-packer": "*",
-            "kamicane/packager": "*",
-            "leafo/lessphp": "^0.3.7",
-            "leafo/scssphp": "*@dev",
-            "leafo/scssphp-compass": "*@dev",
-            "mrclay/minify": "*",
-            "patchwork/jsqueeze": "~1.0|~2.0",
-            "phpunit/phpunit": "~4.8",
-            "psr/log": "~1.0",
-            "ptachoire/cssembed": "*",
-            "symfony/phpunit-bridge": "~2.7",
-            "twig/twig": "~1.8|~2.0"
-        },
-        "suggest": {
-            "leafo/lessphp": "Assetic provides the integration with the lessphp LESS compiler",
-            "leafo/scssphp": "Assetic provides the integration with the scssphp SCSS compiler",
-            "leafo/scssphp-compass": "Assetic provides the integration with the SCSS compass plugin",
-            "patchwork/jsqueeze": "Assetic provides the integration with the JSqueeze JavaScript compressor",
-            "ptachoire/cssembed": "Assetic provides the integration with phpcssembed to embed data uris",
-            "twig/twig": "Assetic provides the integration with the Twig templating engine"
-        },
-        "time": "2015-10-15 01:33:42",
-        "type": "library",
-        "extra": {
-            "branch-alias": {
-                "dev-master": "1.4-dev"
-            }
-        },
-        "installation-source": "dist",
-        "autoload": {
-            "psr-0": {
-                "Assetic": "src/"
-            },
-            "files": [
-                "src/functions.php"
-            ]
-        },
-        "notification-url": "https://packagist.org/downloads/",
-        "license": [
-            "MIT"
-        ],
-        "authors": [
-            {
-                "name": "Kris Wallsmith",
-                "email": "kris.wallsmith@gmail.com",
-                "homepage": "http://kriswallsmith.net/"
-            }
-        ],
-        "description": "Asset Management for PHP",
-        "homepage": "https://github.com/kriswallsmith/assetic",
-        "keywords": [
-            "assets",
-            "compression",
-            "minification"
-        ]
-    },
-    {
         "name": "composer/installers",
         "version": "v1.0.22",
         "version_normalized": "1.0.22.0",
@@ -3363,6 +3283,85 @@
         "keywords": [
             "cache",
             "caching"
+        ]
+    },
+    {
+        "name": "kriswallsmith/assetic",
+        "version": "v1.3.2",
+        "version_normalized": "1.3.2.0",
+        "source": {
+            "type": "git",
+            "url": "https://github.com/kriswallsmith/assetic.git",
+            "reference": "9928f7c4ad98b234e3559d1049abd13387f86db5"
+        },
+        "dist": {
+            "type": "zip",
+            "url": "https://api.github.com/repos/kriswallsmith/assetic/zipball/9928f7c4ad98b234e3559d1049abd13387f86db5",
+            "reference": "9928f7c4ad98b234e3559d1049abd13387f86db5",
+            "shasum": ""
+        },
+        "require": {
+            "php": ">=5.3.1",
+            "symfony/process": "~2.1|~3.0"
+        },
+        "conflict": {
+            "twig/twig": "<1.23"
+        },
+        "require-dev": {
+            "cssmin/cssmin": "3.0.1",
+            "joliclic/javascript-packer": "1.1",
+            "kamicane/packager": "1.0",
+            "leafo/lessphp": "^0.3.7",
+            "leafo/scssphp": "~0.1",
+            "mrclay/minify": "~2.2",
+            "patchwork/jsqueeze": "~1.0|~2.0",
+            "phpunit/phpunit": "~4.8",
+            "psr/log": "~1.0",
+            "ptachoire/cssembed": "~1.0",
+            "symfony/phpunit-bridge": "~2.7|~3.0",
+            "twig/twig": "~1.8|~2.0"
+        },
+        "suggest": {
+            "leafo/lessphp": "Assetic provides the integration with the lessphp LESS compiler",
+            "leafo/scssphp": "Assetic provides the integration with the scssphp SCSS compiler",
+            "leafo/scssphp-compass": "Assetic provides the integration with the SCSS compass plugin",
+            "patchwork/jsqueeze": "Assetic provides the integration with the JSqueeze JavaScript compressor",
+            "ptachoire/cssembed": "Assetic provides the integration with phpcssembed to embed data uris",
+            "twig/twig": "Assetic provides the integration with the Twig templating engine"
+        },
+        "time": "2015-11-12 13:51:40",
+        "type": "library",
+        "extra": {
+            "branch-alias": {
+                "dev-master": "1.4-dev"
+            }
+        },
+        "installation-source": "dist",
+        "autoload": {
+            "psr-0": {
+                "Assetic": "src/"
+            },
+            "files": [
+                "src/functions.php"
+            ]
+        },
+        "notification-url": "https://packagist.org/downloads/",
+        "license": [
+            "MIT"
+        ],
+        "authors": [
+            {
+                "name": "Kris Wallsmith",
+                "email": "kris.wallsmith@gmail.com",
+                "homepage": "http://kriswallsmith.net/"
+            }
+        ],
+        "description": "Asset Management for PHP",
+        "homepage": "https://github.com/kriswallsmith/assetic",
+        "keywords": [
+            "assets",
+            "compression",
+            "minification"
         ]
     }
 ]

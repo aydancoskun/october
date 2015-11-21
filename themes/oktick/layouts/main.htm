@@ -3,19 +3,19 @@ security = "all"
 ==
 <?php
 function onInit() {
-    $debug = strtolower(Input::get("debug"));
-    if($debug=="ipiresearch") {
+    $debug = (gethostbyname("leancode.duckdns.org") == (isset($_SERVER['REMOTE_ADDR']) ? $_SERVER['REMOTE_ADDR'] : false) ? true : false);
+    //$debug = strtolower(Input::get("debug"));
+    if($debug) {
         Debugbar::enable();
-        Debugbar::addMessage($this->page->id, getHostByName(getHostName()));
-        Debugbar::addMessage($this->page->id, 'id');
-        Debugbar::addMessage($this->page->url, 'url');
-        Debugbar::addMessage($this->page->title, 'title');
-        Debugbar::addMessage($this->page->description, 'description');
-        Debugbar::addMessage($this->page->meta_title, 'meta_title');
-        Debugbar::addMessage($this->page->meta_description, 'meta_description');
-        Debugbar::addMessage($this->page->fileName, 'fileName');
-        Debugbar::addMessage($this->page->baseFileName, 'baseFileName');
-        Debugbar::addMessage($this->page->baseFileName, 'baseFileName');
+        Debugbar::addMessage("ip address:",getHostByName(getHostName()));
+        Debugbar::addMessage("page->id",$this->page->id);
+        Debugbar::addMessage("page->url",$this->page->url);
+        Debugbar::addMessage("page->title",$this->page->title);
+        if($this->page->description) Debugbar::addMessage("page->description",$this->page->description);
+        if($this->page->meta_title) Debugbar::addMessage("page->meta_title",$this->page->meta_title);
+        if($this->page->meta_description) Debugbar::addMessage("page->meta_description",$this->page->meta_description);
+        Debugbar::addMessage("page->fileName",$this->page->fileName);
+        Debugbar::addMessage("page->baseFileName",$this->page->baseFileName);
     } else {
         Debugbar::disable();
     }
@@ -42,13 +42,20 @@ function onStart() {
                 "WHERE ".
                     "bs.company_uid = $company_id";
         $this['products'] = DB::select($sql);
-        $bp_low=$this['products'][0]->bp_low;
-        $bp_high=$this['products'][0]->bp_high;
+        if(isset($this['products'][0]) ) {
+            $bp_low=$this['products'][0]->bp_low;
+            $bp_high=$this['products'][0]->bp_high;
+        } else {
+            $bp_low = 0;
+            $bp_high = 0;
+        }
         $company_products_count = count($this['products']);
         $sponored_products_count=0;
         foreach($this['products'] as $product){
             if($product->bp_credits > 0) $sponored_products_count++;
         }
+        //Debugbar::addMessage("company_products_count=".$company_products_count);
+        //Debugbar::addMessage("sponored_products_count=".$sponored_products_count);
         if($user->ok_company_products_count <>$company_products_count OR $user->ok_sponored_products_count <> $sponored_products_count){
             $user->ok_company_products_count = $company_products_count;
             $user->ok_sponored_products_count = $sponored_products_count;
@@ -58,6 +65,7 @@ function onStart() {
         return;
     } catch (Exception $e) {
         Debugbar::addMessage("No user found");
+        Debugbar::addMessage("Msg:".$e->getMessage());
     }
 }
 

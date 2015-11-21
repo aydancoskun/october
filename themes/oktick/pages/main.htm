@@ -20,7 +20,7 @@ function onInit(){
         $user = DB::table('users')->where('activation_code', $code)->first();
     }
     if($user->is_activated) {
-        Flash::success("User is active!");
+        Flash::success("User already activated, please log in!");
         return redirect( "/" );
     }
     DB::table('users')->where('id', $user->id)->update(['is_activated' => 1]);

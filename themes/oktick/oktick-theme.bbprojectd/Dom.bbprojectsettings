@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+	<key>EmbeddedEditorHidden:Dom</key>
+	<false/>
+	<key>ExpandedEditorWidth:Dom:displays([(0, 0), (1680, 1050)])</key>
+	<integer>850</integer>
+	<key>ExpandedItems:Dom</key>
+	<array/>
+	<key>FileFilterMode:Dom</key>
+	<integer>0</integer>
+	<key>OpenDocuments:Dom</key>
+	<array/>
+	<key>OpenDocumentsExpanded</key>
+	<true/>
+	<key>OpenDocumentsSplitterProportion</key>
+	<real>0.84551149606704712</real>
+	<key>ProjectViewVisible</key>
+	<true/>
+	<key>RecentItems:Dom</key>
+	<array/>
+	<key>ScratchpadItemsExpanded</key>
+	<true/>
+	<key>ScratchpadItemsVisible</key>
+	<true/>
+	<key>ShowSCMData:Dom</key>
+	<false/>
+	<key>ToolbarVisible:Dom</key>
+	<true/>
+	<key>ViewSplitterPosition:Dom</key>
+	<real>0.19296577572822571</real>
+	<key>WindowFrame:Dom:displays([(0, 0), (1680, 1050)])</key>
+	<string>rect(88,66,1046,1118)</string>
+</dict>
+</plist>

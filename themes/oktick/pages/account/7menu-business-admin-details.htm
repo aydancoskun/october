@@ -22,7 +22,8 @@ function onStart() {
 }
 
 function onSave() {
-    if (! Auth::check()) {
+    $user=Auth::getUser();
+    if (! $user ) {
         return redirect("/".$this['activationcode']);
     }
     // Collect input
@@ -67,19 +68,32 @@ function onSave() {
         return redirect('/account/company/'.$this['activationcode']);
 //        throw new ApplicationException($messages->first());
     }
-    DB::table('oktick.users')->where('id',Auth::getUser()->id)->update(
-                        array(
-                            'ok_company_name' => $Business_Name,
-                            'ok_vendor_data' => $Business_Description,
-                            'ok_invoice_name' => $ok_invoice_name,
-                            'ok_invoice_country' => $ok_invoice_country,
-                            'ok_invoice_address_1' => $ok_invoice_address_1,
-                            'ok_invoice_address_2' => $ok_invoice_address_2,
-                            'ok_invoice_city' => $ok_invoice_city,
-                            'ok_invoice_state' => $ok_invoice_state,
-                            'ok_invoice_zip' => $ok_invoice_zip,
-                            )
-    );
+    $user->ok_company_name = $Business_Name;
+    $user->ok_vendor_data = $Business_Description;
+    $user->ok_invoice_name = $ok_invoice_name;
+    $user->ok_invoice_country = $ok_invoice_country;
+    $user->ok_invoice_address_1 = $ok_invoice_address_1;
+    $user->ok_invoice_address_2 = $ok_invoice_address_2;
+    $user->ok_invoice_city = $ok_invoice_city;
+    $user->ok_invoice_state = $ok_invoice_state;
+    $user->ok_invoice_zip = $ok_invoice_zip;
+    $user->save();
+    DB::table('operations.companies')
+        ->where('uid', $user->ok_company_id)
+        ->update(array(
+            'company_name_edited' => $Business_Name,
+            'vendor_data_edited' => $Business_Description,
+            'company_country' => $ok_invoice_country,
+        ));
+    $score=6;
+    if($ok_invoice_country=="uk") $score=7;
+    DB::table('operations.bp_supplier_positions')
+        ->where('company_id', $user->ok_company_id)
+        ->update(array(
+            'bp_position' => DB::raw("floor(bp_position/10)*10 + $score"),
+        ));
+
+    
     Flash::success("Settings Saved.");
     return redirect('/account/company/'.$this['activationcode']);
 //    $to = System\Models\MailSettings::get('sender_email');
