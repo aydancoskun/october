@@ -167,7 +167,7 @@ function onProductAdd(){
     $now = time();
     $bp_name = $this->verifyPost('bp_name',"string");
     
-    $bp = DB::table('operations.bps')->where('bp',$bp_name)->pluck('bp_uid');
+    $bp = DB::table('operations.bps')->where('bp',$bp_name);
     // EXIT if app in DEVELOPMENT
 /*
     if( env("APP_ENV") == "development" OR env("APP_ENV") <> "production" ){
@@ -206,6 +206,7 @@ function onProductAdd(){
         ];
     } else {
         try {
+            \Debugbar::info("bp= ".$bp->bp_uid());
             DB::table('operations.bp_suppliers_added')
                 ->insert(array(
                     'bp_name' => $bp->bp,
@@ -266,8 +267,8 @@ function onProductAdd(){
             <p>{{"&nbsp;&nbsp;&nbsp;"|raw}}</p>
             <p>On this page you can see the list of all products or services we have on record for your business.</p>
             <p>If any are incorrect you can delete them using the delete <button type="button" class="btn btn-delete btn-danger btn-xs"><span class="glyphicon glyphicon-trash"></span></button> button and confirming your choice.</p>
-            <p>If you find products or services your business provides are missing from this list, you can add them using the first row. Just enter your item, select your choice from the list and click the <button class="btn btn-success btn-xs"><span class="glyphicon glyphicon-ok"></span></button> button. If you cannot find it on the standard list add it anyway writing it as you normally would. Please note we only accept generic or general designations; trade and service marks are not permitted. Ideally products and services should not be more than three to four words.</p>
-            <p>Each products and/or services you propose to add will be shown below your current products in a "Products & Services pending approval" section which appears when you have products pending approval. If you made an error you can delete any pending item. The reason items are not immediately available is because they have to be verified by the OKTicK Team which will be done as quickly as possible depending upon volume of traffic.</p>
+            <!--p>If you find products or services your business provides are missing from this list, you can add them using the first row. Just enter your item, select your choice from the list and click the <button class="btn btn-success btn-xs"><span class="glyphicon glyphicon-ok"></span></button> button. If you cannot find it on the standard list add it anyway writing it as you normally would. Please note we only accept generic or general designations; trade and service marks are not permitted. Ideally products and services should not be more than three to four words.</p>
+            <p>Each products and/or services you propose to add will be shown below your current products in a "Products & Services pending approval" section which appears when you have products pending approval. If you made an error you can delete any pending item. The reason items are not immediately available is because they have to be verified by the OKTicK Team which will be done as quickly as possible depending upon volume of traffic.</p-->
             <p>If you don't need this notice any further, click below. You can always re-enable it later by clicking the <span class="glyphicon-primary glyphicon glyphicon-question-sign"></span> sign.</p>
             <div class="text-center">
                 <button id="ok_help_productservices_off" class="btn btn-default btn-sm help"><span class="glyphicon glyphicon-primary glyphicon-thumbs-up"></span>&nbsp;Got it!</button>
@@ -283,7 +284,7 @@ function onProductAdd(){
 <div class="row">
     <!--div class="col-xs-1 col-md-1"></div>
     <div class="col-xs-10 col-md-10"-->
-        <table class="table table-bordered">
+        <!--table class="table table-bordered">
             <tr class="">
                 <th class="">Add Products & Services</th>
                 <th class="col-xs-1 col-md-1 text-center">Add</th>
@@ -307,7 +308,7 @@ function onProductAdd(){
                     </button>
                 </td>
             </tr>
-        </table>
+        </table-->
     <!--/div>
     <div class="col-xs-1 col-md-1"></div-->
 </div>
