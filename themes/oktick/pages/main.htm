@@ -19,10 +19,7 @@ function onInit(){
     } else {
         $user = DB::table('users')->where('activation_code', $code)->first();
     }
-    if($user->is_activated) {
-        Flash::success("User already activated, please log in!");
-        return redirect( "/" );
-    }
+    if( ! $user ) return redirect( "/" );
     DB::table('users')->where('id', $user->id)->update(['is_activated' => 1]);
     $username = $user->username;
     $password = str_random(12);
