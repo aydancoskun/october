@@ -22,6 +22,13 @@ function onStart(){
     $this['pending_products'] = DB::table('operations.bp_suppliers_added')
         ->where('user_id', $user->id)
         ->where('company_uid', $user->ok_company_id)
+        ->where('status','Pending verification')
+        ->orderBy('created_stamp', 'desc')
+        ->get();
+    $this['approved_products'] = DB::table('operations.bp_suppliers_added')
+        ->where('user_id', $user->id)
+        ->where('company_uid', $user->ok_company_id)
+        ->where('status','Approved')
         ->orderBy('created_stamp', 'desc')
         ->get();
 }
@@ -166,9 +173,9 @@ function onProductAdd(){
     $user = Auth::getUser();
     $now = time();
     $bp_name = $this->verifyPost('bp_name',"string");
-    
-    $bp = DB::table('operations.bps')->where('bp',$bp_name);
+    $bp = DB::table('operations.bps')->where('bp',$bp_name)->first();
     // EXIT if app in DEVELOPMENT
+
 /*
     if( env("APP_ENV") == "development" OR env("APP_ENV") <> "production" ){
         return [
@@ -181,7 +188,7 @@ function onProductAdd(){
 
     if( ! $bp){
         try {
-            $company = DB::table('operations.companyies')->where('uid',$user->ok_company_id)->first();
+            $company = DB::table('operations.companies')->where('uid',$user->ok_company_id)->first();
             DB::table('operations.bp_suppliers_added')
                 ->insert(array(
                     'bp_name' => $bp_name,
@@ -192,7 +199,7 @@ function onProductAdd(){
                 );
         }
         catch(Exception $e) {
-            \Debugbar::info("co add new bp failed= ".$e->getMessage());
+            \Debugbar::info("company add new product failed= ".$e->getMessage());
             return [
                 'status' => 'error',
                 'message' => $e->getMessage(),
@@ -201,51 +208,62 @@ function onProductAdd(){
         }
         return [
             'status' => 'success',
-            'message' => 'New Product added to queubject to verification by our research team',
+            'message' => 'New Product added to queue subject to verification by our research team',
             'log' => [ 'Product Name' => $bp_name,],
         ];
-    } else {
-        try {
-            \Debugbar::info("bp= ".$bp->bp_uid());
-            DB::table('operations.bp_suppliers_added')
-                ->insert(array(
-                    'bp_name' => $bp->bp,
-                    'company_uid' => $user->ok_company_id,
-                    'status' => 'Pending verification',
-                    'bp_uid' => $bp->bp_uid,
-                    'user_id' => $user->id,)
-                );
-            $company = DB::table('operations.companyies')->where('uid',$user->ok_company_id)->first();
-            $company_website_url = $this->make_company_website_url($company->company_website_url,$company->company_website_proto,$company->company_website_www);
-            if( ! $company_website_url) throw new Exception("No website url for your company");
-            DB::table('operations.bp_suppliers')
-                ->insert(array(
-                    'trawling_rule_no' => 99,
-                    'company_website_url' => $company_website_url,
-                    'same_name_flag' => $dbr[0]->same_name_flag,
-                    'jump_flag' => $dbr[0]->jump_flag,
-                    'sing' => $dbr[0]->sing,
-                    'prime_uid' => $dbr[0]->prime_uid,
-                    'company_uid' => $user->ok_company_id,
-                    'bp_uid' => $bp->$bp_uid,
-                    'user_id' => $user->id,)
-                );
+    }
+    \Debugbar::info($bp);
+    try {
+        \Debugbar::info("bp= ".$bp->bp_uid);
+        DB::table('operations.bp_suppliers_added')
+            ->insert(array(
+                'bp_name' => $bp->bp,
+                'company_uid' => $user->ok_company_id,
+                'status' => 'Approved',
+                'bp_uid' => $bp->bp_uid,
+                'user_id' => $user->id,)
+            );
+        $company = DB::table('operations.companies')->where('uid',$user->ok_company_id)->first();
+        $company_website_url = $this->make_company_website_url($company->company_website_url,$company->company_website_proto,$company->company_website_www);
+        if( ! $company_website_url) throw new Exception("No website url for your company");
+        $primes = DB::table('operations.primes')->where('prime_uid',$bp->prime_uid)->first();
+        
+        DB::table('operations.bp_suppliers')
+            ->insert(array(
+                'trawling_rule_no' => 99,
+                'company_website_url' => $company_website_url,
+                'same_name_flag' => $bp->same_name_exclam_flag,
+                'jump_flag' => 'No',
+                'sing' => 'No',
+                'prime_uid' => $bp->prime_uid,
+                'prime' => $primes->prime,
+                'company_uid' => $user->ok_company_id,
+                'bp' => $bp_name,
+                'bp_uid' => $bp->bp_uid,)
+            );
+            if($company->company_country = "uk" ) $bp_position = 9; else $bp_position = 8;
+        DB::table('operations.bp_supplier_positions')
+            ->insert(array(
+                'bp_id' => $bp->bp_uid,
+                'company_id' => $user->ok_company_id,
+                'company_website_url' => $company_website_url,
+                'bp_position' => $bp_position,)
+            );
+        $user->ok_company_products_count = $user->ok_company_products_count+1;
+        $user->save();
 
-            DB::table('operations.bp_suppliers')->where('uid',$dbr[0]->uid)->delete();
-            DB::table('operations.bp_supplier_positions')->where(array('bp_id'=>$bp->bp_uid,'company_id'=>$user->ok_company_id))->delete();
-        }
-        catch(Exception $e) {
-            \Debugbar::info("co add bp failed= ".$e->getMessage());
-            return [
-                'status' => 'error',
-                'message' => $e->getMessage(),
-                'log' => [ 'Product Name' => $bp_name, 'error'=>$e->getMessage(),],
-            ];
-        }
-            return [
-            'status' => 'success',
-            'message' => 'Product was added',
-            'log' => [ 'Product Name' => $bp_name,],
+        return [
+                'status' => 'success',
+                'message' => 'Product was added',
+                'log' => [ 'Product Name' => $bp_name,],
+        ];
+    }
+    catch(Exception $e) {
+        \Debugbar::info("co add bp failed= ".$e->getMessage());
+        return [
+            'status' => 'error',
+            'message' => $e->getMessage(),
+            'log' => [ 'Product Name' => $bp_name, 'error'=>$e->getMessage(),],
         ];
     }
 }
@@ -260,63 +278,52 @@ function onProductAdd(){
 <span class="text-center {% if user.ok_help_productservices %}collapse{% endif %}" id="ok_help_productservices_sign" style="font-size:14px;">(Click here <span id="ok_help_productservices_on" class="help glyphicon-primary glyphicon glyphicon-question-sign"></span> for help)</span>
 </h2>
 <div class="row">
-    <!--div class="col-xs-1 col-md-1"></div>
-    <div class="col-xs-10 col-md-10"-->
-        <div id="ok_help_productservices" {% if user.ok_help_productservices==0 %}class="collapse"{% endif %} >
+    <div id="ok_help_productservices" {% if user.ok_help_productservices==0 %}class="collapse"{% endif %} >
+        <br>
+        <p>{{"&nbsp;&nbsp;&nbsp;"|raw}}</p>
+        <p>On this page you can see the list of all products or services we have on record for your business.</p>
+        <p>If any are incorrect you can delete them using the delete <button type="button" class="btn btn-delete btn-danger btn-xs"><span class="glyphicon glyphicon-trash"></span></button> button and confirming your choice.</p>
+        <p>If you find products or services your business provides are missing from this list, you can add them using the first row. Just enter your item, select your choice from the list and click the <button class="btn btn-success btn-xs"><span class="glyphicon glyphicon-ok"></span></button> button. If you cannot find it on the standard list add it anyway writing it as you normally would. Please note we only accept generic or general designations; trade and service marks are not permitted. Ideally products and services should not be more than three to four words.</p>
+        <p>Each products and/or services you propose to add will be shown below your current products in a "Products & Services pending approval" section which appears when you have products pending approval. If you made an error you can delete any pending item. The reason items are not immediately available is because they have to be verified by the OKTicK Team which will be done as quickly as possible depending upon volume of traffic.</p>
+        <p>If you don't need this notice any further, click below. You can always re-enable it later by clicking the <span class="glyphicon-primary glyphicon glyphicon-question-sign"></span> sign.</p>
+        <div class="text-center">
+            <button id="ok_help_productservices_off" class="btn btn-default btn-sm help"><span class="glyphicon glyphicon-primary glyphicon-thumbs-up"></span>&nbsp;Got it!</button>
             <br>
-            <p>{{"&nbsp;&nbsp;&nbsp;"|raw}}</p>
-            <p>On this page you can see the list of all products or services we have on record for your business.</p>
-            <p>If any are incorrect you can delete them using the delete <button type="button" class="btn btn-delete btn-danger btn-xs"><span class="glyphicon glyphicon-trash"></span></button> button and confirming your choice.</p>
-            <!--p>If you find products or services your business provides are missing from this list, you can add them using the first row. Just enter your item, select your choice from the list and click the <button class="btn btn-success btn-xs"><span class="glyphicon glyphicon-ok"></span></button> button. If you cannot find it on the standard list add it anyway writing it as you normally would. Please note we only accept generic or general designations; trade and service marks are not permitted. Ideally products and services should not be more than three to four words.</p>
-            <p>Each products and/or services you propose to add will be shown below your current products in a "Products & Services pending approval" section which appears when you have products pending approval. If you made an error you can delete any pending item. The reason items are not immediately available is because they have to be verified by the OKTicK Team which will be done as quickly as possible depending upon volume of traffic.</p-->
-            <p>If you don't need this notice any further, click below. You can always re-enable it later by clicking the <span class="glyphicon-primary glyphicon glyphicon-question-sign"></span> sign.</p>
-            <div class="text-center">
-                <button id="ok_help_productservices_off" class="btn btn-default btn-sm help"><span class="glyphicon glyphicon-primary glyphicon-thumbs-up"></span>&nbsp;Got it!</button>
-                <br>
-                <br>
-            </div>
+            <br>
         </div>
-    <!--/div>
-    <div class="col-xs-1 col-md-1"></div-->
+    </div>
 </div>
 <br>
 <br>
 <div class="row">
-    <!--div class="col-xs-1 col-md-1"></div>
-    <div class="col-xs-10 col-md-10"-->
-        <!--table class="table table-bordered">
-            <tr class="">
-                <th class="">Add Products & Services</th>
-                <th class="col-xs-1 col-md-1 text-center">Add</th>
-            </tr>
-            <tr>
-                <td class="text-center">
-                    <div class="input-group input-group-lg">
-                    <label class="sr-only" for="autocomplete-ajax">Enter Keyword (e.g. Tools, Boots, etc)</label>
-                    <input  class="form-control"
-                            type="search"
-                            name="q"
-                            id="autocomplete-ajax" placeholder="Search..." value="{% if search and search != 404 %}{{ search }}{% endif %}" maxlength="100%" size="100%" onclick="$('#autocomplete-ajax').autocomplete().options.serviceUrl='account/add-products-services';
-"/>
+    <table class="table table-bordered">
+        <tr class="">
+            <th class="">Add Products & Services</th>
+            <th class="col-xs-1 col-md-1 text-center">Add</th>
+        </tr>
+        <tr>
+            <td class="text-center">
+                <div class="input-group input-group-lg">
+                <label class="sr-only" for="autocomplete-ajax">Enter Keyword (e.g. Tools, Boots, etc)</label>
+                <input  class="form-control"
+                        type="search"
+                        name="q"
+                        id="autocomplete-ajax" placeholder="Search..." value="{% if search and search != 404 %}{{ search }}{% endif %}" maxlength="100%" size="100%" onclick="$('#autocomplete-ajax').autocomplete().options.serviceUrl='account/add-products-services';"/>
                 </div>
-                </td>
-                <td class="text-center" style="vertical-align: middle;">
-                    <button id="btn-add-products-services"
-                            type="button"
-                            class="btn btn-success btn-sm">
-                        <span class="glyphicon glyphicon-ok"></span>
-                    </button>
-                </td>
-            </tr>
-        </table-->
-    <!--/div>
-    <div class="col-xs-1 col-md-1"></div-->
+            </td>
+            <td class="text-center" style="vertical-align: middle;">
+                <button id="btn-add-products-services"
+                        type="button"
+                        class="btn btn-success btn-sm">
+                    <span class="glyphicon glyphicon-ok"></span>
+                </button>
+            </td>
+        </tr>
+    </table>
 </div>
             
 {% if products %}
 <div class="row">
-    <!--div class="col-xs-1 col-md-1"></div>
-    <div class="col-xs-10 col-md-10"-->
         <table class="table table-bordered">
             <tr class="">
                 <th class="">Existing Products & Services</th>
@@ -366,14 +373,10 @@ function onProductAdd(){
                 </tr>
             {% endfor %}
         </table>
-    <!--/div>
-    <div class="col-xs-1 col-md-1"></div-->
 </div>
 {% endif %}
 {% if pending_products %}
 <div class="row">
-    <!--div class="col-xs-1 col-md-1"></div>
-    <div class="col-xs-10 col-md-10"-->
         {% if products %}
         <table class="table table-bordered">
             <tr class="">
@@ -403,8 +406,38 @@ function onProductAdd(){
             {% endfor %}
         </table>
         {% endif %}
-    <!--/div>
-    <div class="col-xs-1 col-md-1"></div-->
+</div>
+{%endif%}
+{% if approved_products %}
+<div class="row">
+        {% if products %}
+        <table class="table table-bordered">
+            <tr class="">
+                <th>Products & Services approved and added</th>
+                <th class="col-xs-1 col-md-1 text-center">Approved</th>
+            </tr>
+            {% for approved_product in approved_products %}
+                <tr id="PendingRow{{approved_product.uid}}">
+                    <td class=""
+                        id="pending-bp{{ approved_product.uid }}"
+                        data-uid="{{ approved_product.uid }}">
+                        {{ approved_product.bp_name }}
+                    </td>
+                    <!--td>
+                        {{ approved_product.status }}
+                    </td-->
+                    <td class="text-center">
+                        <button id="pending-go-button{{approved_product.uid}}"
+                            disabled="disabled"
+                            type="button"
+                            class="btn btn-success btn-sm">
+                            <span class="glyphicon glyphicon-ok"></span>
+                        </button>
+                    </td>
+                </tr>
+            {% endfor %}
+        </table>
+        {% endif %}
 </div>
 {%endif%}
 
