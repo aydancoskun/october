@@ -3,6 +3,13 @@
 # ===================================
 
 fields:
+    autoConfirm:
+        label: Mark as confirmed
+        type: checkbox
+        comment: Subscribers must be confirmed to receive campaign messages.
+        context: create
+        default: 1
+
     first_name:
         label: First Name
         span: auto
@@ -32,20 +39,24 @@ fields:
         label: Created IP Address
         span: auto
         disabled: true
+        context: update
 
     created_at:
         label: Created Date
         span: auto
         type: datepicker
         disabled: true
+        context: update
 
     confirmed_ip_address:
         label: Confirmed IP Address
         span: auto
         disabled: true
+        context: update
 
     confirmed_at:
         label: Confirmed Date
         span: auto
         type: datepicker
         disabled: true
+        context: update

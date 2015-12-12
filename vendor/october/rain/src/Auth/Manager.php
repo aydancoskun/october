@@ -1,6 +1,5 @@
 <?php namespace October\Rain\Auth;
 
-use Hash;
 use Cookie;
 use Session;
 use Request;
@@ -48,6 +47,15 @@ class Manager
         $class = '\\'.ltrim($this->userModel, '\\');
         $user = new $class();
         return $user;
+    }
+
+    /**
+     * Extend the query used for finding the user.
+     * @param October\Rain\Database\Builder $query
+     * @return void
+     */
+    public function extendUserQuery($query)
+    {
     }
 
     /**
@@ -102,7 +110,9 @@ class Manager
     public function findUserById($id)
     {
         $model = $this->createUserModel();
-        $user = $model->newQuery()->find($id);
+        $query = $model->newQuery();
+        $this->extendUserQuery($query);
+        $user = $query->find($id);
         return $user ?: null;
     }
 
@@ -113,7 +123,9 @@ class Manager
     public function findUserByLogin($login)
     {
         $model = $this->createUserModel();
-        $user = $model->newQuery()->where($model->getLoginName(), $login)->first();
+        $query = $model->newQuery();
+        $this->extendUserQuery($query);
+        $user = $query->where($model->getLoginName(), $login)->first();
         return $user ?: null;
     }
 
@@ -130,6 +142,7 @@ class Manager
         }
 
         $query = $model->newQuery();
+        $this->extendUserQuery($query);
         $hashableAttributes = $model->getHashableAttributes();
         $hashedCredentials = [];
 
@@ -138,10 +151,12 @@ class Manager
          */
         foreach ($credentials as $credential => $value) {
             // All excepted the hashed attributes
-            if (in_array($credential, $hashableAttributes))
+            if (in_array($credential, $hashableAttributes)) {
                 $hashedCredentials = array_merge($hashedCredentials, [$credential => $value]);
-            else
+            }
+            else {
                 $query = $query->where($credential, '=', $value);
+            }
         }
 
         if (!$user = $query->first()) {
@@ -153,7 +168,7 @@ class Manager
          */
         foreach ($hashedCredentials as $credential => $value) {
 
-            if (!Hash::check($value, $user->{$credential})) {
+            if (!$user->checkHashValue($credential, $value)) {
                 // Incorrect password
                 if ($credential == 'password') {
                     throw new AuthException(sprintf('A user was found to match all plain text credentials however hashed credential "%s" did not match.', $credential));
@@ -187,8 +202,9 @@ class Manager
     public function findThrottleByLogin($loginName, $ipAddress)
     {
         $user = $this->findUserByLogin($loginName);
-        if (!$user)
+        if (!$user) {
             throw new AuthException("A user was not found with the given credentials.");
+        }
 
         $userId = $user->getKey();
         return $this->findThrottleByUserId($userId, $ipAddress);
@@ -200,8 +216,9 @@ class Manager
     public function findThrottleByUserId($userId, $ipAddress = null)
     {
         $cacheKey = md5($userId.$ipAddress);
-        if (isset($this->throttle[$cacheKey]))
+        if (isset($this->throttle[$cacheKey])) {
             return $this->throttle[$cacheKey];
+        }
 
         $model = $this->createThrottleModel();
         $query = $model->where('user_id', '=', $userId);
@@ -216,8 +233,9 @@ class Manager
         if (!$throttle = $query->first()) {
             $throttle = $this->createThrottleModel();
             $throttle->user_id = $userId;
-            if ($ipAddress)
+            if ($ipAddress) {
                 $throttle->ip_address = $ipAddress;
+            }
 
             $throttle->save();
         }
@@ -243,11 +261,13 @@ class Manager
         $loginName = $this->createUserModel()->getLoginName();
         $loginCredentialKey = (isset($credentials[$loginName])) ? $loginName : 'login';
 
-        if (empty($credentials[$loginCredentialKey]))
+        if (empty($credentials[$loginCredentialKey])) {
             throw new AuthException(sprintf('The "%s" attribute is required.', $loginCredentialKey));
+        }
 
-        if (empty($credentials['password']))
+        if (empty($credentials['password'])) {
             throw new AuthException('The password attribute is required.');
+        }
 
         /*
          * If the fallback 'login' was provided and did not match the necessary
@@ -273,14 +293,16 @@ class Manager
             $user = $this->findUserByCredentials($credentials);
         }
         catch (AuthException $ex) {
-            if ($this->useThrottle)
+            if ($this->useThrottle) {
                 $throttle->addLoginAttempt();
+            }
 
             throw $ex;
         }
 
-        if ($this->useThrottle)
+        if ($this->useThrottle) {
             $throttle->clearLoginAttempts();
+        }
 
         $user->clearResetPassword();
         $this->login($user, $remember);
@@ -300,29 +322,35 @@ class Manager
             /*
              * Check session first, follow by cookie
              */
-            if (!($userArray = Session::get($this->sessionKey)) && !($userArray = Cookie::get($this->sessionKey)))
+            if (
+                !($userArray = Session::get($this->sessionKey)) &&
+                !($userArray = Cookie::get($this->sessionKey))
+            ) {
                 return false;
+            }
 
             /*
              * Check supplied session/cookie is an array (username, persist code)
              */
-            if (!is_array($userArray) || count($userArray) !== 2)
+            if (!is_array($userArray) || count($userArray) !== 2) {
                 return false;
+            }
 
             list($id, $persistCode) = $userArray;
 
             /*
              * Look up user
              */
-            $user = $this->createUserModel()->find($id);
-            if (!$user)
+            if (!$user = $this->createUserModel()->find($id)) {
                 return false;
+            }
 
             /*
              * Confirm the persistence code is valid, otherwise reject
              */
-            if (!$user->checkPersistCode($persistCode))
+            if (!$user->checkPersistCode($persistCode)) {
                 return false;
+            }
 
             /*
              * Pass
@@ -333,8 +361,9 @@ class Manager
         /*
          * Check cached user is activated
          */
-        if (!($user = $this->getUser()) || ($this->requireActivation && !$user->is_activated))
+        if (!($user = $this->getUser()) || ($this->requireActivation && !$user->is_activated)) {
             return false;
+        }
 
         /*
          * Throttle check
@@ -370,8 +399,9 @@ class Manager
         $toPersist = [$user->getKey(), $user->getPersistCode()];
         Session::put($this->sessionKey, $toPersist);
 
-        if ($remember)
+        if ($remember) {
             Cookie::queue(Cookie::forever($this->sessionKey, $toPersist));
+        }
 
         /*
          * Fire the 'afterLogin' event

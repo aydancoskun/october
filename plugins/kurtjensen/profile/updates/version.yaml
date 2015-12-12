@@ -40,3 +40,5 @@
     - Restyled user directory to use module dialog.
 1.0.20:
     - Restored avatar from restyle of user directory.
+1.0.21:
+    - Minor user directory module dialog layout fix.

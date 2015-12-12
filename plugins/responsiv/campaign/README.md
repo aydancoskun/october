@@ -44,7 +44,7 @@ A campaign will have many statuses through its life time, they are described in 
 
 ## System requirements
 
-This plugin relies on the system schedule process for running its automated tasks. You should ensure that your [cron table is configured correctly](http://octobercms.com/docs/help/installation#crontab-setup) for this plugin to work. Alternatively you can manually process the campaign logic by calling `php artisan campaign:run` and run it every hour.
+This plugin relies on the system schedule process for running its automated tasks. You should ensure that your [cron table is configured correctly](http://octobercms.com/docs/help/installation#crontab-setup) for this plugin to work. Alternatively you can manually process the campaign logic by calling `php artisan campaign:run` and run it every 5-10 minutes.
 
 ## Implementing front-end subscription form
 
@@ -145,6 +145,8 @@ Renders a repeating section with other fields inside.
         <h2>{text name="title" label="Title"}Title{/text}</h2>
         <p>{textarea name="content" label="Content"}Content{/textarea}</p>
     {/repeater}
+
+For more details on syntax fields, see the [Parser section](octobercms.com/docs/services/parser) of the October documentation.
 
 ## Creating new recipient groups
 

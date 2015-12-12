@@ -12,7 +12,7 @@
 
 </div>
 <div class="modal-body">
-<div class="row">
+    <div class="row">
       <div class="col-md-3">
 {% if person.avatar %}
               <a href="{{ person.avatar.getThumb(600,600) }}" target="ProfPic">
@@ -21,32 +21,33 @@
 {% elseif avatarThumb %}
             <img class="sq200" src="{{ avatarThumb }}" alt="No Photo On File" />
 {% endif %}
-    </div>
-    <div class="col-md-9">
-        <dl class="dl-horizontal">
-            <dt>Company:</dt>
-            <dd><p>{{ person.company }}</p></dd>
+        </div>
+        <div class="col-md-9">
+            <dl class="dl-horizontal">
+                <dt>Company:</dt>
+                <dd><p>{{ person.company }}</p></dd>
+                <dt>Address:</dt>
+                <dd>
 {% if (person.city) and (person.state.name) and (person.zip) %}
-            <dt>Address:</dt>
-            <dd>
-                <address>
-                    <a target="map" class="btn btn-danger"
-                      href="http://maps.google.com/maps?f=q&amp;source=s_q&amp;hl=en&amp;q={{ person.street_addr }},+{{ person.city }},+{{ person.state.name }}+{{ person.zip }}&amp;z=16">
-                      <i class="icon-map-marker icon-large"></i>
-                    </a>
+                    <address>
+                        <a target="map" class="btn btn-danger"
+                          href="http://maps.google.com/maps?f=q&amp;source=s_q&amp;hl=en&amp;q={{ person.street_addr }},+{{ person.city }},+{{ person.state.name }}+{{ person.zip }}&amp;z=16">
+                          <i class="icon-map-marker icon-large"></i>
+                        </a>
                     {{ person.street_addr }}<br />
                     {{ person.city }}, {{ person.state.name }} {{ person.zip }}
 {% if showCountry %}<br />
                     {{ person.country.name }}
 {% endif %}
-                </address></dd>
+                    </address>
+{% else %} -
+{% endif %}
+                </dd>
             </dl>
         </div>
     </div>
-    <div>
+    <div class="row">
         <dl class="dl-horizontal">
-
-{% endif %}
 
             <h4>Email:</h4>        
               <dt></dt>

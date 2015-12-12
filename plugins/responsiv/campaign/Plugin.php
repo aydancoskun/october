@@ -26,6 +26,13 @@ class Plugin extends PluginBase
         ];
     }
 
+    public function boot()
+    {
+        if (class_exists('RainLab\User\Plugin')) {
+            $this->reverseExtendRainLabUser();
+        }
+    }
+
     public function register()
     {
         $this->registerConsoleCommand('campaign.run', 'Responsiv\Campaign\Console\CampaignRun');
@@ -94,13 +101,6 @@ class Plugin extends PluginBase
         $schedule->call(function(){
             CampaignWorker::instance()->process();
         })->everyFiveMinutes();
-    }
-
-    public function boot()
-    {
-        if (class_exists('RainLab\User\Plugin')) {
-            $this->reverseExtendRainLabUser();
-        }
     }
 
     /*

@@ -48,6 +48,24 @@ class Subscriber extends Model
     ];
 
     /**
+     * @var bool Set this to true to automatically confirm the new subscriber.
+     */
+    public $autoConfirm;
+
+    public function afterDelete()
+    {
+        $this->subscriber_lists()->detach();
+        $this->messages()->detach();
+    }
+
+    public function beforeCreate()
+    {
+        if ($this->autoConfirm) {
+            $this->confirmed_at = $this->freshTimestamp();
+        }
+    }
+
+    /**
      * Signs up a user as a subscriber, adds them to supplied list code.
      */
     public static function signup($details, $addToList = null, $isConfirmed = true)
@@ -97,12 +115,6 @@ class Subscriber extends Model
     {
         $hash = md5($this->id . '!' . $this->email);
         return base64_encode($this->id.'!'.$hash);
-    }
-
-    public function afterDelete()
-    {
-        $this->subscriber_lists()->detach();
-        $this->messages()->detach();
     }
 
     /**

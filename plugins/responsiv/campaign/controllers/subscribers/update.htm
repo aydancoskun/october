@@ -9,6 +9,20 @@
 
     <?= Form::open(['class'=>'layout']) ?>
 
+        <?php if ($formModel->unsubscribed_at): ?>
+            <?= $this->makeHintPartial(null, 'hint_unsubscribed', [
+                'type' => 'danger',
+            ]) ?>
+        <?php elseif (!$formModel->confirmed_at): ?>
+            <?= $this->makeHintPartial(null, 'hint_unconfirmed', [
+                'type' => 'warning',
+            ]) ?>
+        <?php else: ?>
+            <?= $this->makeHintPartial(null, 'hint_confirmed', [
+                'type' => 'success',
+            ]) ?>
+        <?php endif ?>
+
         <div class="layout-row">
             <?= $this->formRender() ?>
         </div>

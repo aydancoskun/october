@@ -47,4 +47,15 @@ class Subscribers extends Controller
 
         return $this->listRefresh();
     }
+
+    public function listInjectRowClass($record)
+    {
+        if ($record->unsubscribed_at) {
+            return 'negative';
+        }
+
+        if ($record->confirmed_at) {
+            return 'positive';
+        }
+    }
 }

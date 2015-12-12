@@ -30,3 +30,4 @@
 1.1.6: User interface improvements.
 1.1.7: Added back-end permissions for managing campaigns and subscribers.
 1.1.8: Subscribers are no longer automatically deleted after 14 days.
+1.1.9: Add a checkbox to automatically confirm new subscribers in the back-end.
