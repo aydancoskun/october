@@ -152,7 +152,7 @@ class CampaignWorker
         	            	echo __FILE__.":".__LINE__." Subscriber $subscriber->email removed because blacklisted \n";
     	            	continue;
     	            }
-    	            if ( $subscriber->is_activated && $subscriber->company_id <> 1  ) {
+    	            if ( $use_massmailer == true && $subscriber->is_activated && $subscriber->company_id <> 1  ) {
 						$sql =	"UPDATE leancode_campaign_lists_subscribers SET list_id = 3 WHERE subscriber_id = ".$subscriber->id;
         	            $campaign->subscribers()->remove($subscriber);
         	            $campaign->count_subscriber--;
@@ -202,22 +202,6 @@ class CampaignWorker
             $campaign->rebuildStats();
             $campaign->processed_at = $campaign->freshTimestamp();
             $campaign->save();
-
-			// step 1
-			$sql =	"UPDATE leancode_campaign_lists_subscribers a, leancode_campaign_messages_subscribers b SET list_id = 2 WHERE a.subscriber_id = b.subscriber_id AND list_id = 1 AND b.sent_at <> ''";
-	    	DB::statement( DB::raw($sql) );
-
-			// step 2
-			$sql =	"UPDATE leancode_campaign_lists_subscribers a, users b SET list_id = 3 WHERE a.subscriber_id = b.id AND list_id = 2 AND b.is_activated = 1";
-	    	DB::statement( DB::raw($sql) );
-
-			// step 3
-			$sql =	"UPDATE leancode_campaign_lists_subscribers a, users b SET list_id = 4 WHERE a.subscriber_id = b.id AND list_id = 3 AND b.ok_free_credits_datetime <> '0000-00-00 00:00:00'";
-	    	DB::statement( DB::raw($sql) );
-
-			// step 3
-			$sql =	"UPDATE leancode_campaign_lists_subscribers a, operations.bp_sponsors b SET list_id = 5 WHERE a.subscriber_id = b.user_id AND list_id = 4";
-	    	DB::statement( DB::raw($sql) );
 
             $this->logActivity(sprintf(
                 'Sent campaign "%s" to %s subscriber(s).',

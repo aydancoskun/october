@@ -28,19 +28,15 @@ columns:
         type: date
         width: 15%
 
-    created_at:
-        label: Created
-        type: date
-        width: 15%
-        invisible: true
-
-    updated_at:
-        label: Last updated
-        type: datetime
-        width: 20%
-        invisible: true
-
-    count_repeat:
-        label: Count
-        invisible: true
+    count_sent:
+        label: "#Sent"
         width: 10%
+
+    count_read:
+        label: "#Read"
+        width: 10%
+
+    count_stop:
+        label: "#Unsubscribed"
+        width: 10%
+
