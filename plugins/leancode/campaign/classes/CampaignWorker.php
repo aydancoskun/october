@@ -92,19 +92,18 @@ class CampaignWorker
 
         $activeId = MessageStatus::getActiveStatus()->id;
 
-        $campaign = Message::where('status_id', $activeId)
+		while ($campaign = Message::where('status_id', $activeId)
             ->get()
             ->filter(function($message) use ($hourAgo) {
                 return !$message->processed_at ||
                     $message->processed_at <= $hourAgo;
             })
             ->shift()
-        ;
-        if ($campaign) {
-	        $subscribers_lists = $campaign->subscriber_lists()->get();
+        ) {
+	    	$subscribers_lists = $campaign->subscriber_lists()->get();
 		    $use_massmailer = false;
 		    foreach ($subscribers_lists as $subscribers_list) {
-		    	if( $subscribers_list->id == 1 OR $subscribers_list->id == 2 ) {// i.e. the main start list to which large amount of mails are being sent
+		    	if( $subscribers_list->id == 1 OR $subscribers_list->id == 99 ) {// i.e. the main start list to which large amount of mails are being sent
 		    		$use_massmailer = true;
 		    		break;
 		    	}
@@ -122,7 +121,7 @@ class CampaignWorker
         	            $campaign->count_subscriber--;
             	    	DB::statement( DB::raw($sql) );
         	            if (strpos(php_sapi_name(), 'cli') !== false)
-        	            	echo __FILE__.":".__LINE__." Subscriber $subscriber->email removed because email invalid \n";
+        	            	echo $campaign->name . ": Removed " . $subscriber->email . ". Mail invalid \n";
             	        continue;
     	            }
     	            if ( ! $subscriber->company_id ) {
@@ -131,7 +130,7 @@ class CampaignWorker
         	            $campaign->count_subscriber--;
             	    	DB::statement( DB::raw($sql) );
         	            if (strpos(php_sapi_name(), 'cli') !== false)
-        	            	echo __FILE__.":".__LINE__." Subscriber $subscriber->email removed because no company id \n";
+        	            	echo $campaign->name . ": Removed " . $subscriber->email . ". No company id \n";
     	            	continue;
     	            }
     	            if ( $subscriber->unsubscribed_at && $subscriber->company_id <> 1 ) {
@@ -140,7 +139,7 @@ class CampaignWorker
         	            $campaign->count_subscriber--;
             	    	DB::statement( DB::raw($sql) );
         	            if (strpos(php_sapi_name(), 'cli') !== false)
-        	            	echo __FILE__.":".__LINE__." Subscriber $subscriber->email removed because unsubscribed \n";
+        	            	echo $campaign->name . ": Removed " . $subscriber->email . ". Unsubscribed \n";
     	            	continue;
     	            }
     	            if ( $subscriber->blacklisted_at && $subscriber->company_id <> 1  ) {
@@ -149,7 +148,7 @@ class CampaignWorker
         	            $campaign->count_subscriber--;
             	    	DB::statement( DB::raw($sql) );
         	            if (strpos(php_sapi_name(), 'cli') !== false)
-        	            	echo __FILE__.":".__LINE__." Subscriber $subscriber->email removed because blacklisted \n";
+        	            	echo $campaign->name . ": Removed " . $subscriber->email . ". Blacklisted \n";
     	            	continue;
     	            }
     	            if ( $use_massmailer == true && $subscriber->is_activated && $subscriber->company_id <> 1  ) {
@@ -158,7 +157,7 @@ class CampaignWorker
         	            $campaign->count_subscriber--;
             	    	DB::statement( DB::raw($sql) );
         	            if (strpos(php_sapi_name(), 'cli') !== false)
-        	            	echo __FILE__.":".__LINE__." Subscriber $subscriber->email removed because is activated already and does not need promotion \n";
+        	            	echo $campaign->name . ": Removed " . $subscriber->email . ". Already active \n";
     	            	continue;
     	            }
     	            if ( ! $subscriber->confirmed_at) {
@@ -169,7 +168,7 @@ class CampaignWorker
     	            	$subscriber->activation_code = md5(env('APP_KEY') . $subscriber->email);
     	            	$subscriber->save();
     	            }
-    	            $use_massmailer=true;
+    	            //$use_massmailer=true;
 	                $num_send = $this->campaignManager->sendToSubscriber($campaign, $subscriber,$use_massmailer);
     	            if ( ! $num_send  && $subscriber->company_id <> 1 ) {
 						$sql =	"UPDATE leancode_campaign_lists_subscribers SET list_id = 150 WHERE subscriber_id = ".$subscriber->id;
@@ -177,10 +176,10 @@ class CampaignWorker
         	            $campaign->count_subscriber--;
             	    	DB::statement( DB::raw($sql) );
         	            if (strpos(php_sapi_name(), 'cli') !== false)
-        	            	echo __FILE__.":".__LINE__." Subscriber $subscriber->email removed because of failure\n";
+        	            	echo $campaign->name . ": Removed " . $subscriber->email . ". Failure \n";
     	            	continue;
     	            }
-                   	if (strpos(php_sapi_name(), 'cli') !== false) echo __FILE__.":".__LINE__." Mailing $subscriber->email\n";
+                   	if (strpos(php_sapi_name(), 'cli') !== false) echo $campaign->name . ": Mailing $subscriber->email\n";
 //                   	if (strpos(php_sapi_name(), 'cli') !== false) echo __FILE__.":".__LINE__." BLOCKED $subscriber->email\n";
 
     	            $subscriber->pivot->sent_at = $subscriber->freshTimestamp();
@@ -209,7 +208,6 @@ class CampaignWorker
                 $countSent
             ));
         }
-
     }
 
     /**
