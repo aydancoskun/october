@@ -37,6 +37,8 @@ function onInit(){
     $user->activated_at = gmdate('Y-m-d H:i:s');
     $user->ok_unsubscribed_at = null;
     $user->ok_confirmed_at = gmdate('Y-m-d H:i:s');
+    $user->ok_credits = $user->ok_free_credits;
+    $user->ok_free_credits_datetime = date( 'Y-m-d H:i:s' );
     $user->save();
     Auth::login($user->reload(), true);
 
@@ -57,7 +59,7 @@ function onInit(){
     } catch (Exception $e) {
         Flash::warning("Welcome to OKTicK");
     }
-    return redirect("/");
+    return redirect("/account/ranking");
 }
 ?>
 ==

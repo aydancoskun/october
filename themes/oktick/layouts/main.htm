@@ -33,6 +33,7 @@ function onStart() {
                 "prime_uid as prime_id,".
                 "(SELECT bp_position    FROM operations.bp_supplier_positions bsp WHERE bsp.bp_id = bs.bp_uid AND bsp.company_id = $company_id ) as tpos,".
                 "(SELECT applied_credit FROM operations.bp_sponsors           bs1 WHERE bs1.bp_id = bs.bp_uid AND bs1.company_id = $company_id AND bs1.user_id = $user->id AND bs1.start_stamp < now() AND now() < bs1.end_stamp ) AS bp_user_credits, ".
+                "(SELECT applied_credit FROM operations.bp_sponsors           bs1 WHERE bs1.bp_id = bs.bp_uid AND bs1.company_id = $company_id AND bs1.user_id <> $user->id AND bs1.start_stamp < now() AND now() < bs1.end_stamp ) AS bp_group_credits, ".
                 "(SELECT count(*)+1     FROM operations.bp_supplier_positions bs2 WHERE bs2.bp_id = bs.bp_uid AND bs2.bp_position   > tpos) as bp_low,".
                 "(SELECT count(*)       FROM operations.bp_supplier_positions bs3 WHERE bs3.bp_id = bs.bp_uid AND bs3.bp_position  >= tpos) as bp_high, ".
                 "(SELECT end_stamp      FROM operations.bp_sponsors           bs4 WHERE bs4.bp_id = bs.bp_uid AND bs4.company_id = $company_id AND bs4.user_id = $user->id AND bs4.start_stamp < now() AND now() < bs4.end_stamp ) AS end_stamp, ".
@@ -93,6 +94,7 @@ function onHelp() {
         Debugbar::addMessage("No user found to store help");
     }
 }
+
 function onClaimFree(){
     if (! Auth::check()) return;
     $user = Auth::getUser();

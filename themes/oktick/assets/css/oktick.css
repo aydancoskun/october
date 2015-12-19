@@ -503,19 +503,19 @@ a.close-cookie-banner span {
     display: none !important;
 }
 span.badge-primary {
-    background-color: #428bca;
+    background-color: #428bca !important;
 }
 span.badge-success {
-    background-color: #5cb85c;
+    background-color: #5cb85c !important;
 }
 span.badge-info {
-    background-color: #5bc0de;
+    background-color: #5bc0de !important;
 }
 span.badge-warning {
-    background-color: #f0ad4e;
+    background-color: #f0ad4e !important;
 }
 span.badge-danger {
-    background-color: #d9534f;
+    background-color: #d9534f !important;
 }
 
 span.glyphicon-primary {

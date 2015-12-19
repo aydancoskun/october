@@ -89,13 +89,13 @@ function onGetEstimatedPosition(){
         if ($bp_high >  3) return ['estimatedPosition' => "Top 5"];
         if ($bp_high >  0) return ['estimatedPosition' => "Top 3"];
         return ['estimatedPosition' => "-----------"];
-        if($bp_low==$bp_high) return ['estimatedPosition' => $bp_low];
-        return ['estimatedPosition' => "$bp_low to $bp_high"];
+//        if($bp_low==$bp_high) return ['estimatedPosition' => $bp_low];
+//        return ['estimatedPosition' => "$bp_low to $bp_high"];
     }
     catch(Exception $e) {
         \Debugbar::addException($e);
         return ['error' => "Something went wrong"];
-        return (new Response(['error' => "Something went wrong"], "500"))->header('Content-Type', "text/html; charset=UTF-8");
+        return (new Response(['error' => "Something went wrong"], "204"))->header('Content-Type', "text/html; charset=UTF-8");
     }
     // value="{% if product.bp_low==product.bp_high %}{{product.bp_low}}{%else%}{{product.bp_low}} to {{ product.bp_high }}{%endif%}">
 }
@@ -267,7 +267,7 @@ function onCreditConfirm(){
 
 //    return true;
 
-    return (new Response('"here is the error"', "402"))->header('Content-Type', "text/html; charset=UTF-8");
+    return (new Response('"here is the error"', "204"))->header('Content-Type', "text/html; charset=UTF-8");
 
 //    return (new Response('"'.$Message.'" %'.$ok_credits.'%', "200"))->header('Content-Type', "text/html; charset=UTF-8");
 
@@ -278,15 +278,15 @@ function onCreditConfirm(){
 {% partial "nav-top" %}
 <div class="container">
 <br>
-<h2 class="text-center">Your Rankings<br>
+<h2 class="text-center">Search Booster<br>
 <span class="text-center {% if user.ok_help_ranking %}collapse{% endif %}" id="ok_help_ranking_sign" style="font-size:14px;">(Click here <span id="ok_help_ranking_on" class="help glyphicon-primary glyphicon glyphicon-question-sign"></span> for help)</span>
 </h2>
 <div class="row">
     <div id="ok_help_ranking" {% if user.ok_help_ranking==0 %}class="collapse"{% endif %}>
         <br>
         <p>On this page you can see all products or services we have on record for your business and can elevate their standings on the OKTicK results pages.</p>
-{% if (activationcode) and (user.ok_credits == 0) %}
-        <p>You can elevate the rankings in the results pages with the <button class="btn btn-default btn-xs"><span class="glyphicon glyphicon-plus"></span></button> and <button class="btn btn-default btn-xs"><span class="glyphicon glyphicon-minus"></span></button> buttons using free credits by clicking here: <a role="button" class="btn btn-success addspeech" rel="claimcredits" href="/account/offer/{{activationcode}}">Claim lifetime credits now!</a></p>
+{% if (activationcode) and  ( (user.ok_free_credits_datetime == "0000-00-00 00:00:00") or (user.ok_free_credits_datatime == '') ) %}
+        <p>You can boost the rankings in the results pages with the <button class="btn btn-default btn-xs"><span class="glyphicon glyphicon-plus"></span></button> and <button class="btn btn-default btn-xs"><span class="glyphicon glyphicon-minus"></span></button> buttons.</p>
 {% elseif (activationcode) %}
             <p>You can use your free credits to elevate products. You can see at any time how many credits you have remaining by looking at the badge <span
                             id="ok_credits"
@@ -324,16 +324,16 @@ function onCreditConfirm(){
         <p>Elevation is easy to do using the <button class="btn btn-default btn-xs"><span class="glyphicon glyphicon-plus"></span></button> and <button class="btn btn-default btn-xs"><span class="glyphicon glyphicon-minus"></span></button> buttons on the right of each product and service. When you are satisfied click the <button class="btn btn-success btn-xs"><span class="glyphicon glyphicon-ok"></span></button> button which will have appeared. Please try it out, you will see how easily it works. The more credits applied the higher the potential position your business may come on the list. You will notice as you adjust the credits a new 'estimated position' reflects this. Credits once confirmed are applied immediately. The time this happens is accurately noted on the system.</p>
         <p>Credits once applied last for precisely one week. Unless you remove them entirely, credits are renewed at the same time each nominal week. Each week we will send you an email to let you know where we estimate your business stands in the lists of products and services at that moment. You can easily check this by doing a search yourself on the product or service (bear in mind it can change in minutes through the actions of other suppliers). <!--We will advise you if your credits available are running low and need topping up or have run out. -->You can lose positions if you inadvertently run out of credits.</p>
         <p>When you adjust credits in the middle of week the applied balance is accurately calculated to be as fair as possible. For example if exactly half way through this nominal week you add 4 more credits you are only charged 2 credits. When the new week arrives the full extra 4 credits are then charged. If you were to reduce from 6 credits to 3 exactly half way though the week you be refunded 1.5 credits.</p>
+{% endif %}
         <p>If you don't need this notice any further, click below. You can always re-enable it later by clicking the <span class="glyphicon-primary glyphicon glyphicon-question-sign"></span> sign.</p>
         <div class="text-center">
             <button id="ok_help_ranking_off" class="btn btn-default btn-sm help"><span class="glyphicon glyphicon-primary glyphicon-thumbs-up"></span>&nbsp;Got it</button>
         </div>
-{% endif %}
     </div>
 </div>
 <div class="row">
     <!--div class="col-12"--> 
-        <h3 class="text-center">You currently have {% if user.ok_sponored_products_count and user.ok_sponored_products_count > 0 %}{{ user.ok_sponored_products_count }}{%else%} no {% endif %} products elevated</h3><br>
+        <h3 class="text-center">You currently have <span class="badge_active">{% if user.ok_sponored_products_count and user.ok_sponored_products_count > 0 %}{{ user.ok_sponored_products_count }}{%else%} no {% endif %}</span> products boosted</h3><br> 
     <!--/div-->
 </div>
 {% if products %}
@@ -344,7 +344,7 @@ function onCreditConfirm(){
             <th class="text-center">Current<br>Position</th>
             <th class="text-center">Estimated<br>Position</th>
             <th class="text-center">Renewal<br>Date</th>
-            <th class="text-center">Weekly<br>Amount</th>
+            <th class="text-center">Search<br>Booster</th> 
         </tr>
     {% for product in products %}
         <tr class="{% if product.bp_user_credits %}success{%endif%}" id="row{{product.bp_id}}">
@@ -352,8 +352,16 @@ function onCreditConfirm(){
                 style="vertical-align: middle;"
                 id="bp{{ product.bp_id }}"
                 data-bp_id="{{ product.bp_id }}"
-                data-bp_user_credits="{% if product.bp_user_credits %}{{product.bp_user_credits}}{%else%}0{%endif%}">
+                data-bp_user_credits="{% if product.bp_user_credits %}{{product.bp_user_credits}}{%else%}0{% endif %}">
                 {{ product.bp_name }}
+{% if product.bp_group_credits %}
+                &nbsp;<span 
+                class="glyphicon glyphicon-primary glyphicon-link"
+                data-toggle="tooltip"
+                data-trigger="hover"
+                data-placement="bottom"
+                title="There are currently other users in your business elevating this product"></span>
+{% endif %}
             </td>
             <td class="text-center"><!-- Current Position -->
                 <div class="form-group input-group col-centered">
@@ -503,7 +511,7 @@ $('.btn-confirm').click(function(event){
             if (data.badge_active == 1){
                 var badge_active = Math.round($("#badge_active").text())+1;
                 $( '#row' + bp_id ).addClass('success');
-                $( '#badge_active').text(badge_active);
+                $( '.badge_active').text(badge_active);
                 $( '#badge_active' ).removeClass('badge-danger');
                 $( '#badge_active' ).removeClass('badge-warning');
                 $( '#badge_active' ).removeClass('badge-default');
@@ -512,7 +520,7 @@ $('.btn-confirm').click(function(event){
             }
             else if(data.badge_active == -1){
                 var badge_active = Math.round($("#badge_active").text())-1;
-                $('#badge_active').text(badge_active);
+                $('.badge_active').text(badge_active);
                 $( '#row' + bp_id ).removeClass('success');
                 if(badge_active == 0) {
                     $( '#badge_active' ).removeClass('badge-success');
@@ -654,7 +662,7 @@ function getEstimatedPosition(credits_estimated,type,boundaryValue,estimated_pos
             error: function(data) {// Assign handlers immediately after making the request,
                 var tmp = data.responseText.split('"');
                 var msg = tmp[1];
-                alert(msg);
+//                alert(msg);
                 $( '#estimated-position' + bp_id ).val("--------");
                 $( '#btn-confirm' + bp_id).css( "visibility","visible" );
                 reset_attributes(credits_estimated,type,boundaryValue);
