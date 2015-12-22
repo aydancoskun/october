@@ -121,7 +121,7 @@ class CampaignWorker
             while( $subscribers = $campaign->subscribers()->Where("id",$operation, $operator)->whereNull('sent_at')->limit(500)->get()){
 
 	            foreach ($subscribers as $subscriber) {
-	                echo "handling ".$subscriber->id.__line__"\n";
+	                echo "handling ".$subscriber->id.__line__."\n";
 	                if ($test and $subscriber->id < 50) {
                         $sql = <<<ENDSQL
 UPDATE oktick.users SET
@@ -253,14 +253,14 @@ ENDSQL;
                 	    $campaign->count_sent++;
 		    			$countSent++;
 //		    		}
-	                echo "handling ".$subscriber->id.__line__"\n";
+	                echo "handling ".$subscriber->id.__line__."\n";
                     if ( $staggerCount !== -1 && $countSent >= $staggerCount ) {
-    	                echo "handling ".$subscriber->id.__line__"\n";
+    	                echo "handling ".$subscriber->id.__line__."\n";
                     	break 2;
                     }
-	                echo "handling ".$subscriber->id.__line__"\n";
+	                echo "handling ".$subscriber->id.__line__."\n";
             }
-                echo "handling ".$subscriber->id.__line__"\n";
+                echo "handling ".$subscriber->id.__line__."\n";
             	if( ! count($subscribers) ) break;
 			}
             if ($campaign->count_sent >= $campaign->count_subscriber) {
