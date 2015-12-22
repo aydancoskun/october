@@ -168,7 +168,7 @@ UPDATE oktick.users SET
  iu_twitter = NULL,
  iu_skype = NULL,
  iu_icq = NULL,
- iu_comments = NULL,
+ iu_comment = NULL,
  iu_telephone = NULL,
  iu_company = NULL
 WHERE
