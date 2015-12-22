@@ -122,7 +122,6 @@ class CampaignWorker
 
 	            foreach ($subscribers as $subscriber) {
 	                if ($test and $subscriber->id < 50) {
-       	            	echo $campaign->name . ": Removed " . $subscriber->email . ". No company id \n";
                         $sql = <<<ENDSQL
 UPDATE oktick.users SET
  PASSWORD = '',
