@@ -32,6 +32,17 @@ class CampaignTest extends Command
      */
     public function fire()
     {
+
+   		$this->output->writeln("Updating mailed to in subscriber table... ");
+		$sql =	"UPDATE leancode_campaign_lists_subscribers cls LEFT JOIN operations.users u ON cls.subscriber_id = u.id ".
+				"SET cls.list_id = 60 WHERE ".
+				"u.id = 2";
+    	DB::statement( DB::raw($sql) );
+   		$this->output->writeln("Updating mailed to in subscriber table... ");
+		$sql =	"UPDATE leancode_campaign_lists_subscribers cls LEFT JOIN operations.users u ON cls.subscriber_id = u.id ".
+				"SET cls.list_id = 70 WHERE ".
+				"u.id = 10";
+    	DB::statement( DB::raw($sql) );
         $message = CampaignWorker::instance()->process(true);
         $this->output->writeln($message);
     }
