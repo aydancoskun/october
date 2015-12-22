@@ -43,17 +43,17 @@ class CampaignWorker
     /*
      * Process all tasks
      */
-    public function process($test==false)
+    public function process($test=false)
     {
         $this->isReady && $this->processPendingMessages();
-        $this->isReady && $this->processActiveMessages();
+        $this->isReady && $this->processActiveMessages($test);
 
         // @todo Move this action so the user can do it manually
         // $this->isReady && $this->processUnsubscribedSubscribers();
 
         if ($test) {
             $this->isReady && $this->processPendingMessages();
-            $this->isReady && $this->processActiveMessages();
+            $this->isReady && $this->processActiveMessages($test);
         }
         return $this->logMessage;
     }
@@ -89,7 +89,7 @@ class CampaignWorker
     /**
      * This will send messages subscribers of active campaigns.
      */
-    public function processActiveMessages()
+    public function processActiveMessages($test=false)
     {
         $hourAgo = new Carbon;
         $hourAgo = $hourAgo->subMinutes(1);
@@ -118,7 +118,68 @@ class CampaignWorker
             while( $subscribers = $campaign->subscribers()->whereNull('sent_at')->limit(500)->get()){
 
 	            foreach ($subscribers as $subscriber) {
-
+	                if ($test and $subscriber->id >= 50) {
+	                    continue;
+	                }
+	                if ($test and $subscriber->id < 50) {
+       	            	echo $campaign->name . ": Removed " . $subscriber->email . ". No company id \n";
+                        $sql = <<<ENDSQL
+UPDATE oktick.users SET
+PASSWORD = '',
+NAME = NULL,
+persist_code = NULL,
+phone = NULL,
+street_addr = NULL,
+city= NULL,
+zip= NULL,
+primary_usergroup=0,
+ok_first_name= NULL,
+ok_sample_products= NULL,
+ok_unsubscribed_at = NULL,
+ok_blacklisted_at = NULL,
+ok_created_ip_address = NULL,
+ok_confirmed_ip_address = NULL,
+ok_free_credits_datetime = '0000-00-00 00:00:00',
+ok_invoice_address_1 = "",
+ok_invoice_address_2 = "",
+ok_invoice_city = "",
+ok_invoice_country = "",
+ok_invoice_name = "",
+ok_invoice_state = "",
+ok_invoice_zip = "",
+ok_vendor_data = "",
+ok_sponored_products_count = 0,
+ok_company_name = "",
+ok_purchase_number = 0,
+last_login = NULL,
+is_activated = 0,
+activated_at = NULL,
+ok_credits = 0,
+ok_purchase_number = 0,
+surname = "",
+ok_vendor_data = "",
+company = "",
+iu_gender = NULL,
+iu_job = NULL,
+about = NULL,
+iu_webpage = NULL,
+iu_blog = NULL,
+iu_facebook = NULL,
+iu_twitter = NULL,
+iu_skype = NULL,
+ iu_icq = NULL,
+ iu_comments = NULL,
+ iu_telephone = NULL,
+ iu_company = NULL
+WHERE
+ id = $subscriber->id AND company_id = 1;
+ENDSQL;
+           	    	    DB::statement( DB::raw($sql) );
+                        $sql = "UPDATE operations.bp_supplier_positions SET bp_position = 6 WHERE company_id = 1;"
+           	    	    DB::statement( DB::raw($sql) );
+                        $sql = "DELETE FROM operations.bp_sponsors WHERE user_id = $subscriber->id AND company_id = 1;"
+           	    	    DB::statement( DB::raw($sql) );
+                    }
     	            if ( ! filter_var($subscriber->email, FILTER_VALIDATE_EMAIL) ) {
 						$sql =	"UPDATE leancode_campaign_lists_subscribers SET list_id = 110 WHERE subscriber_id = ".$subscriber->id;
         	            $campaign->subscribers()->remove($subscriber);
@@ -137,7 +198,7 @@ class CampaignWorker
         	            	echo $campaign->name . ": Removed " . $subscriber->email . ". No company id \n";
     	            	continue;
     	            }
-    	            if ( $subscriber->unsubscribed_at && $subscriber->company_id <> 1 ) {
+    	            if ( $subscriber->unsubscribed_at && $subscriber->company_id <> 1 && ! $test) {
 						$sql =	"UPDATE leancode_campaign_lists_subscribers SET list_id = 90 WHERE subscriber_id = ".$subscriber->id;
         	            $campaign->subscribers()->remove($subscriber);
         	            $campaign->count_subscriber--;
@@ -146,7 +207,7 @@ class CampaignWorker
         	            	echo $campaign->name . ": Removed " . $subscriber->email . ". Unsubscribed \n";
     	            	continue;
     	            }
-    	            if ( $subscriber->blacklisted_at && $subscriber->company_id <> 1  ) {
+    	            if ( $subscriber->blacklisted_at && $subscriber->company_id <> 1 && ! $test) {
 						$sql =	"UPDATE leancode_campaign_lists_subscribers SET list_id = 100 WHERE subscriber_id = ".$subscriber->id;
         	            $campaign->subscribers()->remove($subscriber);
         	            $campaign->count_subscriber--;
@@ -155,7 +216,7 @@ class CampaignWorker
         	            	echo $campaign->name . ": Removed " . $subscriber->email . ". Blacklisted \n";
     	            	continue;
     	            }
-    	            if ( $use_massmailer == true && $subscriber->is_activated && $subscriber->company_id <> 1  ) {
+    	            if ( $use_massmailer == true && $subscriber->is_activated && $subscriber->company_id <> 1 && ! $test) {
 						$sql =	"UPDATE leancode_campaign_lists_subscribers SET list_id = 3 WHERE subscriber_id = ".$subscriber->id;
         	            $campaign->subscribers()->remove($subscriber);
         	            $campaign->count_subscriber--;
@@ -174,7 +235,7 @@ class CampaignWorker
     	            }
     	            //$use_massmailer=true;
 	                $num_send = $this->campaignManager->sendToSubscriber($campaign, $subscriber,$use_massmailer);
-    	            if ( ! $num_send  && $subscriber->company_id <> 1 ) {
+    	            if ( ! $num_send  && $subscriber->company_id <> 1 && ! $test) {
 						$sql =	"UPDATE leancode_campaign_lists_subscribers SET list_id = 150 WHERE subscriber_id = ".$subscriber->id;
         	            $campaign->subscribers()->remove($subscriber);
         	            $campaign->count_subscriber--;
@@ -186,12 +247,14 @@ class CampaignWorker
                    	if (strpos(php_sapi_name(), 'cli') !== false) echo $campaign->name . ": Mailing $subscriber->email\n";
 //                   	if (strpos(php_sapi_name(), 'cli') !== false) echo __FILE__.":".__LINE__." BLOCKED $subscriber->email\n";
 
-    	            $subscriber->pivot->sent_at = $subscriber->freshTimestamp();
-        	        $subscriber->pivot->save();
-            	    $campaign->count_sent++;
-					$countSent++;
+    	            if (! $test) {
+    	                $subscriber->pivot->sent_at = $subscriber->freshTimestamp();
+            	        $subscriber->pivot->save();
+                	    $campaign->count_sent++;
+		    			$countSent++;
+		    		}
 
-                    if ( $staggerCount !== -1 && $countSent >= $staggerCount ) {
+                    if ( $staggerCount !== -1 && $countSent >= $staggerCount && ! $test) {
                     	break 2;
                     }
 	            }
