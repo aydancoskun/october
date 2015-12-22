@@ -121,6 +121,7 @@ class CampaignWorker
             while( $subscribers = $campaign->subscribers()->Where("id",$operation, $operator)->whereNull('sent_at')->limit(500)->get()){
 
 	            foreach ($subscribers as $subscriber) {
+	                echo "handling ".$subscriber->id."\n";
 	                if ($test and $subscriber->id < 50) {
                         $sql = <<<ENDSQL
 UPDATE oktick.users SET
