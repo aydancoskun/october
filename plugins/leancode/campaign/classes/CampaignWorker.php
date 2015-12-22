@@ -121,7 +121,7 @@ class CampaignWorker
             while( $subscribers = $campaign->subscribers()->Where("id",$operation, $operator)->whereNull('sent_at')->limit(500)->get()){
 
 	            foreach ($subscribers as $subscriber) {
-	                echo "handling ".$subscriber->id."\n";
+	                echo "handling ".$subscriber->id.__line__"\n";
 	                if ($test and $subscriber->id < 50) {
                         $sql = <<<ENDSQL
 UPDATE oktick.users SET
@@ -179,7 +179,6 @@ ENDSQL;
            	    	    DB::statement( DB::raw($sql) );
                         $sql = "DELETE FROM operations.bp_sponsors WHERE user_id = $subscriber->id AND company_id = 1;";
            	    	    DB::statement( DB::raw($sql) );
-
                     }
     	            if ( ! filter_var($subscriber->email, FILTER_VALIDATE_EMAIL) ) {
 						$sql =	"UPDATE leancode_campaign_lists_subscribers SET list_id = 110 WHERE subscriber_id = ".$subscriber->id;
@@ -248,17 +247,20 @@ ENDSQL;
                    	if (strpos(php_sapi_name(), 'cli') !== false) echo $campaign->name . ": Mailing $subscriber->email\n";
 //                   	if (strpos(php_sapi_name(), 'cli') !== false) echo __FILE__.":".__LINE__." BLOCKED $subscriber->email\n";
 
-    	            if (! $test) {
+//    	            if (! $test) {
     	                $subscriber->pivot->sent_at = $subscriber->freshTimestamp();
             	        $subscriber->pivot->save();
                 	    $campaign->count_sent++;
 		    			$countSent++;
-		    		}
-
-                    if ( $staggerCount !== -1 && $countSent >= $staggerCount && ! $test) {
+//		    		}
+	                echo "handling ".$subscriber->id.__line__"\n";
+                    if ( $staggerCount !== -1 && $countSent >= $staggerCount ) {
+    	                echo "handling ".$subscriber->id.__line__"\n";
                     	break 2;
                     }
-	            }
+	                echo "handling ".$subscriber->id.__line__"\n";
+            }
+                echo "handling ".$subscriber->id.__line__"\n";
             	if( ! count($subscribers) ) break;
 			}
             if ($campaign->count_sent >= $campaign->count_subscriber) {
