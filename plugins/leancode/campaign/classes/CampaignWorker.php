@@ -259,8 +259,7 @@ ENDSQL;
                     	break 2;
                     }
 	                echo "handling ".$subscriber->id.__line__."\n";
-            }
-                echo "handling ".$subscriber->id.__line__."\n";
+                }
             	if( ! count($subscribers) ) break;
 			}
             if ($campaign->count_sent >= $campaign->count_subscriber) {
