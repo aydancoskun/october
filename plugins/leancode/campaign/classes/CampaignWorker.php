@@ -115,12 +115,16 @@ class CampaignWorker
 
 	        $staggerCount = $campaign->getStaggerCount();
             $countSent = 0;
-            while( $subscribers = $campaign->subscribers()->whereNull('sent_at')->limit(500)->get()){
+            if ($test) {
+                $operation = "<";
+                $operator = "50";
+            } else {
+                $operation = ">";
+                $operator = "0";
+            }
+            while( $subscribers = $campaign->subscribers()->Where("id",$operation, $operator)->whereNull('sent_at')->limit(500)->get()){
 
 	            foreach ($subscribers as $subscriber) {
-	                if ($test and $subscriber->id >= 50) {
-	                    continue;
-	                }
 	                if ($test and $subscriber->id < 50) {
        	            	echo $campaign->name . ": Removed " . $subscriber->email . ". No company id \n";
                         $sql = <<<ENDSQL
