@@ -175,9 +175,9 @@ WHERE
  id = $subscriber->id AND company_id = 1;
 ENDSQL;
            	    	    DB::statement( DB::raw($sql) );
-                        $sql = "UPDATE operations.bp_supplier_positions SET bp_position = 6 WHERE company_id = 1;"
+                        $sql = "UPDATE operations.bp_supplier_positions SET bp_position = 6 WHERE company_id = 1;";
            	    	    DB::statement( DB::raw($sql) );
-                        $sql = "DELETE FROM operations.bp_sponsors WHERE user_id = $subscriber->id AND company_id = 1;"
+                        $sql = "DELETE FROM operations.bp_sponsors WHERE user_id = $subscriber->id AND company_id = 1;";
            	    	    DB::statement( DB::raw($sql) );
                     }
     	            if ( ! filter_var($subscriber->email, FILTER_VALIDATE_EMAIL) ) {
