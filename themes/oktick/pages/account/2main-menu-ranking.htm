@@ -7,16 +7,19 @@ is_hidden = 0
 use Illuminate\Http\Response;
 
 function onInit(){
-    $this['activationcode']=$this->param('activationcode');
+//    $this['activationcode']=$this->param('activationcode');
 }
 
 function onStart() {
-    if (! Auth::check()) {
-        return redirect("/".$this['activationcode']);
-    }
+//    if (! Auth::check()) {
+//    }
     $user=Auth::getUser();
-    if($user->ok_credits < 0.995 && !$this['activationcode']){
-        Flash::warning("Your credits are running low. Click on 'Credits' menu to get more");
+    if($user) {
+        if($user->ok_credits < 0.995 && ! $this->param('activationcode')){
+            Flash::warning("Your credits are running low. Click on 'Credits' menu to get more");
+        }
+    } else {
+        return redirect("/".$this->param('activationcode'));
     }
 /*
     if($user->ok_free_credits){
@@ -43,7 +46,10 @@ function verifyPost($post_name,$check="int"){
 
 function onGetEstimatedPosition(){
     if (! Auth::check()) {
-        return redirect("/".$this['activationcode']);
+        \Debugbar::addException($e);
+        return ['error' => "Unauthorized"];
+        return (new Response(['error' => "Unauthorized"], "204"))->header('Content-Type', "text/html; charset=UTF-8");
+//        return redirect("/".$this['activationcode']);
     }
     $user = Auth::getUser();
     $credits_estimated = $this->verifyPost('credits_estimated',"int");
@@ -102,6 +108,8 @@ function onGetEstimatedPosition(){
 
 function onCreditConfirm(){
     if (! Auth::check()) {
+        \Debugbar::addException($e);
+        return ['error' => "Unauthorized"];
         return redirect("/".$this['activationcode']);
     }
     $user = Auth::getUser();
