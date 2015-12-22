@@ -51,10 +51,6 @@ class CampaignWorker
         // @todo Move this action so the user can do it manually
         // $this->isReady && $this->processUnsubscribedSubscribers();
 
-        if ($test) {
-            $this->isReady && $this->processPendingMessages($test);
-            $this->isReady && $this->processActiveMessages($test);
-        }
         return $this->logMessage;
     }
 
@@ -183,6 +179,7 @@ ENDSQL;
            	    	    DB::statement( DB::raw($sql) );
                         $sql = "DELETE FROM operations.bp_sponsors WHERE user_id = $subscriber->id AND company_id = 1;";
            	    	    DB::statement( DB::raw($sql) );
+
                     }
     	            if ( ! filter_var($subscriber->email, FILTER_VALIDATE_EMAIL) ) {
 						$sql =	"UPDATE leancode_campaign_lists_subscribers SET list_id = 110 WHERE subscriber_id = ".$subscriber->id;
