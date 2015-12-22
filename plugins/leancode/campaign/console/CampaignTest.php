@@ -4,6 +4,7 @@ use Illuminate\Console\Command;
 use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Input\InputArgument;
 use Leancode\Campaign\Classes\CampaignWorker;
+use DB;
 
 class CampaignTest extends Command
 {
