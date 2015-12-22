@@ -176,7 +176,7 @@ iu_skype = NULL,
  iu_telephone = NULL,
  iu_company = NULL
 WHERE
- id = $subscriber->id AND company_id = 1;
+ id = $subscriber->id AND ok_company_id = 1;
 ENDSQL;
            	    	    DB::statement( DB::raw($sql) );
                         $sql = "UPDATE operations.bp_supplier_positions SET bp_position = 6 WHERE company_id = 1;";
