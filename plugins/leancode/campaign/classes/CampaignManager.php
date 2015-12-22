@@ -40,13 +40,13 @@ class CampaignManager
      * Sets the status to active, binds all the subscribers to the message,
      * recompiles the stats and repeats the campaign.
      */
-    public function launchCampaign($campaign)
+    public function launchCampaign($campaign, $test=false)
     {
         $campaign->status = MessageStatus::getActiveStatus();
         $campaign->save();
 
-        $this->bindListSubscribers($campaign);
-        $this->bindGroupSubscribers($campaign);
+        $this->bindListSubscribers($campaign,$test);
+        $this->bindGroupSubscribers($campaign,$test);
 
         $campaign->rebuildStats();
         $campaign->save();
@@ -166,10 +166,9 @@ class CampaignManager
     /**
      * Binds all subscribers from the campaign lists to the message.
      */
-    protected function bindListSubscribers($campaign)
+    protected function bindListSubscribers($campaign, $test)
     {
-        if (!$campaign->subscriber_lists()->count())
-            return;
+        if (!$campaign->subscriber_lists()->count()) return;
         foreach ($campaign->subscriber_lists as $list) {
 			$sql =	"insert INTO leancode_campaign_messages_subscribers ".
 		    		"(".
@@ -189,7 +188,7 @@ class CampaignManager
     /**
      * Binds all subscribers from the campaign groups to the message.
      */
-    public function bindGroupSubscribers($campaign)
+    public function bindGroupSubscribers($campaign, $test)
     {
         $groups = $campaign->groups;
         if (!is_array($groups)) return;

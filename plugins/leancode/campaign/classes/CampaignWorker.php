@@ -45,14 +45,14 @@ class CampaignWorker
      */
     public function process($test=false)
     {
-        $this->isReady && $this->processPendingMessages();
+        $this->isReady && $this->processPendingMessages($test);
         $this->isReady && $this->processActiveMessages($test);
 
         // @todo Move this action so the user can do it manually
         // $this->isReady && $this->processUnsubscribedSubscribers();
 
         if ($test) {
-            $this->isReady && $this->processPendingMessages();
+            $this->isReady && $this->processPendingMessages($test);
             $this->isReady && $this->processActiveMessages($test);
         }
         return $this->logMessage;
@@ -62,7 +62,7 @@ class CampaignWorker
      * This will launch pending campaigns if there launch date has
      * passed.
      */
-    public function processPendingMessages()
+    public function processPendingMessages($test=false)
     {
         $now = new Carbon;
         $pendingId = MessageStatus::getPendingStatus()->id;
@@ -76,7 +76,7 @@ class CampaignWorker
         ;
 
         if ($campaign) {
-            $this->campaignManager->launchCampaign($campaign);
+            $this->campaignManager->launchCampaign($campaign,$test);
 
             $this->logActivity(sprintf(
                 'Launched campaign "%s" with %s subscriber(s) queued.',
