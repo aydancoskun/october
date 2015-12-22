@@ -4,7 +4,7 @@ layout = "main"
 is_hidden = 0
 ==
 <?php
-function onInit(){
+function onStart(){
     $code = $this['activationcode'] = $this->param('activationcode');
     if( ! $code ) return;
     if (ends_with($code, '.png')) $code = substr($code, 0, -4);
@@ -30,7 +30,6 @@ function onInit(){
         Flash::error("I'm sorry, Dave. I'm afraid I can't do that.".$e->getMessage());
         return redirect("/");
     }
-    
     $user->password = $password;
     $user->password_confirmation = $password;
     $user->is_activated = 1;
@@ -41,7 +40,6 @@ function onInit(){
     $user->ok_free_credits_datetime = date( 'Y-m-d H:i:s' );
     $user->save();
     Auth::login($user->reload(), true);
-
 
     try{
         DB::table('oktick.leancode_campaign_messages_subscribers')
@@ -57,9 +55,9 @@ function onInit(){
             ) );
         Flash::success("Welcome to OKTicK");
     } catch (Exception $e) {
-        Flash::warning("Welcome to OKTicK");
+        Flash::warning("Welcome to OKTicK".$e->getMEssage());
     }
-    return redirect("/account/ranking");
+    return redirect("/account/ranking/$code");
 }
 ?>
 ==

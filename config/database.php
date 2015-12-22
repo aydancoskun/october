@@ -53,8 +53,13 @@ return array(
         ),
 
         'mysql' => array(
+            'read' => array(
+      	        'host' => env('DB_HOST'),
+            ),
+            'write' => array(
+                'host' => env('DB_HOST'),
+            ),
             'driver'    => 'mysql',
-            'host'      => env('DB_HOST'),
             'port'      => '3306',
             'database'  => env('DB_DATABASE'),
             'username'  => env('DB_USERNAME'),
