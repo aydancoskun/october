@@ -29,6 +29,7 @@ class Plugin extends PluginBase
     public function register()
     {
         $this->registerConsoleCommand('addresso.run', 'Leancode\Campaign\Console\CampaignRun');
+        $this->registerConsoleCommand('addresso.test', 'Leancode\Campaign\Console\CampaignTest');
     }
 
     public function registerComponents()

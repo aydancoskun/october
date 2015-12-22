@@ -43,7 +43,7 @@ class CampaignWorker
     /*
      * Process all tasks
      */
-    public function process()
+    public function process($test==false)
     {
         $this->isReady && $this->processPendingMessages();
         $this->isReady && $this->processActiveMessages();
@@ -51,6 +51,10 @@ class CampaignWorker
         // @todo Move this action so the user can do it manually
         // $this->isReady && $this->processUnsubscribedSubscribers();
 
+        if ($test) {
+            $this->isReady && $this->processPendingMessages();
+            $this->isReady && $this->processActiveMessages();
+        }
         return $this->logMessage;
     }
 
