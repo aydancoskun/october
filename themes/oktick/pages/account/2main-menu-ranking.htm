@@ -7,7 +7,7 @@ is_hidden = 0
 use Illuminate\Http\Response;
 
 function onInit(){
-//    $this['activationcode']=$this->param('activationcode');
+    $this['activationcode']=$this->param('activationcode');
 }
 
 function onStart() {
@@ -46,7 +46,7 @@ function verifyPost($post_name,$check="int"){
 
 function onGetEstimatedPosition(){
     if (! Auth::check()) {
-        \Debugbar::addException($e);
+//        \Debugbar::addException($e);
         return ['error' => "Unauthorized"];
         return (new Response(['error' => "Unauthorized"], "204"))->header('Content-Type', "text/html; charset=UTF-8");
 //        return redirect("/".$this['activationcode']);
@@ -99,7 +99,7 @@ function onGetEstimatedPosition(){
 //        return ['estimatedPosition' => "$bp_low to $bp_high"];
     }
     catch(Exception $e) {
-        \Debugbar::addException($e);
+//        \Debugbar::addException($e);
         return ['error' => "Something went wrong"];
         return (new Response(['error' => "Something went wrong"], "204"))->header('Content-Type', "text/html; charset=UTF-8");
     }
@@ -108,7 +108,7 @@ function onGetEstimatedPosition(){
 
 function onCreditConfirm(){
     if (! Auth::check()) {
-        \Debugbar::addException($e);
+//        \Debugbar::addException($e);
         return ['error' => "Unauthorized"];
         return redirect("/".$this['activationcode']);
     }
@@ -292,13 +292,13 @@ function onCreditConfirm(){
 <div class="row">
     <div id="ok_help_ranking" {% if user.ok_help_ranking==0 %}class="collapse"{% endif %}>
         <br>
-        <p>On this page you can see all products or services we have on record for your business and can elevate their standings on the OKTicK results pages.</p>
-{% if (activationcode) and  ( (user.ok_free_credits_datetime == "0000-00-00 00:00:00") or (user.ok_free_credits_datatime == '') ) %}
-{% endif %}
+{% if (activationcode) and  ( (user.ok_free_credits_datetime == "0000-00-00 00:00:00") or (user.ok_free_credits_datatime == '') ) %}{% endif %}
 {% if (activationcode) %}
-        <p>You can boost the rankings in the results pages with the <button class="btn btn-default btn-xs"><span class="glyphicon glyphicon-plus"></span></button> and <button class="btn btn-default btn-xs"><span class="glyphicon glyphicon-minus"></span></button> buttons.</p>
+        <p>These are the products & services we have for your business. You can boost them up to the top of the search results with the <button class="btn btn-success btn-xs"><span class="glyphicon glyphicon-plus"></span></button> button.
+        
 {% else %}
-        <p>You can use your free credits to elevate products. You can see at any time how many credits you have remaining by looking at the badge 
+        <p>These are the products or services we have on record for you and you can boost their standings on the OKTicK results pages.</p>
+        <p>You can use your free credits to boost products. You can see at any time how many credits you have remaining by looking at the badge 
             <span id="ok_credits"
                   class="badge {% if user.ok_credits|round(2, 'common') > 0 %}badge-success{%else%}badge-primary{% endif %} badge-menu"
                   data-toggle="tooltip"
@@ -337,11 +337,11 @@ function onCreditConfirm(){
         <p>Elevation is easy to do using the <button class="btn btn-default btn-xs"><span class="glyphicon glyphicon-plus"></span></button> and <button class="btn btn-default btn-xs"><span class="glyphicon glyphicon-minus"></span></button> buttons on the right of each product and service. When you are satisfied click the <button class="btn btn-success btn-xs"><span class="glyphicon glyphicon-ok"></span></button> button which will have appeared. The more credits applied the higher the potential position your business may come on the list. You will notice as you adjust the credits a new 'estimated position' reflects this. Credits once confirmed are applied immediately.</p>
         <p>Credits once applied last for precisely one week. Unless you set them to zero, credits are renewed at the this same time each week. You can check your standings by doing a search yourself on the product or service (bear in mind it can change in minutes through the actions of other suppliers). You can lose positions if you inadvertently run out of credits, but if this happens we will let you know..</p>
         <p>When you adjust credits in the middle of week the applied balance is accurately calculated as fair as possible. For example if exactly half way through the week you add 4 more credits you are only charged 2 credits. When the new week arrives the full extra 4 credits are then charged. If you were to reduce from 6 credits to 3 exactly half way though the week you be refunded 1.5 credits.</p>
-{% endif %}
         <p>If you don't need this notice any further, click below. You can always re-enable it later by clicking the <span class="glyphicon-primary glyphicon glyphicon-question-sign"></span> sign.</p>
         <div class="text-center">
             <button id="ok_help_ranking_off" class="btn btn-default btn-sm help"><span class="glyphicon glyphicon-primary glyphicon-thumbs-up"></span>&nbsp;Got it</button>
         </div>
+{% endif %}
     </div>
 </div>
 <div class="row">
