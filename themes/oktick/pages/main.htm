@@ -36,7 +36,7 @@ function onStart(){
     if($user->ok_free_credits_datetime > $allowed_transaction_date){
 //        $msg = "Not time yet to top up credits";
     }
-    if( $user->ok_credits >= $user->ok_free_credits ){
+    elseif( $user->ok_credits >= $user->ok_free_credits ){
 //        $msg = "You don't need any top up, You've already got $user->ok_credits credits";
     } else {
         $user->ok_credits = $user->ok_free_credits;
