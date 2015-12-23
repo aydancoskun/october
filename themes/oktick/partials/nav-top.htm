@@ -45,7 +45,7 @@ function onStart(){
             </button>
 {% if this.page.id != "main" %}
             <a class="navbar-brand {% if (this.page.id == "account-ranking-todo") and (activationcode) %}addspeech{% endif %} "
-                href="/{{activationcode}}" style="height:50px;"
+                href="/" style="height:50px;"
                 data-toggle="tooltip"
                 data-trigger="hover"
                 data-placement="bottom"
@@ -53,7 +53,7 @@ function onStart(){
                 rel="navbarbrand">
                 <span class="glyphicon glyphicon-primary glyphicon-search" aria-hidden="true">
 {% else %}
-            <a  class="navbar-brand " href="/{{activationcode}}" style="height:50px;" rel="navbarbrand">
+            <a  class="navbar-brand " href="/" style="height:50px;" rel="navbarbrand">
                 <span class="glyphicon glyphicon-primary glyphicon-home" aria-hidden="true">
 {% endif %}
                 <img
@@ -69,7 +69,7 @@ function onStart(){
 {% if user %}
                 <ul class="nav navbar-nav nav-top">
                     <li class="{% if (this.page.id == "main") and (activationcode) and (user.ok_credits == 0) %}addspeech{% endif %} {% if this.page.id == "account-ranking" %}active{% endif %}" rel="navbarrankings">
-                        <a href="/account/ranking/{{ activationcode }}">Search Booster <span
+                        <a href="/account/ranking/">Search Booster <span
                             id="badge_active"
                             class="badge_active badge {% if user.ok_sponored_products_count %}badge-success{%else%}badge-primary{% endif %} badge-menu"
                             data-toggle="tooltip"
@@ -82,7 +82,7 @@ function onStart(){
                     </li>
 {% if (user.ok_free_credits_datatime != '0000-00-00 00:00:00') and (user.ok_free_credits_datatime != '') %}
                     <li class="{% if (this.page.id == "account-credit-todo") and (activationcode) and (user.ok_credits == 0)%}addspeech{% endif %} {% if this.page.id == "account-products-services" %}active{% endif %}" rel="navbarps">
-                        <a href="/account/products-services/{{activationcode}}">Products &amp; Services <span
+                        <a href="/account/products-services/">Products &amp; Services <span
                             id="badge_total"
                             class="badge {% if user.ok_company_products_count %}badge-success{%else%}badge-primary{% endif %} badge-menu"
                             data-toggle="tooltip"
@@ -97,7 +97,7 @@ function onStart(){
 {% endif %}
 {% if (user.ok_free_credits_datatime != '0000-00-00 00:00:00') and (user.ok_free_credits_datatime != '') %}
                     <li class="{% if (this.page.id == "account-ranking-todo") and (activationcode) and (user.ok_credits == 0)%}addspeech{% endif %}  {% if this.page.id == "account-credit" %}active{% endif %}" rel="navbarcredits">
-                        <a href="/account/credit/{{activationcode}}">Credits <span
+                        <a href="/account/credit/">Credits <span
                             id="ok_credits"
                             class="badge {% if user.ok_credits|round(2, 'common') > 0 %}badge-success{%else%}badge-primary{% endif %} badge-menu"
                             data-toggle="tooltip"
@@ -130,7 +130,7 @@ function onStart(){
                         class="btn btn-success"
                         data-toggle="tooltip" data-trigger="hover" data-placement="bottom"
                         title="Click to claim your lifetime free credits"
-                        onclick="window.location='/account/offer/{{activationcode}}'"
+                        onclick="window.location='/account/offer/'"
                         >Claim lifetime credits</button>
 {% elseif ok_free_credits_button == "free" %}
                     <li class="navbar-form">
@@ -201,9 +201,9 @@ $('#btn-claim-free').click(function(event){
                 </ul>
             {% else %}
                 <ul class="nav navbar-nav nav-top">
-                    <li class="{% if this.page.id == "pages-search-tips" %}active{% endif %}"><a href="/search-tips/{{activationcode}}">Search Tips</a></li>
-                    <li class="{% if this.page.id == "pages-why-register" %}active{% endif %}"><a href="/why-register/{{activationcode}}">Why Register?</a></li>
-                    <li class="{% if this.page.id == "pages-faq" %}active{% endif %}"><a href="/faq/{{activationcode}}">FAQ</a></li>
+                    <li class="{% if this.page.id == "pages-search-tips" %}active{% endif %}"><a href="/search-tips/">Search Tips</a></li>
+                    <li class="{% if this.page.id == "pages-why-register" %}active{% endif %}"><a href="/why-register/">Why Register?</a></li>
+                    <li class="{% if this.page.id == "pages-faq" %}active{% endif %}"><a href="/faq/">FAQ</a></li>
                 </ul>
             {% endif %}
             <ul class="nav navbar-nav navbar-right nav-top">
@@ -216,26 +216,26 @@ $('#btn-claim-free').click(function(event){
                         <ul class="dropdown-menu">
                             <li class="dropdown-header">Account Administration </li>
                             <li>
-                                <a href="/account/details/{{activationcode}}" class="text-left">
+                                <a href="/account/details/" class="text-left">
                                     <span class="glyphicon glyphicon-user" aria-hidden="true"></span><span style="text-align:left; !important">
                                         {{"&nbsp;&nbsp;"|raw}}{% if (user.name) and (user.surname) %}{{user.name}}{{"&nbsp;"|raw}}{{user.surname}}{% else %}{{user.email}}{% endif %}
                                     </span>
                                 </a>
                             </li>
                             <li>
-                                <a href="/account/password-change/{{activationcode}}">
+                                <a href="/account/password-change/">
                                     <span class="glyphicon glyphicon-lock" aria-hidden="true"></span>
                                     {{"&nbsp;&nbsp;"|raw}}Change Password</a>
                             </li>
                             <li role="separator" class="divider"></li>
                             <li class="dropdown-header">Business Administration</li>
                             <li>
-                                <a href="/account/company/{{activationcode}}">
+                                <a href="/account/company/">
                                     <span class="glyphicon glyphicon-edit" aria-hidden="true"></span>
                                     {{"&nbsp;&nbsp;"|raw}}{% if (user.ok_company_name) %}{{user.ok_company_name}}{% else %}{{user.company}}{% endif %}</a>
                             </li>
                             <li role="separator" class="divider"></li>
-                            <li><a href="/logout/{{activationcode}}">
+                            <li><a href="/logout/">
                                     <span class="glyphicon glyphicon-off" aria-hidden="true"></span>
                                     {{"&nbsp;&nbsp;"|raw}}Sign Out
                                     </span>
@@ -245,12 +245,12 @@ $('#btn-claim-free').click(function(event){
                     </li>
                 {% else %}
                     <li class="{% if this.page.id == "register" %}active{% endif %}">
-                        <a href="/register/{{activationcode}}">
+                        <a href="/register/">
                             <!--span class="glyphicon glyphicon-cog" aria-hidden="true"></span-->&nbsp;Get Started
                         </a>
                     </li>
                     <li class="{% if this.page.id == "login" %}active{% endif %}">
-                        <a href="/login/{{activationcode}}" style="text-decoration:none;">
+                        <a href="/login/" style="text-decoration:none;">
                             <span class="glyphicon glyphicon-user" aria-hidden="true"></span>&nbsp;Sign In
                         </a>
                     </li>
