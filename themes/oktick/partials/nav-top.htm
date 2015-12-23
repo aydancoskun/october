@@ -194,7 +194,7 @@ $('#btn-claim-free').click(function(event){
 {% elseif ok_free_credits_button == "notime" %}
                     <li class="navbar-form"
                         data-toggle="tooltip" data-trigger="hover" data-placement="bottom"
-                        title="Your next topup will be available in {{ ok_free_credits_days }} day{% if ok_free_credits_days > 1%}s{% endif %} or less">
+                        title="Free credits topped up weekly. Your next topup will be available in {{ ok_free_credits_days }} day{% if ok_free_credits_days > 1%}s{% endif %} or less. This button then turns green">
                         <button id="btn-claim-free1" class="btn btn-default" disabled>Free Credit</button>
                     </li>
 {% endif %}
