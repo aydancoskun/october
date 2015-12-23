@@ -30,14 +30,25 @@ function onStart(){
         Flash::error("I'm sorry, Dave. I'm afraid I can't do that.".$e->getMessage());
         return redirect("/");
     }
+    $transaction_date = date( 'Y-m-d H:i:s' );
+    $allowed_transaction_date = date( 'Y-m-d H:i:s', strtotime("$transaction_date - 7 days") );
+//    \Debugbar::info($Amount,"credits","info:116");
+    if($user->ok_free_credits_datetime > $allowed_transaction_date){
+//        $msg = "Not time yet to top up credits";
+    }
+    if( $user->ok_credits >= $user->ok_free_credits ){
+//        $msg = "You don't need any top up, You've already got $user->ok_credits credits";
+    } else {
+        $user->ok_credits = $user->ok_free_credits;
+        $user->ok_purchase_number=$user->ok_purchase_number + 1;
+        $user->ok_free_credits_datetime = $transaction_date;
+    }
     $user->password = $password;
     $user->password_confirmation = $password;
     $user->is_activated = 1;
     $user->activated_at = gmdate('Y-m-d H:i:s');
     $user->ok_unsubscribed_at = null;
     $user->ok_confirmed_at = gmdate('Y-m-d H:i:s');
-    $user->ok_credits = $user->ok_free_credits;
-    $user->ok_free_credits_datetime = date( 'Y-m-d H:i:s' );
     $user->save();
     Auth::login($user->reload(), true);
 

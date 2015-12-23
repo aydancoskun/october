@@ -15,8 +15,8 @@ function onStart(){
     } else {
         $this['logout'] = false;
     }
-    if (! Auth::check()) return;
     $user = Auth::getUser();
+    if (! $user ) return;
     $now = time();
     $this['ok_free_credits'] = $Amount = $user->ok_free_credits;
     $next_transaction_date = date( 'Y-m-d H:i:s',strtotime($user->ok_free_credits_datetime ."+ 7 days") );
