@@ -232,7 +232,14 @@ $('#btn-claim-free').click(function(event){
                             <li>
                                 <a href="/account/company/">
                                     <span class="glyphicon glyphicon-edit" aria-hidden="true"></span>
-                                    {{"&nbsp;&nbsp;"|raw}}{% if (user.ok_company_name) %}{{user.ok_company_name}}{% else %}{{user.company}}{% endif %}</a>
+                                    {{"&nbsp;&nbsp;"|raw}}
+                                    {% if (user.ok_company_name) %}
+                                        {{user.ok_company_name}}
+                                    {% elseif (user.company) %}
+                                        {{user.company}}
+                                    {% else %}
+                                        Your Company
+                                    {% endif %}</a>
                             </li>
                             <li role="separator" class="divider"></li>
                             <li><a href="/logout/">
