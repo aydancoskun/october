@@ -294,44 +294,49 @@ function onCreditConfirm(){
         <br>
         <p>On this page you can see all products or services we have on record for your business and can elevate their standings on the OKTicK results pages.</p>
 {% if (activationcode) and  ( (user.ok_free_credits_datetime == "0000-00-00 00:00:00") or (user.ok_free_credits_datatime == '') ) %}
+{% endif %}
+{% if (activationcode) %}
         <p>You can boost the rankings in the results pages with the <button class="btn btn-default btn-xs"><span class="glyphicon glyphicon-plus"></span></button> and <button class="btn btn-default btn-xs"><span class="glyphicon glyphicon-minus"></span></button> buttons.</p>
-{% elseif (activationcode) %}
-            <p>You can use your free credits to elevate products. You can see at any time how many credits you have remaining by looking at the badge <span
-                            id="ok_credits"
-                            class="badge {% if user.ok_credits|round(2, 'common') > 0 %}badge-success{%else%}badge-primary{% endif %} badge-menu"
-                            data-toggle="tooltip"
-                            data-trigger="hover"
-                            data-placement="bottom"
-                            title="Number of credits"
-                            data-content="This shows the number of credits you have on account and available to place on products and services"
-                            data-value="{% if user.ok_credits %}{{user.ok_credits}}{%else%}0{% endif %}">{% if user.ok_credits and user.ok_credits > 0 %}{{ user.ok_credits|round(2, 'common') }}{%else%}0{% endif %}</span> next to "Credits" menu item.</p>
-            <p>You can see how many items we hold for your business in total by looking at the badge <span
-                            id="badge_total"
-                            class="badge {% if user.ok_company_products_count %}badge-success{%else%}badge-primary{% endif %} badge-menu"
-                            data-toggle="tooltip"
-                            data-trigger="hover"
-                            data-placement="bottom"
-                            title="Total number of products and services on the system"
-                            data-content="Total Number of products on system">
-                        {% if user.ok_company_products_count %}{{user.ok_company_products_count}}{%else%}0{% endif %}
-                            </span> next to the "Products &amp; Services" menu item.</p>
-            <p>You can see how many items you are elevating (applying credit to) by looking at the badge <span
-                            id="badge_active"
-                            class="badge {% if user.ok_sponored_products_count %}badge-success{%else%}badge-primary{% endif %} badge-menu"
-                            data-toggle="tooltip"
-                            data-trigger="hover"
-                            data-placement="bottom"
-                            title="Number of elevated Products and Services">
-                        {% if user.ok_sponored_products_count %}{{user.ok_sponored_products_count}}{%else%}0{% endif %}
-                            </span> next to the "Rankings" menu item.</p>
-            <p>Elevation is easy to do using the <button class="btn btn-default btn-xs"><span class="glyphicon glyphicon-plus"></span></button> and <button class="btn btn-default btn-xs"><span class="glyphicon glyphicon-minus"></span></button> buttons on the right of each product and service. When you are satisfied click the <button class="btn btn-success btn-xs"><span class="glyphicon glyphicon-ok"></span></button> button which will have appeared. Please try it out, you will see how easily it works. The more credits applied the higher the potential position your business may come on the list. You will notice as you adjust the credits a new 'estimated position' reflects this. Credits once confirmed are applied immediately. The time this happens is accurately noted on the system.</p>
-            <p>Credits once applied last for precisely one week. Unless you remove them entirely, credits are renewed at the same time each nominal week. Each week we will send you an email to let you know where we estimate your business stands in the lists of products and services at that moment. You can easily check this by doing a search yourself on the product or service (bear in mind it can change in minutes through the actions of other suppliers). <!--We will advise you if your credits available are running low and need topping up or have run out. -->You can lose positions if you inadvertently run out of credits.</p>
-            <p>When you adjust credits in the middle of week the applied balance is accurately calculated to be as fair as possible. For example if exactly half way through this nominal week you add 4 more credits you are only charged 2 credits. When the new week arrives the full extra 4 credits are then charged. If you were to reduce from 6 credits to 3 exactly half way though the week you be refunded 1.5 credits.</p>                            
 {% else %}
-        <p>You can elevate the rankings in the results pages using your credits. You can acquire <a href="/account/credit/{{activationcode}}">more credits here if your need them</a>.</p>
-        <p>Elevation is easy to do using the <button class="btn btn-default btn-xs"><span class="glyphicon glyphicon-plus"></span></button> and <button class="btn btn-default btn-xs"><span class="glyphicon glyphicon-minus"></span></button> buttons on the right of each product and service. When you are satisfied click the <button class="btn btn-success btn-xs"><span class="glyphicon glyphicon-ok"></span></button> button which will have appeared. Please try it out, you will see how easily it works. The more credits applied the higher the potential position your business may come on the list. You will notice as you adjust the credits a new 'estimated position' reflects this. Credits once confirmed are applied immediately. The time this happens is accurately noted on the system.</p>
-        <p>Credits once applied last for precisely one week. Unless you remove them entirely, credits are renewed at the same time each nominal week. Each week we will send you an email to let you know where we estimate your business stands in the lists of products and services at that moment. You can easily check this by doing a search yourself on the product or service (bear in mind it can change in minutes through the actions of other suppliers). <!--We will advise you if your credits available are running low and need topping up or have run out. -->You can lose positions if you inadvertently run out of credits.</p>
-        <p>When you adjust credits in the middle of week the applied balance is accurately calculated to be as fair as possible. For example if exactly half way through this nominal week you add 4 more credits you are only charged 2 credits. When the new week arrives the full extra 4 credits are then charged. If you were to reduce from 6 credits to 3 exactly half way though the week you be refunded 1.5 credits.</p>
+        <p>You can use your free credits to elevate products. You can see at any time how many credits you have remaining by looking at the badge 
+            <span id="ok_credits"
+                  class="badge {% if user.ok_credits|round(2, 'common') > 0 %}badge-success{%else%}badge-primary{% endif %} badge-menu"
+                  data-toggle="tooltip"
+                  data-trigger="hover"
+                  data-placement="bottom"
+                  title="Number of credits"
+                  data-content="This shows the number of credits you have on account and available to place on products and services"
+                  data-value="{% if user.ok_credits %}{{user.ok_credits}}{%else%}0{% endif %}">
+                      {% if user.ok_credits and user.ok_credits > 0 %}{{ user.ok_credits|round(2, 'common') }}{%else%}0{% endif %}
+            </span>
+            next to "Credits" menu item.
+        </p>
+        <p>You can see how many items we hold for your business in total by looking at the badge 
+            <span id="badge_total"
+                  class="badge {% if user.ok_company_products_count %}badge-success{%else%}badge-primary{% endif %} badge-menu"
+                  data-toggle="tooltip"
+                  data-trigger="hover"
+                  data-placement="bottom"
+                  title="Total number of products and services on the system"
+                  data-content="Total Number of products on system">
+                      {% if user.ok_company_products_count %}{{user.ok_company_products_count}}{%else%}0{% endif %}
+            </span> 
+            next to the "Products &amp; Services" menu item.
+        </p>
+        <p>You can see how many items you are elevating (applying credit to) by looking at the badge 
+            <span id="badge_active"
+                  class="badge {% if user.ok_sponored_products_count %}badge-success{%else%}badge-primary{% endif %} badge-menu"
+                  data-toggle="tooltip"
+                  data-trigger="hover"
+                  data-placement="bottom"
+                  title="Number of elevated Products and Services">
+                      {% if user.ok_sponored_products_count %}{{user.ok_sponored_products_count}}{%else%}0{% endif %}
+            </span> 
+            next to the "Rankings" menu item.
+        </p>
+        <p>Elevation is easy to do using the <button class="btn btn-default btn-xs"><span class="glyphicon glyphicon-plus"></span></button> and <button class="btn btn-default btn-xs"><span class="glyphicon glyphicon-minus"></span></button> buttons on the right of each product and service. When you are satisfied click the <button class="btn btn-success btn-xs"><span class="glyphicon glyphicon-ok"></span></button> button which will have appeared. The more credits applied the higher the potential position your business may come on the list. You will notice as you adjust the credits a new 'estimated position' reflects this. Credits once confirmed are applied immediately.</p>
+        <p>Credits once applied last for precisely one week. Unless you set them to zero, credits are renewed at the this same time each week. You can check your standings by doing a search yourself on the product or service (bear in mind it can change in minutes through the actions of other suppliers). You can lose positions if you inadvertently run out of credits, but if this happens we will let you know..</p>
+        <p>When you adjust credits in the middle of week the applied balance is accurately calculated as fair as possible. For example if exactly half way through the week you add 4 more credits you are only charged 2 credits. When the new week arrives the full extra 4 credits are then charged. If you were to reduce from 6 credits to 3 exactly half way though the week you be refunded 1.5 credits.</p>
 {% endif %}
         <p>If you don't need this notice any further, click below. You can always re-enable it later by clicking the <span class="glyphicon-primary glyphicon glyphicon-question-sign"></span> sign.</p>
         <div class="text-center">

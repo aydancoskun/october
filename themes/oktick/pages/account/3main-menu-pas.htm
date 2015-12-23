@@ -14,10 +14,10 @@ function onInit(){
 }
 
 function onStart(){
-    if (! Auth::check()) {
+    $user=Auth::getUser();
+    if (! $user ) {
         return redirect("/".$this['activationcode']);
     }
-    $user = Auth::getUser();
     $now = time();
     $this['pending_products'] = DB::table('operations.bp_suppliers_added')
         ->where('user_id', $user->id)
@@ -44,10 +44,10 @@ function verifyPost($post_name,$check="int"){
 }
 
 function onProductPendingDelete(){
-    if (! Auth::check()) {
+    $user=Auth::getUser();
+    if (! $user ) {
         return redirect("/".$this['activationcode']);
     }
-    $user = Auth::getUser();
     $now = time();
     $uid = $this->verifyPost('uid',"int");
 
@@ -81,10 +81,10 @@ function onProductPendingDelete(){
 }
 
 function onProductDelete(){
-    if (! Auth::check()) {
+    $user=Auth::getUser();
+    if (! $user ) {
         return redirect("/".$this['activationcode']);
     }
-    $user = Auth::getUser();
     $now = time();
     $bp_id = $this->verifyPost('bp_id',"int");
 
@@ -167,10 +167,10 @@ function make_company_website_url($url,$proto,$www){
     return $final_url;
 }
 function onProductAdd(){
-    if (! Auth::check()) {
+    $user=Auth::getUser();
+    if (! $user ) {
         return redirect("/".$this['activationcode']);
     }
-    $user = Auth::getUser();
     $now = time();
     $bp_name = $this->verifyPost('bp_name',"string");
     $bp = DB::table('operations.bps')->where('bp',$bp_name)->first();

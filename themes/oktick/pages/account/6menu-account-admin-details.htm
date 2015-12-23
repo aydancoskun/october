@@ -40,10 +40,10 @@ function onStart() {
 }
 
 function makeTimezone() {
-    if (! Auth::check()) {
+    $user=Auth::getUser();
+    if (! $user ) {
         return redirect("/".$this['activationcode']);
     }
-    $user = Auth::getUser();
     $regions = array(
         'Africa' => DateTimeZone::AFRICA,
         'America' => DateTimeZone::AMERICA,
@@ -84,7 +84,8 @@ function makeTimezone() {
 }
 
 function onUpdate() {
-    if (! Auth::check()) {
+    $user=Auth::getUser();
+    if (! $user ) {
         return redirect("/".$this['activationcode']);
     }
     $lastname = $this->verifyPost('lastname',"string");
@@ -107,7 +108,6 @@ function onUpdate() {
         Flash::error('Please provide a valid timezone');
         return;
     }
-    $user = Auth::getUser();
     $user->name = $firstname;
     $user->email = $email;
     $user->username = $email;

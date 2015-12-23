@@ -9,14 +9,15 @@ function onInit(){
 }
 
 function onStart() {
-    if (! Auth::check()) {
+    $user=Auth::getUser();
+    if (! $user ) {
         return redirect("/".$this['activationcode']);
     }
     $this['invoices']= DB::select(
         "SELECT download_code, transaction_date, credits_purchased, price_paid, transaction_currency, concat((user_id*10),(id*10)) as invoice_number ".
         "FROM ok_payments ".
         "WHERE ".
-        "user_id = ". Auth::getUser()->id . " " .
+        "user_id = ". $user->id . " " .
         "ORDER BY transaction_date DESC"
         );
 }

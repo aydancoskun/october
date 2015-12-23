@@ -1,4 +1,4 @@
-﻿/*jslint vars: true*/
+/*jslint vars: true*/
 /*global describe, it, expect, waits, waitsFor, runs, afterEach, spyOn, $*/
 
 describe('Autocomplete', function () {

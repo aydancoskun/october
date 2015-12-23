@@ -15,7 +15,8 @@ function onInit(){
 }
 
 function onStart(){
-    if (! Auth::check()) {
+    $user=Auth::getUser();
+    if (! $user ) {
         return redirect("/".$this['activationcode']);
     }
     \Debugbar::info("Credit Page onStart()");
@@ -46,7 +47,6 @@ function onStart(){
     }
 
     try {
-        $user = Auth::getUser();
         $amt1=50;$amt2=100;$amt3=250;$amt4=500;$amt5=5000;
         $pri1=15;$pri2=25 ;$pri3=55 ;$pri4=100;$pri5=1000;
         $this['list_price']=array(1=>$pri1,2=>$pri2,3=>$pri3,4=>$pri4,5=>$pri5);
