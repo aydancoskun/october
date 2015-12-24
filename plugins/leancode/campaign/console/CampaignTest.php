@@ -45,7 +45,7 @@ class CampaignTest extends Command
 //    	            ->whereNotNull('blacklisted_at')
                     ->leftJoin('leancode_campaign_lists_subscribers','id','=','subscriber_id')
     	            ->where('list_id','<>','90');
-		$this->output->writeln("Moving unsubscribed to list 90... (".count($ids).")");
+		$this->output->writeln("Moving unsubscribed to list 90... (".count($lcs).")");
         foreach($lcs->id as $id){
         	$ids = DB::table('leancode_campaign_lists_subscribers')
         	        ->where('subscriber_id',$id)
@@ -57,7 +57,7 @@ class CampaignTest extends Command
     	            ->whereNotNull('blacklisted_at')
                     ->leftJoin('leancode_campaign_lists_subscribers','id','=','subscriber_id')
     	            ->where('list_id','<>','100');
-		$this->output->writeln("Moving blacklisted to list 100... (".count($ids).")");
+		$this->output->writeln("Moving blacklisted to list 100... (".count($lcs).")");
         foreach($lcs->id as $id){
         	$ids = DB::table('leancode_campaign_lists_subscribers')
         	        ->where('subscriber_id',$id)
