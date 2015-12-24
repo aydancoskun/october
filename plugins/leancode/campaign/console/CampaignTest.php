@@ -51,6 +51,7 @@ class CampaignTest extends Command
         	        ->update(['list_id'=>90]);
         }
 
+echo "done that been there";
 
     	$ids = DB::table('leancode_campaign_subscribers')
 //    	            ->whereNotNull('unsubscribed_at')
