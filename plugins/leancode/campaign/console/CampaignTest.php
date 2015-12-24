@@ -73,10 +73,10 @@ class CampaignTest extends Command
 
 		// This inserts into the subscriber table those that have unsubscribed from the emails.
 		$this->output->writeln("Updating blacklisted / unsubscribed step 2... ");
-	    $sql =	"INSERT into leancode_campaign_lists_subscribers ".
-	    		"(select 90, id from leancode_campaign_subscribers where unsubscribed_at is not NULL) ".
-	    		"WHERE list_id <> 90";
-//	    		ON DUPLICATE KEY UPDATE leancode_campaign_lists_subscribers.list_id = leancode_campaign_lists_subscribers.list_id";
+	    $sql =	"INSERT IGNORE into leancode_campaign_lists_subscribers ".
+	    		"(select 90, id from leancode_campaign_subscribers where unsubscribed_at is not NULL) ";
+//	    		"ON DUPLICATE KEY IGNORE";
+	    		//UPDATE leancode_campaign_lists_subscribers.list_id = leancode_campaign_lists_subscribers.list_id";
 				DB::statement( DB::raw($sql) );
 
 		// This deletes those that have unsubscribed from any other list
