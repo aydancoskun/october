@@ -84,14 +84,14 @@ class CampaignRun extends Command
 		$this->output->writeln("Updating mailed to step 1... ");
 		$sql =  "UPDATE operations.users u ".
 				"SET A = 'Y' WHERE ".
-				"L IS NULL AND ". 
+				"L IS NULL AND ".
 				"is_activated = 1 ";
     	DB::statement( DB::raw($sql) );
 
 		$this->output->writeln("Updating mailed to step 2... ");
 		$sql =  "UPDATE operations.users u LEFT JOIN oktick.leancode_campaign_messages_subscribers cms ON u.id = cms.subscriber_id ".
 				"SET u.A = 'Y' WHERE ".
-				"L IS NULL AND ". 
+				"L IS NULL AND ".
 				"( cms.sent_at <> '' AND cms.sent_at IS NOT NULL )";
     	DB::statement( DB::raw($sql) );
 
@@ -210,6 +210,10 @@ class CampaignRun extends Command
 //				"cls.list_id = 99 AND ".
 				"u.A IS NOT NULL";
     	DB::statement( DB::raw($sql) );
+    	$count = DB::table('operations.users')->whereNotNull('A')->count();
+		$this->output->writeln("Checking how many should be there now... $count");
+    	$count = DB::table('leancode_campaign_lists_subscribers')->where('list_id',1)->count();
+		$this->output->writeln("Checking how are there now... $count");
 
 		// 2 = D
 		$this->output->writeln("Updating 'Clicked but NOT accepted the FCFL' in subscriber table... ");
@@ -218,6 +222,10 @@ class CampaignRun extends Command
 //				"cls.list_id = 1 AND ".
 				"u.D IS NOT NULL";
     	DB::statement( DB::raw($sql) );
+    	$count = DB::table('operations.users')->whereNotNull('D')->count();
+		$this->output->writeln("Checking how many should be there now... $count");
+    	$count = DB::table('leancode_campaign_lists_subscribers')->where('list_id',2)->count();
+		$this->output->writeln("Checking how are there now... $count");
 
 		// 3 = F
 		$this->output->writeln("Updating 'Accepted FCFL but currently NOT applying credits' in subscriber table... ");
@@ -226,6 +234,10 @@ class CampaignRun extends Command
 //				"( cls.list_id BETWEEN 1 AND 7 ) AND ".
 				"u.F IS NOT NULL";
     	DB::statement( DB::raw($sql) );
+    	$count = DB::table('operations.users')->whereNotNull('F')->count();
+		$this->output->writeln("Checking how many should be there now... $count");
+    	$count = DB::table('leancode_campaign_lists_subscribers')->where('list_id',3)->count();
+		$this->output->writeln("Checking how are there now... $count");
 
 		// 4 = H
 		$this->output->writeln("Updating 'Applying credits but NOT to the max' in subscriber table... ");
