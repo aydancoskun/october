@@ -69,7 +69,7 @@ class CampaignTest extends Command
         }
 
 		// L / blacklisted - unsubscribed / iu_company
-    	$dbr = DB::table('operations.users')->whereNotNull('ok_unsubscribed_at')->whereNotNull('ok_blacklisted_at')->where('L','<>','X');
+    	$dbr = DB::table('operations.users')->select('id')->whereNotNull('ok_unsubscribed_at')->whereNotNull('ok_blacklisted_at')->where('L','<>','X')->get();
 		$this->output->writeln("Making sure all blacklisted & unsubscribed are marked only in 'L' column... (".count($dbr).")");
         foreach($dbr as $row){
         	DB::table('operations.users')
