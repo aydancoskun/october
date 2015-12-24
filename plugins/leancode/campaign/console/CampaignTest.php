@@ -47,7 +47,7 @@ class CampaignTest extends Command
 		$this->output->writeln("Moving unsubscribed to list 90... (".count($ids).")");
         foreach($ids as $id){
         	$ids = DB::table('leancode_campaign_lists_subscribers')
-        	        ->where('id',$id)
+        	        ->where('subscriber_id',$id)
         	        ->update(['list_id'=>90]);
         }
 
@@ -60,7 +60,7 @@ class CampaignTest extends Command
 		$this->output->writeln("Moving blacklisted to list 100... (".count($ids).")");
         foreach($ids as $id){
         	$ids = DB::table('leancode_campaign_lists_subscribers')
-        	        ->where('id',$id)
+        	        ->where('subscriber_id',$id)
         	        ->update(['list_id'=>100]);
         }
 
