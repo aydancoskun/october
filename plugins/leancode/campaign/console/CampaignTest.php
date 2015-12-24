@@ -86,7 +86,7 @@ class CampaignTest extends Command
 
 
 		// A / Mailed to / iu_gender
-    	$num = DB::table('operations.users')->whereNull('L')->where('is_activated',1)->update(['A'=>'Y']);
+    	$num = DB::table('operations.users')->whereNull('L')->where('is_activated',1)->update(['A'=>'Y','C'=>'Y']);
 
     	$dbr = DB::table('operations.users')
     	            ->select('id')
@@ -118,46 +118,22 @@ class CampaignTest extends Command
         	    ->update(['B'=>'Y']);
         }
 
-exit;
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-		$this->output->writeln("Update pingback... ");
-		$sql =  "UPDATE operations.users u LEFT JOIN oktick.leancode_campaign_messages_subscribers cms ON u.id = cms.subscriber_id ".
-				"SET B = 'Y' WHERE ".
-				"A IS NOT NULL AND ".
-				"( cms.read_at <> '' OR cms.read_at IS NOT NULL ) ";
-    	DB::statement( DB::raw($sql) );
-
 
 		// C / activated / iu_about
-		$this->output->writeln("Update 'clicked on the mail' and thereby activated... ");
-		$sql =  "UPDATE operations.users ".
-				"SET C = 'Y' WHERE ".
-				"A IS NOT NULL AND ".
-				"L IS NULL AND ".
-				"is_activated = 1 ";
-    	DB::statement( DB::raw($sql) );
+		//done in A above
+		$this->output->writeln("Updating those who clicked the email and therefore activated... ($num)");
 
 
 		// D / activated but no FCFL / iu_webpage
+    	$num = DB::table('operations.users')->whereNotNull('C')->whereNull('ok_free_credits_datetime')->update(['D'=>'N','E'=>null]);
+
+
+
 		$this->output->writeln("Clicked mail (activated) but NOT accepted the FCFL offer... ");
 		$sql =  "UPDATE operations.users ".
 				"SET D='N', E = NULL WHERE ".
 				"C IS NOT NULL AND ".
-				"ok_free_credits_datetime = '0000-00-00 00:00:00' ";
+				"ok_free_credits_datetime IS NULL ";
     	DB::statement( DB::raw($sql) );
 
 
@@ -167,7 +143,7 @@ exit;
 				"SET E = 'Y', D = NULL WHERE ".
 				"C IS NOT NULL AND ".
 				"L IS NULL AND ".
-				"ok_free_credits_datetime <> '0000-00-00 00:00:00' ";
+				"ok_free_credits_datetime IS NOT NULL ";
     	DB::statement( DB::raw($sql) );
 
 

@@ -80,7 +80,7 @@ function onStart(){
                             </span>
                         </a>
                     </li>
-{% if (user.ok_free_credits_datatime != '0000-00-00 00:00:00') and (user.ok_free_credits_datatime != '') %}
+{% if (user.ok_free_credits_datatime != null) %}
                     <li class="{% if (this.page.id == "account-credit-todo") and (activationcode) and (user.ok_credits == 0)%}addspeech{% endif %} {% if this.page.id == "account-products-services" %}active{% endif %}" rel="navbarps">
                         <a href="/account/products-services/">Products &amp; Services <span
                             id="badge_total"
@@ -95,7 +95,7 @@ function onStart(){
                         </a>
                     </li>
 {% endif %}
-{% if (user.ok_free_credits_datatime != '0000-00-00 00:00:00') and (user.ok_free_credits_datatime != '') %}
+{% if (user.ok_free_credits_datatime != null) %}
                     <li class="{% if (this.page.id == "account-ranking-todo") and (activationcode) and (user.ok_credits == 0)%}addspeech{% endif %}  {% if this.page.id == "account-credit" %}active{% endif %}" rel="navbarcredits">
                         <a href="/account/credit/">Credits <span
                             id="ok_credits"
@@ -110,8 +110,8 @@ function onStart(){
                     </li>
 {% else %}
                     <li class="navbar-form">
-                        <button 
-                        id="ok_credits-holder" 
+                        <button
+                        id="ok_credits-holder"
                         class="btn btn-default"
                         type="button"
                         disabled
@@ -125,8 +125,8 @@ function onStart(){
 {% if (activationcode) and (user.ok_credits == 0) %}
                     {#% if true %#}
                     <li class="navbar-form">
-                        <button 
-                        id="btn-claim-free" 
+                        <button
+                        id="btn-claim-free"
                         class="btn btn-success"
                         data-toggle="tooltip" data-trigger="hover" data-placement="bottom"
                         title="Click to claim your lifetime free credits"
@@ -134,8 +134,8 @@ function onStart(){
                         >Claim lifetime credits</button>
 {% elseif ok_free_credits_button == "free" %}
                     <li class="navbar-form">
-                        <button 
-                        id="btn-claim-free" 
+                        <button
+                        id="btn-claim-free"
                         class="btn btn-success"
                         data-toggle="tooltip" data-trigger="hover" data-placement="bottom"
                         title="Click to claim your free credits"
@@ -144,11 +144,11 @@ function onStart(){
                     <script>
 $('#btn-claim-free').click(function(event){
     event.preventDefault();
-    
+
     //console.log("btn-claim-free");
     BootstrapDialog.show({
         title: 'Info:',
-    {% if (user.ok_free_credits_datetime == "0000-00-00 00:00:00") or (user.ok_free_credits_datatime == '') %}
+    {% if (user.ok_free_credits_datetime == null) %}
         message: 'OK, so you are one of the lucky ones with a free CREDITS FOR LIFE deal.<br>Great, so {{ ok_free_credits }} credits it is!<br><br>'+
                  'Click OK, to get your credits. In a week the "Free Credit" button will again turn green and we\'ll top you up!',
     {% else %}

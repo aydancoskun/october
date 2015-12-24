@@ -56,7 +56,7 @@ function onGetEstimatedPosition(){
     $bp_id = $this->verifyPost('bp_id',"int");
     $sql="SELECT bp_position FROM operations.bp_supplier_positions WHERE bp_id = $bp_id AND company_id = $user->ok_company_id";
     $dbr = DB::select($sql);
-    
+
     $bp_position = (isset($dbr[0])  ? $dbr[0]->bp_position : 0);
 
     $sql="SELECT applied_credit as bp_user_credits FROM operations.bp_sponsors WHERE ".
@@ -292,13 +292,13 @@ function onCreditConfirm(){
 <div class="row">
     <div id="ok_help_ranking" {% if user.ok_help_ranking==0 %}class="collapse"{% endif %}>
         <br>
-{% if (activationcode) and  ( (user.ok_free_credits_datetime == "0000-00-00 00:00:00") or (user.ok_free_credits_datatime == '') ) %}{% endif %}
+{% if (activationcode) and  (user.ok_free_credits_datetime == null) %}{% endif %}
 {% if (activationcode) %}
         <p>These are the products & services we have for your business. You can boost them up to the top of the search results with the <button class="btn btn-success btn-xs"><span class="glyphicon glyphicon-plus"></span></button> button.
-        
+
 {% else %}
         <p>These are the products or services we have on record for you and you can boost their standings on the OKTicK results pages.</p>
-        <p>You can use your free credits to boost products. You can see at any time how many credits you have remaining by looking at the badge 
+        <p>You can use your free credits to boost products. You can see at any time how many credits you have remaining by looking at the badge
             <span id="ok_credits"
                   class="badge {% if user.ok_credits|round(2, 'common') > 0 %}badge-success{%else%}badge-primary{% endif %} badge-menu"
                   data-toggle="tooltip"
@@ -311,7 +311,7 @@ function onCreditConfirm(){
             </span>
             next to "Credits" menu item.
         </p>
-        <p>You can see how many items we hold for your business in total by looking at the badge 
+        <p>You can see how many items we hold for your business in total by looking at the badge
             <span id="badge_total"
                   class="badge {% if user.ok_company_products_count %}badge-success{%else%}badge-primary{% endif %} badge-menu"
                   data-toggle="tooltip"
@@ -320,10 +320,10 @@ function onCreditConfirm(){
                   title="Total number of products and services on the system"
                   data-content="Total Number of products on system">
                       {% if user.ok_company_products_count %}{{user.ok_company_products_count}}{%else%}0{% endif %}
-            </span> 
+            </span>
             next to the "Products &amp; Services" menu item.
         </p>
-        <p>You can see how many items you are elevating (applying credit to) by looking at the badge 
+        <p>You can see how many items you are elevating (applying credit to) by looking at the badge
             <span id="badge_active"
                   class="badge {% if user.ok_sponored_products_count %}badge-success{%else%}badge-primary{% endif %} badge-menu"
                   data-toggle="tooltip"
@@ -331,7 +331,7 @@ function onCreditConfirm(){
                   data-placement="bottom"
                   title="Number of elevated Products and Services">
                       {% if user.ok_sponored_products_count %}{{user.ok_sponored_products_count}}{%else%}0{% endif %}
-            </span> 
+            </span>
             next to the "Rankings" menu item.
         </p>
         <p>Elevation is easy to do using the <button class="btn btn-default btn-xs"><span class="glyphicon glyphicon-plus"></span></button> and <button class="btn btn-default btn-xs"><span class="glyphicon glyphicon-minus"></span></button> buttons on the right of each product and service. When you are satisfied click the <button class="btn btn-success btn-xs"><span class="glyphicon glyphicon-ok"></span></button> button which will have appeared. The more credits applied the higher the potential position your business may come on the list. You will notice as you adjust the credits a new 'estimated position' reflects this. Credits once confirmed are applied immediately.</p>
@@ -345,8 +345,8 @@ function onCreditConfirm(){
     </div>
 </div>
 <div class="row">
-    <!--div class="col-12"--> 
-        <h3 class="text-center">You currently have <span class="badge_active">{% if user.ok_sponored_products_count and user.ok_sponored_products_count > 0 %}{{ user.ok_sponored_products_count }}{%else%} no {% endif %}</span> products boosted</h3><br> 
+    <!--div class="col-12"-->
+        <h3 class="text-center">You currently have <span class="badge_active">{% if user.ok_sponored_products_count and user.ok_sponored_products_count > 0 %}{{ user.ok_sponored_products_count }}{%else%} no {% endif %}</span> products boosted</h3><br>
     <!--/div-->
 </div>
 {% if products %}
@@ -357,7 +357,7 @@ function onCreditConfirm(){
             <th class="text-center">Current<br>Position</th>
             <th class="text-center">Estimated<br>Position</th>
             <th class="text-center">Renewal<br>Date</th>
-            <th class="text-center">Search<br>Booster</th> 
+            <th class="text-center">Search<br>Booster</th>
         </tr>
     {% for product in products %}
         <tr class="{% if product.bp_user_credits %}success{%endif%}" id="row{{product.bp_id}}">
@@ -368,7 +368,7 @@ function onCreditConfirm(){
                 data-bp_user_credits="{% if product.bp_user_credits %}{{product.bp_user_credits}}{%else%}0{% endif %}">
                 {{ product.bp_name }}
 {% if product.bp_group_credits %}
-                &nbsp;<span 
+                &nbsp;<span
                 class="glyphicon glyphicon-primary glyphicon-link"
                 data-toggle="tooltip"
                 data-trigger="hover"
@@ -560,12 +560,12 @@ $('.btn-confirm').click(function(event){
             $( '#btn-credit-plus'  + bp_id).removeAttr('disabled');
             if(credits_confirmed > 0) $( '#btn-credit-minus' + bp_id).removeAttr('disabled');
             else $( '#btn-credit-minus' + bp_id).attr('disabled', true);
-            
+
             if(total_credits >= 0.995) $( '.btn-credit-plus').removeAttr('disabled');
             else {
                 $( '.btn-credit-plus').attr('disabled', true);
             }
-            
+
 //        },
 /*        error: function(data) {// Assign handlers immediately after making the request,
             console.log('error');

@@ -139,7 +139,7 @@ UPDATE oktick.users SET
  ok_blacklisted_at = NULL,
  ok_created_ip_address = NULL,
  ok_confirmed_ip_address = NULL,
- ok_free_credits_datetime = '0000-00-00 00:00:00',
+ ok_free_credits_datetime = NULL,
  ok_invoice_address_1 = "",
  ok_invoice_address_2 = "",
  ok_invoice_city = "",
