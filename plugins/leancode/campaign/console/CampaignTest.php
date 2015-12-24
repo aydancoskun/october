@@ -35,14 +35,10 @@ class CampaignTest extends Command
     {
 
    		$this->output->writeln("Updating Dom and moving him back into his category... ");
-		$sql =	"UPDATE leancode_campaign_lists_subscribers cls LEFT JOIN operations.users u ON cls.subscriber_id = u.id ".
-				"SET cls.list_id = 60 WHERE ".
-				"u.id = 2";
+		$sql =	"UPDATE leancode_campaign_lists_subscribers SET list_id = 60 WHERE subscriber_id = 2";
     	DB::statement( DB::raw($sql) );
    		$this->output->writeln("Updating Clive and moving him back into his category... ");
-		$sql =	"UPDATE leancode_campaign_lists_subscribers cls LEFT JOIN operations.users u ON cls.subscriber_id = u.id ".
-				"SET cls.list_id = 70 WHERE ".
-				"u.id = 10";
+		$sql =	"UPDATE leancode_campaign_lists_subscribers SET list_id = 70 WHERE subscriber_id = 10";
     	DB::statement( DB::raw($sql) );
 
 
@@ -63,13 +59,18 @@ class CampaignTest extends Command
     			// L / blacklisted - unsubscribed / iu_company
 		$this->output->writeln("Updating mailing categories in users... ");
 		$this->output->writeln("Updating blacklisted / unsubscribed step 1... ");
+    	$ids = DB::table('operations.users')->whereNotNull('ok_unsubscribed_at')->whereNotNull('ok_blacklisted_at')->where('ok_unsubscribed_at',<>,'')->where('ok_blacklisted_at',<>,'');
+		$this->output->writeln("Updating blacklisted / unsubscribed step 1... ".count($ids)." found.";
+        foreach($ids as $id){
+        	$ids = DB::table('operations.users')->where('id',$id)->update('L','X')->update('A',null)->update('B',null)->update('C',null)->update('D',null)->update('E',null)->update('F',null)->update('G',null)->update('H',null)->update('I',null)->update('J',null)->update('K',null);
+        }
 		$sql =  "UPDATE operations.users SET L = 'X', A = NULL, B = NULL, C = NULL, D = NULL, E = NULL, F = NULL, G = NULL, H = NULL, I = NULL, J = NULL, K = NULL WHERE ".
 				"ok_unsubscribed_at IS NOT NULL OR ".
 				"ok_blacklisted_at IS NOT NULL OR ".
 				"ok_unsubscribed_at <> '' OR ".
 				"ok_blacklisted_at <> ''";
 				//echo $sql ."\n";
-    	DB::statement( DB::raw($sql) );
+//    	DB::statement( DB::raw($sql) );
 
 		// This inserts into the subscriber table those that have unsubscribed from the emails.
 		$this->output->writeln("Updating blacklisted / unsubscribed step 2... ");
