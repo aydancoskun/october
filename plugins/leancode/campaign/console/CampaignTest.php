@@ -58,7 +58,7 @@ class CampaignTest extends Command
     	            ->select('id')
 //    	            ->whereNotNull('unsubscribed_at')
     	            ->whereNotNull('blacklisted_at')
-                    ->leftJoin('leancode_campaign_messages_subscribers','id','=','subscriber_id')
+                    ->leftJoin('leancode_campaign_lists_subscribers','id','=','subscriber_id')
     	            ->where('list_id','<>','100')
     	            ->get();
 		$this->output->writeln("Moving blacklisted to list 100... (".count($dbr).")");
@@ -91,7 +91,7 @@ class CampaignTest extends Command
     	$dbr = DB::table('operations.users')
     	            ->select('id')
     	            ->whereNotNull('L')
-                    ->leftJoin('leancode_campaign_message_subscribers','id','=','subscriber_id')
+                    ->leftJoin('leancode_campaign_messages_subscribers','id','=','subscriber_id')
     	            ->whereNotNull('sent_at')
     	            ->where('A','<>','Y')
     	            ->get();
