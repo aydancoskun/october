@@ -91,7 +91,7 @@ class CampaignTest extends Command
     	$dbr = DB::table('operations.users')
     	            ->select('id')
     	            ->whereNotNull('L')
-                    ->leftJoin('leancode_campaign_lists_subscribers','id','=','subscriber_id')
+                    ->leftJoin('leancode_campaign_message_subscribers','id','=','subscriber_id')
     	            ->whereNotNull('sent_at')
     	            ->where('A','<>','Y')
     	            ->get();
