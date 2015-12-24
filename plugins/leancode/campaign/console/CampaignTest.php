@@ -167,58 +167,24 @@ class CampaignTest extends Command
 
 
 		// H / FCFL but NOT max / iu_skype
-    	$num = DB::table('operations.users')
-    	        ->whereNotNull('G')
-    	        ->where('ok_credits','>=',25)
-    	        ->where('ok_free_credits_datetime','>',date("Y-m-d H:i:s", strtotime("- 7 days")))
-    	        ->update(['H'=>'N','I'=>null]);
+        $date = date("Y-m-d H:i:s", strtotime("- 7 days"));
+    	$num = DB::table('operations.users')->whereNotNull('G')->where('ok_credits','>=',25)->where('ok_free_credits_datetime','>',$date)->update(['H'=>'N','I'=>null]);
 		$this->output->writeln("Applying credits but NOT to the max - more than half left on account yet he renewed in last 7 days... ($num)");
 
 
-		$sql =  "UPDATE operations.users ".
-				"SET H ='N', I = NULL WHERE ".
-				"L IS NULL AND ".
-				"G IS NOT NULL AND ".
-				"ok_credits >= 25 AND ".
-				"ok_free_credits_datetime > '$date' ";
-//    	DB::statement( DB::raw($sql) );
-exit;
-
 		// I / FCFL to the MAX - Perfect! / iu_icq
-		$this->output->writeln("Applying credits to the max - using more than half and renewing in last 7 days (I=Y)...");
-		$date = date("Y-m-d H:i:s", strtotime("- 7 days") );
-		$sql =  "UPDATE operations.users ".
-				"SET I ='Y', H = NULL WHERE ".
-				"L IS NULL AND ".
-				"G IS NOT NULL AND ".
-				"ok_credits < 25 AND ".
-				"ok_free_credits_datetime > '$date' ";
-    	DB::statement( DB::raw($sql) );
+    	$num = DB::table('operations.users')->whereNotNull('G')->where('ok_credits','<',25)->where('ok_free_credits_datetime','>',$date)->update(['I'=>'Y','H'=>null]);
+		$this->output->writeln("Applying credits to the max - using more than half and renewing in last 7 days... ($num)");
 
 
 		// J / Credits but not updated / iu_comment
-		$this->output->writeln("Having credits left but not renewing them  in last 7 days... ");
-		$date = date("Y-m-d H:i:s", strtotime("- 7 days") );
-		$sql =  "UPDATE operations.users ".
-				"SET J ='N', H = NULL, I = NULL WHERE ".
-				"L IS NULL AND ".
-				"E IS NOT NULL AND ".
-				"ok_credits >= 1 AND ok_credits < 50 AND ".
-				"ok_free_credits_datetime < '$date' ";
-    	DB::statement( DB::raw($sql) );
+    	$num = DB::table('operations.users')->whereNotNull('E')->where('ok_credits','>=',1)->where('ok_credits','<',50)->where('ok_free_credits_datetime','<',$date)->update(['J'=>'N','H'=>null,'I'=>null]);
+		$this->output->writeln("Having credits left and not renewing in last 7 days... ($num)");
 
 
 		// K / Credits but not updated / iu_telephone
-		$this->output->writeln("Currently not having any credits left and not renewing them... ");
-		$date = date("Y-m-d H:i:s", strtotime("- 7 days") );
-		$sql =  "UPDATE operations.users ".
-				"SET K ='N', J = NULL, H = NULL, I = NULL WHERE ".
-				"L IS NULL AND ".
-				"E IS NOT NULL AND ".
-				"ok_credits < 1 AND ".
-				"ok_free_credits_datetime < '$date' ";
-    	DB::statement( DB::raw($sql) );
-
+    	$num = DB::table('operations.users')->whereNotNull('E')->where('ok_credits','<',1)->where('ok_free_credits_datetime','<',$date)->update(['K'=>'N','J'=>null,'H'=>null,'I'=>null]);
+		$this->output->writeln("Currently not having any credits left and not renewing them... ($num)");
 
 
 		// 1 = A
