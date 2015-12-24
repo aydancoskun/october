@@ -45,6 +45,7 @@ class CampaignTest extends Command
                     ->leftJoin('leancode_campaign_lists_subscribers','id','=','subscriber_id')
     	            ->where('list_id','<>','90');
 		$this->output->writeln("Moving unsubscribed to list 90... (".count($ids).")");
+dd($ids);
         foreach($ids as $id){
         	$ids = DB::table('leancode_campaign_lists_subscribers')
         	        ->where('subscriber_id',$id)
