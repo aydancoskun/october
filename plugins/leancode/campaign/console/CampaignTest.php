@@ -47,6 +47,7 @@ class CampaignTest extends Command
     	            ->where('list_id','<>','90')
     	            ->get();
 		$this->output->writeln("Moving unsubscribed to list 90... (".count($lcs).")");
+dd($lcs);
         foreach($lcs->id as $id){
         	$ids = DB::table('leancode_campaign_lists_subscribers')
         	        ->where('subscriber_id',$id)
