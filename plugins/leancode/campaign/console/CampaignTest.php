@@ -142,50 +142,47 @@ class CampaignTest extends Command
     	            ->whereNull('user_id')
     	            ->where('F','<>','N')
     	            ->get();
-		$this->output->writeln("Updating those who currently not applying credits... (".count($dbr).")");
+		$this->output->writeln("Updating those who are not applying credits... (".count($dbr).")");
         foreach($dbr as $row){
             DB::table('operations.users')
         	    ->where('id',$row->id)
         	    ->update(['F'=>'N', 'G'=>null, 'H'=>null,'I'=>null]);
         }
 
-exit;
-
-
-
-
-
-
-		$this->output->writeln("Accepted FCFL but currently NOT applying credits... ");
-		$sql =  "UPDATE operations.users u LEFT JOIN operations.bp_sponsors bs ON u.id = bs.user_id ".
-				"SET F ='N', G = NULL, H = NULL, I = NULL  WHERE ".
-				"L IS NULL AND ".
-				"E IS NOT NULL AND ".
-				"bs.user_id IS NULL";
-    	DB::statement( DB::raw($sql) );
-
 
 		// G / FCFL but NOT using credits / iu_twitter
-		$this->output->writeln("Accepted FCFL and applying credits (G=Y)... ");
-		$sql =  "UPDATE operations.users u LEFT JOIN operations.bp_sponsors bs ON u.id = bs.user_id ".
-				"SET G ='Y', F = NULL WHERE ".
-				"L IS NULL AND ".
-				"E IS NOT NULL AND ".
-				"bs.user_id IS NOT NULL";
-    	DB::statement( DB::raw($sql) );
+    	$dbr = DB::table('operations.users')
+    	            ->select('users.id')
+    	            ->whereNotNull('E')
+                    ->leftJoin('operations.bp_sponsors','users.id','=','user_id')
+    	            ->whereNotNull('user_id')
+    	            ->where('G','<>','Y')
+    	            ->get();
+		$this->output->writeln("Updating those who ARE currently applying credits... (".count($dbr).")");
+        foreach($dbr as $row){
+            DB::table('operations.users')
+        	    ->where('id',$row->id)
+        	    ->update(['G'=>'Y', 'F'=>null]);
+        }
 
 
 		// H / FCFL but NOT max / iu_skype
-		$this->output->writeln("Applying credits but NOT to the max - more than half left on account yet he renewed in last 7 days... ");
-		$date = date("Y-m-d H:i:s", strtotime("- 7 days") );
+    	$num = DB::table('operations.users')
+    	        ->whereNotNull('G')
+    	        ->where('ok_credits','>=',25)
+    	        ->where('ok_free_credits_datatime','>',date("Y-m-d H:i:s", strtotime("- 7 days")))
+    	        ->update(['H'=>'N','I'=>null]);
+		$this->output->writeln("Applying credits but NOT to the max - more than half left on account yet he renewed in last 7 days... ($num)");
+
+
 		$sql =  "UPDATE operations.users ".
 				"SET H ='N', I = NULL WHERE ".
 				"L IS NULL AND ".
 				"G IS NOT NULL AND ".
 				"ok_credits >= 25 AND ".
 				"ok_free_credits_datetime > '$date' ";
-    	DB::statement( DB::raw($sql) );
-
+//    	DB::statement( DB::raw($sql) );
+exit;
 
 		// I / FCFL to the MAX - Perfect! / iu_icq
 		$this->output->writeln("Applying credits to the max - using more than half and renewing in last 7 days (I=Y)...");
