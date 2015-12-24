@@ -97,8 +97,8 @@ class CampaignTest extends Command
     	            ->get();
 		$this->output->writeln("Updating those we've mailed to... ($num+".count($dbr).")");
         foreach($dbr as $row){
-            DB::table('leancode_campaign_lists_subscribers')
-        	    ->where('subscriber_id',$row->id)
+            DB::table('operations.users')
+        	    ->where('id',$row->id)
         	    ->update(['A'=>'Y']);
         }
 
@@ -113,8 +113,8 @@ class CampaignTest extends Command
     	            ->get();
 		$this->output->writeln("Updating those we've received pingback from... (".count($dbr).")");
         foreach($dbr as $row){
-            DB::table('leancode_campaign_lists_subscribers')
-        	    ->where('subscriber_id',$row->id)
+            DB::table('operations.users')
+        	    ->where('id',$row->id)
         	    ->update(['B'=>'Y']);
         }
 
@@ -135,17 +135,17 @@ class CampaignTest extends Command
 
 
 		// F / FCFL but NOT using credits / iu_facebook
-    	$dbr = DB::table('operations.users')
-    	            ->select('id')
+    	$dbr = DB::table('operations.users u')
+    	            ->select('u.id')
     	            ->whereNotNull('E')
-                    ->leftJoin('operations.bp_sponsors','id','=','user_id')
+                    ->leftJoin('operations.bp_sponsors','u.id','=','user_id')
     	            ->whereNull('user_id')
     	            ->where('F','<>','N')
     	            ->get();
 		$this->output->writeln("Updating those who currently not applying credits... (".count($dbr).")");
         foreach($dbr as $row){
-            DB::table('leancode_campaign_lists_subscribers')
-        	    ->where('subscriber_id',$row->id)
+            DB::table('operations.users')
+        	    ->where('id',$row->id)
         	    ->update(['F'=>'N', 'G'=>null, 'H'=>null,'I'=>null]);
         }
 
