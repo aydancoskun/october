@@ -39,28 +39,26 @@ class CampaignTest extends Command
    		$this->output->writeln("Updating Clive and moving him back into his category... ");
     	DB::table('leancode_campaign_lists_subscribers')->where('subscriber_id',10)->update(['list_id'=>70]);
 
-    	$ids = DB::table('leancode_campaign_subscribers')
+    	$lcs = DB::table('leancode_campaign_subscribers')
+    	            ->select('id')
     	            ->whereNotNull('unsubscribed_at')
 //    	            ->whereNotNull('blacklisted_at')
                     ->leftJoin('leancode_campaign_lists_subscribers','id','=','subscriber_id')
     	            ->where('list_id','<>','90');
 		$this->output->writeln("Moving unsubscribed to list 90... (".count($ids).")");
-dd($ids);
-        foreach($ids as $id){
+        foreach($lcs->id as $id){
         	$ids = DB::table('leancode_campaign_lists_subscribers')
         	        ->where('subscriber_id',$id)
         	        ->update(['list_id'=>90]);
         }
 
-echo "done that been there";
-
-    	$ids = DB::table('leancode_campaign_subscribers')
+    	$lcs = DB::table('leancode_campaign_subscribers')
 //    	            ->whereNotNull('unsubscribed_at')
     	            ->whereNotNull('blacklisted_at')
                     ->leftJoin('leancode_campaign_lists_subscribers','id','=','subscriber_id')
     	            ->where('list_id','<>','100');
 		$this->output->writeln("Moving blacklisted to list 100... (".count($ids).")");
-        foreach($ids as $id){
+        foreach($lcs->id as $id){
         	$ids = DB::table('leancode_campaign_lists_subscribers')
         	        ->where('subscriber_id',$id)
         	        ->update(['list_id'=>100]);
