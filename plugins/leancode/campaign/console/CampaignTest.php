@@ -34,100 +34,48 @@ class CampaignTest extends Command
     public function fire()
     {
 
-   		$this->output->writeln("Updating Dom and moving him back into his category... ");
-    	DB::table('leancode_campaign_lists_subscribers')->where('subscriber_id',2)->update(['list_id'=>60]);
-   		$this->output->writeln("Updating Clive and moving him back into his category... ");
-    	DB::table('leancode_campaign_lists_subscribers')->where('subscriber_id',10)->update(['list_id'=>70]);
+    	$num = DB::table('leancode_campaign_lists_subscribers')->where('subscriber_id',2)->update(['list_id'=>60]);
+   		$this->output->writeln("Updating Dom and moving him back into his category... ($num)");
 
-    	$lcs = DB::table('leancode_campaign_subscribers')
+    	$num = DB::table('leancode_campaign_lists_subscribers')->where('subscriber_id',10)->update(['list_id'=>70]);
+   		$this->output->writeln("Updating Clive and moving him back into his category... ($num)");
+
+    	$dbr = DB::table('leancode_campaign_subscribers')
     	            ->select('id')
     	            ->whereNotNull('unsubscribed_at')
 //    	            ->whereNotNull('blacklisted_at')
                     ->leftJoin('leancode_campaign_lists_subscribers','id','=','subscriber_id')
     	            ->where('list_id','<>','90')
     	            ->get();
-		$this->output->writeln("Moving unsubscribed to list 90... (".count($lcs).")");
-        foreach($lcs as $row){
-            $id = $row-id;
-        	$ids = DB::table('leancode_campaign_lists_subscribers')
-        	        ->where('subscriber_id',$id)
-        	        ->update(['list_id'=>90]);
+		$this->output->writeln("Moving unsubscribed to list 90... (".count($dbr).")");
+        foreach($dbr as $row){
+            DB::table('leancode_campaign_lists_subscribers')
+        	    ->where('subscriber_id',$row->id)
+        	    ->update(['list_id'=>90]);
         }
 
-    	$lcs = DB::table('leancode_campaign_subscribers')
+    	$dbr = DB::table('leancode_campaign_subscribers')
     	            ->select('id')
 //    	            ->whereNotNull('unsubscribed_at')
     	            ->whereNotNull('blacklisted_at')
                     ->leftJoin('leancode_campaign_lists_subscribers','id','=','subscriber_id')
     	            ->where('list_id','<>','100')
     	            ->get();
-		$this->output->writeln("Moving blacklisted to list 100... (".count($lcs).")");
-        foreach($lcs as $row){
-            $id = $row-id;
-        	$ids = DB::table('leancode_campaign_lists_subscribers')
-        	        ->where('subscriber_id',$id)
-        	        ->update(['list_id'=>100]);
+		$this->output->writeln("Moving blacklisted to list 100... (".count($dbr).")");
+        foreach($dbr as $row){
+        	DB::table('leancode_campaign_lists_subscribers')
+        	    ->where('subscriber_id',$row->id)
+        	    ->update(['list_id'=>100]);
         }
 
 		// L / blacklisted - unsubscribed / iu_company
-    	$ids = DB::table('operations.users')->whereNotNull('ok_unsubscribed_at')->whereNotNull('ok_blacklisted_at')->where('L','<>','X');
-		$this->output->writeln("Making sure all blacklisted & unsubscribed are marked only in 'L' column... (".count($ids).")");
-        foreach($ids as $id){
-        	$ids = DB::table('operations.users')
-        	        ->where('id',$id)
-        	        ->update(['A'=>null,'B'=>null,'C'=>null,'D'=>null,'E'=>null,'F'=>null,'G'=>null,'H'=>null,'I'=>null,'J'=>null,'K'=>null,'L'=>'X']);
+    	$dbr = DB::table('operations.users')->whereNotNull('ok_unsubscribed_at')->whereNotNull('ok_blacklisted_at')->where('L','<>','X');
+		$this->output->writeln("Making sure all blacklisted & unsubscribed are marked only in 'L' column... (".count($dbr).")");
+        foreach($dbr as $row){
+        	DB::table('operations.users')
+        	    ->where('id',$row->id)
+        	    ->update(['A'=>null,'B'=>null,'C'=>null,'D'=>null,'E'=>null,'F'=>null,'G'=>null,'H'=>null,'I'=>null,'J'=>null,'K'=>null,'L'=>'X']);
         }
-
-exit;
-
-
-
-
-
-		$this->output->writeln("Updating blacklisted / unsubscribed step 3... ");
-    	$ids = DB::table('operations.users')
-//    	            ->whereNotNull('ok_unsubscribed_at')
-    	            ->whereNotNull('ok_blacklisted_at')
-//    	            ->where('ok_unsubscribed_at','<>','')
-    	            ->where('ok_blacklisted_at','<>','')
-                    ->leftJoin('leancode_campaign_lists_subscribers','id','=','subscriber_id')
-    	            ->where('list_id','<>','100');
-        foreach($ids as $id){
-        	$ids = DB::table('leancode_campaign_lists_subscribers')
-        	        ->where('id',$id)
-        	        ->update(['subscriber_id'=>100]);
-        }
-
-
-
-
-		// This inserts into the subscriber table those that have unsubscribed from the emails.
-//		$this->output->writeln("Updating blacklisted / unsubscribed step 2... ");
-//	    $sql =	"INSERT IGNORE into leancode_campaign_lists_subscribers ".
-//	    		"(select 90, id from leancode_campaign_subscribers where unsubscribed_at is not NULL) ";
-//	    		"ON DUPLICATE KEY IGNORE";
-	    		//UPDATE leancode_campaign_lists_subscribers.list_id = leancode_campaign_lists_subscribers.list_id";
-//				DB::statement( DB::raw($sql) );
-
-		// This deletes those that have unsubscribed from any other list
-		$this->output->writeln("Updating blacklisted / unsubscribed step 3... ");
-	    $sql =	"DELETE one FROM leancode_campaign_lists_subscribers one WHERE EXISTS ".
-	    		"( SELECT 1 FROM leancode_campaign_subscribers two WHERE one.subscriber_id = two.id AND one.list_id <> 90 AND two.unsubscribed_at is not null )";
-				DB::statement( DB::raw($sql) );
-
-		// This inserts into the subscriber table those that have arrived in the mail box as undeliverable.
-		$this->output->writeln("Updating blacklisted / unsubscribed step 4... ");
-	    $sql =	"INSERT into leancode_campaign_lists_subscribers ".
-	    		"(select 100, id from leancode_campaign_subscribers where blacklisted_at is not NULL) ".
-	    		"ON DUPLICATE KEY UPDATE leancode_campaign_lists_subscribers.list_id = leancode_campaign_lists_subscribers.list_id";
-				DB::statement( DB::raw($sql) );
-
-		// This deletes those that are blacklisted from any other list other than unsubscribed and blacklisted
-		$this->output->writeln("Updating blacklisted / unsubscribed step 5... ");
-		$sql =	"DELETE one FROM leancode_campaign_lists_subscribers one WHERE EXISTS ".
-				"( SELECT 1 FROM leancode_campaign_failed_deliveries two WHERE one.subscriber_id = two.id AND one.list_id <> 90 AND one.list_id <> 100)";
-				DB::statement( DB::raw($sql) );
-
 
 
 //		$this->output->writeln("Reset subscriber table... ");
@@ -138,19 +86,23 @@ exit;
 
 
 		// A / Mailed to / iu_gender
-		$this->output->writeln("Updating mailed to step 1... ");
-		$sql =  "UPDATE operations.users u ".
-				"SET A = 'Y' WHERE ".
-				"L IS NULL AND ".
-				"is_activated = 1 ";
-    	DB::statement( DB::raw($sql) );
+    	$num = DB::table('operations.users')->whereNull('L')->where('is_activated',1)->update(['A'=>'Y']);
 
-		$this->output->writeln("Updating mailed to step 2... ");
-		$sql =  "UPDATE operations.users u LEFT JOIN oktick.leancode_campaign_messages_subscribers cms ON u.id = cms.subscriber_id ".
-				"SET u.A = 'Y' WHERE ".
-				"L IS NULL AND ".
-				"( cms.sent_at <> '' AND cms.sent_at IS NOT NULL )";
-    	DB::statement( DB::raw($sql) );
+    	$dbr = DB::table('operations.users')
+    	            ->select('id')
+    	            ->whereNotNull('L')
+                    ->leftJoin('leancode_campaign_lists_subscribers','id','=','subscriber_id')
+    	            ->whereNotNull('sent_at')
+    	            ->where('A','<>','Y')
+    	            ->get();
+		$this->output->writeln("Updating those we've mailed to... ($num+".count($dbr).")");
+        foreach($dbr as $row){
+            DB::table('leancode_campaign_lists_subscribers')
+        	    ->where('subscriber_id',$row->id)
+        	    ->update(['A'=>'Y']);
+        }
+
+exit;
 
 
 		// B / pingback / iu_job
