@@ -41,28 +41,28 @@ class CampaignTest extends Command
 		$sql =	"UPDATE leancode_campaign_lists_subscribers SET list_id = 70 WHERE subscriber_id = 10";
     	DB::statement( DB::raw($sql) );
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
     			// L / blacklisted - unsubscribed / iu_company
 		$this->output->writeln("Updating mailing categories in users... ");
 		$this->output->writeln("Updating blacklisted / unsubscribed step 1... ");
     	$ids = DB::table('operations.users')->whereNotNull('ok_unsubscribed_at')->whereNotNull('ok_blacklisted_at')->where('ok_unsubscribed_at','<>','')->where('ok_blacklisted_at','<>','');
 		$this->output->writeln("Updating blacklisted / unsubscribed step 1... ".count($ids)." found.");
         foreach($ids as $id){
-        	$ids = DB::table('operations.users')->where('id',$id)->update('L','X')->update('A',null)->update('B',null)->update('C',null)->update('D',null)->update('E',null)->update('F',null)->update('G',null)->update('H',null)->update('I',null)->update('J',null)->update('K',null);
+        	$ids = DB::table('operations.users')
+        	        ->where('id',$id)
+        	        ->update(array(
+        	            'A'=>null,
+        	            'B'=>null,
+        	            'C'=>null,
+        	            'D'=>null,
+        	            'E'=>null,
+        	            'F'=>null,
+        	            'G'=>null,
+        	            'H'=>null,
+        	            'I'=>null,
+        	            'J'=>null,
+        	            'K'=>null,
+        	            'L'=>'X',
+        	        ));
         }
 		$sql =  "UPDATE operations.users SET L = 'X', A = NULL, B = NULL, C = NULL, D = NULL, E = NULL, F = NULL, G = NULL, H = NULL, I = NULL, J = NULL, K = NULL WHERE ".
 				"ok_unsubscribed_at IS NOT NULL OR ".
