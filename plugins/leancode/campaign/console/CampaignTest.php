@@ -54,6 +54,7 @@ class CampaignTest extends Command
         }
 
     	$lcs = DB::table('leancode_campaign_subscribers')
+    	            ->select('id')
 //    	            ->whereNotNull('unsubscribed_at')
     	            ->whereNotNull('blacklisted_at')
                     ->leftJoin('leancode_campaign_lists_subscribers','id','=','subscriber_id')
