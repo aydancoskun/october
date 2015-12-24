@@ -102,10 +102,38 @@ class CampaignTest extends Command
         	    ->update(['A'=>'Y']);
         }
 
+
+		// B / pingback / iu_job
+    	$dbr = DB::table('operations.users')
+    	            ->select('id')
+    	            ->whereNotNull('A')
+                    ->leftJoin('leancode_campaign_messages_subscribers','id','=','subscriber_id')
+    	            ->whereNotNull('read_at')
+    	            ->where('B','<>','Y')
+    	            ->get();
+		$this->output->writeln("Updating those we've received pingback from... (".count($dbr).")");
+        foreach($dbr as $row){
+            DB::table('leancode_campaign_lists_subscribers')
+        	    ->where('subscriber_id',$row->id)
+        	    ->update(['B'=>'Y']);
+        }
+
 exit;
 
 
-		// B / pingback / iu_job
+
+
+
+
+
+
+
+
+
+
+
+
+
 		$this->output->writeln("Update pingback... ");
 		$sql =  "UPDATE operations.users u LEFT JOIN oktick.leancode_campaign_messages_subscribers cms ON u.id = cms.subscriber_id ".
 				"SET B = 'Y' WHERE ".
