@@ -51,7 +51,7 @@ class CampaignRun extends Command
 //	    	DB::statement( DB::raw($sql) );
 
 			// step 3
-//			$sql =	"UPDATE leancode_campaign_lists_subscribers a, users b SET list_id = 4 WHERE a.subscriber_id = b.id AND list_id = 3 AND b.ok_free_credits_datetime <> '0000-00-00 00:00:00'";
+//			$sql =	"UPDATE leancode_campaign_lists_subscribers a, users b SET list_id = 4 WHERE a.subscriber_id = b.id AND list_id = 3 AND b.ok_free_credits_datetime IS NOT NULL";
 //	    	DB::statement( DB::raw($sql) );
 
 			// step 3

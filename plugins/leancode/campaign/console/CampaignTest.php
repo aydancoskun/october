@@ -126,28 +126,36 @@ class CampaignTest extends Command
 
 		// D / activated but no FCFL / iu_webpage
     	$num = DB::table('operations.users')->whereNotNull('C')->whereNull('ok_free_credits_datetime')->update(['D'=>'N','E'=>null]);
-
-
-
-		$this->output->writeln("Clicked mail (activated) but NOT accepted the FCFL offer... ");
-		$sql =  "UPDATE operations.users ".
-				"SET D='N', E = NULL WHERE ".
-				"C IS NOT NULL AND ".
-				"ok_free_credits_datetime IS NULL ";
-    	DB::statement( DB::raw($sql) );
+		$this->output->writeln("Updating those who activated but did not take the offer... ($num)");
 
 
 		// E / activated & FCFL / iu_blog
-		$this->output->writeln("Clicked mail (activated) and accepted the FCFL offer... ");
-		$sql =  "UPDATE operations.users ".
-				"SET E = 'Y', D = NULL WHERE ".
-				"C IS NOT NULL AND ".
-				"L IS NULL AND ".
-				"ok_free_credits_datetime IS NOT NULL ";
-    	DB::statement( DB::raw($sql) );
+    	$num = DB::table('operations.users')->whereNotNull('C')->whereNotNull('ok_free_credits_datetime')->update(['D'=>null,'E'=>'Y']);
+		$this->output->writeln("Updating those who activated and took the offer... ($num)");
 
 
 		// F / FCFL but NOT using credits / iu_facebook
+    	$dbr = DB::table('operations.users')
+    	            ->select('id')
+    	            ->whereNotNull('E')
+                    ->leftJoin('operations.bp_sponsors','id','=','user_id')
+    	            ->whereNull('user_id')
+    	            ->where('F','<>','N')
+    	            ->get();
+		$this->output->writeln("Updating those who currently not applying credits... (".count($dbr).")");
+        foreach($dbr as $row){
+            DB::table('leancode_campaign_lists_subscribers')
+        	    ->where('subscriber_id',$row->id)
+        	    ->update(['F'=>'N', 'G'=>null, 'H'=>null,'I'=>null]);
+        }
+
+exit;
+
+
+
+
+
+
 		$this->output->writeln("Accepted FCFL but currently NOT applying credits... ");
 		$sql =  "UPDATE operations.users u LEFT JOIN operations.bp_sponsors bs ON u.id = bs.user_id ".
 				"SET F ='N', G = NULL, H = NULL, I = NULL  WHERE ".
