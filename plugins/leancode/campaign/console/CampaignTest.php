@@ -48,7 +48,7 @@ class CampaignTest extends Command
         foreach($ids as $id){
         	$ids = DB::table('leancode_campaign_lists_subscribers')
         	        ->where('id',$id)
-        	        ->update(['subscriber_id'=>90]);
+        	        ->update(['list_id'=>90]);
         }
 
 
@@ -61,7 +61,7 @@ class CampaignTest extends Command
         foreach($ids as $id){
         	$ids = DB::table('leancode_campaign_lists_subscribers')
         	        ->where('id',$id)
-        	        ->update(['subscriber_id'=>100]);
+        	        ->update(['list_id'=>100]);
         }
 
 		// L / blacklisted - unsubscribed / iu_company
