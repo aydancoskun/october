@@ -52,9 +52,9 @@ class CampaignTest extends Command
         }
 
 
-    	$ids = DB::table('operations.users')
-//    	            ->whereNotNull('ok_unsubscribed_at')
-    	            ->whereNotNull('ok_blacklisted_at')
+    	$ids = DB::table('leancode_campaign_subscribers')
+//    	            ->whereNotNull('unsubscribed_at')
+    	            ->whereNotNull('blacklisted_at')
                     ->leftJoin('leancode_campaign_lists_subscribers','id','=','subscriber_id')
     	            ->where('list_id','<>','100');
 		$this->output->writeln("Moving blacklisted to list 100... (".count($ids).")");
