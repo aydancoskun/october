@@ -59,7 +59,7 @@ class CampaignTest extends Command
     			// L / blacklisted - unsubscribed / iu_company
 		$this->output->writeln("Updating mailing categories in users... ");
 		$this->output->writeln("Updating blacklisted / unsubscribed step 1... ");
-    	$ids = DB::table('operations.users')->whereNotNull('ok_unsubscribed_at')->whereNotNull('ok_blacklisted_at')->where('ok_unsubscribed_at',<>,'')->where('ok_blacklisted_at',<>,'');
+    	$ids = DB::table('operations.users')->whereNotNull('ok_unsubscribed_at')->whereNotNull('ok_blacklisted_at')->where('ok_unsubscribed_at','<>','')->where('ok_blacklisted_at','<>','');
 		$this->output->writeln("Updating blacklisted / unsubscribed step 1... ".count($ids)." found.";
         foreach($ids as $id){
         	$ids = DB::table('operations.users')->where('id',$id)->update('L','X')->update('A',null)->update('B',null)->update('C',null)->update('D',null)->update('E',null)->update('F',null)->update('G',null)->update('H',null)->update('I',null)->update('J',null)->update('K',null);
