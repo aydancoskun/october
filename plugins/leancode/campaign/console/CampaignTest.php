@@ -34,12 +34,12 @@ class CampaignTest extends Command
     public function fire()
     {
 
-   		$this->output->writeln("Updating mailed to in subscriber table... ");
+   		$this->output->writeln("Updating Dom and moving him back into his category... ");
 		$sql =	"UPDATE leancode_campaign_lists_subscribers cls LEFT JOIN operations.users u ON cls.subscriber_id = u.id ".
 				"SET cls.list_id = 60 WHERE ".
 				"u.id = 2";
     	DB::statement( DB::raw($sql) );
-   		$this->output->writeln("Updating mailed to in subscriber table... ");
+   		$this->output->writeln("Updating Clive and moving him back into his category... ");
 		$sql =	"UPDATE leancode_campaign_lists_subscribers cls LEFT JOIN operations.users u ON cls.subscriber_id = u.id ".
 				"SET cls.list_id = 70 WHERE ".
 				"u.id = 10";
@@ -75,7 +75,8 @@ class CampaignTest extends Command
 		$this->output->writeln("Updating blacklisted / unsubscribed step 2... ");
 	    $sql =	"INSERT into leancode_campaign_lists_subscribers ".
 	    		"(select 90, id from leancode_campaign_subscribers where unsubscribed_at is not NULL) ".
-	    		"ON DUPLICATE KEY UPDATE leancode_campaign_lists_subscribers.list_id = leancode_campaign_lists_subscribers.list_id";
+	    		"WHERE list_id <> 90";
+//	    		ON DUPLICATE KEY UPDATE leancode_campaign_lists_subscribers.list_id = leancode_campaign_lists_subscribers.list_id";
 				DB::statement( DB::raw($sql) );
 
 		// This deletes those that have unsubscribed from any other list
