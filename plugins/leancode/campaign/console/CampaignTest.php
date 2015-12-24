@@ -170,7 +170,7 @@ class CampaignTest extends Command
     	$num = DB::table('operations.users')
     	        ->whereNotNull('G')
     	        ->where('ok_credits','>=',25)
-    	        ->where('ok_free_credits_datatime','>',date("Y-m-d H:i:s", strtotime("- 7 days")))
+    	        ->where('ok_free_credits_datetime','>',date("Y-m-d H:i:s", strtotime("- 7 days")))
     	        ->update(['H'=>'N','I'=>null]);
 		$this->output->writeln("Applying credits but NOT to the max - more than half left on account yet he renewed in last 7 days... ($num)");
 
