@@ -135,10 +135,10 @@ class CampaignTest extends Command
 
 
 		// F / FCFL but NOT using credits / iu_facebook
-    	$dbr = DB::table('operations.users u')
-    	            ->select('u.id')
+    	$dbr = DB::table('operations.users')
+    	            ->select('users.id')
     	            ->whereNotNull('E')
-                    ->leftJoin('operations.bp_sponsors','u.id','=','user_id')
+                    ->leftJoin('operations.bp_sponsors','users.id','=','user_id')
     	            ->whereNull('user_id')
     	            ->where('F','<>','N')
     	            ->get();
