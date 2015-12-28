@@ -69,7 +69,7 @@ class CampaignTest extends Command
         }
 
 		// L / blacklisted - unsubscribed / iu_company
-    	$dbr = DB::table('operations.users')->select('id')->whereNotNull('ok_unsubscribed_at')->whereNotNull('ok_blacklisted_at')->where('L','<>','X')->get();
+    	$dbr = DB::table('operations.users')->select('id')->whereNotNull('ok_unsubscribed_at')->whereNotNull('ok_blacklisted_at')->whereNull('L')->get();
 		$this->output->writeln("Making sure all blacklisted & unsubscribed are marked only in 'L' column... (".count($dbr).")");
         foreach($dbr as $row){
         	DB::table('operations.users')
@@ -91,13 +91,13 @@ class CampaignTest extends Command
     	$dbr = DB::table('operations.users')
     	            ->select('id')
     	            ->whereNull('L')
-    	            ->where('A','<>','Y')
+    	            ->whereNull('A')
                     ->leftJoin('leancode_campaign_messages_subscribers','id','=','subscriber_id')
     	            ->whereNotNull('sent_at')
-    	            ->toSql();
-            		$this->output->writeln($dbr);
-            		exit;
-//    	            ->get();
+//    	            ->toSql();
+//            		$this->output->writeln($dbr);
+//            		exit;
+    	            ->get();
 		$this->output->writeln("Updating those we've mailed to... ($num+".count($dbr).")");
         foreach($dbr as $row){
             DB::table('operations.users')
@@ -112,7 +112,7 @@ class CampaignTest extends Command
     	            ->whereNotNull('A')
                     ->leftJoin('leancode_campaign_messages_subscribers','id','=','subscriber_id')
     	            ->whereNotNull('read_at')
-    	            ->where('B','<>','Y')
+    	            ->whereNull('B')
     	            ->get();
 		$this->output->writeln("Updating those we've received pingback from... (".count($dbr).")");
         foreach($dbr as $row){
@@ -143,7 +143,7 @@ class CampaignTest extends Command
     	            ->whereNotNull('E')
                     ->leftJoin('operations.bp_sponsors','users.id','=','user_id')
     	            ->whereNull('user_id')
-    	            ->where('F','<>','N')
+    	            ->whereNull('F')
     	            ->get();
 		$this->output->writeln("Updating those who are not applying credits... (".count($dbr).")");
         foreach($dbr as $row){
@@ -159,7 +159,7 @@ class CampaignTest extends Command
     	            ->whereNotNull('E')
                     ->leftJoin('operations.bp_sponsors','users.id','=','user_id')
     	            ->whereNotNull('user_id')
-    	            ->where('G','<>','Y')
+    	            ->whereNull('G')
     	            ->get();
 		$this->output->writeln("Updating those who ARE currently applying credits... (".count($dbr).")");
         foreach($dbr as $row){
