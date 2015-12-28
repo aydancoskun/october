@@ -79,10 +79,7 @@ class CampaignTest extends Command
 
 
 //		$this->output->writeln("Reset subscriber table... ");
-		$sql =	"UPDATE leancode_campaign_lists_subscribers cls LEFT JOIN operations.users u ON cls.subscriber_id = u.id ".
-				"SET cls.list_id = 99 WHERE ".
-				"( cls.list_id BETWEEN 1 AND 7 )";
-//    	DB::statement( DB::raw($sql) );
+        DB::table('leancode_campaign_lists_subscribers')->whereBetween('list_id', array(1, 7))->update(['list_id'=>99]);
 
 
 		// A / Mailed to / iu_gender
