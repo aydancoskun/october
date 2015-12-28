@@ -78,8 +78,8 @@ class CampaignTest extends Command
         }
 
 
-//		$this->output->writeln("Reset subscriber table... ");
-        DB::table('leancode_campaign_lists_subscribers')->whereBetween('list_id', array(1, 7))->update(['list_id'=>99]);
+        $num = DB::table('leancode_campaign_lists_subscribers')->whereBetween('list_id', array(1, 7))->update(['list_id'=>99]);
+		$this->output->writeln("Reset subscriber table... (".count($num).")");
 
 
 		// A / Mailed to / iu_gender
