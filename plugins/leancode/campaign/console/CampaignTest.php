@@ -87,8 +87,16 @@ class CampaignTest extends Command
 
 		// A / Mailed to / iu_gender
     	$num = DB::table('operations.users')->whereNull('L')->where('is_activated',1)->update(['A'=>'Y','C'=>'Y']);
+    	$total = DB::table('operations.users')
+    	            ->select('id')
+    	            ->whereNull('L')
+    	            ->whereNull('A')
+                    ->leftJoin('leancode_campaign_messages_subscribers','id','=','subscriber_id')
+    	            ->whereNotNull('sent_at')
+    	            ->count();
+        for( $c=0 ; $c < $total ; $c=$c+1000 ) {
 
-    	$dbr = DB::table('operations.users')
+    	    $dbr = DB::table('operations.users')
     	            ->select('id')
     	            ->whereNull('L')
     	            ->whereNull('A')
@@ -98,13 +106,13 @@ class CampaignTest extends Command
 //            		$this->output->writeln($dbr);
 //            		exit;
     	            ->get();
-		$this->output->writeln("Updating those we've mailed to... ($num+".count($dbr).")");
-        foreach($dbr as $row){
-            DB::table('operations.users')
-        	    ->where('id',$row->id)
-        	    ->update(['A'=>'Y']);
+	        $this->output->writeln("Updating those we've mailed to... (".($c+1000)."of $total)");
+            foreach($dbr as $row){
+                DB::table('operations.users')
+        	        ->where('id',$row->id)
+        	        ->update(['A'=>'Y']);
+            }
         }
-
 
 		// B / pingback / iu_job
     	$dbr = DB::table('operations.users')
