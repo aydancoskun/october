@@ -189,17 +189,27 @@ class CampaignTest extends Command
 
 
 		// 1 = A
-    	$dbr = DB::table('operations.users')
+		$total = DB::table('operations.users')
     	            ->select('users.id')
     	            ->whereNotNull('A')
                     ->leftJoin('leancode_campaign_lists_subscribers','users.id','=','subscriber_id')
     	            ->where('list_id','<>','1')
+    	            ->count();
+        for( $c=0 ; $c < $total ; $c=$c+1000 ) {
+    	    $dbr = DB::table('operations.users')
+    	            ->select('users.id')
+    	            ->whereNotNull('A')
+                    ->leftJoin('leancode_campaign_lists_subscribers','users.id','=','subscriber_id')
+    	            ->where('list_id','<>','1')
+    	            ->skip($c)
+    	            ->take(1000)
     	            ->get();
-		$this->output->writeln("Updating mailed to in subscriber table... (".count($dbr).")");
-        foreach($dbr as $row){
-            DB::table('leancode_campaign_lists_subscribers')
-        	    ->where('subscriber_id',$row->id)
-        	    ->update(['list_id'=>1]);
+		    $this->output->writeln("Updating mailed to in subscriber table... (".($c+1000)."of $total)");
+            foreach($dbr as $row){
+                DB::table('leancode_campaign_lists_subscribers')
+        	        ->where('subscriber_id',$row->id)
+        	        ->update(['list_id'=>1]);
+            }
         }
 		$sql =	"UPDATE leancode_campaign_lists_subscribers cls LEFT JOIN operations.users u ON cls.subscriber_id = u.id ".
 				"SET cls.list_id = 1 WHERE ".
