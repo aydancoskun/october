@@ -95,7 +95,6 @@ class CampaignTest extends Command
     	            ->whereNotNull('sent_at')
     	            ->count();
         for( $c=0 ; $c < $total ; $c=$c+1000 ) {
-
     	    $dbr = DB::table('operations.users')
     	            ->select('id')
     	            ->whereNull('L')
@@ -105,6 +104,8 @@ class CampaignTest extends Command
 //    	            ->toSql();
 //            		$this->output->writeln($dbr);
 //            		exit;
+    	            ->skip($c)
+    	            ->take(1000)
     	            ->get();
 	        $this->output->writeln("Updating those we've mailed to... (".($c+1000)."of $total)");
             foreach($dbr as $row){
