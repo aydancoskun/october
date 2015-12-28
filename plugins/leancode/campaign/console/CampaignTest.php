@@ -91,10 +91,13 @@ class CampaignTest extends Command
     	$dbr = DB::table('operations.users')
     	            ->select('id')
     	            ->whereNull('L')
+    	            ->where('A','<>','Y')
                     ->leftJoin('leancode_campaign_messages_subscribers','id','=','subscriber_id')
     	            ->whereNotNull('sent_at')
-    	            ->where('A','<>','Y')
-    	            ->get();
+    	            ->toSql();
+            		$this->output->writeln($dbr);
+            		exit;
+//    	            ->get();
 		$this->output->writeln("Updating those we've mailed to... ($num+".count($dbr).")");
         foreach($dbr as $row){
             DB::table('operations.users')
