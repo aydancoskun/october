@@ -93,6 +93,7 @@ class CampaignTest extends Command
     	            ->whereNull('A')
                     ->leftJoin('leancode_campaign_messages_subscribers','id','=','subscriber_id')
     	            ->whereNotNull('sent_at')
+    	            ->distinct()
     	            ->count();
         for( $c=0 ; $c < $total ; $c=$c+1000 ) {
     	    $dbr = DB::table('operations.users')
@@ -106,6 +107,7 @@ class CampaignTest extends Command
 //            		exit;
     	            ->skip($c)
     	            ->take(1000)
+    	            ->distinct()
     	            ->get();
 	        $this->output->writeln("Updating those we've mailed to... (".($c+1000)."of $total)");
             foreach($dbr as $row){
@@ -205,6 +207,7 @@ class CampaignTest extends Command
     	            ->whereNotNull('A')
                     ->leftJoin('leancode_campaign_lists_subscribers','users.id','=','subscriber_id')
     	            ->where('list_id','<>','1')
+    	            ->distinct()
     	            ->count();
         for( $c=0 ; $c < $total ; $c=$c+1000 ) {
     	    $dbr = DB::table('operations.users')
@@ -214,6 +217,7 @@ class CampaignTest extends Command
     	            ->where('list_id','<>','1')
     	            ->skip($c)
     	            ->take(1000)
+    	            ->distinct()
     	            ->get();
 		    $this->output->writeln("Updating mailed to in subscriber table... (".($c+1000)."of $total)");
             foreach($dbr as $row){
