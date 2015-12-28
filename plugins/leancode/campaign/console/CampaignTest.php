@@ -77,20 +77,20 @@ class CampaignTest extends Command
         	    ->update(['A'=>null,'B'=>null,'C'=>null,'D'=>null,'E'=>null,'F'=>null,'G'=>null,'H'=>null,'I'=>null,'J'=>null,'K'=>null,'L'=>'X']);
         }
 
-
+/*
         $num = DB::table('leancode_campaign_lists_subscribers')->whereBetween('list_id', array(1, 7))->update(['list_id'=>99]);
 		$this->output->writeln("Reset subscriber table... (".count($num).")");
         $num = DB::table('operations.users')
                     ->update(['A'=>null,'B'=>null,'C'=>null,'D'=>null,'E'=>null,'F'=>null,'G'=>null,'H'=>null,'I'=>null,'J'=>null,'K'=>null,'L'=>null]);
 		$this->output->writeln("Reset user table A-L table... (".count($num).")");
-
+*/
 
 		// A / Mailed to / iu_gender
     	$num = DB::table('operations.users')->whereNull('L')->where('is_activated',1)->update(['A'=>'Y','C'=>'Y']);
 
     	$dbr = DB::table('operations.users')
     	            ->select('id')
-    	            ->whereNotNull('L')
+    	            ->whereNull('L')
                     ->leftJoin('leancode_campaign_messages_subscribers','id','=','subscriber_id')
     	            ->whereNotNull('sent_at')
     	            ->where('A','<>','Y')
