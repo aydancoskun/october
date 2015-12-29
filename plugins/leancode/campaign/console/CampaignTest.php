@@ -229,6 +229,14 @@ class CampaignTest extends Command
 		$total = DB::table('operations.users')->whereNotNull('I')->update(['ok_ml_id'=>7]);
 		$this->output->writeln("Updating 'Applying credits to the max' in subscriber table... ($total)");
 
+        // not enough products
+		$total = DB::table('operations.users')->where('ok_company_products_found','<',2)->update(['ok_ml_id'=>130]);
+		$this->output->writeln("Updating 'not enough products' in subscriber table... ($total)");
+
+        // no company
+		$total = DB::table('operations.users')->wherenull('ok_company_id')->update(['ok_ml_id'=>120]);
+		$this->output->writeln("Updating 'no company' in subscriber table... ($total)");
+
         $message = CampaignWorker::instance()->process(true);
         $this->output->writeln($message);
     }
