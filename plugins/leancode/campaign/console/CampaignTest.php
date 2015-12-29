@@ -189,7 +189,7 @@ class CampaignTest extends Command
 
 		// 6 = K
 		$total = DB::table('operations.users')->whereNotNull('K')->update(['mailing_list_id'=>6]);
-		$this->output->writeln("Updating 'Having credits left but not renewing them  in last 7 days' in subscriber table... ($total)");
+		$this->output->writeln("Updating 'Having no credits left and not renewing them  in last 7 days' in subscriber table... ($total)");
 
 		// 7 = I
 		$total = DB::table('operations.users')->whereNotNull('I')->update(['mailing_list_id'=>7]);
