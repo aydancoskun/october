@@ -34,40 +34,6 @@ class CampaignTest extends Command
     public function fire()
     {
 
-    	$num = DB::table('leancode_campaign_lists_subscribers')->where('subscriber_id',2)->update(['list_id'=>60]);
-   		$this->output->writeln("Updating Dom and moving him back into his category... ($num)");
-
-    	$num = DB::table('leancode_campaign_lists_subscribers')->where('subscriber_id',10)->update(['list_id'=>70]);
-   		$this->output->writeln("Updating Clive and moving him back into his category... ($num)");
-
-    	$dbr = DB::table('leancode_campaign_subscribers')
-    	            ->select('id')
-    	            ->whereNotNull('unsubscribed_at')
-//    	            ->whereNotNull('blacklisted_at')
-                    ->leftJoin('leancode_campaign_lists_subscribers','id','=','subscriber_id')
-    	            ->where('list_id','<>','90')
-    	            ->get();
-		$this->output->writeln("Moving unsubscribed to list 90... (".count($dbr).")");
-        foreach($dbr as $row){
-            DB::table('leancode_campaign_lists_subscribers')
-        	    ->where('subscriber_id',$row->id)
-        	    ->update(['list_id'=>90]);
-        }
-
-    	$dbr = DB::table('leancode_campaign_subscribers')
-    	            ->select('id')
-//    	            ->whereNotNull('unsubscribed_at')
-    	            ->whereNotNull('blacklisted_at')
-                    ->leftJoin('leancode_campaign_lists_subscribers','id','=','subscriber_id')
-    	            ->where('list_id','<>','100')
-    	            ->get();
-		$this->output->writeln("Moving blacklisted to list 100... (".count($dbr).")");
-        foreach($dbr as $row){
-        	DB::table('leancode_campaign_lists_subscribers')
-        	    ->where('subscriber_id',$row->id)
-        	    ->update(['list_id'=>100]);
-        }
-
 		// L / blacklisted - unsubscribed / iu_company
     	$dbr = DB::table('operations.users')->select('id')->whereNotNull('ok_unsubscribed_at')->whereNotNull('ok_blacklisted_at')->whereNull('L')->get();
 		$this->output->writeln("Making sure all blacklisted & unsubscribed are marked only in 'L' column... (".count($dbr).")");
@@ -236,6 +202,40 @@ class CampaignTest extends Command
         // no company
 		$total = DB::table('operations.users')->wherenull('ok_company_id')->update(['mailing_list_id'=>120]);
 		$this->output->writeln("Updating 'no company' in subscriber table... ($total)");
+
+       	$num = DB::table('leancode_campaign_lists_subscribers')->where('subscriber_id',2)->update(['list_id'=>60]);
+   		$this->output->writeln("Updating Dom and moving him back into his category... ($num)");
+
+    	$num = DB::table('leancode_campaign_lists_subscribers')->where('subscriber_id',10)->update(['list_id'=>70]);
+   		$this->output->writeln("Updating Clive and moving him back into his category... ($num)");
+
+    	$dbr = DB::table('leancode_campaign_subscribers')
+    	            ->select('id')
+    	            ->whereNotNull('unsubscribed_at')
+//    	            ->whereNotNull('blacklisted_at')
+                    ->leftJoin('leancode_campaign_lists_subscribers','id','=','subscriber_id')
+    	            ->where('list_id','<>','90')
+    	            ->get();
+		$this->output->writeln("Moving unsubscribed to list 90... (".count($dbr).")");
+        foreach($dbr as $row){
+            DB::table('leancode_campaign_lists_subscribers')
+        	    ->where('subscriber_id',$row->id)
+        	    ->update(['list_id'=>90]);
+        }
+
+    	$dbr = DB::table('leancode_campaign_subscribers')
+    	            ->select('id')
+//    	            ->whereNotNull('unsubscribed_at')
+    	            ->whereNotNull('blacklisted_at')
+                    ->leftJoin('leancode_campaign_lists_subscribers','id','=','subscriber_id')
+    	            ->where('list_id','<>','100')
+    	            ->get();
+		$this->output->writeln("Moving blacklisted to list 100... (".count($dbr).")");
+        foreach($dbr as $row){
+        	DB::table('leancode_campaign_lists_subscribers')
+        	    ->where('subscriber_id',$row->id)
+        	    ->update(['list_id'=>100]);
+        }
 
         $message = CampaignWorker::instance()->process(true);
         $this->output->writeln($message);
