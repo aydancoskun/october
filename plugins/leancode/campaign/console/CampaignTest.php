@@ -230,7 +230,7 @@ class CampaignTest extends Command
 		$this->output->writeln("Updating 'Applying credits to the max' in subscriber table... ($total)");
 
         // not enough products
-		$total = DB::table('operations.users')->where('ok_company_products_found','<',2)->update(['mailing_list_id'=>130]);
+		$total = DB::table('operations.users')->where('ok_company_products_count','<',2)->update(['mailing_list_id'=>130]);
 		$this->output->writeln("Updating 'not enough products' in subscriber table... ($total)");
 
         // no company
