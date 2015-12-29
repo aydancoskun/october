@@ -202,39 +202,39 @@ class CampaignTest extends Command
 
 
 		// 1 = A
-		$total = DB::table('operations.users')->whereNotNull('A')->update(['ok_ml_id'=>1]);
+		$total = DB::table('operations.users')->whereNotNull('A')->update(['mailing_list_id'=>1]);
 	    $this->output->writeln("Updating mailed to in subscriber table... ($total)");
 
 		// 2 = D
-		$total = DB::table('operations.users')->whereNotNull('D')->update(['ok_ml_id'=>2]);
+		$total = DB::table('operations.users')->whereNotNull('D')->update(['mailing_list_id'=>2]);
 		$this->output->writeln("Updating 'Clicked but NOT accepted the FCFL' in subscriber table... ($total)");
 
 		// 3 = F
-		$total = DB::table('operations.users')->whereNotNull('F')->update(['ok_ml_id'=>3]);
+		$total = DB::table('operations.users')->whereNotNull('F')->update(['mailing_list_id'=>3]);
 		$this->output->writeln("Updating 'Accepted FCFL but currently NOT applying credits' in subscriber table... ($total)");
 
 		// 4 = H
-		$total = DB::table('operations.users')->whereNotNull('H')->update(['ok_ml_id'=>4]);
+		$total = DB::table('operations.users')->whereNotNull('H')->update(['mailing_list_id'=>4]);
 		$this->output->writeln("Updating 'Applying credits but NOT to the max' in subscriber table... ($total)");
 
 		// 5 = J
-		$total = DB::table('operations.users')->whereNotNull('J')->update(['ok_ml_id'=>5]);
+		$total = DB::table('operations.users')->whereNotNull('J')->update(['mailing_list_id'=>5]);
 		$this->output->writeln("Updating 'Having credits left but not renewing them in last 7 days' in subscriber table... ($total)");
 
 		// 6 = K
-		$total = DB::table('operations.users')->whereNotNull('K')->update(['ok_ml_id'=>6]);
+		$total = DB::table('operations.users')->whereNotNull('K')->update(['mailing_list_id'=>6]);
 		$this->output->writeln("Updating 'Having credits left but not renewing them  in last 7 days' in subscriber table... ($total)");
 
 		// 7 = I
-		$total = DB::table('operations.users')->whereNotNull('I')->update(['ok_ml_id'=>7]);
+		$total = DB::table('operations.users')->whereNotNull('I')->update(['mailing_list_id'=>7]);
 		$this->output->writeln("Updating 'Applying credits to the max' in subscriber table... ($total)");
 
         // not enough products
-		$total = DB::table('operations.users')->where('ok_company_products_found','<',2)->update(['ok_ml_id'=>130]);
+		$total = DB::table('operations.users')->where('ok_company_products_found','<',2)->update(['mailing_list_id'=>130]);
 		$this->output->writeln("Updating 'not enough products' in subscriber table... ($total)");
 
         // no company
-		$total = DB::table('operations.users')->wherenull('ok_company_id')->update(['ok_ml_id'=>120]);
+		$total = DB::table('operations.users')->wherenull('ok_company_id')->update(['mailing_list_id'=>120]);
 		$this->output->writeln("Updating 'no company' in subscriber table... ($total)");
 
         $message = CampaignWorker::instance()->process(true);
