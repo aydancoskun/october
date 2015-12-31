@@ -50,6 +50,9 @@ class CampaignRun extends Command
 		$this->output->writeln("Reset user table A-L table... (".count($num).")");
 */
 
+        // reseting any special list items in A
+        DB::table('operations.users')->where('mailing_list_id','<>',140)->where('A','S')->update(['A'=>null]);
+
 		// A / Mailed to / iu_gender
     	$num = DB::table('operations.users')->whereNull('L')->where('is_activated',1)->update(['A'=>'Y','C'=>'Y']);
     	$total = DB::table('operations.users')
@@ -65,6 +68,7 @@ class CampaignRun extends Command
     	            ->select('id')
     	            ->whereNull('L')
     	            ->whereNull('A')
+    	            ->where('mailing_list_id','<>',140)
                     ->leftJoin('leancode_campaign_messages_subscribers','id','=','subscriber_id')
     	            ->whereNotNull('sent_at')
 //    	            ->toSql();
@@ -85,7 +89,7 @@ class CampaignRun extends Command
 		// B / pingback / iu_job
     	$dbr = DB::table('operations.users')
     	            ->select('id')
-    	            ->whereNotNull('A')
+    	            ->where('A','Y')
                     ->leftJoin('leancode_campaign_messages_subscribers','id','=','subscriber_id')
     	            ->whereNotNull('read_at')
     	            ->whereNull('B')
@@ -167,7 +171,7 @@ class CampaignRun extends Command
 
 
 		// 1 = A
-		$total = DB::table('operations.users')->whereNotNull('A')->update(['mailing_list_id'=>1]);
+		$total = DB::table('operations.users')->where('A','Y')->update(['mailing_list_id'=>1]);
 	    $this->output->writeln("Updating mailed to in subscriber table... ($total)");
 
 		// 2 = D
