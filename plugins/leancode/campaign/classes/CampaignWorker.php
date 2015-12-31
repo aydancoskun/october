@@ -103,7 +103,7 @@ class CampaignWorker
 	    	$subscribers_lists = $campaign->subscriber_lists()->get();
 		    $use_massmailer = false;
 		    foreach ($subscribers_lists as $subscribers_list) {
-		    	if( $subscribers_list->id == 1 OR $subscribers_list->id == 99 ) {// i.e. the main start list to which large amount of mails are being sent
+		    	if( $subscribers_list->id == 1 OR $subscribers_list->id > 10 ) {// i.e. the main start list to which large amount of mails are being sent
 		    		$use_massmailer = true;
 		    		break;
 		    	}
