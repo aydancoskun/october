@@ -108,6 +108,7 @@ class CampaignWorker
 		    		break;
 		    	}
 	        }
+            if ($use_massmailer) continue;
 
 	        $staggerCount = $campaign->getStaggerCount();
             $countSent = 0;
@@ -119,7 +120,6 @@ class CampaignWorker
                 $operator = "0";
             }
             while( $subscribers = $campaign->subscribers()->Where("id",$operation, $operator)->whereNull('sent_at')->limit(500)->get()){
-
 	            foreach ($subscribers as $subscriber) {
 	                echo "handling ".$subscriber->id.__line__."\n";
 	                if ($test and $subscriber->id < 50) {
@@ -216,7 +216,7 @@ ENDSQL;
         	            	echo $campaign->name . ": Removed " . $subscriber->email . ". Blacklisted \n";
     	            	continue;
     	            }
-    	            if ( $use_massmailer == true && $subscriber->is_activated && $subscriber->company_id <> 1 && ! $test) {
+    	            if ( $use_massmailer && $subscriber->is_activated && $subscriber->company_id <> 1 && ! $test) {
 						$sql =	"UPDATE leancode_campaign_lists_subscribers SET list_id = 3 WHERE subscriber_id = ".$subscriber->id;
         	            $campaign->subscribers()->remove($subscriber);
         	            $campaign->count_subscriber--;
