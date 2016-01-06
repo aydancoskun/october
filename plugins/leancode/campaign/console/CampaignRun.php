@@ -78,7 +78,7 @@ class CampaignRun extends Command
     	            ->take(1000)
     	            ->distinct()
     	            ->get();
-	        $this->output->writeln("Updating those we've mailed to... (".($c+1000)."of $total)");
+	        $this->output->writeln("Updating those we've mailed to... (".($c)." of $total)");
             foreach($dbr as $row){
                 DB::table('operations.users')
         	        ->where('id',$row->id)
@@ -212,10 +212,10 @@ class CampaignRun extends Command
 		DB::table('operations.users')->where('id',10)->update(['mailing_list_id'=>70]);
    		$this->output->writeln("Updating Clive and moving him back into his category... ($num)");
 
-		$total = DB::table('operations.users')->whereNotNull('unsubscribed_at')->where('mailing_list_id','<>','90')->update(['mailing_list_id'=>90]);
+		$total = DB::table('operations.users')->whereNotNull('ok_unsubscribed_at')->where('mailing_list_id','<>','90')->update(['mailing_list_id'=>90]);
 		$this->output->writeln("Moving unsubscribed to list 90... ($total)");
 
-		$total = DB::table('operations.users')->whereNotNull('blacklisted_at')->where('mailing_list_id','<>','100')->update(['mailing_list_id'=>100]);
+		$total = DB::table('operations.users')->whereNotNull('ok_blacklisted_at')->where('mailing_list_id','<>','100')->update(['mailing_list_id'=>100]);
 		$this->output->writeln("Moving blacklisted to list 100... ($total)");
 
 
