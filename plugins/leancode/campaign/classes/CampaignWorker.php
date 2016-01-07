@@ -122,7 +122,7 @@ class CampaignWorker
             while( time() - MAIL_STARTED <= 570 AND $subscribers = $campaign->subscribers()->Where("id",$operation, $operator)->whereNull('sent_at')->limit(500)->get()){
 	            foreach ($subscribers as $subscriber) {
 	                if(time() - MAIL_STARTED > 570) break;
-	                echo "handling ".$subscriber->id.__line__."\n";
+	                echo "handling ".$subscriber->id.__line__." time:".(time() - MAIL_STARTED)."\n";
 	                if ($test and $subscriber->id < 50) {
                         $sql = <<<ENDSQL
 UPDATE oktick.users SET
