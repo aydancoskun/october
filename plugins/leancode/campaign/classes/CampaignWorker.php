@@ -234,8 +234,17 @@ ENDSQL;
     	            	$subscriber->save();
     	            }
     	            //$use_massmailer=true;
-	                $num_send = $this->campaignManager->sendToSubscriber($campaign, $subscriber,$use_massmailer);
-    	            if ( ! $num_send  && $subscriber->company_id <> 1 && ! $test) {
+	                $send_status = $this->campaignManager->sendToSubscriber($campaign, $subscriber,$use_massmailer);
+    	            if ( ! $use_massmailer && ! $send_status  && $subscriber->company_id <> 1 && ! $test) {
+						$sql =	"UPDATE leancode_campaign_lists_subscribers SET list_id = 150 WHERE subscriber_id = ".$subscriber->id;
+        	            $campaign->subscribers()->remove($subscriber);
+        	            $campaign->count_subscriber--;
+            	    	DB::statement( DB::raw($sql) );
+        	            if (strpos(php_sapi_name(), 'cli') !== false)
+        	            	echo $campaign->name . ": Removed " . $subscriber->email . ". Failure \n";
+    	            	continue;
+    	            }
+    	            if ( $use_massmailer && $send_status=="FAIL" && $subscriber->company_id <> 1 && ! $test) {
 						$sql =	"UPDATE leancode_campaign_lists_subscribers SET list_id = 150 WHERE subscriber_id = ".$subscriber->id;
         	            $campaign->subscribers()->remove($subscriber);
         	            $campaign->count_subscriber--;

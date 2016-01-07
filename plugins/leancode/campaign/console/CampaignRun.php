@@ -68,7 +68,14 @@ class CampaignRun extends Command
     	            ->select('id')
     	            ->whereNull('L')
     	            ->whereNull('A')
+    	            ->where('mailing_list_id','<>',60)
+    	            ->where('mailing_list_id','<>',70)
+    	            ->where('mailing_list_id','<>',90)
+    	            ->where('mailing_list_id','<>',100)
+    	            ->where('mailing_list_id','<>',110)
+    	            ->where('mailing_list_id','<>',120)
     	            ->where('mailing_list_id','<>',140)
+    	            ->where('mailing_list_id','<>',150)
                     ->leftJoin('leancode_campaign_messages_subscribers','id','=','subscriber_id')
     	            ->whereNotNull('sent_at')
 //    	            ->toSql();
@@ -105,6 +112,7 @@ class CampaignRun extends Command
 		// C / activated / iu_about
 		//done in A above
 		$this->output->writeln("Updating those who clicked the email and therefore activated... ($num)");
+    	$num = DB::table('oktick.users')->whereNotNull('A')->whereNull('C')->whereNull('is_activated',1)->update(['C'=>'Y']);
 
 
 		// D / activated but no FCFL / iu_webpage
@@ -197,6 +205,10 @@ class CampaignRun extends Command
 		// 7 = I
 		$total = DB::table('operations.users')->whereNotNull('I')->update(['mailing_list_id'=>7]);
 		$this->output->writeln("Updating 'Applying credits to the max' in subscriber table... ($total)");
+
+        // now enough products
+		$total = DB::table('operations.users')->where('ok_company_products_count','>',1)->where('mailing_list_id',130)->update(['mailing_list_id'=>99]);
+		$this->output->writeln("Updating 'not enough products' in subscriber table... ($total)");
 
         // not enough products
 		$total = DB::table('operations.users')->where('ok_company_products_count','<',2)->update(['mailing_list_id'=>130]);

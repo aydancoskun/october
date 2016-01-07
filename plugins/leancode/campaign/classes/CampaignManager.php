@@ -110,12 +110,54 @@ class CampaignManager
     // Sending
     //
 
+    public function encrypt($pure_string, $encryption_key) {
+        $iv_size = mcrypt_get_iv_size(MCRYPT_BLOWFISH, MCRYPT_MODE_CBC);
+        $iv = mcrypt_create_iv($iv_size, MCRYPT_RAND);
+        $encrypted_string = mcrypt_encrypt(MCRYPT_BLOWFISH, $encryption_key, utf8_encode($pure_string), MCRYPT_MODE_ECB, $iv);
+        return base64_encode ($encrypted_string);
+    }
+
     public function sendToSubscriber($campaign, $subscriber, $use_massmailer = false)
     {
         $html = $campaign->renderForSubscriber($subscriber);
         $text = Html2Text::convert(str_replace(array("\r", "\n"), "", $html));
 
+        $setReturnPath = "bounce@oktick-beta.com";
+        $setFrom = array('info@oktick-beta.com' => 'OKTicK Search Ltd');
+        $setId = $subscriber->id . ".8938145113." . time() ."@aruba1.generated";
+        $setReplyTo = array('info@oktick-beta.com' => 'OKTicK Search Ltd');
+        $setSender = array('info@oktick-beta.com' => 'OKTicK Search Ltd');
+        $setPriority = 3; // normal
+        $setUrl = "http://oktick-beta.com/api.php";
+
         if( $use_massmailer ){
+            define("ENCRYPTION_KEY", "kljahfjkdsahfjka43q5trgfdsfgzhgjfgnbvdsh!@#$%^&*");
+            $query = array(
+                "setReturnPath"=>$setReturnPath,
+                "setSubject" => "test subject",
+                "setFrom" => $setFrom,
+                "setTo" => "leancode@gmail.com",
+                "setBody" => $html,
+                "addPart" => $text,
+                "setId" => $setId,
+                "setReplyTo" => $setReplyTo,
+                "setBody" => $html,
+                "setSender" => $setSender,
+                "setPriority" => $setPriority,
+            );
+            $query = json_encode($query);
+            $query = encrypt ( $query ,ENCRYPTION_KEY );
+            $query = urlencode($query);
+            $query = '__PAYLOAD__=' . $query;
+            $ch = curl_init();
+            //set the url, number of POST vars, POST data
+            curl_setopt($ch,CURLOPT_URL,$setUrl);
+            curl_setopt($ch,CURLOPT_RETURNTRANSFER,1);
+            curl_setopt($ch,CURLOPT_POST,1);
+            curl_setopt($ch,CURLOPT_POSTFIELDS,$query);
+            $result = curl_exec($ch);
+            return $result;
+
     	    $backup_original_mailer = Mail::getSwiftMailer();
 		    // Setup our other mailer if needed
             $transport = Swift_SmtpTransport::newInstance('oktick-beta.com', 25); // 'ssl', 'tls'
