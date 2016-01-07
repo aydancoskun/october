@@ -33,7 +33,7 @@ class CampaignTest extends Command
      */
     public function fire()
     {
-
+        define('MAIL_STARTED',time());
 		// L / blacklisted - unsubscribed / iu_company
     	$dbr = DB::table('operations.users')->select('id')->whereNotNull('ok_unsubscribed_at')->whereNotNull('ok_blacklisted_at')->whereNull('L')->get();
 		$this->output->writeln("Making sure all blacklisted & unsubscribed are marked only in 'L' column... (".count($dbr).")");
@@ -51,6 +51,9 @@ class CampaignTest extends Command
 		$this->output->writeln("Reset user table A-L table... (".count($num).")");
 */
 
+        // reseting any special list items in A
+        DB::table('operations.users')->where('mailing_list_id','<>',140)->where('A','S')->update(['A'=>null]);
+
 		// A / Mailed to / iu_gender
     	$num = DB::table('operations.users')->whereNull('L')->where('is_activated',1)->update(['A'=>'Y','C'=>'Y']);
     	$total = DB::table('operations.users')
@@ -66,6 +69,14 @@ class CampaignTest extends Command
     	            ->select('id')
     	            ->whereNull('L')
     	            ->whereNull('A')
+    	            ->where('mailing_list_id','<>',60)
+    	            ->where('mailing_list_id','<>',70)
+    	            ->where('mailing_list_id','<>',90)
+    	            ->where('mailing_list_id','<>',100)
+    	            ->where('mailing_list_id','<>',110)
+    	            ->where('mailing_list_id','<>',120)
+    	            ->where('mailing_list_id','<>',140)
+    	            ->where('mailing_list_id','<>',150)
                     ->leftJoin('leancode_campaign_messages_subscribers','id','=','subscriber_id')
     	            ->whereNotNull('sent_at')
 //    	            ->toSql();
@@ -75,7 +86,7 @@ class CampaignTest extends Command
     	            ->take(1000)
     	            ->distinct()
     	            ->get();
-	        $this->output->writeln("Updating those we've mailed to... (".($c+1000)."of $total)");
+	        $this->output->writeln("Updating those we've mailed to... (".($c)." of $total)");
             foreach($dbr as $row){
                 DB::table('operations.users')
         	        ->where('id',$row->id)
@@ -86,7 +97,7 @@ class CampaignTest extends Command
 		// B / pingback / iu_job
     	$dbr = DB::table('operations.users')
     	            ->select('id')
-    	            ->whereNotNull('A')
+    	            ->where('A','Y')
                     ->leftJoin('leancode_campaign_messages_subscribers','id','=','subscriber_id')
     	            ->whereNotNull('read_at')
     	            ->whereNull('B')
@@ -102,6 +113,7 @@ class CampaignTest extends Command
 		// C / activated / iu_about
 		//done in A above
 		$this->output->writeln("Updating those who clicked the email and therefore activated... ($num)");
+    	$num = DB::table('operations.users')->whereNotNull('A')->whereNull('C')->where('is_activated',1)->update(['C'=>'Y']);
 
 
 		// D / activated but no FCFL / iu_webpage
@@ -168,7 +180,7 @@ class CampaignTest extends Command
 
 
 		// 1 = A
-		$total = DB::table('operations.users')->whereNotNull('A')->update(['mailing_list_id'=>1]);
+		$total = DB::table('operations.users')->where('A','Y')->update(['mailing_list_id'=>1]);
 	    $this->output->writeln("Updating mailed to in subscriber table... ($total)");
 
 		// 2 = D
@@ -195,6 +207,10 @@ class CampaignTest extends Command
 		$total = DB::table('operations.users')->whereNotNull('I')->update(['mailing_list_id'=>7]);
 		$this->output->writeln("Updating 'Applying credits to the max' in subscriber table... ($total)");
 
+        // now enough products
+		$total = DB::table('operations.users')->where('ok_company_products_count','>',1)->where('mailing_list_id',130)->update(['mailing_list_id'=>99]);
+		$this->output->writeln("Updating 'not enough products' in subscriber table... ($total)");
+
         // not enough products
 		$total = DB::table('operations.users')->where('ok_company_products_count','<',2)->update(['mailing_list_id'=>130]);
 		$this->output->writeln("Updating 'not enough products' in subscriber table... ($total)");
@@ -203,41 +219,19 @@ class CampaignTest extends Command
 		$total = DB::table('operations.users')->wherenull('ok_company_id')->update(['mailing_list_id'=>120]);
 		$this->output->writeln("Updating 'no company' in subscriber table... ($total)");
 
-       	$num = DB::table('leancode_campaign_lists_subscribers')->where('subscriber_id',2)->update(['list_id'=>60]);
+		DB::table('operations.users')->where('id',2)->update(['mailing_list_id'=>60]);
    		$this->output->writeln("Updating Dom and moving him back into his category... ($num)");
 
-    	$num = DB::table('leancode_campaign_lists_subscribers')->where('subscriber_id',10)->update(['list_id'=>70]);
+		DB::table('operations.users')->where('id',10)->update(['mailing_list_id'=>70]);
    		$this->output->writeln("Updating Clive and moving him back into his category... ($num)");
 
-    	$dbr = DB::table('leancode_campaign_subscribers')
-    	            ->select('id')
-    	            ->whereNotNull('unsubscribed_at')
-//    	            ->whereNotNull('blacklisted_at')
-                    ->leftJoin('leancode_campaign_lists_subscribers','id','=','subscriber_id')
-    	            ->where('list_id','<>','90')
-    	            ->get();
-		$this->output->writeln("Moving unsubscribed to list 90... (".count($dbr).")");
-        foreach($dbr as $row){
-            DB::table('leancode_campaign_lists_subscribers')
-        	    ->where('subscriber_id',$row->id)
-        	    ->update(['list_id'=>90]);
-        }
+		$total = DB::table('operations.users')->whereNotNull('ok_unsubscribed_at')->where('mailing_list_id','<>','90')->update(['mailing_list_id'=>90]);
+		$this->output->writeln("Moving unsubscribed to list 90... ($total)");
 
-    	$dbr = DB::table('leancode_campaign_subscribers')
-    	            ->select('id')
-//    	            ->whereNotNull('unsubscribed_at')
-    	            ->whereNotNull('blacklisted_at')
-                    ->leftJoin('leancode_campaign_lists_subscribers','id','=','subscriber_id')
-    	            ->where('list_id','<>','100')
-    	            ->get();
-		$this->output->writeln("Moving blacklisted to list 100... (".count($dbr).")");
-        foreach($dbr as $row){
-        	DB::table('leancode_campaign_lists_subscribers')
-        	    ->where('subscriber_id',$row->id)
-        	    ->update(['list_id'=>100]);
-        }
+		$total = DB::table('operations.users')->whereNotNull('ok_blacklisted_at')->where('mailing_list_id','<>','100')->update(['mailing_list_id'=>100]);
+		$this->output->writeln("Moving blacklisted to list 100... ($total)");
 
-        $message = CampaignWorker::instance()->process(true);
+        $message = CampaignWorker::instance()->process($test=true);
         $this->output->writeln($message);
     }
 

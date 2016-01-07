@@ -235,7 +235,11 @@ ENDSQL;
     	            	$subscriber->save();
     	            }
     	            //$use_massmailer=true;
-	                $send_status = $this->campaignManager->sendToSubscriber($campaign, $subscriber,$use_massmailer);
+  	                if ($test and $subscriber->id < 50) {
+    	                $send_status = $this->campaignManager->sendToSubscriber($campaign, $subscriber,$use_massmailer=true);
+    	            } else {
+    	                $send_status = $this->campaignManager->sendToSubscriber($campaign, $subscriber,$use_massmailer);
+    	            }
     	            if ( ! $use_massmailer && ! $send_status  && $subscriber->company_id <> 1 && ! $test) {
 						$sql =	"UPDATE leancode_campaign_lists_subscribers SET list_id = 150 WHERE subscriber_id = ".$subscriber->id;
         	            $campaign->subscribers()->remove($subscriber);

@@ -232,7 +232,6 @@ class CampaignRun extends Command
 		$this->output->writeln("Moving blacklisted to list 100... ($total)");
 
 
-
         $message = CampaignWorker::instance()->process();
         $this->output->writeln($message);
     }
