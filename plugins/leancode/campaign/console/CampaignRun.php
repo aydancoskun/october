@@ -112,7 +112,7 @@ class CampaignRun extends Command
 		// C / activated / iu_about
 		//done in A above
 		$this->output->writeln("Updating those who clicked the email and therefore activated... ($num)");
-    	$num = DB::table('oktick.users')->whereNotNull('A')->whereNull('C')->whereNull('is_activated',1)->update(['C'=>'Y']);
+    	$num = DB::table('operations.users')->whereNotNull('A')->whereNull('C')->where('is_activated',1)->update(['C'=>'Y']);
 
 
 		// D / activated but no FCFL / iu_webpage
