@@ -34,7 +34,7 @@ class CampaignTest extends Command
     public function fire()
     {
         define('MAIL_STARTED',time());
-        $arguments = $this->getArguments("skip");
+        $arguments = $this->argument("skip");
 		// L / blacklisted - unsubscribed / iu_company
     	$dbr = DB::table('operations.users')->select('id')->whereNotNull('ok_unsubscribed_at')->whereNotNull('ok_blacklisted_at')->whereNull('L')->get();
 		$this->output->writeln("Making sure all blacklisted & unsubscribed are marked only in 'L' column... (".count($dbr).")");
