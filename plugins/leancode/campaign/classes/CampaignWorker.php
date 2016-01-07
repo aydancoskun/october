@@ -119,8 +119,9 @@ class CampaignWorker
                 $operation = ">";
                 $operator = "0";
             }
-            while( $subscribers = $campaign->subscribers()->Where("id",$operation, $operator)->whereNull('sent_at')->limit(500)->get()){
+            while( time() - MAIL_STARTED <= 570 AND $subscribers = $campaign->subscribers()->Where("id",$operation, $operator)->whereNull('sent_at')->limit(500)->get()){
 	            foreach ($subscribers as $subscriber) {
+	                if(time() - MAIL_STARTED > 570) break;
 	                echo "handling ".$subscriber->id.__line__."\n";
 	                if ($test and $subscriber->id < 50) {
                         $sql = <<<ENDSQL
