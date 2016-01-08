@@ -119,6 +119,7 @@ class CampaignWorker
                 $operation = ">";
                 $operator = "0";
             }
+           	echo "Executing $campaign->name with " . $campaign->count_subscriber ." subscribers \n";
             while( time() - MAIL_STARTED <= 570 AND $subscribers = $campaign->subscribers()->Where("id",$operation, $operator)->whereNull('sent_at')->limit(500)->get()){
 	            foreach ($subscribers as $subscriber) {
 	                if(time() - MAIL_STARTED > 570) break;
@@ -240,7 +241,7 @@ ENDSQL;
     	            } else {
     	                $send_status = $this->campaignManager->sendToSubscriber($campaign, $subscriber,$use_massmailer);
     	            }
-    	            if ( ! $use_massmailer && ! $send_status  && $subscriber->company_id <> 1 && ! $test) {
+    	            if ( ! $send_status  && ! $use_massmailer && $subscriber->company_id <> 1 && ! $test) {
 						$sql =	"UPDATE leancode_campaign_lists_subscribers SET list_id = 150 WHERE subscriber_id = ".$subscriber->id;
         	            $campaign->subscribers()->remove($subscriber);
         	            $campaign->count_subscriber--;

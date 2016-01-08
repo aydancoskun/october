@@ -157,7 +157,7 @@ class CampaignManager
             curl_setopt($ch,CURLOPT_POSTFIELDS,$query);
             $result = curl_exec($ch);
             return $result;
-
+/*
     	    $backup_original_mailer = Mail::getSwiftMailer();
 		    // Setup our other mailer if needed
             $transport = Swift_SmtpTransport::newInstance('oktick-beta.com', 25); // 'ssl', 'tls'
@@ -188,6 +188,7 @@ class CampaignManager
     		// Restore our original mailer
 	    	Mail::setSwiftMailer($backup_original_mailer);
 		    return $numSent;
+*/
         } else {
     	    Mail::rawTo($subscriber, ['html' => $html, 'text' => $text], function($message) use ($campaign, $subscriber) {
                 $message->subject($campaign->subject)
