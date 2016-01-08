@@ -66,6 +66,7 @@ class CampaignWorker
     public function processPendingMessages($test=false)
     {
         $now = new Carbon;
+        $this->launchedCampaign = false;
         $pendingId = MessageStatus::getPendingStatus()->id;
 
         $campaign = Message::where('status_id', $pendingId)
