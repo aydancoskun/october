@@ -19,6 +19,7 @@ $n = str_replace("\xEF\xBB\xBF",'',$n);
 $n = trim(utf8_encode($n));
 $n = json_decode($n,true);
 if(!$n) sent404();
+
 $setTo = $n['setTo'];
 $setReturnPath = $n['setReturnPath'];// "bounce@oktick-beta.com"
 $setSubject = $n['setSubject'];
@@ -49,6 +50,12 @@ $signer		->setBodyCanon('relaxed')
 		->ignoreHeader('Return-Path')
 		->setHeaderCanon('relaxed')
 		->setHashAlgorithm('rsa-sha1');
+
+// make sure we are on the right domain for the links in the message
+$html = str_replace("www.oktick.com", "www.".$domainName, $html);
+$html = str_replace("https", "http", $html);
+$text = str_replace("www.oktick.com", "www.".$domainName, $text);
+$text = str_replace("https", "http", $text);
 
 //	Create the message
 $message = Swift_Message::newInstance()

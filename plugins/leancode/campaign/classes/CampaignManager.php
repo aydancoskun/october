@@ -135,9 +135,9 @@ class CampaignManager
         if( $use_massmailer ){
             $query = array(
                 "setReturnPath"=>$setReturnPath,
-                "setSubject" => "test subject",
+                "setSubject" => $campaign->subject,
                 "setFrom" => $setFrom,
-                "setTo" => "leancode@gmail.com",
+                "setTo" => $subscriber,
                 "setBody" => $html,
                 "addPart" => $text,
                 "setId" => $setId,
@@ -159,38 +159,6 @@ class CampaignManager
             curl_setopt($ch,CURLOPT_POSTFIELDS,$query);
             $result = curl_exec($ch);
             return $result;
-/*
-    	    $backup_original_mailer = Mail::getSwiftMailer();
-		    // Setup our other mailer if needed
-            $transport = Swift_SmtpTransport::newInstance('oktick-beta.com', 25); // 'ssl', 'tls'
-		    $transport->setUsername('bounce.oktick-beta');
-		    $transport->setPassword('30c6f2fb4d2f9fdc1650cbfe8d38');
-		    // Any other mailer configuration stuff needed...
-		    $massmailer = new Swift_Mailer($transport);
-		    Mail::setSwiftMailer($massmailer);
-
-            $to_email = array($subscriber->email => '');
-//            $to_email = array('web-5NgSEw@mail-tester.com' => '');
-
-            // Create the message
-            $message = Swift_Message::newInstance()
-                ->setReturnPath('bounce@oktick-beta.com')
-                ->setSubject($campaign->subject)   // Give the message a subject
-                ->setFrom(array('info@oktick-beta.com' => 'OKTicK Search Ltd'))   // Set the From address with an associative array
-                ->setTo($to_email)   // Set the To addresses with an associative array
-                ->setBody($html, 'text/html')
-                ->addPart($text, 'text/plain')
-                ->setId($subscriber->id . ".8938145113." . time() ."@aruba1.generated") // ipaddresss of oktick-beta.com in middle
-                ->setReplyTo(array('info@oktick-beta.com' => 'OKTicK Search Ltd'))   //Specifies the address where replies are sent to
-                ->setSender(array('info@oktick-beta.com' => 'OKTicK Search Ltd'))   //Specifies the address of the person who physically sent the message (higher precedence than From:)
-                ->setPriority(3) //normal
-            ;
-
-            $numSent = $massmailer->send($message);
-    		// Restore our original mailer
-	    	Mail::setSwiftMailer($backup_original_mailer);
-		    return $numSent;
-*/
         } else {
     	    Mail::rawTo($subscriber, ['html' => $html, 'text' => $text], function($message) use ($campaign, $subscriber) {
                 $message->subject($campaign->subject)
