@@ -56,7 +56,6 @@ $html = str_replace("www.oktick.com", "www.".$domainName, $html);
 $html = str_replace("https", "http", $html);
 $text = str_replace("www.oktick.com", "www.".$domainName, $text);
 $text = str_replace("https", "http", $text);
-$setId = str_replace("generated", $domainName, $setId);
 
 //	Create the message
 $message = Swift_Message::newInstance()
