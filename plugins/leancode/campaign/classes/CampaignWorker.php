@@ -123,9 +123,8 @@ class CampaignWorker
             else       {$op = ">"; $o =  "0";}
 
            	echo "Executing $campaign->name with $campaign->count_subscriber subscribers \n";
-            while( time() - MAIL_STARTED <= 570 AND $subscribers = $campaign->subscribers()->Where("id",$op, $o)->whereNull('sent_at')->limit(500)->get()){
+            while( $subscribers = $campaign->subscribers()->Where("id",$op, $o)->whereNull('sent_at')->limit(500)->get()){
 	            foreach ($subscribers as $subscriber) {
-	                if(time() - MAIL_STARTED > 570) break;
 	                echo "handling ".$subscriber->id.__line__." time:".(time() - MAIL_STARTED)."\n";
 	                if ($test and $subscriber->id < 50) {
                         $sql = <<<ENDSQL
@@ -272,7 +271,7 @@ ENDSQL;
 		    			$countSent++;
 //		    		}
 	                echo "handling ".$subscriber->id.__line__."\n";
-                    if ( $staggerCount !== -1 && $countSent >= $staggerCount ) {
+                    if ( time() - MAIL_STARTED > 570 OR ($staggerCount !== -1 && $countSent >= $staggerCount ) ) {
     	                echo "handling ".$subscriber->id.__line__."\n";
                     	break 2;
                     }
