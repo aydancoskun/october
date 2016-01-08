@@ -55,8 +55,9 @@ class CampaignWorker
 
         // @todo Move this action so the user can do it manually
         // $this->isReady && $this->processUnsubscribedSubscribers();
+        return $this->logMessage;
 
-        return [$this->logMessage,$this->launchedCampaign];
+//        return [$this->logMessage,$this->launchedCampaign];
     }
 
     /**

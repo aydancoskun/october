@@ -233,12 +233,8 @@ class CampaignTest extends Command
 		$total = DB::table('operations.users')->whereNotNull('ok_blacklisted_at')->where('mailing_list_id','<>','100')->update(['mailing_list_id'=>100]);
 		$this->output->writeln("Moving blacklisted to list 100... ($total)");
 */
-        list($message,$launchedCampaign) = CampaignWorker::instance()->process($test=true);
+        $message = CampaignWorker::instance()->process($test=true);
         $this->output->writeln($message);
-        if($launchedCampaign==true) {
-            list($message,$status) = CampaignWorker::instance()->process($test=true);
-            $this->output->writeln($message);
-        }
     }
 
     /**
