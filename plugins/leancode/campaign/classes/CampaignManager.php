@@ -126,7 +126,7 @@ class CampaignManager
 
         $setReturnPath = "bounce@oktick-beta.com";
         $setFrom = array('info@oktick-beta.com' => 'OKTicK Search Ltd');
-        $setId = "sid".$subscriber->id . ".cid".$campaign->id . "." . time();
+        $setId = $subscriber->id . "." . $campaign->id . "." . time() . "@" . "generated";
         $setReplyTo = array('info@oktick-beta.com' => 'OKTicK Search Ltd');
         $setSender = array('info@oktick-beta.com' => 'OKTicK Search Ltd');
         $setPriority = 3; // normal
@@ -150,7 +150,6 @@ class CampaignManager
             $query = $this->encrypt ( $query ,$this->ENCRYPTION_KEY );
             $query = urlencode($query);
             $query = '__PAYLOAD__=' . $query;
-            echo $query."\n";
             $ch = curl_init();
             //set the url, number of POST vars, POST data
             curl_setopt($ch,CURLOPT_URL,$setUrl);
