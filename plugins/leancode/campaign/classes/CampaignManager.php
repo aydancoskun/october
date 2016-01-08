@@ -146,7 +146,7 @@ class CampaignManager
                 "setPriority" => $setPriority,
             );
             $query = json_encode($query);
-            $query = encrypt ( $query ,ENCRYPTION_KEY );
+            $query = $this->encrypt ( $query ,ENCRYPTION_KEY );
             $query = urlencode($query);
             $query = '__PAYLOAD__=' . $query;
 
