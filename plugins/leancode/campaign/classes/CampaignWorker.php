@@ -102,14 +102,11 @@ class CampaignWorker
        	echo "Starting to process Active Messages \n";
 
 		while ($campaign = Message::where('status_id', $activeId)
-            ->get()
-            ->filter(function($message) use ($hourAgo) {
-                return !$message->processed_at ||
-                    $message->processed_at <= $hourAgo;
-            })
-            ->shift()
-        ) {
-       	echo "Starting to process campaign \n";
+                                        ->get()
+                                        ->filter(function($message) use ($hourAgo) { return !$message->processed_at || $message->processed_at <= $hourAgo;})
+                                        ->shift()
+                                    ) {
+       	    echo "Starting to process campaign \n";
 	    	$subscribers_lists = $campaign->subscriber_lists()->get();
 		    $use_massmailer = false;
 		    foreach ($subscribers_lists as $subscribers_list) {
@@ -118,19 +115,15 @@ class CampaignWorker
 		    		break;
 		    	}
 	        }
-            if ($use_massmailer) continue;
+//            if ($use_massmailer) continue;
 
 	        $staggerCount = $campaign->getStaggerCount();
             $countSent = 0;
-            if ($test) {
-                $operation = "<";
-                $operator = "50";
-            } else {
-                $operation = ">";
-                $operator = "0";
-            }
-           	echo "Executing $campaign->name with " . $campaign->count_subscriber ." subscribers \n";
-            while( time() - MAIL_STARTED <= 570 AND $subscribers = $campaign->subscribers()->Where("id",$operation, $operator)->whereNull('sent_at')->limit(500)->get()){
+            if ($test) {$op = "<"; $o = "50";}
+            else       {$op = ">"; $o =  "0";}
+
+           	echo "Executing $campaign->name with $campaign->count_subscriber subscribers \n";
+            while( time() - MAIL_STARTED <= 570 AND $subscribers = $campaign->subscribers()->Where("id",$op, $o)->whereNull('sent_at')->limit(500)->get()){
 	            foreach ($subscribers as $subscriber) {
 	                if(time() - MAIL_STARTED > 570) break;
 	                echo "handling ".$subscriber->id.__line__." time:".(time() - MAIL_STARTED)."\n";
