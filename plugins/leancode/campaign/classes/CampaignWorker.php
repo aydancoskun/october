@@ -109,6 +109,7 @@ class CampaignWorker
             })
             ->shift()
         ) {
+       	echo "Starting to process campaign \n";
 	    	$subscribers_lists = $campaign->subscriber_lists()->get();
 		    $use_massmailer = false;
 		    foreach ($subscribers_lists as $subscribers_list) {
