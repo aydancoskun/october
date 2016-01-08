@@ -260,7 +260,7 @@ ENDSQL;
         	            	echo $campaign->name . ": Removed " . $subscriber->email . ". Failure \n";
     	            	continue;
     	            }
-                   	if (strpos(php_sapi_name(), 'cli') !== false) echo $campaign->name . ": Mailing $subscriber->email time: ".(time() - MAIL_STARTED)." secs \n";
+                   	if (strpos(php_sapi_name(), 'cli') !== false) echo $campaign->name . ": Mailing $subscriber->email time: ".(time() - MAIL_STARTED)." secs, massmailer=$use_massmailer \n";
 //                   	if (strpos(php_sapi_name(), 'cli') !== false) echo __FILE__.":".__LINE__." BLOCKED $subscriber->email\n";
 
 //    	            if (! $test) {
