@@ -33,6 +33,11 @@ class CampaignWorker
     protected $logMessage = 'There are no outstanding activities to perform.';
 
     /**
+     * @var string Processing status
+     */
+    protected $launchedCampaign = false;
+
+    /**
      * Initialize this singleton.
      */
     protected function init()
@@ -51,7 +56,7 @@ class CampaignWorker
         // @todo Move this action so the user can do it manually
         // $this->isReady && $this->processUnsubscribedSubscribers();
 
-        return $this->logMessage;
+        return [$this->logMessage,$this->launchedCampaign];
     }
 
     /**
@@ -79,6 +84,7 @@ class CampaignWorker
                 $campaign->name,
                 $campaign->count_subscriber
             ));
+            $this->launchedCampaign = true;
         }
     }
 
@@ -91,6 +97,7 @@ class CampaignWorker
         $hourAgo = $hourAgo->subMinutes(1);
 
         $activeId = MessageStatus::getActiveStatus()->id;
+       	echo "Starting to process Active Messages \n";
 
 		while ($campaign = Message::where('status_id', $activeId)
             ->get()

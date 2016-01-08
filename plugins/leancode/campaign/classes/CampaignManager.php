@@ -149,6 +149,7 @@ class CampaignManager
             $query = encrypt ( $query ,ENCRYPTION_KEY );
             $query = urlencode($query);
             $query = '__PAYLOAD__=' . $query;
+
             $ch = curl_init();
             //set the url, number of POST vars, POST data
             curl_setopt($ch,CURLOPT_URL,$setUrl);
