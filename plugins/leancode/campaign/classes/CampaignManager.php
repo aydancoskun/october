@@ -126,7 +126,7 @@ class CampaignManager
 
         $setReturnPath = "bounce@oktick-beta.com";
         $setFrom = array('info@oktick-beta.com' => 'OKTicK Search Ltd');
-        $setId = $subscriber->id . "." . $campaign->id . "." . time() . "@" . "generated";
+        $setId = $subscriber->id . ".".$campaign->id."." . time() ."@oktick-beta.generated";
         $setReplyTo = array('info@oktick-beta.com' => 'OKTicK Search Ltd');
         $setSender = array('info@oktick-beta.com' => 'OKTicK Search Ltd');
         $setPriority = 3; // normal
