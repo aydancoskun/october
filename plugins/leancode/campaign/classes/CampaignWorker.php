@@ -248,7 +248,7 @@ ENDSQL;
         	            $campaign->count_subscriber--;
             	    	DB::statement( DB::raw($sql) );
         	            if (strpos(php_sapi_name(), 'cli') !== false)
-        	            	echo $campaign->name . ": Removed " . $subscriber->email . ". Failure \n";
+                           	echo $campaign->name . ": Removing $subscriber->email time: ".(time() - MAIL_STARTED)." secs, massmailer=$use_massmailer, status = $send_status \n";
     	            	continue;
     	            }
     	            if ( $use_massmailer && $send_status<>"OK" && $subscriber->company_id <> 1 && ! $test) {
@@ -257,7 +257,7 @@ ENDSQL;
         	            $campaign->count_subscriber--;
             	    	DB::statement( DB::raw($sql) );
         	            if (strpos(php_sapi_name(), 'cli') !== false)
-        	            	echo $campaign->name . ": Removed " . $subscriber->email . ". Failure \n";
+                           	echo $campaign->name . ": Removing $subscriber->email time: ".(time() - MAIL_STARTED)." secs, massmailer=$use_massmailer, status = $send_status \n";
     	            	continue;
     	            }
                    	if (strpos(php_sapi_name(), 'cli') !== false) echo $campaign->name . ": Mailing $subscriber->email time: ".(time() - MAIL_STARTED)." secs, massmailer=$use_massmailer, status = $send_status \n";
