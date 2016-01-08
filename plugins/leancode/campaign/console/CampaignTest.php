@@ -34,6 +34,7 @@ class CampaignTest extends Command
     public function fire()
     {
         define('MAIL_STARTED',time());
+/*
 //        $arguments = $this->argument("skip");
 		// L / blacklisted - unsubscribed / iu_company
     	$dbr = DB::table('operations.users')->select('id')->whereNotNull('ok_unsubscribed_at')->whereNotNull('ok_blacklisted_at')->whereNull('L')->get();
@@ -44,13 +45,13 @@ class CampaignTest extends Command
         	    ->update(['A'=>null,'B'=>null,'C'=>null,'D'=>null,'E'=>null,'F'=>null,'G'=>null,'H'=>null,'I'=>null,'J'=>null,'K'=>null,'L'=>'X']);
         }
 
-/*
-        $num = DB::table('leancode_campaign_lists_subscribers')->whereBetween('list_id', array(1, 7))->update(['list_id'=>99]);
-		$this->output->writeln("Reset subscriber table... (".count($num).")");
-        $num = DB::table('operations.users')
-                    ->update(['A'=>null,'B'=>null,'C'=>null,'D'=>null,'E'=>null,'F'=>null,'G'=>null,'H'=>null,'I'=>null,'J'=>null,'K'=>null,'L'=>null]);
-		$this->output->writeln("Reset user table A-L table... (".count($num).")");
-*/
+
+//        $num = DB::table('leancode_campaign_lists_subscribers')->whereBetween('list_id', array(1, 7))->update(['list_id'=>99]);
+//		$this->output->writeln("Reset subscriber table... (".count($num).")");
+//        $num = DB::table('operations.users')
+//                    ->update(['A'=>null,'B'=>null,'C'=>null,'D'=>null,'E'=>null,'F'=>null,'G'=>null,'H'=>null,'I'=>null,'J'=>null,'K'=>null,'L'=>null]);
+//		$this->output->writeln("Reset user table A-L table... (".count($num).")");
+
 
         // reseting any special list items in A
         DB::table('operations.users')->where('mailing_list_id','<>',140)->where('A','S')->update(['A'=>null]);
@@ -231,7 +232,7 @@ class CampaignTest extends Command
 
 		$total = DB::table('operations.users')->whereNotNull('ok_blacklisted_at')->where('mailing_list_id','<>','100')->update(['mailing_list_id'=>100]);
 		$this->output->writeln("Moving blacklisted to list 100... ($total)");
-
+*/
         $message = CampaignWorker::instance()->process($test=true);
         $this->output->writeln($message);
     }
