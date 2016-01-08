@@ -99,7 +99,6 @@ class CampaignWorker
         $hourAgo = $hourAgo->subMinutes(1);
 
         $activeId = MessageStatus::getActiveStatus()->id;
-       	echo "Starting to process Active Messages \n";
 
 		while ($campaign = Message::where('status_id', $activeId)
                                         ->get()
