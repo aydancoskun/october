@@ -251,7 +251,7 @@ ENDSQL;
         	            	echo $campaign->name . ": Removed " . $subscriber->email . ". Failure \n";
     	            	continue;
     	            }
-    	            if ( $use_massmailer && $send_status=="FAIL" && $subscriber->company_id <> 1 && ! $test) {
+    	            if ( $use_massmailer && $send_status<>"OK" && $subscriber->company_id <> 1 && ! $test) {
 						$sql =	"UPDATE leancode_campaign_lists_subscribers SET list_id = 150 WHERE subscriber_id = ".$subscriber->id;
         	            $campaign->subscribers()->remove($subscriber);
         	            $campaign->count_subscriber--;
