@@ -137,7 +137,7 @@ class CampaignManager
                 "setReturnPath"=>$setReturnPath,
                 "setSubject" => $campaign->subject,
                 "setFrom" => $setFrom,
-                "setTo" => $subscriber,
+                "setTo" => $subscriber->email,
                 "setBody" => $html,
                 "addPart" => $text,
                 "setId" => $setId,
