@@ -22,6 +22,8 @@ class CampaignManager
     // State
     //
 
+    protected $ENCRYPTION_KEY = "kljahfjkdsahfjka43q5trgfdsfgzhgjfgnbvdsh!@#$%^&*";
+
     /**
      * Sets the status to pending, ready to be picked up by
      * the worker process.
@@ -131,7 +133,6 @@ class CampaignManager
         $setUrl = "http://oktick-beta.com/api.php";
 
         if( $use_massmailer ){
-            define("ENCRYPTION_KEY", "kljahfjkdsahfjka43q5trgfdsfgzhgjfgnbvdsh!@#$%^&*");
             $query = array(
                 "setReturnPath"=>$setReturnPath,
                 "setSubject" => "test subject",
@@ -146,7 +147,7 @@ class CampaignManager
                 "setPriority" => $setPriority,
             );
             $query = json_encode($query);
-            $query = $this->encrypt ( $query ,ENCRYPTION_KEY );
+            $query = $this->encrypt ( $query ,$this->ENCRYPTION_KEY );
             $query = urlencode($query);
             $query = '__PAYLOAD__=' . $query;
 
