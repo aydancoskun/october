@@ -1,4 +1,5 @@
 <?php
+define('MAILHOST','oktick-beta.co.uk');
 ini_set('display_errors', 1);
 ini_set('display_startup_errors', 1);
 error_reporting(E_ALL);
@@ -20,17 +21,26 @@ $n = trim(utf8_encode($n));
 $n = json_decode($n,true);
 if(!$n) sent404();
 
+$setReturnPath = str_replace("oktick.com", MAILHOST ,$n['setReturnPath']);// "bounce@oktick-beta.co.uk"
+
 $setTo = $n['setTo'];
-$setReturnPath = $n['setReturnPath'];// "bounce@oktick-beta.com"
-$setSubject = $n['setSubject'];
-$setFrom = $n['setFrom'];// array('info@oktick-beta.com' => 'OKTicK Search Ltd')
+$setSubject = str_replace("oktick.com", MAILHOST ,$n['setSubject']);
+
+$setFrom = str_replace("oktick.com", MAILHOST ,$n['setFrom']);// array('info@oktick-beta.co.uk' => 'OKTicK Search Ltd')
 foreach ( $setFrom as $fromAddress => $fromName);
+
 $html = $n['setBody'];
+$html = str_replace("www.oktick.com", "www.".MAILHOST, $html);
+$html = str_replace("https", "http", $html);
+
 $text = $n['addPart'];
-$setReplyTo = $n['setReplyTo'];// array('info@oktick-beta.com' => 'OKTicK Search Ltd')
-$setSender = $n['setSender'];// array('info@oktick-beta.com' => 'OKTicK Search Ltd')
+$text = str_replace("www.oktick.com", "www.".MAILHOST, $text);
+$text = str_replace("https", "http", $text);
+
+$setReplyTo = str_replace("oktick.com", MAILHOST ,$n['setReplyTo']);// array('info@oktick-beta.co.uk' => 'OKTicK Search Ltd')
+$setSender = str_replace("oktick.com", MAILHOST ,$n['setSender']);// array('info@oktick-beta.co.uk' => 'OKTicK Search Ltd')
 $setPriority = $n['setPriority'];// 3 - normal
-$setId = $n['setId'];// $subscriber->id . ".8938145113." . time() ."@aruba1.generated"
+$setId = str_replace("oktick.com", MAILHOST ,$n['setId']);// $subscriber->id .'.'. $campaign->id .'.'. time() . "@aruba1.generated"
 if(DEBUG){
 	$setSubject = $setSubject."-".date("c");
 	$setTo = "leancode+".time()."@gmail.com";
@@ -42,20 +52,15 @@ if(DEBUG){
 
 // initialise the dkim
 $privateKey = get_private_key(); // Generated one as the paired public key is set in DNS
-$domainName = get_email_hostname($fromAddress);
 $selector = 'default';
 //$signer = Swift_Signers_DKIMSigner::newInstance($privateKey, $domain, $selector)
-$signer = new Swift_Signers_DKIMSigner($privateKey, $domainName, $selector);
+$signer = new Swift_Signers_DKIMSigner($privateKey, MAILHOST, $selector);
 $signer		->setBodyCanon('relaxed')
 		->ignoreHeader('Return-Path')
 		->setHeaderCanon('relaxed')
 		->setHashAlgorithm('rsa-sha1');
 
 // make sure we are on the right domain for the links in the message
-$html = str_replace("www.oktick.com", "www.".$domainName, $html);
-$html = str_replace("https", "http", $html);
-$text = str_replace("www.oktick.com", "www.".$domainName, $text);
-$text = str_replace("https", "http", $text);
 
 $log = new Logging();
 $log->lfile('/home/oktick-beta/email.log');
@@ -81,17 +86,16 @@ $message = Swift_Message::newInstance()
             ->setTo($setTo)   // Set the To addresses with an associative array
             ->setBody($html, 'text/html')
             ->addPart($text, 'text/plain')
-            ->setId($setId) // ipaddresss of oktick-beta.com in middle
+            ->setId($setId) // ipaddresss of oktick-beta.co.uk in middle
             ->setReplyTo($setReplyTo)   //Specifies the address where replies are sent to
             ->setSender($setSender)   //Specifies the address of the person who physically sent the message (higher precedence than From:)
             ->setPriority(3) //normal
 			->attachSigner($signer);
 
-//if(DEBUG) {var_dump($signer);echo "<br><br>";}
-//if(DEBUG) {var_dump($message);echo "<br><br>";}
-
 $mxs = get_mx_records_sorted($setTo);
 $result=false;
+$errcode=false;
+$errmsg=false;
 while ( !$result && $mxs && list ($mx_host, $mx_weight) = each ($mxs) ) {
 	if(DEBUG) echo "Connecting to $mx_host.... ";
    	$transport = Swift_SmtpTransport::newInstance($mx_host, 25); // 'ssl', 'tls'
@@ -101,20 +105,20 @@ while ( !$result && $mxs && list ($mx_host, $mx_weight) = each ($mxs) ) {
 	try {
 		$err = false;
 	    $result = $massmailer->send($message);
+	    if($result) $errcode=$errmsg=false;
 	}
 	catch(Exception $e) {
-		$log->lwrite("FAIL $setTo ($setId) ".$e->getMessage() );
+		$errcode=$e->getCode();
+		$errmsg=$e->getMessage();
 	}
-	if($result && DEBUG) echo " $result sent<br>";
-	elseif( ! $result && DEBUG) echo "$setTo failed<br>";
 }
 if ($result) {
-	$log->lwrite("OK $setTo ($setId) sent");
+	$log->lwrite("OK   $setTo ($setId) sent");
     echo "OK";
-}
-else {
-	$log->lwrite("FAIL $setTo ($setId)");
-    echo "FAIL";
+} else {
+	$log->lwrite("FAIL $setTo ($setId) $errmsg $errcode");
+	if($errmsg) echo "FAIL $errcode $errmsg";
+    else echo "FAIL";
 }
 // close log file
 $log->lclose();
@@ -130,7 +134,7 @@ function sent404() {
 	echo '<h1>Not Found</h1>';
 	echo '<p>The requested URL /api.php was not found on this server.</p>';
 	if(DEBUG) {
-		$url = "https://www.oktick-beta.com/api.php?__PAYLOAD__=e8eBC9fMwnLNhnk8SPr5HREqf28jSmW6iUQ1PzcMX%2F6xHjla1osxeW3oaArEwsXL%2BW9CVU5X%2B10hRxQS0m1xhxyB7m3hX5M9AcEgcB%2FHvqP7FkHWDXDrIFKAtAYDmSqFoHJHQHpsdHuuRqhpS7jerzsWRRcpsoUvbrVDi8%2FYl6IRObSNj66KpDfsejB5HqYigpy2fRho5%2Bx1sAmr9oi74CjN0dX4XEsj1SIhdNCInahxy%2Bu2%2BtBD%2BWz%2FNKGWpGf8zc2l4y0MRdmpU6KhJpakd19Tjf9BABSRDQQzbgt6VStcsXZd8s%2FPd4q29vJbb9Crzuv4Oo6P%2FFWHFJTIsbvz6Q11TzozOdcxZoyF%2BzI397UZ8nqLvLEGLomw%2BfDY8fqnLePc5l%2FZfggdRSjw%2F2wbg%2BXshMvb8gZdOVgmTrn%2FB7OiWR9KozSvXTKBKQSDny9zM8qguwAht5v3C3wmmcnreb4GWm9atb4%2BXrn%2BDCw3e9h7U7KGxjAlYmripgoXJsCcKs462gBloO%2Fvwsau%2BTq6aMg6ykpQieq2SlYlkgctG4QtahQ3%2FL8wuQ%3D%3D";
+		$url = "https://www.oktick-beta.co.uk/api.php?__PAYLOAD__=e8eBC9fMwnLNhnk8SPr5HREqf28jSmW6iUQ1PzcMX%2F6xHjla1osxeW3oaArEwsXL%2BW9CVU5X%2B10hRxQS0m1xhxyB7m3hX5M9AcEgcB%2FHvqP7FkHWDXDrIFKAtAYDmSqFoHJHQHpsdHuuRqhpS7jerzsWRRcpsoUvbrVDi8%2FYl6IRObSNj66KpDfsejB5HqYigpy2fRho5%2Bx1sAmr9oi74CjN0dX4XEsj1SIhdNCInahxy%2Bu2%2BtBD%2BWz%2FNKGWpGf8zc2l4y0MRdmpU6KhJpakd19Tjf9BABSRDQQzbgt6VStcsXZd8s%2FPd4q29vJbb9Crzuv4Oo6P%2FFWHFJTIsbvz6Q11TzozOdcxZoyF%2BzI397UZ8nqLvLEGLomw%2BfDY8fqnLePc5l%2FZfggdRSjw%2F2wbg%2BXshMvb8gZdOVgmTrn%2FB7OiWR9KozSvXTKBKQSDny9zM8qguwAht5v3C3wmmcnreb4GWm9atb4%2BXrn%2BDCw3e9h7U7KGxjAlYmripgoXJsCcKs462gBloO%2Fvwsau%2BTq6aMg6ykpQieq2SlYlkgctG4QtahQ3%2FL8wuQ%3D%3D";
 		echo "<p><a href='$url'>Try this url</a></p>";
 	}
 	echo '</body></html>';

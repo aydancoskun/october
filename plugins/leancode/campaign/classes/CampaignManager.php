@@ -124,13 +124,13 @@ class CampaignManager
         $html = $campaign->renderForSubscriber($subscriber);
         $text = Html2Text::convert(str_replace(array("\r", "\n"), "", $html));
 
-        $setReturnPath = "bounce@oktick-beta.com";
-        $setFrom = array('info@oktick-beta.com' => 'OKTicK Search Ltd');
-        $setId = $subscriber->id . ".".$campaign->id."." . time() ."@oktick-beta.generated";
-        $setReplyTo = array('info@oktick-beta.com' => 'OKTicK Search Ltd');
-        $setSender = array('info@oktick-beta.com' => 'OKTicK Search Ltd');
+        $setReturnPath = "bounce@oktick.com";
+        $setFrom = array('info@oktick.com' => 'OKTicK Search Ltd');
+        $setId = $subscriber->id . ".".$campaign->id."." . time() ."@oktick.generated";
+        $setReplyTo = array('info@oktick.com' => 'OKTicK Search Ltd');
+        $setSender = array('info@oktick.com' => 'OKTicK Search Ltd');
         $setPriority = 3; // normal
-        $setUrl = "http://oktick-beta.com/api.php";
+        $setUrl = "http://oktick-beta.co.uk/api.php";
 
         if( $use_massmailer ){
             $query = array(
@@ -164,7 +164,7 @@ class CampaignManager
                     ->setReturnPath('bounce@oktick.com')
                     ->setFrom(array('info@oktick.com' => 'OKTicK Search Ltd'))   // Set the From address with an associative array
                     ->setReplyTo(array('info@oktick.com' => 'OKTicK Search Ltd'))   //Specifies the address where replies are sent to
-                    ->setId($subscriber->id . "." . time() ."@oktick.generated") // ipaddresss of oktick-beta.com in middle
+                    ->setId($subscriber->id . "." . time() ."@oktick.generated") // ipaddresss of oktick.com in middle
                 ;
             });
             return true;
