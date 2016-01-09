@@ -26,8 +26,20 @@ $setReturnPath = str_replace("oktick.com", MAILHOST ,$n['setReturnPath']);// "bo
 $setTo = $n['setTo'];
 $setSubject = str_replace("oktick.com", MAILHOST ,$n['setSubject']);
 
-$setFrom = str_replace("oktick.com", MAILHOST ,$n['setFrom']);// array('info@oktick-beta.co.uk' => 'OKTicK Search Ltd')
-foreach ( $setFrom as $fromAddress => $fromName);
+foreach ( $n['setFrom'] as $fromAddress => $fromName);
+$fromAddress = str_replace("oktick.com", MAILHOST ,$fromAddress);
+$fromName = str_replace("oktick.com", MAILHOST ,$fromName);
+$setFrom = array($fromAddress=>$fromName);
+
+foreach ( $n['setReplyTo'] as $replyAddress => $replyName);
+$replyAddress = str_replace("oktick.com", MAILHOST ,$replyAddress);
+$replyName = str_replace("oktick.com", MAILHOST ,$replyName);
+$setReplyTo = array($replyAddress=>$replyName);
+
+foreach ( $n['setSender'] as $senderAddress => $senderName);
+$senderAddress = str_replace("oktick.com", MAILHOST ,$senderAddress);
+$senderName = str_replace("oktick.com", MAILHOST ,$senderName);
+$setSender = array($senderAddress=>$senderName);
 
 $html = $n['setBody'];
 $html = str_replace("www.oktick.com", "www.".MAILHOST, $html);
@@ -37,8 +49,6 @@ $text = $n['addPart'];
 $text = str_replace("www.oktick.com", "www.".MAILHOST, $text);
 $text = str_replace("https", "http", $text);
 
-$setReplyTo = str_replace("oktick.com", MAILHOST ,$n['setReplyTo']);// array('info@oktick-beta.co.uk' => 'OKTicK Search Ltd')
-$setSender = str_replace("oktick.com", MAILHOST ,$n['setSender']);// array('info@oktick-beta.co.uk' => 'OKTicK Search Ltd')
 $setPriority = $n['setPriority'];// 3 - normal
 $setId = str_replace("oktick.com", MAILHOST ,$n['setId']);// $subscriber->id .'.'. $campaign->id .'.'. time() . "@aruba1.generated"
 if(DEBUG){
