@@ -35,6 +35,8 @@ class CampaignRun extends Command
     {
         define('MAIL_STARTED',time());
 		// L / blacklisted - unsubscribed / iu_company
+		$sql="update operations.users set L=NULL";
+    	$dbr = DB::raw($sql);
 		$sql="select id from operations.users where L is NULL AND (ok_unsubscribed_at IS NOT NULL OR ok_blacklisted_at IS NOT NULL OR mailing_list_id=150";
     	$dbr = DB::raw($sql);
 /*
