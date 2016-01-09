@@ -57,6 +57,21 @@ $html = str_replace("https", "http", $html);
 $text = str_replace("www.oktick.com", "www.".$domainName, $text);
 $text = str_replace("https", "http", $text);
 
+$log = new Logging();
+$log->lfile('/home/oktick-beta/email.log');
+// set path and name of log file (optional)
+/*
+$log->lwrite("setReturnPath($setReturnPath)");
+$log->lwrite("setSubject($setSubject)");
+$log->lwrite("setFrom($fromAddress, $fromName)");
+$log->lwrite("setTo($setTo)");
+//$log->lwrite("setBody($html)");
+//$log->lwrite("addPart($text)");
+$log->lwrite("setId($setId)");
+$log->lwrite("setReplyTo($setReplyTo)");
+$log->lwrite("setSender($setSender)");
+*/
+
 //	Create the message
 $message = Swift_Message::newInstance()
 			->setDate(time())
@@ -83,22 +98,22 @@ while ( !$result && $mxs && list ($mx_host, $mx_weight) = each ($mxs) ) {
 //  $transport->setUsername('bounce.oktick-beta');
 //  $transport->setPassword('30c6f2fb4d2f9fdc1650cbfe8d38');
     $massmailer = new Swift_Mailer($transport);
-    $result = $massmailer->send($message);
+	try {
+		$err = false;
+	    $result = $massmailer->send($message);
+	}
+	catch(Exception $e) {
+		$log->lwrite("FAIL $setTo ($setId) ".$e->getMessage() );
+	}
 	if($result && DEBUG) echo " $result sent<br>";
 	elseif( ! $result && DEBUG) echo "$setTo failed<br>";
 }
-$log = new Logging();
-
-// set path and name of log file (optional)
-$log->lfile('/home/oktick-beta/email.log');
 if ($result) {
-	$log->lwrite("$setTo ($setId) sent OK");
-	$log->lwrite("Subject: $setSubject");
-	$log->lwrite("Body: $text");
+	$log->lwrite("OK $setTo ($setId) sent");
     echo "OK";
 }
 else {
-	$log->lwrite("$setTo ($setId) FAILED");
+	$log->lwrite("FAIL $setTo ($setId)");
     echo "FAIL";
 }
 // close log file
