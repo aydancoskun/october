@@ -35,8 +35,17 @@ class CampaignRun extends Command
     {
         define('MAIL_STARTED',time());
 		// L / blacklisted - unsubscribed / iu_company
-    	$dbr = DB::table('operations.users')->select('id')->whereNotNull('ok_unsubscribed_at')->whereNotNull('ok_blacklisted_at')->whereNull('L')->get();
-		$this->output->writeln("Making sure all blacklisted & unsubscribed are marked only in 'L' column... (".count($dbr).")");
+		$sql="select id from operations.users where L is NULL AND (ok_unsubscribed_at IS NOT NULL OR ok_blacklisted_at IS NOT NULL OR mailing_list_id=150";
+    	$dbr = DB::raw($sql);
+/*
+    	$dbr = DB::raw('operations.users')->select('id')
+    	    ->whereNull('L')
+    	    ->whereNotNull('ok_unsubscribed_at')
+    	    ->orwhereNotNull('ok_blacklisted_at')
+    	    ->orwhere('mailing_list_id',150)
+    	    ->get();
+*/
+		$this->output->writeln("Making sure all blacklisted & unsubscribed & errors are marked only in 'L' column... (".count($dbr).")");
         foreach($dbr as $row){
         	DB::table('operations.users')
         	    ->where('id',$row->id)
