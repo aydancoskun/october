@@ -266,7 +266,10 @@ ENDSQL;
     	            	continue;
     	            }
     	            if ( $use_massmailer && $send_status<>"OK" && $subscriber->company_id <> 1 && ! $test) {
-    	                if(strpos($send_status,"black")!== false) {
+    	                if(strpos($send_status,"grey")!== false) {
+                            continue;
+                        }
+    	                if(strpos($send_status,"black")!== false OR strpos($send_status,"spamhaus")!== false) {
     						$sql =	"UPDATE leancode_campaign_lists_subscribers SET list_id = 100 WHERE subscriber_id = ".$subscriber->id;
             	            $campaign->subscribers()->remove($subscriber);
             	            $campaign->count_subscriber--;
@@ -277,9 +280,6 @@ ENDSQL;
                                	echo $campaign->name . ": Blacklisting $subscriber->email time: ".(time() - MAIL_STARTED)." secs, massmailer=$use_massmailer, status = $send_status \n";
     	            	    continue;
     	            	}
-    	                if(strpos($send_status,"grey")!== false) {
-                            continue;
-                        }
 						$sql =	"UPDATE leancode_campaign_lists_subscribers SET list_id = 150 WHERE subscriber_id = ".$subscriber->id;
         	            $campaign->subscribers()->remove($subscriber);
         	            $campaign->count_subscriber--;
