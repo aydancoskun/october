@@ -274,7 +274,7 @@ ENDSQL;
 		    			$countSent++;
 //		    		}
 //	                echo "handling ".$subscriber->id.__line__."\n";
-                    if ( time() - MAIL_STARTED > 1770 OR ($staggerCount !== -1 && $countSent >= $staggerCount ) ) {
+                    if ( time() - MAIL_STARTED > 1600 OR ($staggerCount !== -1 && $countSent >= $staggerCount ) ) {
 //    	                echo "handling ".$subscriber->id.__line__."\n";
                     	break 2;
                     }
