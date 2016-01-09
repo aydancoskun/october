@@ -37,7 +37,7 @@ class CampaignRun extends Command
 		// L / blacklisted - unsubscribed / iu_company
 //		$sql="update operations.users set L=NULL";
 //    	$dbr = DB::raw($sql);
-		$sql="select id from operations.users where L is NULL AND (ok_unsubscribed_at IS NOT NULL OR ok_blacklisted_at IS NOT NULL OR mailing_list_id=150";
+		$sql="UPDATE operations.users SET A=null,B=null,C=null,D=null,E=null,F=null,G=null,H=null,I=null,J=null,K=null,L='X' where L is NULL AND (ok_unsubscribed_at IS NOT NULL OR ok_blacklisted_at IS NOT NULL OR mailing_list_id=150";
     	$dbr = DB::raw($sql);
 /*
     	$dbr = DB::raw('operations.users')->select('id')
@@ -46,13 +46,13 @@ class CampaignRun extends Command
     	    ->orwhereNotNull('ok_blacklisted_at')
     	    ->orwhere('mailing_list_id',150)
     	    ->get();
-*/
 		$this->output->writeln("Making sure all blacklisted & unsubscribed & errors are marked only in 'L' column... (".count($dbr).")");
         foreach($dbr as $row){
         	DB::table('operations.users')
         	    ->where('id',$row->id)
         	    ->update(['A'=>null,'B'=>null,'C'=>null,'D'=>null,'E'=>null,'F'=>null,'G'=>null,'H'=>null,'I'=>null,'J'=>null,'K'=>null,'L'=>'X']);
         }
+*/
 
 /*
         $num = DB::table('leancode_campaign_lists_subscribers')->whereBetween('list_id', array(1, 7))->update(['list_id'=>99]);
@@ -71,6 +71,14 @@ class CampaignRun extends Command
     	            ->select('id')
     	            ->whereNull('L')
     	            ->whereNull('A')
+    	            ->where('mailing_list_id','<>',60)
+    	            ->where('mailing_list_id','<>',70)
+    	            ->where('mailing_list_id','<>',90)
+    	            ->where('mailing_list_id','<>',100)
+    	            ->where('mailing_list_id','<>',110)
+    	            ->where('mailing_list_id','<>',120)
+    	            ->where('mailing_list_id','<>',140)
+    	            ->where('mailing_list_id','<>',150)
                     ->leftJoin('leancode_campaign_messages_subscribers','id','=','subscriber_id')
     	            ->whereNotNull('sent_at')
     	            ->distinct()
@@ -123,8 +131,8 @@ class CampaignRun extends Command
 
 		// C / activated / iu_about
 		//done in A above
-		$this->output->writeln("Updating those who clicked the email and therefore activated... ($num)");
-    	$num = DB::table('operations.users')->whereNotNull('A')->whereNull('C')->where('is_activated',1)->update(['C'=>'Y']);
+//    	$num = DB::table('operations.users')->whereNotNull('A')->whereNull('C')->where('is_activated',1)->update(['C'=>'Y']);
+//		$this->output->writeln("Updating those who clicked the email and therefore activated... ($num)");
 
 
 		// D / activated but no FCFL / iu_webpage
@@ -191,31 +199,31 @@ class CampaignRun extends Command
 
 
 		// 1 = A
-		$total = DB::table('operations.users')->where('A','Y')->update(['mailing_list_id'=>1]);
+		$total = DB::table('operations.users')->where('A','Y')->where('mailing_list_id','<>',150)->update(['mailing_list_id'=>1]);
 	    $this->output->writeln("Updating mailed to in subscriber table... ($total)");
 
 		// 2 = D
-		$total = DB::table('operations.users')->whereNotNull('D')->update(['mailing_list_id'=>2]);
+		$total = DB::table('operations.users')->whereNotNull('D')->where('mailing_list_id','<>',150)->update(['mailing_list_id'=>2]);
 		$this->output->writeln("Updating 'Clicked but NOT accepted the FCFL' in subscriber table... ($total)");
 
 		// 3 = F
-		$total = DB::table('operations.users')->whereNotNull('F')->update(['mailing_list_id'=>3]);
+		$total = DB::table('operations.users')->whereNotNull('F')->where('mailing_list_id','<>',150)->update(['mailing_list_id'=>3]);
 		$this->output->writeln("Updating 'Accepted FCFL but currently NOT applying credits' in subscriber table... ($total)");
 
 		// 4 = H
-		$total = DB::table('operations.users')->whereNotNull('H')->update(['mailing_list_id'=>4]);
+		$total = DB::table('operations.users')->whereNotNull('H')->where('mailing_list_id','<>',150)->update(['mailing_list_id'=>4]);
 		$this->output->writeln("Updating 'Applying credits but NOT to the max' in subscriber table... ($total)");
 
 		// 5 = J
-		$total = DB::table('operations.users')->whereNotNull('J')->update(['mailing_list_id'=>5]);
+		$total = DB::table('operations.users')->whereNotNull('J')->where('mailing_list_id','<>',150)->update(['mailing_list_id'=>5]);
 		$this->output->writeln("Updating 'Having credits left but not renewing them in last 7 days' in subscriber table... ($total)");
 
 		// 6 = K
-		$total = DB::table('operations.users')->whereNotNull('K')->update(['mailing_list_id'=>6]);
+		$total = DB::table('operations.users')->whereNotNull('K')->where('mailing_list_id','<>',150)->update(['mailing_list_id'=>6]);
 		$this->output->writeln("Updating 'Having no credits left and not renewing them  in last 7 days' in subscriber table... ($total)");
 
 		// 7 = I
-		$total = DB::table('operations.users')->whereNotNull('I')->update(['mailing_list_id'=>7]);
+		$total = DB::table('operations.users')->whereNotNull('I')->where('mailing_list_id','<>',150)->update(['mailing_list_id'=>7]);
 		$this->output->writeln("Updating 'Applying credits to the max' in subscriber table... ($total)");
 
         // now enough products
@@ -223,7 +231,7 @@ class CampaignRun extends Command
 		$this->output->writeln("Updating 'not enough products' in subscriber table... ($total)");
 
         // not enough products
-		$total = DB::table('operations.users')->where('ok_company_products_count','<',2)->update(['mailing_list_id'=>130]);
+		$total = DB::table('operations.users')->where('ok_company_products_count','<',2)->where('mailing_list_id','<>',150)->update(['mailing_list_id'=>130]);
 		$this->output->writeln("Updating 'not enough products' in subscriber table... ($total)");
 
         // no company
