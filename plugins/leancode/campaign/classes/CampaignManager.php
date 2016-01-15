@@ -130,9 +130,60 @@ class CampaignManager
         $setReplyTo = array('info@oktick.com' => 'OKTicK Search Ltd');
         $setSender = array('info@oktick.com' => 'OKTicK Search Ltd');
         $setPriority = 3; // normal
-        $setUrl = "http://oktick-beta.co.uk/api.php";
+        $setUrl = "http://okaytick-beta.co.uk/api.php";
 
         if( $use_massmailer ){
+            $query = array(
+                "setReturnPath"=>$setReturnPath,
+                "setSubject" => $campaign->subject,
+                "setFrom" => $setFrom,
+                "setTo" => $subscriber->email,
+                "setBody" => $html,
+                "addPart" => $text,
+                "setId" => $setId,
+                "setReplyTo" => $setReplyTo,
+                "setBody" => $html,
+                "setSender" => $setSender,
+                "setPriority" => $setPriority,
+            );
+            $query = json_encode($query);
+            $query = $this->encrypt ( $query ,$this->ENCRYPTION_KEY );
+            $query = urlencode($query);
+            $query = '__PAYLOAD__=' . $query;
+            $ch = curl_init();
+            //set the url, number of POST vars, POST data
+            curl_setopt($ch,CURLOPT_URL,$setUrl);
+            curl_setopt($ch,CURLOPT_RETURNTRANSFER,1);
+            curl_setopt($ch,CURLOPT_POST,1);
+            curl_setopt($ch,CURLOPT_POSTFIELDS,$query);
+            $result = curl_exec($ch);
+            return $result;
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
             $query = array(
                 "setReturnPath"=>$setReturnPath,
                 "setSubject" => $campaign->subject,
