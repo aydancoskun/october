@@ -125,6 +125,7 @@ class CampaignManager
         $text = Html2Text::convert(str_replace(array("\r", "\n"), "", $html));
 
         if( $use_massmailer ){
+            define('MAILHOST','okaytick.com');
     	    $backup_original_mailer = Mail::getSwiftMailer();
 		    // Setup our other mailer if needed
             $transport = Swift_SmtpTransport::newInstance('okaytick.com', 25); // 'ssl', 'tls'
@@ -137,10 +138,20 @@ class CampaignManager
             $to_email = array($subscriber->email => '');
 //          $to_email = array('web-5NgSEw@mail-tester.com' => '');
 
+            $subject = $campaign->subject;
+            $subject = str_replace("oktick.com", "okaytick.com", $subject);
+            $subject = str_replace("https", "http", $subject);
+
+            $html = str_replace("oktick.com", "okaytick.com", $html);
+            $html = str_replace("https", "http", $html);
+
+            $text = str_replace("oktick.com", "okaytick.com", $text);
+            $text = str_replace("https", "http", $text);
+
             // Create the message
             $message = Swift_Message::newInstance()
                 ->setReturnPath('bounce@okaytick.com')
-                ->setSubject($campaign->subject)   // Give the message a subject
+                ->setSubject($subject)   // Give the message a subject
                 ->setFrom(array('info@okaytick.com' => 'OKTicK Search Ltd'))   // Set the From address with an associative array
                 ->setTo($to_email)   // Set the To addresses with an associative array
                 ->setBody($html, 'text/html')
