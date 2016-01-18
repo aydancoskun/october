@@ -124,65 +124,45 @@ class CampaignManager
         $html = $campaign->renderForSubscriber($subscriber);
         $text = Html2Text::convert(str_replace(array("\r", "\n"), "", $html));
 
-        $setReturnPath = "bounce@oktick.com";
-        $setFrom = array('info@oktick.com' => 'OKTicK Search Ltd');
-        $setId = $subscriber->id . ".".$campaign->id."." . time() ."@oktick.generated";
-        $setReplyTo = array('info@oktick.com' => 'OKTicK Search Ltd');
-        $setSender = array('info@oktick.com' => 'OKTicK Search Ltd');
-        $setPriority = 3; // normal
-        $setUrl = "http://okaytick-beta.co.uk/api.php";
-
         if( $use_massmailer ){
-            $query = array(
-                "setReturnPath"=>$setReturnPath,
-                "setSubject" => $campaign->subject,
-                "setFrom" => $setFrom,
-                "setTo" => $subscriber->email,
-                "setBody" => $html,
-                "addPart" => $text,
-                "setId" => $setId,
-                "setReplyTo" => $setReplyTo,
-                "setBody" => $html,
-                "setSender" => $setSender,
-                "setPriority" => $setPriority,
-            );
-            $query = json_encode($query);
-            $query = $this->encrypt ( $query ,$this->ENCRYPTION_KEY );
-            $query = urlencode($query);
-            $query = '__PAYLOAD__=' . $query;
-            $ch = curl_init();
-            //set the url, number of POST vars, POST data
-            curl_setopt($ch,CURLOPT_URL,$setUrl);
-            curl_setopt($ch,CURLOPT_RETURNTRANSFER,1);
-            curl_setopt($ch,CURLOPT_POST,1);
-            curl_setopt($ch,CURLOPT_POSTFIELDS,$query);
-            $result = curl_exec($ch);
-            return $result;
+    	    $backup_original_mailer = Mail::getSwiftMailer();
+		    // Setup our other mailer if needed
+            $transport = Swift_SmtpTransport::newInstance('okaytick.com', 25); // 'ssl', 'tls'
+		    $transport->setUsername('okaytick');
+		    $transport->setPassword('30c6f2fb4d2f9fdc1650cbfe8d38');
+		    // Any other mailer configuration stuff needed...
+		    $massmailer = new Swift_Mailer($transport);
+		    Mail::setSwiftMailer($massmailer);
 
+            $to_email = array($subscriber->email => '');
+//          $to_email = array('web-5NgSEw@mail-tester.com' => '');
 
+            // Create the message
+            $message = Swift_Message::newInstance()
+                ->setReturnPath('bounce@okaytick.com')
+                ->setSubject($campaign->subject)   // Give the message a subject
+                ->setFrom(array('info@okaytick.com' => 'OKTicK Search Ltd'))   // Set the From address with an associative array
+                ->setTo($to_email)   // Set the To addresses with an associative array
+                ->setBody($html, 'text/html')
+                ->addPart($text, 'text/plain')
+                ->setId($subscriber->id . ".8938145113." . time() ."@aruba1.generated") // ipaddresss of oktick-beta.com in middle
+                ->setReplyTo(array('info@okaytick.com' => 'OKTicK Search Ltd'))   //Specifies the address where replies are sent to
+                ->setSender(array('info@okaytick.com' => 'OKTicK Search Ltd'))   //Specifies the address of the person who physically sent the message (higher precedence than From:)
+                ->setPriority(3) //normal
+            ;
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+            $numSent = $massmailer->send($message);
+    		// Restore our original mailer
+	    	Mail::setSwiftMailer($backup_original_mailer);
+		    return $numSent;
+/*****************************************************************************************
+            $setUrl = "http://okaytick.com/api.php";
+            $setReturnPath = "bounce@oktick.com";
+            $setFrom = array('info@oktick.com' => 'OKTicK Search Ltd');
+            $setId = $subscriber->id . ".".$campaign->id."." . time() ."@oktick.generated";
+            $setReplyTo = array('info@oktick.com' => 'OKTicK Search Ltd');
+            $setSender = array('info@oktick.com' => 'OKTicK Search Ltd');
+            $setPriority = 3; // normal
 
             $query = array(
                 "setReturnPath"=>$setReturnPath,
@@ -209,6 +189,7 @@ class CampaignManager
             curl_setopt($ch,CURLOPT_POSTFIELDS,$query);
             $result = curl_exec($ch);
             return $result;
+*****************************************************************************************/
         } else {
     	    Mail::rawTo($subscriber, ['html' => $html, 'text' => $text], function($message) use ($campaign, $subscriber) {
                 $message->subject($campaign->subject)

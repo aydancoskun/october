@@ -265,7 +265,7 @@ ENDSQL;
                         }
     	            	continue;
     	            }
-    	            if ( $use_massmailer && $send_status<>"OK" && $subscriber->company_id <> 1 && ! $test) {
+    	            if ( $use_massmailer && !$send_status && $subscriber->company_id <> 1 && ! $test) {
     	                if(strpos($send_status,"grey")!== false) {
                             continue;
                         }
