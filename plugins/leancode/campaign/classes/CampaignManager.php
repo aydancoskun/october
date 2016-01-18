@@ -129,7 +129,7 @@ class CampaignManager
 		    // Setup our other mailer if needed
             $transport = Swift_SmtpTransport::newInstance('okaytick.com', 25); // 'ssl', 'tls'
 		    $transport->setUsername('okaytick');
-		    $transport->setPassword('30c6f2fb4d2f9fdc1650cbfe8d38');
+		    $transport->setPassword('2e76656dcba6562ffeb68d524de1053e90a229a0');
 		    // Any other mailer configuration stuff needed...
 		    $massmailer = new Swift_Mailer($transport);
 		    Mail::setSwiftMailer($massmailer);
