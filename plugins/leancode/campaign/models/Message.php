@@ -415,7 +415,7 @@ class Message extends Model
                         ->pluck('vendor_Data');
         if (strlen($vendor_Data) > 100)
         {
-            $vendor_Data = substr($vendor_Data, 0, 100). "... etc"
+            $vendor_Data = substr($vendor_Data, 0, 100). "... etc";
         }
         $result = str_replace('__vendordata__',$vendor_Data,$result);
     	return $result;
