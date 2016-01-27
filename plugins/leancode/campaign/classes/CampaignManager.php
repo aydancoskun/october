@@ -125,7 +125,7 @@ class CampaignManager
         $text = Html2Text::convert(str_replace(array("\r", "\n"), "", $html));
 
         if( $use_massmailer ){
-            define('MAILHOST','okaytick.com');
+            if(!defined('MAILHOST')) define('MAILHOST','okaytick.com');
     	    $backup_original_mailer = Mail::getSwiftMailer();
 		    // Setup our other mailer if needed
             $transport = Swift_SmtpTransport::newInstance('okaytick.com', 25); // 'ssl', 'tls'
