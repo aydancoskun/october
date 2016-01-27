@@ -402,31 +402,21 @@ class Message extends Model
     	return $result;
 
 		/******************************************
-		/ start of my modifications
+		/ start of my modifications / injections
 		/*****************************************/
-        // Inject company_name
+        // Inject __company__
         $data = DB::table('users')->where('id', $subscriber->id)->first();
         $result = str_replace('__company__',$data->ok_company_name,$result);
 
-        // Inject accept_invite_link
+        // Inject __accept_invite_code__
         $result = str_replace('__accept_invite_code__',$data->activation_code,$result,$result);
 
-/*
-        // Inject sample_products
-        $products = DB::table('operations.bp_suppliers')
-                        ->where('company_uid', $data->ok_company_id)
-                        ->lists('bp');
+        // Inject __vendordata__
+        $vendor_Data = DB::table('operations.companies')
+                        ->where('uid', $data->ok_company_id)
+                        ->pluck('vendor_Data');
 
-        $sample_products_counter=1;$sample_products="";
-        foreach($products as $product){
-            $sample_products .= $sample_products_counter.". $product<br \>\n";
-            if ($sample_products_counter++ > 10) break;
-        }
-        $result = str_replace('__sample_products__',$sample_products,$result);
-
-        // Inject number_products_found
-        $result = str_replace('__number_products_found__',count($products),$result);
-*/
+        $result = str_replace('__vendordata__',$vendor_Data,$result);
 	}
 
 
