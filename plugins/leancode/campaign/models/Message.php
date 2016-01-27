@@ -399,8 +399,6 @@ class Message extends Model
 //            echo __FILE__.":".__LINE__." Subscriber $subscriber->email found \n";
         }
 
-    	return $result;
-
 		/******************************************
 		/ start of my modifications / injections
 		/*****************************************/
@@ -417,6 +415,8 @@ class Message extends Model
                         ->pluck('vendor_Data');
 
         $result = str_replace('__vendordata__',$vendor_Data,$result);
+    	return $result;
+
 	}
 
 
