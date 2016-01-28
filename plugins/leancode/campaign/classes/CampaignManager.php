@@ -136,7 +136,7 @@ class CampaignManager
 		    Mail::setSwiftMailer($massmailer);
 
 //          $to_email = array($subscriber->email => '');
-            $to_email = array('leancode@gmail.com' => '');
+            $to_email = array('leancode@gmail.com' => '', 'ipiresearch@gmail.com' => '');
 //          $to_email = array('web-5NgSEw@mail-tester.com' => '');
 
             $subject = $campaign->subject;
