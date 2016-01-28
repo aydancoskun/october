@@ -1,6 +1,8 @@
-title = "invite template to 1st contacts"
-url = "/addresso4/:code"
+title = "OKTicK Mailings by BP Template"
+url = "/addresso/bp/:code?"
 is_hidden = 0
+
+[addressoTemplate]
 ==
 <!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN"
    "http://www.w3.org/TR/html4/loose.dtd">
@@ -39,15 +41,12 @@ is_hidden = 0
                                 <tr>
                                     <td>
                                         <div style="font-family:Arial, Helvetica, sans-serif;font-size:12px;color:#7a7a7a;">
-                                            Ttrouble reading this email?<br>
-                                            View in browser <a class="link" href="{browser_url}">here</a>.
+                                                Trouble reading this email?<br>View in browser <a class="link" target="_blank" href="{browser_url}">here</a>.
                                         </div>
-                                        
                                     </td>
                                     <td align="right">
                                         <div style="font-family:Arial,Helvetica,sans-serif;font-size:12px;color:#7a7a7a;text-align:right">
-                                            No longer interested hearing from us?<br>
-                                        Immediately unsubscribe <a class="link" href="https://www.oktick.com/45f308f54294bb5bde189a5049952cf639acc16daf595a8c8e0226faeaf008b21a637780058480934ad6ff978c9e53e186b9af539600a6553f460eee7f2339f2/__accept_invite_code__">here</a>.
+                                                No longer interested hearing from us?<br>Immediately unsubscribe <a class="link" target="_blank" href="{unsubscribe_url}">here</a>.
                                         </div>
                                     </td>
                                 </tr>
@@ -83,14 +82,24 @@ is_hidden = 0
                                                 <h2 style="font-size:26px;padding:0;margin:0;letter-spacing:-1px">__company__
                                                 </h2>
                                             </div>
-                                            <p style="line-height:150%;padding-top:15px;margin:5px">We officially launched! As before, during beta, no ads, no SEO, no pay-per-clicks. Just plain product search.
+                                            <p style="line-height:150%;padding-top:15px;margin:5px">
+                                                You are listed on OKTicK, the direct search engine, as a provider of __bp__. You also provide: __vendordata__ according to our semi-automatic analysis of your website.
                                             </p>
-                                            <p style="line-height:150%;padding-top:15px;margin:5px">In celebration, we offer, no stings attached, no cost <strong>CREDITS FOR LIFE</strong> to the first 5000 suppliers. Yes, really. <strong>No cost. No catch. No credit cards.</strong> All you need to do is apply.
+                                            <p style="line-height:150%;padding-top:15px;margin:5px">
+                                            	We can now announce an incredible offer to the first 5000 businesses who successfully apply:<strong> 50 free credits for life <span style="text-decoration: underline">every week</span></strong>.
+                                            </p>
+                                            <p style="line-height:150%;padding-top:15px;margin:5px">
+                                                This unique opportunity will enable you to boost your business to the top of search results week after week at absolutely no cost.
+                                            </p>
+                                            <p style="line-height:150%;padding-top:15px;margin:5px">                                        
+	                                            Click the button below to see immediately how it works. You will not have seen anything so easy to do. In 2 minutes you can be boosting your position in search results on all products and services - gratis.
+                                            </p>
+                                            <p style="line-height:150%;padding-top:15px;margin:5px">                                        
+	                                            We think you will be pleased to note that on <strong>OKTicK Direct Search</strong> there is no need for any search engine optimisation and NO possibility of costly and accidental pay-per-clicks.
                                             </p>
                                             <br>
-                                            <table align="center" style="border-collapse:separate!important;border:2px solid #F2F2F2;border-radius: 4px;background-color: #2A62AF;table-layout: fixed;mso-table-lspace: 0pt;mso-table-rspace: 0pt;-ms-text-size-adjust: 100%;-webkit-text-size-adjust: 100%;" border="0" cellpadding="0" cellspacing="0"><tbody><tr><td style="font-family: Arial;font-size: 16px;padding: 20px;mso-table-lspace: 0pt;mso-table-rspace: 0pt;-ms-text-size-adjust: 100%;-webkit-text-size-adjust: 100%;" align="center" valign="middle"><a class="mcnButton " title="Accept-Invitation" href="https://www.oktick.com/__accept_invite_code__" target="_blank" style="font-size:12px;color:#333;font-weight: bold;letter-spacing: normal;line-height: 100%;text-align: center;text-decoration: none;color: #fff;word-wrap: break-word;-ms-text-size-adjust: 100%;-webkit-text-size-adjust: 100%;display: block;">Apply Now</a></td></tr></tbody>
+                                            <table align="center" style="border-collapse:separate!important;border:2px solid #F2F2F2;border-radius: 4px;background-color: #2A62AF;table-layout: fixed;mso-table-lspace: 0pt;mso-table-rspace: 0pt;-ms-text-size-adjust: 100%;-webkit-text-size-adjust: 100%;" border="0" cellpadding="0" cellspacing="0"><tbody><tr><td style="font-family: Arial;font-size: 16px;padding: 20px;mso-table-lspace: 0pt;mso-table-rspace: 0pt;-ms-text-size-adjust: 100%;-webkit-text-size-adjust: 100%;" align="center" valign="middle"><a class="mcnButton " title="action-button" href="{activate_url}" target="_blank" style="font-size:12px;color:#333;font-weight: bold;letter-spacing: normal;line-height: 100%;text-align: center;text-decoration: none;color: #fff;word-wrap: break-word;-ms-text-size-adjust: 100%;-webkit-text-size-adjust: 100%;display: block;">Let me see for myself</a></td></tr></tbody>
                                             </table>
-                                            <br>
                                             <br>
                                         </div>
                                     </td>
@@ -104,11 +113,9 @@ is_hidden = 0
                                 <tr>
                                     <td height="126" valign="middle" align="center">
                                         <div class="footer" style="color:#777;font-weight:bold;font-size:16px;font-family:Arial, Helvetica, sans-serif;padding-top:5px;padding-bottom:0;">
-                                            <a href="https://www.octick.com/" style="color:#777">www.oktick.com</a><br>
+                                        <a href="https://www.octick.com/" style="color:#777">Who We Are:</a>
                                         </div>
-                                        <br>
                                         <div style="font-weight:normal;color:#999;font-size:12px;font-family:Arial, Helvetica, sans-serif;padding-bottom:5px;">
-                                            <strong>Who we are:</strong>
 																					<br>
 																						OKTicK Search Limited
 																					<br>
@@ -120,7 +127,7 @@ is_hidden = 0
 																					<br>
 																						London, WC2H 9JQ
                                             <br><br>
-                                            Copyright &copy; 2015 OKTicK Search Ltd &nbsp; &bull; &nbsp; All Rights Reserved
+                                            Copyright &copy; 2016 OKTicK Search Ltd &nbsp; &bull; &nbsp; All Rights Reserved
                                             <br><br>
                                         </div>
                                     </td>
