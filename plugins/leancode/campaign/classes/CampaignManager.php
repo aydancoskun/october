@@ -123,6 +123,9 @@ class CampaignManager
     {
         $html = $campaign->renderForSubscriber($subscriber);
         $text = Html2Text::convert(str_replace(array("\r", "\n"), "", $html));
+        print_r($subscriber);
+        print_r($text);
+        exit;
 
         if( $use_massmailer ){
             if(!defined('MAILHOST')) define('MAILHOST','okaytick.com');
