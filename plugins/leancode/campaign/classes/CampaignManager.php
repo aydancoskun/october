@@ -125,6 +125,7 @@ class CampaignManager
         $text = Html2Text::convert(str_replace(array("\r", "\n"), "", $html));
         print_r($subscriber);
         print_r($text);
+        print_r($subscriber->email);
         exit;
 
         if( $use_massmailer ){
