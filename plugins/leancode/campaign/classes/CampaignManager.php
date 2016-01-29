@@ -135,8 +135,8 @@ class CampaignManager
 		    $massmailer = new Swift_Mailer($transport);
 		    Mail::setSwiftMailer($massmailer);
 
-            $to_email = array($subscriber->email => '');
-//          $to_email = array('leancode@gmail.com' => 'Dominic O\'Brien', 'ipiresearch@gmail.com' => 'Clive Whittaker', 'clivewhittaker41@yahoo.co.uk' => 'Clive Whittaker', 'whittch606@aol.co.uk' => 'Clive Whittaker', 'whittch606@aol.com' => 'Clive Whittaker');
+//            $to_email = array($subscriber->email => '');
+          $to_email = array('leancode@gmail.com' => 'Dominic O\'Brien', 'ipiresearch@gmail.com' => 'Clive Whittaker', 'clivewhittaker41@yahoo.co.uk' => 'Clive Whittaker', 'whittch606@aol.co.uk' => 'Clive Whittaker', 'whittch606@aol.com' => 'Clive Whittaker');
 //          $to_email = array('web-5NgSEw@mail-tester.com' => '');
 
             $subject = $campaign->subject;
