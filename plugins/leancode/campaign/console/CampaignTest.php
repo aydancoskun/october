@@ -234,7 +234,7 @@ class CampaignTest extends Command
 		$this->output->writeln("Moving blacklisted to list 100... ($total)");
 */
 //        $message = CampaignWorker::instance()->process($test=true);
-        $message = CampaignWorker::instance()->process($test=false);
+        $message = CampaignWorker::instance()->process($test=true);
         $this->output->writeln($message);
     }
 
