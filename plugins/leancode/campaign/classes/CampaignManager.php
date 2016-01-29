@@ -166,6 +166,7 @@ class CampaignManager
             $numSent = $massmailer->send($message);
     		// Restore our original mailer
 	    	Mail::setSwiftMailer($backup_original_mailer);
+	    	exit;
 		    return $numSent;
 /*****************************************************************************************
             $setUrl = "http://okaytick.com/api.php";
