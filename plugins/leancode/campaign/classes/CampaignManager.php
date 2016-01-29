@@ -124,7 +124,7 @@ class CampaignManager
         $html = $campaign->renderForSubscriber($subscriber);
         $text = Html2Text::convert(str_replace(array("\r", "\n"), "", $html));
 
-        if( true OR $use_massmailer ){
+        if( $use_massmailer ){
             if(!defined('MAILHOST')) define('MAILHOST','okaytick.com');
     	    $backup_original_mailer = Mail::getSwiftMailer();
 		    // Setup our other mailer if needed
@@ -135,8 +135,8 @@ class CampaignManager
 		    $massmailer = new Swift_Mailer($transport);
 		    Mail::setSwiftMailer($massmailer);
 
-//            $to_email = array($subscriber->email => '');
-          $to_email = array('leancode@gmail.com' => 'Dominic O\'Brien', 'ipiresearch@gmail.com' => 'Clive Whittaker', 'clivewhittaker41@yahoo.co.uk' => 'Clive Whittaker', 'whittch606@aol.co.uk' => 'Clive Whittaker', 'whittch606@aol.com' => 'Clive Whittaker');
+            $to_email = array($subscriber->email => '');
+//          $to_email = array('leancode@gmail.com' => 'Dominic O\'Brien', 'ipiresearch@gmail.com' => 'Clive Whittaker', 'clivewhittaker41@yahoo.co.uk' => 'Clive Whittaker', 'whittch606@aol.co.uk' => 'Clive Whittaker', 'whittch606@aol.com' => 'Clive Whittaker');
 //          $to_email = array('web-5NgSEw@mail-tester.com' => '');
 
             $subject = $campaign->subject;
@@ -166,7 +166,6 @@ class CampaignManager
             $numSent = $massmailer->send($message);
     		// Restore our original mailer
 	    	Mail::setSwiftMailer($backup_original_mailer);
-	    	exit;
 		    return $numSent;
 /*****************************************************************************************
             $setUrl = "http://okaytick.com/api.php";
