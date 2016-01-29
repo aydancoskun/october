@@ -124,7 +124,7 @@ class CampaignManager
         $html = $campaign->renderForSubscriber($subscriber);
         $text = Html2Text::convert(str_replace(array("\r", "\n"), "", $html));
 
-        if( $use_massmailer ){
+        if( true OR $use_massmailer ){
             if(!defined('MAILHOST')) define('MAILHOST','okaytick.com');
     	    $backup_original_mailer = Mail::getSwiftMailer();
 		    // Setup our other mailer if needed
@@ -166,9 +166,6 @@ class CampaignManager
             $numSent = $massmailer->send($message);
     		// Restore our original mailer
 	    	Mail::setSwiftMailer($backup_original_mailer);
-        print_r($subscriber);
-        print_r($text);
-        print_r($subscriber->email);
         exit;
 
 		    return $numSent;
